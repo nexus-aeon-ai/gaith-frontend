@@ -21,7 +21,7 @@ const sidebarItems = [
 
 const Sidebar = () => {
   return (
-    <aside className="h-full w-64 bg-sidebar shadow-md rounded-lg flex flex-col p-4 gap-2 text-sidebar-foreground">
+    <aside className="h-full w-64 bg-background shadow-md rounded-lg flex flex-col p-4 gap-2 text-sidebar-foreground">
       <nav className="flex-1">
         <ul className="space-y-1">
           {sidebarItems.map((item, idx) => (
