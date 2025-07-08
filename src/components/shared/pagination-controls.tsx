@@ -39,7 +39,7 @@ export default function PaginationControls({
         {/* Previous page button */}
         <PaginationItem>
           <PaginationPrevious
-            className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            className="aria-disabled:pointer-events-none aria-disabled:opacity-50 bg-card"
             href={previousPageHref}
             aria-label="Go to previous page"
             aria-disabled={currentPage === 1 ? true : undefined}
@@ -76,7 +76,7 @@ export default function PaginationControls({
         {/* Next page button */}
         <PaginationItem>
           <PaginationNext
-            className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            className="aria-disabled:pointer-events-none aria-disabled:opacity-50 bg-card"
             href={nextPageHref}
             aria-label="Go to next page"
             aria-disabled={currentPage === totalPages ? true : undefined}

@@ -42,7 +42,7 @@ const MarketingReports = () => {
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 w-full">
+    <div className="bg-card rounded-lg shadow-md p-4 w-full">
       <h2 className="font-semibold text-lg mb-2">Marketing Reports</h2>
       <DataTable
         table={table}

@@ -1,4 +1,6 @@
 'use client';
+import { useAuthStore } from "@/lib/store/authStore";
+import { cn } from "@/lib/utils";
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -14,11 +16,16 @@ const clients = [
 
 const barColors = ["#3b82f6", "#6366f1", "#06b6d4", "#fbbf24", "#10b981", "#ef4444", "#a78bfa"];
 
-const TopClients = () => (
-  <div className="bg-white rounded-lg shadow-md p-4 w-full">
+const TopClients = () => {
+  const { theme } = useAuthStore();
+  return (
+  <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
     <div className="flex items-center justify-between mb-2">
-      <h2 className="font-semibold text-lg">Top Performing Clients</h2>
-      <button className="text-xs px-2 py-1 bg-gray-100 rounded">Engagement</button>
+      <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
+      <button className={cn(
+        "text-xs px-2 py-1 rounded",
+        theme === "dark" ? "bg-card" : "bg-gray-100"
+      )}>Engagement</button>
     </div>
     <ResponsiveContainer width="100%" height={220}>
       <BarChart
@@ -37,6 +44,7 @@ const TopClients = () => (
       </BarChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};
 
 export default TopClients; 

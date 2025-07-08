@@ -23,7 +23,7 @@ interface DataTableProps {
 const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination }) => {
   return (
     <div className="space-y-4">
-      <div className="w-full overflow-auto rounded-md border border-gray-300 bg-white">
+      <div className="w-full overflow-auto rounded-md border border-gray-300 bg-card">
         <Table>
           <TableHeader className="text-left">
             {table.getHeaderGroups().map((headerGroup) => (

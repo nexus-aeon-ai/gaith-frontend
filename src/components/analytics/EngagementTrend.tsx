@@ -15,8 +15,8 @@ const colors = {
 };
 
 const EngagementTrend = () => (
-  <div className="bg-white rounded-lg shadow-md p-4 w-full">
-    <h2 className="font-semibold text-lg mb-2">Engagement Rate Trend</h2>
+  <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
+    <h2 className="font-semibold text-lg mb-2 text-card-foreground">Engagement Rate Trend</h2>
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
         <XAxis dataKey="month" />

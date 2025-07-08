@@ -19,7 +19,7 @@ interface PageSizeFilterProps {
   bgColor?: string;
 }
 
-export const PageSizeFilter: React.FC<PageSizeFilterProps> = ({ bgColor = "bg-white" }) => {
+export const PageSizeFilter: React.FC<PageSizeFilterProps> = ({ bgColor = "bg-card" }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
 

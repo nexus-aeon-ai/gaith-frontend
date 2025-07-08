@@ -21,13 +21,13 @@ const sidebarItems = [
 
 const Sidebar = () => {
   return (
-    <aside className="h-full w-64 bg-white shadow-md rounded-lg flex flex-col p-4 gap-2">
+    <aside className="h-full w-64 bg-sidebar shadow-md rounded-lg flex flex-col p-4 gap-2 text-sidebar-foreground">
       <nav className="flex-1">
         <ul className="space-y-1">
           {sidebarItems.map((item, idx) => (
-            <li key={idx} className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 cursor-pointer">
+            <li key={idx} className="flex items-center gap-3 px-3 py-2 rounded hover:bg-accent cursor-pointer transition-colors">
               <span className="text-lg">{item.icon}</span>
-              <span className="font-medium text-gray-700">{item.label}</span>
+              <span className="font-medium text-sidebar-primary">{item.label}</span>
             </li>
           ))}
         </ul>

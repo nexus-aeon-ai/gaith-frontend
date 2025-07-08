@@ -28,10 +28,10 @@ const alerts = [
 ];
 
 const AlertsNotifications = () => (
-  <div className="bg-white rounded-lg shadow-md p-4 w-full">
+  <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
     <div className="flex items-center justify-between mb-2">
-      <h2 className="font-semibold text-lg">Alerts & Notifications</h2>
-      <button className="text-xs px-2 py-1 bg-gray-100 rounded">View All</button>
+      <h2 className="font-semibold text-lg text-card-foreground">Alerts & Notifications</h2>
+      <button className="text-xs px-2 py-1 bg-card rounded">View All</button>
     </div>
     <div className="space-y-3">
       {alerts.map((alert) => (
@@ -43,7 +43,7 @@ const AlertsNotifications = () => (
           <div className="text-xs text-gray-600 mb-1">{alert.message}</div>
           <div className="flex gap-2">
             {alert.actions.map((action, idx) => (
-              <button key={idx} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 font-medium">
+              <button key={idx} className="text-xs px-2 py-1 rounded bg-card hover:bg-gray-200 font-medium">
                 {action}
               </button>
             ))}
