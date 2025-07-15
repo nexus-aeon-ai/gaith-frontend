@@ -19,16 +19,13 @@ export async function fetchInstance<T>(
   console.log(token);
   if (token) {
     console.log("token");
-    headers.append("Authorization", `Bearer ${token}`);
+    headers.set("Authorization", `Bearer ${token}`);
   }
   console.log(headers,options);
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
-    headers: {
-      ...headers,
-      Authorization: `Bearer ${token}`,
-    },
+    headers, // pass the Headers object directly
   });
 
   if (response.status === 204) {

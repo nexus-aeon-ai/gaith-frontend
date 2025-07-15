@@ -1,4 +1,6 @@
   import { fetchInstance } from "../clients";
+import { IProfile } from "../types";
+import { IResponse } from "../types/general";
   
   const authEndpoint = "/auth/";
   
@@ -30,9 +32,7 @@
     return response;
   };
   
-  export const getProfile = async (): Promise<any> => {
-    const response = (await fetchInstance(`${authEndpoint}profile/`, {
-      method: "GET",
-    })) as { data: any; status: number };
-    return response;
+  export const getProfile = async (): Promise<IResponse<IProfile>> => {
+    const response = await fetchInstance("/auth/profile");
+    return response as IResponse<IProfile>;
   };

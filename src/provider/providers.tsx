@@ -7,16 +7,18 @@ import ReactQueryProvider from "./react-query-provider";
 import { ThemeProvider } from "./theme-provider";
 
 import "react-toastify/dist/ReactToastify.css";
+import { getCookie } from "cookies-next";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
 const Providers: FC<ProvidersProps> = ({ children }) => {
+  const theme = getCookie("theme");
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="white"
+      defaultTheme={typeof theme === "string" ? theme : "system"}
       enableSystem
       disableTransitionOnChange
     >

@@ -1,24 +1,17 @@
 import { create } from 'zustand';
-
-interface User {
-  name: string;
-  avatar: string;
-}
+import { IProfile } from '../types';
 
 interface AuthState {
-  user: User;
+  user: IProfile;
   language: string;
   theme: 'light' | 'dark';
-  setUser: (user: User) => void;
+  setUser: (user: IProfile) => void;
   setLanguage: (lang: string) => void;
   setTheme: (theme: 'light' | 'dark') => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: {
-    name: 'Sara M Ali',
-    avatar: '/images/default-profile-image.jpg',
-  },
+  user: {} as IProfile,
   language: 'EN',
   theme: 'light',
   setUser: (user) => set({ user }),
