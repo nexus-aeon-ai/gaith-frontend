@@ -1,49 +1,79 @@
 'use client';
-import { useAuthStore } from "@/lib/store/authStore";
-import { cn } from "@/lib/utils";
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, LabelList } from "recharts";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-const clients = [
+const engagementClients = [
   { name: "Nexus", percent: 12.4 },
-  { name: "Nexus", percent: 7.9 },
-  { name: "Nexus", percent: 6.8 },
-  { name: "Nexus", percent: 4.9 },
-  { name: "Nexus", percent: 4.4 },
-  { name: "Nexus", percent: 3.3 },
-  { name: "Nexus", percent: 2.5 },
+  { name: "Acme Corp", percent: 7.9 },
+  { name: "Globex", percent: 6.8 },
+  { name: "Umbrella", percent: 4.9 },
+  { name: "Initech", percent: 4.4 },
+  { name: "Hooli", percent: 3.3 },
+  { name: "Soylent", percent: 2.5 },
 ];
 
-const barColors = ["#3b82f6", "#6366f1", "#06b6d4", "#fbbf24", "#10b981", "#ef4444", "#a78bfa"];
+const roiClients = [
+  { name: "Nexus", percent: 10.2 },
+  { name: "Acme Corp", percent: 8.7 },
+  { name: "Globex", percent: 7.1 },
+  { name: "Umbrella", percent: 5.6 },
+  { name: "Initech", percent: 4.2 },
+  { name: "Hooli", percent: 3.8 },
+  { name: "Soylent", percent: 2.1 },
+];
+
+const barColor = "#3b82f6";
+
+const renderBarChart = (clients: { name: string; percent: number }[]) => (
+  <ResponsiveContainer width="100%" height={220}>
+    <BarChart
+      data={clients}
+      layout="vertical"
+      barGap={18}
+      barCategoryGap={18}
+      margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+    >
+      <CartesianGrid strokeDasharray="2 2" vertical={false} />
+      <XAxis type="number" domain={[0, 20]} axisLine={false} tickLine={false} fontSize={13} tick={{ fill: '#94a3b8' }} />
+      <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 15, fill: '#e5e7eb', fontWeight: 500 }} axisLine={false} tickLine={false} />
+      <Tooltip formatter={(value) => `${value}%`} cursor={{ fill: "rgba(59,130,246,0.08)" }} />
+      <Bar dataKey="percent" radius={[0, 10, 10, 0]} fill={barColor} minPointSize={3}>
+        <LabelList 
+          dataKey="percent" 
+          position="right" 
+          formatter={(label) => typeof label === 'number' ? `${label}%` : label} 
+          style={{ fill: '#e5e7eb', fontWeight: 600, fontSize: 14, paddingLeft: 4 }} 
+        />
+        {clients.map((_, index) => (
+          <Cell key={`cell-${index}`} fill={barColor} />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+);
 
 const TopClients = () => {
-  const { theme } = useAuthStore();
   return (
-  <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
-    <div className="flex items-center justify-between mb-2">
-      <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
-      <button className={cn(
-        "text-xs px-2 py-1 rounded",
-        theme === "dark" ? "bg-card" : "bg-gray-100"
-      )}>Engagement</button>
+    <div className="bg-card rounded-2xl border border-border shadow-lg py-3 w-full text-card-foreground">
+      <div className="flex items-center justify-between mb-2 px-3">
+        <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
+        <Tabs defaultValue="engagement" className="min-w-[200px]">
+          <TabsList className="bg-muted rounded-lg p-1 h-9 gap-1">
+            <TabsTrigger value="engagement" className="px-5 py-1.5 text-sm font-semibold rounded-md data-[state=active]:bg-primary data-[state=active]:text-card data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground transition-colors">Engagement</TabsTrigger>
+            <TabsTrigger value="roi" className="px-5 py-1.5 text-sm font-semibold rounded-md data-[state=active]:bg-primary data-[state=active]:text-card data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground transition-colors">ROI</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      <Tabs defaultValue="engagement" className="w-full">
+        <TabsContent value="engagement">
+          {renderBarChart(engagementClients)}
+        </TabsContent>
+        <TabsContent value="roi">
+          {renderBarChart(roiClients)}
+        </TabsContent>
+      </Tabs>
     </div>
-    <ResponsiveContainer width="100%" height={220}>
-      <BarChart
-        data={clients}
-        layout="vertical"
-        margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
-      >
-        <XAxis type="number" domain={[0, 20]} hide />
-        <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 12 }} />
-        <Tooltip formatter={(value) => `${value}%`} />
-        <Bar dataKey="percent" radius={[0, 8, 8, 0]}>
-          {clients.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
   );
 };
 
