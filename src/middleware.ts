@@ -4,6 +4,7 @@ import { match as matchLocale } from "@formatjs/intl-localematcher";
 import { DEFAULT_LOCALE, LOCALES } from "@/lib/constants";
 import { Locale } from "@/lib/types";
 import Negotiator from "negotiator";
+import { IsUserAuthenticated } from "./lib/auth";
 
 function getLocale(request: NextRequest): string {
     // Check for locale in cookies first
@@ -35,9 +36,10 @@ function getLocale(request: NextRequest): string {
     }
 }
 
-export function middleware(request: NextRequest) {
+const AUTH_PAGES = ["/login", "/signup", "/pricing"];
+
+export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
-    // const token = request.cookies.get("accessToken")?.value;
     const locale = getLocale(request);
 
     // Check if the pathname starts with a locale
@@ -53,15 +55,25 @@ export function middleware(request: NextRequest) {
         );
     }
 
+    // Check if user is authenticated (has auth token in cookies)
+    const isAuthenticated = await IsUserAuthenticated();
+    console.log("isAuthenticated",isAuthenticated);
+    console.log("pathname",pathname);
+    console.log("AUTH_PAGES",AUTH_PAGES.includes(pathname.replace(`/${locale}`,'')));
+    
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (isAuthenticated && AUTH_PAGES.includes(pathname.replace(`/${locale}`,''))) {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
     // Handle authentication
-    // if (
-    //     !token &&
-    //     !pathname.includes("/login") &&
-    //     !pathname.includes("/signup") &&
-    //     !pathname.includes("/pricing")
-    // ) {
-    //     return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-    // }
+    if (
+        !isAuthenticated &&
+        !pathname.includes("/login") &&
+        !pathname.includes("/signup") &&
+        !pathname.includes("/pricing")
+    ) {
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    }
 
     return NextResponse.next();
 }

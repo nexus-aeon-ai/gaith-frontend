@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { calculatePasswordStrength, generateStrongPassword } from "@/lib/utils/functions";
+import { calculatePasswordStrength, generateStrongPassword } from "@/lib/functions";
 
 import { Button } from "./button";
 import { Input } from "./input";
