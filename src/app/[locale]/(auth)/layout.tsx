@@ -2,11 +2,12 @@ import React from "react";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { getProfile } from "@/lib/api/auth";
+import { redirect } from "next/navigation";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const userProfile = await getProfile();
-  if (userProfile.status !== 200) {
-    return <div>Error</div>;
+  if (userProfile.status === 200) {
+    redirect("/");
   }
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden">
