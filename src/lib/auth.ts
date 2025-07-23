@@ -9,6 +9,7 @@ export const IsUserAuthenticated = async (): Promise<boolean> => {
   const token = await getAuthToken();
   if (token) {
     const response = await fetchInstance("/auth/profile");
+
     if (response.status === 200) {
       return true;
     }

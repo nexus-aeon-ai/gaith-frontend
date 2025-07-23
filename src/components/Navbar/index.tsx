@@ -18,7 +18,7 @@ const Spinner = () => (
 );
 
 interface NavbarProps {
-  user: IProfile; 
+  user: IProfile | null; 
 }
 const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore  } = useAuthStore();
@@ -27,12 +27,14 @@ const Navbar = ({ user }: NavbarProps) => {
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if(user){
     setUser(user);
     setAvatar(user?.profilePic || "/images/default-avatar.jpg");
     if (user?.profilePic) {
       setAvatarLoading(true);
     }else{
-      setAvatarLoading(false);
+        setAvatarLoading(false);
+      }
     }
   }, [user, setUser]);
 

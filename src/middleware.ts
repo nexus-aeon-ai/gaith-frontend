@@ -70,6 +70,7 @@ export async function middleware(request: NextRequest) {
         !isAuthenticated &&
         !pathname.includes("/login") &&
         !pathname.includes("/signup") &&
+        !pathname.includes("/forget-password") &&
         !pathname.includes("/pricing")
     ) {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
