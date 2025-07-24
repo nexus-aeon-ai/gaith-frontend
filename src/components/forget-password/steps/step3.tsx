@@ -10,6 +10,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { resetPassword } from "@/lib/api/auth";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { handleMutationError } from "@/lib/functions/handle-mutation-error";
 
 const passwordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -54,10 +55,7 @@ const Step3: React.FC<Step3Props> = ({ email, otp, onSuccess }) => {
       }
     },
     onError: (error: Error) => {
-      console.log(error);
-
-      const errorData = JSON.parse(error.message);
-      toast.error(errorData.message);
+      handleMutationError(error, form);
     },
   });
 
@@ -106,7 +104,7 @@ const Step3: React.FC<Step3Props> = ({ email, otp, onSuccess }) => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-[#508CD3] text-white h-13 mt-12" disabled={mutation.isPending}>
+            <Button type="submit" className="w-full bg-[#508CD3] text-white h-13 mt-12 cursor-pointer" disabled={mutation.isPending}>
               {mutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : "Change Password"}
             </Button>
       

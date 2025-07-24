@@ -30,7 +30,7 @@ export default function Success() {
         </CardDescription>
         <CardContent>
         <Button
-          className="w-full bg-[#508CD3] text-white h-13"
+          className="w-full bg-[#508CD3] text-white h-13 cursor-pointer"
           onClick={() => router.push("/login")}
         >
           Back To Login &nbsp; &rarr;

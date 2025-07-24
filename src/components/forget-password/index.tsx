@@ -1,16 +1,14 @@
 
 "use client";
-import React, { useState } from "react";
-import Step1 from "./step1";
-import Step2 from "./step2";
-import Step3 from "./step3";
-import Success from "./Success";
+import React from "react";
+import Step1 from "./steps/step1";
+import Step2 from "./steps/step2";
+import Step3 from "./steps/step3";
+import Success from "./steps/success";
+import { useForgetPasswordStore } from "@/lib/store/forgetpasswordStore";
 
 export default function ForgetPassword() {
-    const [step, setStep] = useState(1);
-    const [email, setEmail] = useState("");
-    const [otp, setOtp] = useState("");
-    const [showSuccess, setShowSuccess] = useState(false);
+    const { email, otp, setEmail, setOtp, step, setStep, showSuccess, setShowSuccess } = useForgetPasswordStore();
 
 
     return (
@@ -25,10 +23,10 @@ export default function ForgetPassword() {
                 {step === 2 && <Step2 email={email} onSuccess={(otpValue) => {
                     setOtp(otpValue);
                     setStep(3);
-                }} onBack={() => setStep(1)} />}
+                }} />}
                 {step === 3 && <Step3 email={email} otp={otp} onSuccess={() => {
                     setShowSuccess(true);
-                }} onBack={() => setStep(2)} />}
+                }} />}
             </>
         )
     )

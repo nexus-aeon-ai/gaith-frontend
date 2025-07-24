@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { forgetPassword } from "@/lib/api/auth";
+import { handleMutationError } from "@/lib/functions/handle-mutation-error";
 
 type Step1Props = {
   onSuccess: (email: string) => void;
@@ -47,8 +48,7 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
       }
     },
     onError: (error: Error) => {
-      const errorData = JSON.parse(error.message);
-      toast.error(errorData.message);
+      handleMutationError(error, form);
     },
   });
 
@@ -79,7 +79,7 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
               )}
             />
             <div className=" mt-10">
-              <Button type="submit" className="w-full bg-[#508CD3] text-white h-13" disabled={mutation.isPending}>
+              <Button type="submit" className="w-full bg-[#508CD3] text-white h-13 cursor-pointer" disabled={mutation.isPending}>
                 {mutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : "Recover Password"}
               </Button>
             </div>
