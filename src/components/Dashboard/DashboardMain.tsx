@@ -3,12 +3,17 @@ import { EngagementTrend, TopClients, BudgetUtilization } from "@/components/ana
 import AlertsNotifications from "./AlertsNotifications";
 import MarketingReports from "./MarketingReports";
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "./AnalyticsCard";
+import { ActiveClientsIcon } from "../ui/icons/analytics/activeClients";
+import { CampaignsIcon } from "../ui/icons/analytics/campaigns";
+import { ContentPiecesIcon } from "../ui/icons/analytics/contentPieces";
+import { CalenderIcon } from "../ui/icons/analytics/calender";
+import { SuccessRateIcon } from "../ui/icons/analytics/successRate";
 
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
     label: "Active Clients",
     value: 24,
-    icon: "👥",
+    icon: <ActiveClientsIcon className="text-[#508CD3] w-12 h-12" />,
     trend: "+12.5%",
     trendColor: "text-green-500",
     subLabel: "Last month",
@@ -16,7 +21,7 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
     label: "Ongoing Campaigns",
     value: 37,
-    icon: "📈",
+    icon: <CampaignsIcon className="text-[#2BAE82] w-12 h-12" />,
     trend: "+8.3%",
     trendColor: "text-green-500",
     subLabel: "vs last month",
@@ -24,7 +29,7 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
     label: "Content Pieces",
     value: "1,420,100",
-    icon: "📄",
+    icon: <ContentPiecesIcon className="text-[#ff5999d2] w-12 h-12" />,
     trend: "+12.5%",
     trendColor: "text-green-500",
     subLabel: "Last month",
@@ -32,7 +37,7 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
     label: "Calendar Completion",
     value: "86%",
-    icon: "🗓️",
+    icon: <CalenderIcon className="text-[#F5B719] w-12 h-12" />,
     trend: "-12.5%",
     trendColor: "text-red-500",
     subLabel: "Last month",
@@ -40,7 +45,7 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
     label: "Success Rate",
     value: "78%",
-    icon: "✅",
+    icon: <SuccessRateIcon className="text-[#EA3B1F] w-12 h-12" />,
     trend: "+12.5%",
     trendColor: "text-green-500",
     subLabel: "Last month",
