@@ -61,16 +61,21 @@ const DashboardMain = () => (
       ))}
     </div>
     {/* Main dashboard grid */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2 flex flex-col gap-4">
-        <TopClients />
-        <EngagementTrend />
-        <MarketingReports />
-      </div>
-      <div className="flex flex-col gap-4">
-        <BudgetUtilization />
-        <AlertsNotifications />
-      </div>
+    {/* First row - TopClients and BudgetUtilization side by side */}
+    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.1fr] gap-4">
+      <TopClients />
+      <BudgetUtilization />
+    </div>
+    
+    {/* Second row - EngagementTrend and AlertsNotifications side by side */}
+    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.1fr] gap-4">
+      <EngagementTrend />
+      <AlertsNotifications />
+    </div>
+    
+    {/* Third row - MarketingReports standalone full width */}
+    <div className="w-full">
+      <MarketingReports />
     </div>
   </div>
 );

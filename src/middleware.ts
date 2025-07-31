@@ -73,7 +73,7 @@ export async function middleware(request: NextRequest) {
         !pathname.includes("/forget-password") &&
         !pathname.includes("/pricing")
     ) {
-        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+        return NextResponse.redirect(new URL(`/${locale}/`, request.url));
     }
 
     return NextResponse.next();

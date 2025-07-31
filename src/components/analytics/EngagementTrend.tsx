@@ -81,15 +81,15 @@ const EngagementTrend = () => {
           <option>12 Month</option>
         </select>
       </div>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height={430}>
         <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
           {/* Grid lines */}
           <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={true} stroke="#64748b44" />
           {/* ReferenceArea bars for each month */}
           {referenceAreas}
-          <XAxis dataKey="month" tick={{ fill: '#a3a3a3', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: '#a3a3a3', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <Tooltip content={CustomTooltip} />
+          <XAxis dataKey="month" tick={{ fill: 'var(--secondary-text)', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: 'var(--secondary-text)', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <Tooltip content={CustomTooltip} contentStyle={{ backgroundColor: 'var(--background)', color: 'var(--secondary-text)' }} />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: 12, gap: 30 }} formatter={(value) => {
             if (value === 'social') return <span className="text-[#3b82f6] font-medium">Social Media</span>;
             if (value === 'email') return <span className="text-[#fbbf24] font-medium">Email</span>;
