@@ -21,7 +21,7 @@ export async function fetchInstance<T>(
     console.log("token");
     headers.set("Authorization", `Bearer ${token}`);
   }
-  console.log(headers,options);
+  console.log(headers, options);
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,

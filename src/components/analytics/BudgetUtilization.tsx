@@ -1,6 +1,5 @@
-'use client';
-import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+"use client";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const budgetData = [
   { label: "Nexus", value: 30, color: "#3b82f6" },
@@ -48,4 +47,4 @@ const BudgetUtilization = () => (
   </div>
 );
 
-export default BudgetUtilization; 
+export default BudgetUtilization;

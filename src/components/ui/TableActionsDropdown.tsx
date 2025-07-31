@@ -27,10 +27,7 @@ const TableActionsDropdown: React.FC<TableActionsDropdownProps> = ({ actions }) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-        >
+        <Button variant="ghost" size="icon">
           <MoreOptionsIcon className="!size-6 transition-colors group-hover:text-primary" />
         </Button>
       </DropdownMenuTrigger>

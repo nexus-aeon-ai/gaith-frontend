@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Skeleton } from "./skeleton";
 
-export const ImageSkeleton: React.FC<React.ComponentProps<typeof Skeleton>> = (props) => {
+export const ImageSkeleton: React.FC<React.ComponentProps<typeof Skeleton>> = props => {
   return (
     <>
       <Skeleton className={cn("size-full rounded-lg", props.className)} />

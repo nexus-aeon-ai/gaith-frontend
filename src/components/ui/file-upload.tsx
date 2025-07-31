@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { AlertCircleIcon, FileIcon, ImageIcon, UploadIcon, XIcon } from "lucide-react";
+import Image from "next/image";
+
+import { Button } from "@/components/ui/button";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { Button } from "@/components/ui/button";
 
 interface FileUploadProps {
   onFilesChange?: (files: (File | string)[]) => void;
@@ -66,9 +67,9 @@ export const FileUpload = ({
   ] = useFileUpload({
     accept,
     maxSize,
-    onFilesChange: (fileWithPreviews) => {
+    onFilesChange: fileWithPreviews => {
       // Extract just the File objects for form integration
-      const fileObjects = fileWithPreviews.map((f) => f.file as File);
+      const fileObjects = fileWithPreviews.map(f => f.file as File);
       onFilesChange?.(fileObjects);
     },
   });
@@ -101,10 +102,7 @@ export const FileUpload = ({
               onClick={() => removeFile(files[0]?.id)}
               aria-label={`Remove ${label}`}
             >
-              <XIcon
-                className="size-4"
-                aria-hidden="true"
-              />
+              <XIcon className="size-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -126,10 +124,7 @@ export const FileUpload = ({
             onClick={() => removeFile(files[0]?.id)}
             aria-label={`Remove ${label}`}
           >
-            <XIcon
-              className="size-4"
-              aria-hidden="true"
-            />
+            <XIcon className="size-4" aria-hidden="true" />
           </button>
         </div>
       );
@@ -150,10 +145,7 @@ export const FileUpload = ({
           onClick={() => removeFile(files[0]?.id)}
           aria-label={`Remove ${label}`}
         >
-          <XIcon
-            className="size-4"
-            aria-hidden="true"
-          />
+          <XIcon className="size-4" aria-hidden="true" />
         </button>
       </div>
     );
@@ -168,15 +160,8 @@ export const FileUpload = ({
         </div>
         <p className="mb-1.5 text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">{description}</p>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={openFileDialog}
-        >
-          <UploadIcon
-            className="-ms-1 size-4 opacity-60"
-            aria-hidden="true"
-          />
+        <Button variant="outline" className="mt-4" onClick={openFileDialog}>
+          <UploadIcon className="-ms-1 size-4 opacity-60" aria-hidden="true" />
           Select file
         </Button>
       </div>
@@ -206,10 +191,7 @@ export const FileUpload = ({
       </div>
 
       {errors.length > 0 && (
-        <div
-          className="flex items-center gap-1 text-xs text-destructive"
-          role="alert"
-        >
+        <div className="flex items-center gap-1 text-xs text-destructive" role="alert">
           <AlertCircleIcon className="size-3 shrink-0" />
           <span>{errors[0]}</span>
         </div>

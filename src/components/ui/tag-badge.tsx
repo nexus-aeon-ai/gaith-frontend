@@ -1,8 +1,9 @@
 import React from "react";
 
-import { TAG_BADGE_LIGHT_COLOR } from "@/lib/utils";
-import { isLightColor } from "@/lib/utils/functions/is-light-color";
 import { Badge } from "@/components/ui/badge";
+import { TAG_BADGE_LIGHT_COLOR } from "@/lib/utils";
+
+import { isLightColor } from "@/lib/utils/functions/is-light-color";
 
 interface TagBadgeProps {
   label: string;

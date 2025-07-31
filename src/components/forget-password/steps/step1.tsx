@@ -1,14 +1,22 @@
-import React from "react";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Mail, Phone } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { forgetPassword } from "@/lib/api/auth";
 import { handleMutationError } from "@/lib/functions/handle-mutation-error";
@@ -38,7 +46,11 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
     onSuccess: async (response, variables) => {
       if (response?.status && response.status === 201) {
         let message = "Email sent successfully.";
-        if (typeof response?.data === "object" && response?.data !== null && "message" in response.data) {
+        if (
+          typeof response?.data === "object" &&
+          response?.data !== null &&
+          "message" in response.data
+        ) {
           message = String((response.data as { message?: string }).message ?? message);
         }
         toast.success(message);
@@ -59,8 +71,13 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
   return (
     <Card className="w-full shadow-xl bg-card text-card-foreground p-6">
       <CardHeader className="flex flex-col items-center gap-2">
-        <CardTitle className="text-2xl font-bold text-center">Forgot your password? Recover it.</CardTitle>
-        <CardDescription className="text-sm text-center">Enter the email address associated with your account, and we’ll send you instructions to reset your password.</CardDescription>
+        <CardTitle className="text-2xl font-bold text-center">
+          Forgot your password? Recover it.
+        </CardTitle>
+        <CardDescription className="text-sm text-center">
+          Enter the email address associated with your account, and we’ll send you instructions to
+          reset your password.
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 p-6 pb-0">
         <Form {...form}>
@@ -70,7 +87,9 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Email <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="Enter your email" {...field} />
                   </FormControl>
@@ -79,12 +98,23 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
               )}
             />
             <div className=" mt-10">
-              <Button type="submit" className="w-full bg-[#508CD3] text-white h-13 cursor-pointer" disabled={mutation.isPending}>
-                {mutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : "Recover Password"}
+              <Button
+                type="submit"
+                className="w-full bg-[#508CD3] text-white h-13 cursor-pointer"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  "Recover Password"
+                )}
               </Button>
             </div>
             <div className="mb-2 text-center mt-10 mr-2">
-              <Link href="/login" className="text-xs font-medium text-black dark:text-white hover:underline">
+              <Link
+                href="/login"
+                className="text-xs font-medium text-black dark:text-white hover:underline"
+              >
                 Sign in
               </Link>
             </div>
@@ -109,4 +139,4 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
   );
 };
 
-export default Step1; 
+export default Step1;

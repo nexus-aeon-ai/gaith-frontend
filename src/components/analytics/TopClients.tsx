@@ -1,7 +1,17 @@
-'use client';
-import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, LabelList } from "recharts";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+"use client";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const engagementClients = [
   { name: "Nexus", percent: 12.4 },
@@ -60,21 +70,27 @@ const TopClients = () => {
         <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
         <Tabs defaultValue="engagement" className="min-w-[200px]">
           <TabsList className="bg-transparent rounded-lg p-1 h-9 gap-3">
-            <TabsTrigger value="engagement" className="px-5 py-1.5 text-sm font-semibold  border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors ">Engagement</TabsTrigger>
-            <TabsTrigger value="roi" className="px-5 py-1.5 text-sm font-semibold border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors">ROI</TabsTrigger>
+            <TabsTrigger
+              value="engagement"
+              className="px-5 py-1.5 text-sm font-semibold  border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors "
+            >
+              Engagement
+            </TabsTrigger>
+            <TabsTrigger
+              value="roi"
+              className="px-5 py-1.5 text-sm font-semibold border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors"
+            >
+              ROI
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
       <Tabs defaultValue="engagement" className="w-full">
-        <TabsContent value="engagement">
-          {renderBarChart(engagementClients)}
-        </TabsContent>
-        <TabsContent value="roi">
-          {renderBarChart(roiClients)}
-        </TabsContent>
+        <TabsContent value="engagement">{renderBarChart(engagementClients)}</TabsContent>
+        <TabsContent value="roi">{renderBarChart(roiClients)}</TabsContent>
       </Tabs>
     </div>
   );
 };
 
-export default TopClients; 
+export default TopClients;

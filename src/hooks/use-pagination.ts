@@ -64,7 +64,7 @@ export function usePagination({
     );
   }
 
-  const pages = calculatePaginationRange().map((page) => ({
+  const pages = calculatePaginationRange().map(page => ({
     number: page,
     href: getPageHref(page),
   }));

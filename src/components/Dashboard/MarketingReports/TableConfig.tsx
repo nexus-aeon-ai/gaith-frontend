@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import React from "react";
 import { Eye, Download } from "lucide-react";
+import React from "react";
 
 // Replace with your actual type for a marketing report
 export type TMarketingReport = {
@@ -40,7 +40,9 @@ const useTableColumns = () => {
         if (status === "Completed") borderColor = "bg-[#2BAE8214] text-[#175E46]";
         else if (status === "In Review") borderColor = "bg-[#ECA33814] text-[#F7C649]";
         return (
-          <span className={`px-3 py-1 rounded-full  font-semibold text-xs ${borderColor}`}>{status}</span>
+          <span className={`px-3 py-1 rounded-full  font-semibold text-xs ${borderColor}`}>
+            {status}
+          </span>
         );
       },
     },
@@ -58,4 +60,4 @@ const useTableColumns = () => {
   return columns;
 };
 
-export default useTableColumns; 
+export default useTableColumns;

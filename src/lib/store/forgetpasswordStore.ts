@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface ForgetPasswordState {
   email: string;
@@ -12,15 +12,14 @@ interface ForgetPasswordState {
   reset: () => void;
 }
 
-export const useForgetPasswordStore = create<ForgetPasswordState>((set) => ({
-  email: '',
-  otp: '',
+export const useForgetPasswordStore = create<ForgetPasswordState>(set => ({
+  email: "",
+  otp: "",
   step: 1,
   showSuccess: false,
-  setEmail: (email) => set({ email }),
-  setOtp: (otp) => set({ otp }),
-  setStep: (step) => set({ step }),
-  setShowSuccess: (showSuccess) => set({ showSuccess }),
-  reset: () => set({ email: '', otp: '', step: 1, showSuccess: false }),
+  setEmail: email => set({ email }),
+  setOtp: otp => set({ otp }),
+  setStep: step => set({ step }),
+  setShowSuccess: showSuccess => set({ showSuccess }),
+  reset: () => set({ email: "", otp: "", step: 1, showSuccess: false }),
 }));
-        

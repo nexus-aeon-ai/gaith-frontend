@@ -1,42 +1,123 @@
-'use client';
-import React from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { DashboardListIcon } from "../ui/icons/sidebar/dashboard-list";
-import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
-import { ReportIcon } from "../ui/icons/sidebar/Report";
+"use client";
+
+import Link from "next/link";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+
+import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
+import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
 import { ClientManagmentIcon } from "../ui/icons/sidebar/clientManagment";
-import { LeadsIcon } from "../ui/icons/sidebar/Leads";
+import { DashboardListIcon } from "../ui/icons/sidebar/dashboard-list";
 import { EmployeeIcon } from "../ui/icons/sidebar/Employee";
 import { EmployeeTasksIcon } from "../ui/icons/sidebar/employeeTasks";
+import { LeadsIcon } from "../ui/icons/sidebar/Leads";
+import { LogoutIcon } from "../ui/icons/sidebar/logout";
+import { PricingIcon } from "../ui/icons/sidebar/pricing";
 import { QuotationsIcon } from "../ui/icons/sidebar/quotations";
+import { ReportIcon } from "../ui/icons/sidebar/Report";
+import { SettingsIcon } from "../ui/icons/sidebar/settings";
+import { SocialMediaCalenderIcon } from "../ui/icons/sidebar/socialMediaCalender";
 import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { SupportIcon } from "../ui/icons/sidebar/support";
-import { PricingIcon } from "../ui/icons/sidebar/pricing";
-import { SocialMediaCalenderIcon } from "../ui/icons/sidebar/socialMediaCalender";
-import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
-import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
-import { SettingsIcon } from "../ui/icons/sidebar/settings";
-import { LogoutIcon } from "../ui/icons/sidebar/logout";
-import { toast } from "react-toastify";
+import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 
+const mainItems = [
+  {
+    label: "Dashboard",
+    icon: <DashboardListIcon className="dark:text-[#E6EFF9]" />,
+    href: "/dashboard",
+  },
+  {
+    label: "Task Tracking",
+    icon: <TaskTrackingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/task-tracking",
+  },
+  {
+    label: "Report & Analysis",
+    icon: <ReportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/reports",
+  },
+  {
+    label: "Leads",
+    icon: <LeadsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/leads",
+  },
+  {
+    label: "Client Management",
+    icon: <ClientManagmentIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/clients",
+  },
+  {
+    label: "Employees",
+    icon: <EmployeeIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/employees",
+  },
+  {
+    label: "Employees Tasks",
+    icon: <EmployeeTasksIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/employee-tasks",
+  },
+  {
+    label: "Quotations",
+    icon: <QuotationsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/quotations",
+  },
+  {
+    label: "Submitted",
+    icon: <SubmitedIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/submitted",
+  },
+  {
+    label: "Support",
+    icon: <SupportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/support",
+  },
+];
 
-const sidebarItems = [
-  { label: "Dashboard", icon: <DashboardListIcon  className=" dark:text-[#E6EFF9]" />, path: "/dashboard" },
-  { label: "Task Tracking", icon: <TaskTrackingIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/task-tracking" },
-  { label: "Report & Analysis", icon: <ReportIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/report-analysis" },
-  { label: "Leads", icon: <LeadsIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/leads" },
-  { label: "Client Management", icon: <ClientManagmentIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/client-management" },
-  { label: "Employees", icon: <EmployeeIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/employees" },
-  { label: "Employees Tasks", icon: <EmployeeTasksIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/employee-tasks" },
-  { label: "Quotations", icon: <QuotationsIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/quotations" },
-  { label: "Submitted", icon: <SubmitedIcon  className= "text-[#265B99] dark:text-[#E6EFF9]" />, path: "/submitted" },
-  { label: "Support", icon: <SupportIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/support" },
-  { label: "Generate Pricing", icon: <PricingIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/generate-pricing", section: "AI Tools" },
-  { label: "Social Media Calendar", icon: <SocialMediaCalenderIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/social-media-calendar", section: "AI Tools" },
-  { label: "Blog & Articles", icon: <BlogArticlesIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/blog-articles", section: "AI Tools" },
-  { label: "AI Chatbot", icon: <AIChatbotIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/ai-chatbot", section: "AI Tools" },
-  { label: "Settings", icon: <SettingsIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/settings" },
-  { label: "Logout", icon: <LogoutIcon  className="text-[#265B99] dark:text-[#E6EFF9]" />, path: "/logout" },
+const aiToolsItems = [
+  {
+    label: "Generate Pricing",
+    icon: <PricingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/ai/pricing",
+  },
+  {
+    label: "Social Media Calendar",
+    icon: <SocialMediaCalenderIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/ai/social-media-calendar",
+  },
+  {
+    label: "Blog & Articles",
+    icon: <BlogArticlesIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/ai/blog-articles",
+  },
+  {
+    label: "AI Chatbot",
+    icon: <AIChatbotIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/ai/chatbot",
+  },
+];
+
+const settingsItems = [
+  {
+    label: "Settings",
+    icon: <SettingsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/settings",
+  },
+  {
+    label: "Logout",
+    icon: <LogoutIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    href: "/logout",
+  },
 ];
 
 const Sidebar = () => {
@@ -119,11 +200,53 @@ const Sidebar = () => {
                 </>
               )}
             </React.Fragment>
+const SidebarUI  = () => (
+  <Sidebar className="top-(--header-height) !h-[calc(100svh-var(--header-height))]">
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarMenu>
+          {mainItems.map(item => (
+            <SidebarMenuItem key={item.label}>
+              <SidebarMenuButton asChild>
+                <Link href={item.href}>
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           ))}
-        </ul>
-      </nav>
-    </aside>
-  );
-};
+        </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
+        <SidebarMenu>
+          {aiToolsItems.map(item => (
+            <SidebarMenuItem key={item.label}>
+              <SidebarMenuButton asChild>
+                <Link href={item.href}>
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarMenu>
+          {settingsItems.map(item => (
+            <SidebarMenuItem key={item.label}>
+              <SidebarMenuButton asChild>
+                <Link href={item.href}>
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroup>
+    </SidebarContent>
+    <SidebarFooter>{/* Optional: Add footer content here */}</SidebarFooter>
+  </Sidebar>
+);
 
-export default Sidebar; 
+export default SidebarUI;
