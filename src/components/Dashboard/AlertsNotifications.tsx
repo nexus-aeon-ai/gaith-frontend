@@ -12,7 +12,8 @@ const alerts = [
   {
     id: 2,
     type: "Campaign Ending Soon",
-    message: "Global Bites Summer campaign will end in 3 days. Consider renewal or prepare final report.",
+    message:
+      "Global Bites Summer campaign will end in 3 days. Consider renewal or prepare final report.",
     actions: ["Extend Campaign", "Prepare Report"],
     time: "3h",
     color: "#ef4444",
@@ -34,16 +35,25 @@ const AlertsNotifications = () => (
       <button className="text-xs px-2 py-1 bg-card rounded">View All</button>
     </div>
     <div className="space-y-3">
-      {alerts.map((alert) => (
-        <div key={alert.id} className="p-3 rounded-lg border flex flex-col gap-2" style={{ borderLeft: `4px solid ${alert.color}` }}>
+      {alerts.map(alert => (
+        <div
+          key={alert.id}
+          className="p-3 rounded-lg border flex flex-col gap-2"
+          style={{ borderLeft: `4px solid ${alert.color}` }}
+        >
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm" style={{ color: alert.color }}>{alert.type}</span>
+            <span className="font-medium text-sm" style={{ color: alert.color }}>
+              {alert.type}
+            </span>
             <span className="text-xs text-gray-400">{alert.time}</span>
           </div>
           <div className="text-xs text-gray-600 mb-1">{alert.message}</div>
           <div className="flex gap-2">
             {alert.actions.map((action, idx) => (
-              <button key={idx} className="text-xs px-2 py-1 rounded bg-card hover:bg-gray-200 font-medium">
+              <button
+                key={idx}
+                className="text-xs px-2 py-1 rounded bg-card hover:bg-gray-200 font-medium"
+              >
                 {action}
               </button>
             ))}
@@ -54,4 +64,4 @@ const AlertsNotifications = () => (
   </div>
 );
 
-export default AlertsNotifications; 
+export default AlertsNotifications;

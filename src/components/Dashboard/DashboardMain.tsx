@@ -1,13 +1,16 @@
 import React from "react";
+
 import { EngagementTrend, TopClients, BudgetUtilization } from "@/components/analytics";
-import AlertsNotifications from "./AlertsNotifications";
-import MarketingReports from "./MarketingReports";
-import AnalyticsCard, { AnalyticsSummaryCardProps } from "./AnalyticsCard";
+
 import { ActiveClientsIcon } from "../ui/icons/analytics/activeClients";
+import { CalenderIcon } from "../ui/icons/analytics/calender";
 import { CampaignsIcon } from "../ui/icons/analytics/campaigns";
 import { ContentPiecesIcon } from "../ui/icons/analytics/contentPieces";
-import { CalenderIcon } from "../ui/icons/analytics/calender";
 import { SuccessRateIcon } from "../ui/icons/analytics/successRate";
+
+import AlertsNotifications from "./AlertsNotifications";
+import AnalyticsCard, { AnalyticsSummaryCardProps } from "./AnalyticsCard";
+import MarketingReports from "./MarketingReports";
 
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
@@ -75,4 +78,4 @@ const DashboardMain = () => (
   </div>
 );
 
-export default DashboardMain; 
+export default DashboardMain;

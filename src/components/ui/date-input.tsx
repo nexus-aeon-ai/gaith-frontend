@@ -236,7 +236,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
         value={date.month.toString()}
         onChange={handleInputChange("month")}
         onKeyDown={handleKeyDown("month")}
-        onFocus={(e) => {
+        onFocus={e => {
           if (window.innerWidth > 1024) {
             e.target.select();
           }
@@ -254,7 +254,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
         value={date.day.toString()}
         onChange={handleInputChange("day")}
         onKeyDown={handleKeyDown("day")}
-        onFocus={(e) => {
+        onFocus={e => {
           if (window.innerWidth > 1024) {
             e.target.select();
           }
@@ -272,7 +272,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
         value={date.year.toString()}
         onChange={handleInputChange("year")}
         onKeyDown={handleKeyDown("year")}
-        onFocus={(e) => {
+        onFocus={e => {
           if (window.innerWidth > 1024) {
             e.target.select();
           }
@@ -290,7 +290,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
         value={date.hour.toString()}
         onChange={handleInputChange("hour")}
         onKeyDown={handleKeyDown("hour")}
-        onFocus={(e) => {
+        onFocus={e => {
           if (window.innerWidth > 1024) {
             e.target.select();
           }
@@ -308,7 +308,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
         value={date.minute.toString()}
         onChange={handleInputChange("minute")}
         onKeyDown={handleKeyDown("minute")}
-        onFocus={(e) => {
+        onFocus={e => {
           if (window.innerWidth > 1024) {
             e.target.select();
           }

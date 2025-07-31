@@ -1,6 +1,5 @@
 import React from "react";
 
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface TableSkeletonProps {
   columns: {
@@ -28,7 +28,7 @@ const TableSkeleton = ({ columns, rows = 7, className = "" }: TableSkeletonProps
       <Table>
         <TableHeader className="text-left">
           <TableRow>
-            {columns.map((column) => (
+            {columns.map(column => (
               <TableHead
                 key={`header-${column.header}`}
                 className={cn(column.width, column.header === "Actions" && "text-center")}
@@ -39,13 +39,10 @@ const TableSkeleton = ({ columns, rows = 7, className = "" }: TableSkeletonProps
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: rows }, (_, i) => i + 1).map((el) => (
+          {Array.from({ length: rows }, (_, i) => i + 1).map(el => (
             <TableRow key={`row-${el}`}>
-              {columns.map((column) => (
-                <TableCell
-                  key={`cell-${column.header}-${el}`}
-                  className={column.width}
-                >
+              {columns.map(column => (
+                <TableCell key={`cell-${column.header}-${el}`} className={column.width}>
                   <Skeleton
                     className={cn(
                       column.width,

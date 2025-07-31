@@ -1,20 +1,28 @@
 "use client";
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import Image from "next/image";
 import { login } from "@/lib/api/auth";
 import { useAuthStore } from "@/lib/store/authStore";
 
@@ -41,7 +49,7 @@ export default function LoginForm() {
     mutationFn: async (data: TLoginForm) => {
       return login(data.email, data.password);
     },
-    onSuccess: async (response) => {
+    onSuccess: async response => {
       if (response?.status && response.status === 200) {
         if (response.data?.access_token) {
           setCookie("authToken", response.data.access_token, {
@@ -85,7 +93,9 @@ export default function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Email <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="Enter your email" {...field} />
                   </FormControl>
@@ -98,16 +108,26 @@ export default function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Password <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="Enter your password" {...field} enableGeneratePassword={false} showStrengthIndicator={false} />
+                    <PasswordInput
+                      placeholder="Enter your password"
+                      {...field}
+                      enableGeneratePassword={false}
+                      showStrengthIndicator={false}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="mb-2 ">
-              <Link href="/forget-password" className="text-xs font-medium text-[#5B17FF] hover:underline">
+              <Link
+                href="/forget-password"
+                className="text-xs font-medium text-[#5B17FF] hover:underline"
+              >
                 Forget Password ?
               </Link>
             </div>

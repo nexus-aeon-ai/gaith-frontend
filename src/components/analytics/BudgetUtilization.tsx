@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
@@ -12,7 +12,7 @@ const BudgetUtilization = () => (
   <div className="bg-card rounded-lg shadow-md p-4 w-full flex flex-col items-center text-card-foreground">
     <h2 className="font-semibold text-lg mb-2 text-card-foreground">Budget Utilization</h2>
     <ResponsiveContainer width={220} height={220} className="flex items-center justify-center">
-      <PieChart >
+      <PieChart>
         <Pie
           data={budgetData}
           dataKey="value"
@@ -39,4 +39,4 @@ const BudgetUtilization = () => (
   </div>
 );
 
-export default BudgetUtilization; 
+export default BudgetUtilization;

@@ -1,6 +1,5 @@
 import { Loader2, Trash2 } from "lucide-react";
 
-import { capitalize } from "@/lib/utils/functions/capitalize";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+import { capitalize } from "@/lib/utils/functions/capitalize";
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -34,16 +35,10 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
   description,
 }) => {
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="w-full max-w-full overflow-x-hidden bg-white sm:max-w-xl">
         <DialogHeader className="flex flex-col items-center">
-          <Trash2
-            size={32}
-            className="mb-3 text-red-500"
-          />
+          <Trash2 size={32} className="mb-3 text-red-500" />
           <DialogTitle className="text-center text-2xl font-bold">
             {title || `Delete ${capitalize(itemName)}`}
           </DialogTitle>

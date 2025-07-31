@@ -55,12 +55,9 @@ export default function PaginationControls({
         )}
 
         {/* Page number links */}
-        {pages.map((page) => (
+        {pages.map(page => (
           <PaginationItem key={page.number}>
-            <PaginationLink
-              href={page.href}
-              isActive={page.number === currentPage}
-            >
+            <PaginationLink href={page.href} isActive={page.number === currentPage}>
               {page.number}
             </PaginationLink>
           </PaginationItem>

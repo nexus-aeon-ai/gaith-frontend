@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
 
-import { cn } from "@/lib/utils";
-import { PAGE_SIZE, PAGE_SIZE_OPTIONS } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -12,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PAGE_SIZE, PAGE_SIZE_OPTIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 import { Label } from "../ui/label";
 
@@ -32,28 +32,19 @@ export const PageSizeFilter: React.FC<PageSizeFilterProps> = ({ bgColor = "bg-ca
 
   return (
     <div className="flex items-center gap-3">
-      <Label
-        htmlFor="page-size"
-        className="whitespace-nowrap text-sm font-medium"
-      >
+      <Label htmlFor="page-size" className="whitespace-nowrap text-sm font-medium">
         Rows per page
       </Label>
       <Select
         value={searchParams.get("page_size") || PAGE_SIZE.toString()}
         onValueChange={(value: string) => updatePageSize(value)}
       >
-        <SelectTrigger
-          id="page-size"
-          className={cn("min-w-[4.5rem] sm:min-w-24", bgColor)}
-        >
+        <SelectTrigger id="page-size" className={cn("min-w-[4.5rem] sm:min-w-24", bgColor)}>
           <SelectValue placeholder="Select number of results" />
         </SelectTrigger>
         <SelectContent>
           {PAGE_SIZE_OPTIONS.map((pageSize: number) => (
-            <SelectItem
-              key={pageSize}
-              value={pageSize.toString()}
-            >
+            <SelectItem key={pageSize} value={pageSize.toString()}>
               {pageSize}
             </SelectItem>
           ))}

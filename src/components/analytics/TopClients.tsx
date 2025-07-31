@@ -1,6 +1,17 @@
-'use client';
+"use client";
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, LabelList } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  CartesianGrid,
+  LabelList,
+} from "recharts";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const engagementClients = [
@@ -35,15 +46,29 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
       margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
     >
       <CartesianGrid strokeDasharray="2 2" vertical={false} />
-      <XAxis type="number" domain={[0, 20]} axisLine={false} tickLine={false} fontSize={13} tick={{ fill: '#303444' }} />
-      <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 15, fill: '#303444', fontWeight: 500 }} axisLine={false} tickLine={false} />
-      <Tooltip formatter={(value) => `${value}%`} cursor={{ fill: "rgba(59,130,246,0.08)" }} />
+      <XAxis
+        type="number"
+        domain={[0, 20]}
+        axisLine={false}
+        tickLine={false}
+        fontSize={13}
+        tick={{ fill: "#303444" }}
+      />
+      <YAxis
+        type="category"
+        dataKey="name"
+        width={70}
+        tick={{ fontSize: 15, fill: "#303444", fontWeight: 500 }}
+        axisLine={false}
+        tickLine={false}
+      />
+      <Tooltip formatter={value => `${value}%`} cursor={{ fill: "rgba(59,130,246,0.08)" }} />
       <Bar dataKey="percent" radius={[0, 10, 10, 0]} fill={barColor} minPointSize={3}>
-        <LabelList 
-          dataKey="percent" 
-          position="right" 
-          formatter={(label) => typeof label === 'number' ? `${label}%` : label} 
-          style={{ fill: '#303444', fontWeight: 600, fontSize: 14, paddingLeft: 4 }} 
+        <LabelList
+          dataKey="percent"
+          position="right"
+          formatter={label => (typeof label === "number" ? `${label}%` : label)}
+          style={{ fill: "#303444", fontWeight: 600, fontSize: 14, paddingLeft: 4 }}
         />
         {clients.map((_, index) => (
           <Cell key={`cell-${index}`} fill={barColor} />
@@ -60,21 +85,27 @@ const TopClients = () => {
         <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
         <Tabs defaultValue="engagement" className="min-w-[200px]">
           <TabsList className="bg-transparent rounded-lg p-1 h-9 gap-3">
-            <TabsTrigger value="engagement" className="px-5 py-1.5 text-sm font-semibold  border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors ">Engagement</TabsTrigger>
-            <TabsTrigger value="roi" className="px-5 py-1.5 text-sm font-semibold border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors">ROI</TabsTrigger>
+            <TabsTrigger
+              value="engagement"
+              className="px-5 py-1.5 text-sm font-semibold  border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors "
+            >
+              Engagement
+            </TabsTrigger>
+            <TabsTrigger
+              value="roi"
+              className="px-5 py-1.5 text-sm font-semibold border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors"
+            >
+              ROI
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
       <Tabs defaultValue="engagement" className="w-full">
-        <TabsContent value="engagement">
-          {renderBarChart(engagementClients)}
-        </TabsContent>
-        <TabsContent value="roi">
-          {renderBarChart(roiClients)}
-        </TabsContent>
+        <TabsContent value="engagement">{renderBarChart(engagementClients)}</TabsContent>
+        <TabsContent value="roi">{renderBarChart(roiClients)}</TabsContent>
       </Tabs>
     </div>
   );
 };
 
-export default TopClients; 
+export default TopClients;
