@@ -1,6 +1,5 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Category {
   name: string;
@@ -32,8 +31,9 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
           <div className="space-y-2">
             {categories.map((category, index) => (
               <div key={index}>
-                <div
-                  className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                <button
+                  type="button"
+                  className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors w-full text-left ${
                     selectedCategory === category.name
                       ? "bg-blue-100 dark:bg-blue-900/20"
                       : "hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -47,7 +47,7 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
                   <Badge variant="secondary" className={`text-xs bg-[#3072C014] rounded-full px-2 py-1 w-8 h-6 flex items-center justify-center ${category.color}`}>
                     {category.count}
                   </Badge>
-                </div>
+                </button>
                 {category.name === "Social Media Calendar" && selectedCategory === category.name && (
                   <div className="ml-5 space-y-1">
                     <div className="flex items-center justify-between p-2 text-xs text-gray-500 dark:text-gray-400">
@@ -90,7 +90,7 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
             {statuses.map((status, index) => (
               <div key={index} className="flex items-center justify-between p-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${status.color}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${status.color}`} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">{status.name}</span>
                 </div>
                 <Badge variant="secondary" className="text-xs">
@@ -111,7 +111,7 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
               </p>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div className="bg-[#3072C0] h-full rounded-full" style={{ width: "25%" }}></div>
+              <div className="bg-[#3072C0] h-full rounded-full" style={{ width: "25%" }} />
             </div>
           </div>
         </CardContent>

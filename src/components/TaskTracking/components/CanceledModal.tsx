@@ -1,7 +1,7 @@
-import React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CancelTaskIcon } from "@/components/ui/icons/task-tracking/cancelTask";
 import { CategoryIcon } from "@/components/ui/icons/task-tracking/category";
 
@@ -21,11 +21,11 @@ const CanceledModal = ({ isOpen, onClose, type, onThankYou }: CanceledModalProps
         <div className="text-center p-6">
           <div className="flex justify-center mb-8">
            
-                {isTask ? (
+            {isTask ? (
               <CancelTaskIcon className="w-16 h-16 text-[#EA3B1F]" />   
-                ) : (
-                  <CategoryIcon className="w-16 h-16 text-[#EA3B1F]" />
-                )}
+            ) : (
+              <CategoryIcon className="w-16 h-16 text-[#EA3B1F]" />
+            )}
                 
           </div>
           

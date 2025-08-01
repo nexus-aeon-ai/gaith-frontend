@@ -63,7 +63,7 @@ const AlertsNotifications = () => (
               <button 
                 key={idx} 
                 className="text-xs px-4 py-2 rounded-3xl bg-[#3072C0] hover:bg-[#2563eb] font-medium text-white transition-colors duration-200 "
-    >
+              >
                 {action}
               </button>
             ))}

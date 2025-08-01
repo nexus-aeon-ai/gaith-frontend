@@ -45,15 +45,15 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
       margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
     >
       <CartesianGrid strokeDasharray="2 2" vertical={false} />
-      <XAxis type="number" domain={[0, 20]} axisLine={false} tickLine={false} fontSize={13} tick={{ fill: 'var(--secondary-text)' }} />
-      <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 15, fill: 'var(--secondary-text)', fontWeight: 500 }} axisLine={false} tickLine={false} />
-      <Tooltip formatter={(value) => `${value}%`} cursor={{ fill: "var(--secondary-text)" }} contentStyle={{ backgroundColor: 'var(--background)', color: 'var(--secondary-text)' }} />
+      <XAxis type="number" domain={[0, 20]} axisLine={false} tickLine={false} fontSize={13} tick={{ fill: "var(--secondary-text)" }} />
+      <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 15, fill: "var(--secondary-text)", fontWeight: 500 }} axisLine={false} tickLine={false} />
+      <Tooltip formatter={(value) => `${value}%`} cursor={{ fill: "var(--secondary-text)" }} contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }} />
       <Bar dataKey="percent" radius={[0, 10, 10, 0]} fill={barColor} minPointSize={3}>
         <LabelList  
           dataKey="percent" 
           position="right" 
-          formatter={(label) => typeof label === 'number' ? `${label}%` : label} 
-          style={{ fill: 'var(--secondary-text)', fontWeight: 600, fontSize: 14, paddingLeft: 4 }} 
+          formatter={(label) => typeof label === "number" ? `${label}%` : label} 
+          style={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 14, paddingLeft: 4 }} 
         />
         {clients.map((_, index) => (
           <Cell key={`cell-${index}`} fill={barColor} />

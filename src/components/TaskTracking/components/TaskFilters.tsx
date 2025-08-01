@@ -1,7 +1,7 @@
-import React from "react";
+import { CirclePlus, Download, FileText } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, FileText, CirclePlus } from "lucide-react";
 
 interface TaskFiltersProps {
   onCreateCategory: () => void;

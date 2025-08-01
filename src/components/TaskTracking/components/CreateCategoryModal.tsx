@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CirclePlus } from "lucide-react";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CirclePlus } from "lucide-react";
+
 import { NewCategory } from "../data/taskData";
 
 interface CreateCategoryModalProps {
@@ -17,7 +19,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
   const [formData, setFormData] = useState<NewCategory>({
     name: "",
     description: "",
-    color: "text-[#508CD3]"
+    color: "text-[#508CD3]",
   });
 
   const [selectedColor, setSelectedColor] = useState("text-[#508CD3]");
@@ -31,7 +33,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
     { name: "Red", value: "text-[#EA3B1F]", bg: "bg-[#EA3B1F]" },
     { name: "Yellow", value: "text-[#F7C649]", bg: "bg-[#F7C649]" },
     { name: "Teal", value: "text-[#20B2AA]", bg: "bg-[#20B2AA]" },
-    { name: "Gray", value: "text-[#94A3B8]", bg: "bg-[#94A3B8]" }
+    { name: "Gray", value: "text-[#94A3B8]", bg: "bg-[#94A3B8]" },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,14 +47,14 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
 
     onAddCategory({
       ...formData,
-      color: selectedColor
+      color: selectedColor,
     });
     
     // Reset form
     setFormData({
       name: "",
       description: "",
-      color: "text-[#508CD3]"
+      color: "text-[#508CD3]",
     });
     setSelectedColor("text-[#508CD3]");
   };
@@ -60,7 +62,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
   const handleInputChange = (field: keyof NewCategory, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -74,9 +76,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
               variant="ghost"
               size="sm"
               onClick={onClose}
-            >
-             
-            </Button>
+            />
           </DialogTitle>
         </DialogHeader>
         <hr className="text-2xl font-bold text-gray-900 dark:text-white"/>
@@ -106,13 +106,15 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
             <Label>Color *</Label>
             <div className="flex gap-2 mt-2">
               {colorOptions.map((color, index) => (
-                <div
+                <button
                   key={index}
+                  type="button"
                   className={`w-8 h-8 ${color.bg} border-2 cursor-pointer hover:scale-110 transition-transform   ${
-                    selectedColor === color.value ? 'border-white ring-2 ring-blue-500' : 'border-gray-200'
+                    selectedColor === color.value ? "border-white ring-2 ring-blue-500" : "border-gray-200"
                   }`}
                   onClick={() => setSelectedColor(color.value)}
                   title={color.name}
+                  aria-label={`Select ${color.name} color`}
                 />
               ))}
             </div>
@@ -123,9 +125,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onAddCategory }: CreateCategoryM
               <CirclePlus className="w-4 h-4" />
               <span className="text-sm font-medium">Create a New Category by using AI</span>
             </div>
-            <div className="flex gap-2">
-            
-            </div>
+            <div className="flex gap-2" />
           </div>
           
           <div className="gap-3 pt-4 flex">

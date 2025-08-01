@@ -1,8 +1,8 @@
-import { SocialMediaCalenderIcon } from "@/components/ui/icons/sidebar/socialMediaCalender";
 import { BlogArticlesIcon } from "@/components/ui/icons/sidebar/BlogArticles";
-import { TaskTrackingIcon } from "@/components/ui/icons/sidebar/TaskTracking";
 import { ReportIcon } from "@/components/ui/icons/sidebar/Report";
 import { SettingsIcon } from "@/components/ui/icons/sidebar/settings";
+import { SocialMediaCalenderIcon } from "@/components/ui/icons/sidebar/socialMediaCalender";
+import { TaskTrackingIcon } from "@/components/ui/icons/sidebar/TaskTracking";
 
 export interface Task {
   id: number;
@@ -59,7 +59,7 @@ export const mockTasks: Task[] = [
     status: "In Progress",
     priority: "High",
     progress: 60,
-    category: "Social Media Calendar"
+    category: "Social Media Calendar",
   },
   {
     id: 2,
@@ -71,7 +71,7 @@ export const mockTasks: Task[] = [
     status: "In Progress",
     priority: "High",
     progress: 100,
-    category: "Social Media Calendar"
+    category: "Social Media Calendar",
   },
   {
     id: 3,
@@ -83,7 +83,7 @@ export const mockTasks: Task[] = [
     status: "Not Started",
     priority: "High",
     progress: 0,
-    category: "Social Media Calendar"
+    category: "Social Media Calendar",
   },
   {
     id: 4,
@@ -95,7 +95,7 @@ export const mockTasks: Task[] = [
     status: "In Progress",
     priority: "High",
     progress: 60,
-    category: "Social Media Calendar"
+    category: "Social Media Calendar",
   },
   {
     id: 5,
@@ -107,7 +107,7 @@ export const mockTasks: Task[] = [
     status: "Completed",
     priority: "Medium",
     progress: 100,
-    category: "Marketing Plan"
+    category: "Marketing Plan",
   },
   {
     id: 6,
@@ -119,7 +119,7 @@ export const mockTasks: Task[] = [
     status: "In Progress",
     priority: "Medium",
     progress: 60,
-    category: "Blog Creation"
+    category: "Blog Creation",
   },
   {
     id: 7,
@@ -131,7 +131,7 @@ export const mockTasks: Task[] = [
     status: "In Progress",
     priority: "High",
     progress: 50,
-    category: "Social Media Calendar"
+    category: "Social Media Calendar",
   },
   {
     id: 8,
@@ -143,8 +143,8 @@ export const mockTasks: Task[] = [
     status: "Not Started",
     priority: "Medium",
     progress: 0,
-    category: "Blog Creation"
-  }
+    category: "Blog Creation",
+  },
 ];
 
 export const categories: Category[] = [
@@ -152,13 +152,13 @@ export const categories: Category[] = [
   { name: "Blog Creation", count: 12, icon: BlogArticlesIcon, color: "text-[#2BAE82]" },
   { name: "Marketing Plan", count: 12, icon: TaskTrackingIcon, color: "text-[#ECA338]" },
   { name: "Media Buying Plan", count: 6, icon: ReportIcon, color: "text-[#FBDAE7]" },
-  { name: "Graphic Designs", count: 6, icon: SettingsIcon, color: "text-[#C99DDD]" }
+  { name: "Graphic Designs", count: 6, icon: SettingsIcon, color: "text-[#C99DDD]" },
 ];
 
 export const statuses: Status[] = [
   { name: "Not Started", count: 19, color: "bg-[#A0AEBA] " },
   { name: "In Progress", count: 19, color: "bg-[#D29A09] " },
-  { name: "Completed", count: 19, color: "bg-[#2BAE82]" }
+  { name: "Completed", count: 19, color: "bg-[#2BAE82]" },
 ];
 
 // Helper function to get next ID
@@ -175,6 +175,6 @@ export const getNextCategoryId = (categories: Category[]): number => {
 export const updateCategoryCounts = (tasks: Task[], categories: Category[]): Category[] => {
   return categories.map(category => ({
     ...category,
-    count: tasks.filter(task => task.category === category.name).length
+    count: tasks.filter((task) => task.category === category.name).length,
   }));
-}; 
+};

@@ -1,7 +1,7 @@
-import React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CategoryIcon } from "@/components/ui/icons/task-tracking/category";
 import { TaskSuccessIcon } from "@/components/ui/icons/task-tracking/Tasksuccess";
 
@@ -22,7 +22,7 @@ const SuccessModal = ({ isOpen, onClose, type, onGoToList }: SuccessModalProps) 
           <div className="flex justify-center mb-8">
             {isTask ? (
              
-                <TaskSuccessIcon className="w-16 h-16 text-[#2BAE82]" />
+              <TaskSuccessIcon className="w-16 h-16 text-[#2BAE82]" />
              
             ) : (
               <CategoryIcon className="w-16 h-16 text-[#2BAE82]" />

@@ -107,13 +107,13 @@ const EngagementTrend = () => {
           />
           {/* ReferenceArea bars for each month */}
           {referenceAreas}
-          <XAxis dataKey="month" tick={{ fill: 'var(--secondary-text)', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: 'var(--secondary-text)', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <Tooltip content={CustomTooltip} contentStyle={{ backgroundColor: 'var(--background)', color: 'var(--secondary-text)' }} />
+          <XAxis dataKey="month" tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <Tooltip content={CustomTooltip} contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }} />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: 12, gap: 30 }} formatter={(value) => {
-            if (value === 'social') return <span className="text-[#3b82f6] font-medium">Social Media</span>;
-            if (value === 'email') return <span className="text-[#fbbf24] font-medium">Email</span>;
-            if (value === 'website') return <span className="text-[#10b981] font-medium">Website</span>;
+            if (value === "social") return <span className="text-[#3b82f6] font-medium">Social Media</span>;
+            if (value === "email") return <span className="text-[#fbbf24] font-medium">Email</span>;
+            if (value === "website") return <span className="text-[#10b981] font-medium">Website</span>;
             return value;
           }} />
           <Line type="monotone" dataKey="social" stroke={colors.social} strokeWidth={2} dot={false} name="Social Media" />

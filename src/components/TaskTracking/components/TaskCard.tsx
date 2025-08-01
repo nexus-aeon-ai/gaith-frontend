@@ -1,8 +1,8 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Clock, User, Building } from "lucide-react";
 import { format } from "date-fns";
+import { Building, Clock, User } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Task {
   id: number;
@@ -93,9 +93,9 @@ const TaskCard = ({ task }: TaskCardProps) => {
               className="h-full rounded-full transition-all duration-300"
               style={{ 
                 width: `${task.progress}%`,
-                backgroundColor: task.status === "Completed" ? "#2BAE82" : task.status === "In Progress" ? "#ECA338" : "#3B82F6"
+                backgroundColor: task.status === "Completed" ? "#2BAE82" : task.status === "In Progress" ? "#ECA338" : "#3B82F6",
               }}
-            ></div>
+            />
           </div>
         </div>
       </CardContent>

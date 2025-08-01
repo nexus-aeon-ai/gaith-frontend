@@ -1,17 +1,19 @@
-'use client';
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+"use client";
 import { CirclePlus } from "lucide-react";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+
+import CancelConfirmModal from "./components/CancelConfirmModal";
+import CanceledModal from "./components/CanceledModal";
+import CreateCategoryModal from "./components/CreateCategoryModal";
+import CreateTaskModal from "./components/CreateTaskModal";
+import SuccessModal from "./components/SuccessModal";
+import TaskCalendar from "./components/TaskCalendar";
 import TaskCard from "./components/TaskCard";
 import TaskFilters from "./components/TaskFilters";
 import TaskSidebar from "./components/TaskSidebar";
-import TaskCalendar from "./components/TaskCalendar";
-import CreateTaskModal from "./components/CreateTaskModal";
-import CreateCategoryModal from "./components/CreateCategoryModal";
-import SuccessModal from "./components/SuccessModal";
-import CancelConfirmModal from "./components/CancelConfirmModal";
-import CanceledModal from "./components/CanceledModal";
-import { mockTasks, categories, statuses, Task, Category, NewTask, NewCategory, getNextTaskId, updateCategoryCounts } from "./data/taskData";
+import { categories, Category, getNextTaskId, mockTasks, NewCategory, NewTask, statuses, Task, updateCategoryCounts } from "./data/taskData";
 
 const TaskTrackingClient = () => {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -35,7 +37,7 @@ const TaskTrackingClient = () => {
     const task: Task = {
       id: getNextTaskId(tasks),
       ...newTask,
-      progress: newTask.status === "Completed" ? 100 : newTask.status === "In Progress" ? 50 : 0
+      progress: newTask.status === "Completed" ? 100 : newTask.status === "In Progress" ? 50 : 0,
     };
     
     setTasks(prevTasks => {
@@ -57,7 +59,7 @@ const TaskTrackingClient = () => {
       name: newCategory.name,
       count: 0,
       icon: categoriesList[0].icon, // Default icon, you might want to make this configurable
-      color: newCategory.color
+      color: newCategory.color,
     };
     
     setCategoriesList(prevCategories => [...prevCategories, category]);
@@ -169,7 +171,7 @@ const TaskTrackingClient = () => {
                 currentDate={currentDate}
                 onNavigate={setCurrentDate}
                 onSelectEvent={(event) => {
-                  console.log('Task clicked:', event);
+                  console.log("Task clicked:", event);
                 }}
               />
             )}
@@ -218,4 +220,4 @@ const TaskTrackingClient = () => {
   );
 };
 
-export default TaskTrackingClient; 
+export default TaskTrackingClient;

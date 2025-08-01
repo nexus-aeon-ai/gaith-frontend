@@ -1,14 +1,16 @@
+import { format } from "date-fns";
+import { CalendarIcon, CirclePlus } from "lucide-react";
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CirclePlus } from "lucide-react";
-import { format } from "date-fns";
-import { NewTask, Category } from "../data/taskData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { Category, NewTask } from "../data/taskData";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -26,7 +28,7 @@ const CreateTaskModal = ({ isOpen, onClose, onAddTask, categories }: CreateTaskM
     client: "",
     priority: "",
     status: "",
-    category: ""
+    category: "",
   });
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -52,7 +54,7 @@ const CreateTaskModal = ({ isOpen, onClose, onAddTask, categories }: CreateTaskM
       client: "",
       priority: "",
       status: "",
-      category: ""
+      category: "",
     });
     setSelectedDate(undefined);
     setIsDatePickerOpen(false);
@@ -63,7 +65,7 @@ const CreateTaskModal = ({ isOpen, onClose, onAddTask, categories }: CreateTaskM
     if (date) {
       setFormData(prev => ({
         ...prev,
-        dueDate: format(date, "yyyy-MM-dd")
+        dueDate: format(date, "yyyy-MM-dd"),
       }));
       setIsDatePickerOpen(false);
     }
@@ -72,7 +74,7 @@ const CreateTaskModal = ({ isOpen, onClose, onAddTask, categories }: CreateTaskM
   const handleInputChange = (field: keyof NewTask, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -206,8 +208,7 @@ const CreateTaskModal = ({ isOpen, onClose, onAddTask, categories }: CreateTaskM
               <CirclePlus className="w-4 h-4" />
               <span className="text-sm font-medium">Create a New Task by using AI</span>
             </div>
-            <div className="flex gap-2">
-            </div>
+            <div className="flex gap-2" />
           </div>
           
           <div className="gap-3 pt-4 flex">

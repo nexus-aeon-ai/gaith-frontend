@@ -1,9 +1,9 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
+import { format, getDay, parse, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, parse, startOfWeek, getDay } from "date-fns";
-import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+
+import { Button } from "@/components/ui/button";
 
 interface Task {
   id: number;
@@ -35,12 +35,12 @@ interface TaskCalendarProps {
 
 const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEvent }: TaskCalendarProps) => {
   const formatMonthYear = (date: Date) => {
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
+  const navigateMonth = (direction: "prev" | "next") => {
     const newDate = new Date(currentDate);
-    if (direction === 'prev') {
+    if (direction === "prev") {
       newDate.setMonth(newDate.getMonth() - 1);
     } else {
       newDate.setMonth(newDate.getMonth() + 1);
@@ -57,7 +57,7 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
             variant="outline" 
             size="sm" 
             className="p-2 bg-card border-gray-700 hover:bg-card hover:text-white"
-            onClick={() => navigateMonth('prev')}
+            onClick={() => navigateMonth("prev")}
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -65,7 +65,7 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
             variant="outline" 
             size="sm" 
             className="p-2 bg-card border-gray-700 hover:bg-card hover:text-white"
-            onClick={() => navigateMonth('next')}
+            onClick={() => navigateMonth("next")}
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -79,7 +79,7 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
             parse,
             startOfWeek,
             getDay,
-            locales: {}
+            locales: {},
           })}
           events={[
             ...tasks.map(task => ({
@@ -88,40 +88,40 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
               start: new Date(task.dueDate),
               end: new Date(task.dueDate),
               allDay: true,
-              resource: task
+              resource: task,
             })),
             {
-              id: 'today-marker',
-              title: 'Today',
+              id: "today-marker",
+              title: "Today",
               start: new Date(),
               end: new Date(),
               allDay: true,
-              resource: { category: 'Today' }
-            }
+              resource: { category: "Today" },
+            },
           ]}
           startAccessor="start"
           endAccessor="end"
           style={{ height: 700 }}
-          views={['month']}
+          views={["month"]}
           defaultView="month"
           eventPropGetter={(event) => {
             const task = event.resource;
             
             // Special handling for Today marker
-            if (task?.category === 'Today') {
+            if (task?.category === "Today") {
               return {
                 style: {
-                  backgroundColor: 'transparent',
-                  color: '#3072C0',
-                  borderRadius: '0',
-                  border: 'none',
-                  fontSize: '24px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }
+                  backgroundColor: "transparent",
+                  color: "#3072C0",
+                  borderRadius: "0",
+                  border: "none",
+                  fontSize: "24px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                },
               };
             }
             
@@ -131,7 +131,7 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
               "text-[#2BAE82]": { font: "#2BAE82", bg: "#2BAE8214" }, 
               "text-[#ECA338]": { font: "#ECA338", bg: "#ECA33814" },
               "text-[#FBDAE7]": { font: "#FBDAE7", bg: "#FBDAE714" },
-              "text-[#C99DDD]": { font: "#C99DDD", bg: "#C99DDD14" }
+              "text-[#C99DDD]": { font: "#C99DDD", bg: "#C99DDD14" },
             };
             const colors = categoryData ? colorMap[categoryData.color] || { font: "#3B82F6", bg: "#3B82F6" } : { font: "#3B82F6", bg: "#3B82F6" };
             
@@ -139,15 +139,15 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
               style: {
                 backgroundColor: colors.bg,
                 color: colors.font,
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '11px',
-                fontWeight: '500',
-                padding: '4px 8px',
-                margin: '2px 4px',
-                width: 'calc(100% - 8px)',
-                textAlign: 'center'
-              }
+                borderRadius: "6px",
+                border: "none",
+                fontSize: "11px",
+                fontWeight: "500",
+                padding: "4px 8px",
+                margin: "2px 4px",
+                width: "calc(100% - 8px)",
+                textAlign: "center",
+              },
             };
           }}
           onNavigate={onNavigate}
@@ -160,3 +160,4 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
 };
 
 export default TaskCalendar; 
+

@@ -1,7 +1,7 @@
-import React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CancelTaskIcon } from "@/components/ui/icons/task-tracking/cancelTask";
 import { CategoryIcon } from "@/components/ui/icons/task-tracking/category";
 
@@ -40,7 +40,7 @@ const CancelConfirmModal = ({ isOpen, onClose, type, onConfirmCancel, onKeep }: 
             <Button 
               variant="outline"
               onClick={onConfirmCancel}
-                className="flex-1 rounded-lg h-12 bg-[#06080F] text-[#EA3B1F] border-[#EA3B1F] hover:bg-red-500 hover:text-white"
+              className="flex-1 rounded-lg h-12 bg-[#06080F] text-[#EA3B1F] border-[#EA3B1F] hover:bg-red-500 hover:text-white"
             >
               Yes, Cancel
             </Button>
