@@ -44,6 +44,7 @@
   --color-secondary-text: var(--secondary-text);
   --color-primary-text: var(--primary-text);
   --color-input: var(--input);
+  --color-navigation: var(--navigation);
 }
 
 body {
@@ -67,7 +68,7 @@ body {
 
 .rbc-date-cell {
   border-radius: 16px !important;
-  padding: 12px !important;
+  padding: 10px !important;
 }
 
 .rbc-day-bg {
@@ -156,6 +157,7 @@ body {
   --secondary-text :oklch(0.3281 0.0289 273.77);
   --primary-text :oklch(0.1431 0.0223 273.48);
   --input :oklch(0.9048 0.007 247.9);
+  --navigation :oklch(0.9855 0.0034 174.49);
 }
 
 .dark {
@@ -193,7 +195,7 @@ body {
   --secondary-text :oklch(0.8558 0.0169 274.79);
   --primary-text :oklch(0.9852 0.0067 233.64);
   --input :oklch(0.2184 0.0326 253.02);
-  
+  --navigation :oklch(0.1356 0.0164 269.4);
 }
 
 @layer base {

@@ -2,7 +2,6 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import React from "react";
 
-import Navbar from "@/components/Navbar";
 import { getProfile } from "@/lib/api/auth";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -13,7 +12,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden">
       <div className="sticky top-0 left-0 right-0 w-full z-20">
-        <Navbar user={userProfile.data} />
+        {/*     <Navbar user={userProfile.data} /> */}
       </div>
       <div className="absolute inset-0 -z-10">
         <Image

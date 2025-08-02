@@ -3,6 +3,7 @@ import { Building, Clock, User } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface Task {
   id: number;
@@ -49,46 +50,80 @@ const TaskCard = ({ task }: TaskCardProps) => {
   };
 
   return (
-    <Card className="mb-4 bg-card border-border">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <input type="checkbox" className="w-4 h-4 text-blue-600" />
-            <h3 className="font-semibold text-gray-900 dark:text-white">{task.title}</h3>
+    <Card className={cn(
+      "mb-2 sm:mb-3 lg:mb-4 bg-card border-border",
+    )}>
+      <CardContent className="p-2 sm:p-3 md:p-4">
+        <div className={cn(
+          "flex flex-col sm:flex-row sm:items-start justify-between",
+          "gap-2 sm:gap-3 mb-2 sm:mb-3",
+        )}>
+          <div className="flex items-center gap-2 min-w-0">
+            <input 
+              type="checkbox" 
+              className={cn(
+                "w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0",
+              )} 
+            />
+            <h3 className={cn(
+              "font-semibold text-gray-900 dark:text-white",
+              "text-sm sm:text-base truncate",
+            )}>
+              {task.title}
+            </h3>
           </div>
-          <div className="flex gap-2">
-            <Badge className={`${getStatusColor(task.status)}`}>
+          <div className="flex gap-1 sm:gap-2 flex-wrap">
+            <Badge className={cn(getStatusColor(task.status), "text-xs")}>
               {task.status}
             </Badge>
-            <Badge className={`${getPriorityColor(task.priority)}`}>
+            <Badge className={cn(getPriorityColor(task.priority), "text-xs")}>
               {task.priority}
             </Badge>
           </div>
         </div>
         
-        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{task.description}</p>
+        <p className={cn(
+          "text-gray-600 dark:text-gray-300 text-xs sm:text-sm",
+          "mb-2 sm:mb-3 line-clamp-2",
+        )}>
+          {task.description}
+        </p>
         
-        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+        <div className={cn(
+          "flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4",
+          "text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-3",
+        )}>
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4 text-[#78A7DD]" />
-            <span>Due: {format(new Date(task.dueDate), "MMM d, yyyy")}</span>
+            <Clock className={cn(
+              "w-3 h-3 sm:w-4 sm:h-4 text-[#78A7DD] flex-shrink-0",
+            )} />
+            <span className="truncate">Due: {format(new Date(task.dueDate), "MMM d, yyyy")}</span>
           </div>
           <div className="flex items-center gap-1">
-            <User className="w-4 h-4 text-[#78A7DD]" />
-            <span>{task.assignee}</span>
+            <User className={cn(
+              "w-3 h-3 sm:w-4 sm:h-4 text-[#78A7DD] flex-shrink-0",
+            )} />
+            <span className="truncate">{task.assignee}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Building className="w-4 h-4 text-[#78A7DD]" />
-            <span>{task.client}</span>
+            <Building className={cn(
+              "w-3 h-3 sm:w-4 sm:h-4 text-[#78A7DD] flex-shrink-0",
+            )} />
+            <span className="truncate">{task.client}</span>
           </div>
         </div>
         
-        <div className="mb-3">
-          <div className="flex justify-between text-sm mb-1">
+        <div className="mb-2 sm:mb-3">
+          <div className={cn(
+            "flex justify-between text-xs sm:text-sm mb-1",
+          )}>
             <span className="text-gray-600 dark:text-gray-300">Progress</span>
             <span className="text-gray-900 dark:text-white font-medium">{task.progress}%</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 border border-gray-300 dark:border-gray-600">
+          <div className={cn(
+            "w-full bg-gray-200 dark:bg-gray-700 rounded-full",
+            "h-1.5 sm:h-2 border border-gray-300 dark:border-gray-600",
+          )}>
             <div 
               className="h-full rounded-full transition-all duration-300"
               style={{ 
