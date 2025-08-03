@@ -1,13 +1,12 @@
 "use client";
-import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useCategoryModalStore, useTaskModalStore } from "@/lib/store/taskModalStore";
 
 import { cn } from "../../lib/utils";
 
-import { AddCategoryModal, AddTaskModal } from "./add-modal";
+import { AddCategoryModal, AddTaskButton, AddTaskModal } from "./add-modal";
 import TaskCalendar from "./components/TaskCalendar";
 import TaskCard from "./components/TaskCard";
 import TaskFilters from "./components/TaskFilters";
@@ -16,8 +15,10 @@ import { categories, Category, getNextTaskId, mockTasks, NewCategory, statuses, 
 import { CancelConfirmModal, CanceledModal, SuccessModal } from "./pop-modal";
 
 const TaskTrackingClient = () => {
-  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-  const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
+  // Use store for modal state management
+  const { isOpen: isCreateTaskOpen, setOpen: setIsCreateTaskOpen } = useTaskModalStore();
+  const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } = useCategoryModalStore();
+  
   const [selectedCategory, setSelectedCategory] = useState("Social Media Calendar");
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
@@ -154,24 +155,11 @@ const TaskTrackingClient = () => {
             Track, manage, and prioritize tasks efficiently.
           </p>
         </div>
-        <Button 
-          onClick={() => setIsCreateTaskOpen(true)}
-          className={cn(
-            "flex items-center gap-1 sm:gap-2",
-            "bg-[#508CD3] rounded-3xl w-full sm:w-auto",
-            "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
-            "hover:bg-blue-700 text-white",
-            "text-xs sm:text-sm lg:text-base",
-          )}
-        >
-          <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Add New Task</span>
-          <span className="sm:hidden">Add Task</span>
-        </Button>
+        <AddTaskButton />
       </div>
 
       {/* Filters Section */}
-      <TaskFilters onCreateCategory={() => setIsCreateCategoryOpen(true)} />
+      <TaskFilters />
 
       <div className={cn(
         "flex flex-col lg:flex-row",
@@ -206,9 +194,9 @@ const TaskTrackingClient = () => {
                 aria-label="View mode toggle"
                 tabIndex={0}
                 className={cn(
-                  "relative bg-card rounded-3xl p-0.5 w-full sm:w-auto",
-                  "border border-[#404663] cursor-pointer",
-                  "focus:outline-none focus:ring-2 focus:ring-[#D29A09] focus:ring-opacity-50",
+                  "relative bg-card rounded-lg p-0.5 w-full sm:w-auto",
+                  "border border-border cursor-pointer",
+                
                 )}
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
@@ -230,12 +218,12 @@ const TaskTrackingClient = () => {
                 <div 
                   className={cn(
                     "absolute top-0.5 bottom-0.5 w-1/2",
-                    "bg-gradient-to-r from-[#D29A09] to-[#F7C649] rounded-3xl",
+                    "bg-gradient-to-r from-[#D29A09] to-[#F7C649] rounded-lg",
                     "transition-all duration-300 ease-in-out",
                     viewMode === "list" ? "left-0.5" : "left-[calc(50%-1px)]",
                   )}
                 />
-                <div className="relative flex pointer-events-none rounded-2xl">
+                <div className="relative flex pointer-events-none rounded-lg">
                   <div className="flex-1 px-6 py-3 text-xs sm:text-sm font-medium text-center">
                     <span className={cn(
                       viewMode === "list" ? "text-black font-semibold" : "text-primary-text",
@@ -315,7 +303,7 @@ const TaskTrackingClient = () => {
 
       {/* Grouped Tasks Modal */}
       <Dialog open={isGroupedTasksModalOpen} onOpenChange={setIsGroupedTasksModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto sm:w-auto sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
               Tasks for {formatDate(groupedTasksDate)} ({groupedTasks.length} tasks)

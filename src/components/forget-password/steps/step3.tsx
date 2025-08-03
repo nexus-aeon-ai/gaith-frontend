@@ -7,13 +7,13 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -83,7 +83,7 @@ const Step3: React.FC<Step3Props> = ({ email, otp, onSuccess }) => {
   };
 
   return (
-    <Card className="w-full shadow-xl bg-card text-card-foreground p-6">
+    <Card className="w-full shadow-xl bg-navigation text-card-foreground p-6">
       <CardHeader className="flex flex-col items-center gap-2">
         <CardTitle className="text-2xl font-bold text-center">Add new password</CardTitle>
         <CardDescription className="text-sm text-center">

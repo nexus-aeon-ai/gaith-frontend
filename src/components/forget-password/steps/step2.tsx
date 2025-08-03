@@ -1,14 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { forgetPassword, verifyOtp } from "@/lib/api/auth";
 import { handleMutationError } from "@/lib/functions/handle-mutation-error";
@@ -97,7 +97,7 @@ const Step2: React.FC<Step2Props> = ({ email, onSuccess }) => {
   };
 
   return (
-    <Card className="w-full shadow-xl bg-card text-card-foreground p-6">
+    <Card className="w-full shadow-xl bg-navigation text-card-foreground p-6">
       <CardHeader className="flex flex-col items-center gap-2">
         <CardTitle className="text-2xl font-bold text-center">Verify Your Email</CardTitle>
         <CardDescription className="text-sm text-center">

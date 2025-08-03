@@ -8,13 +8,13 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -69,7 +69,7 @@ const Step1: React.FC<Step1Props> = ({ onSuccess }) => {
   };
 
   return (
-    <Card className="w-full shadow-xl bg-card text-card-foreground p-6">
+    <Card className="w-full shadow-xl bg-navigation text-card-foreground p-6">
       <CardHeader className="flex flex-col items-center gap-2">
         <CardTitle className="text-2xl font-bold text-center">
           Forgot your password? Recover it.

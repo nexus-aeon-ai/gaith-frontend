@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
@@ -15,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -78,7 +77,7 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="w-full shadow-xl bg-card text-card-foreground p-6">
+    <Card className="w-full shadow-xl bg-navigation text-card-foreground p-6">
       <CardHeader className="flex flex-col items-center gap-2">
         <div className="w-16 h-16 rounded-full flex items-center justify-center bg-background shadow">
           <Image src="/images/logo.svg" alt="Logo" className="w-12 h-12" width={48} height={48} />

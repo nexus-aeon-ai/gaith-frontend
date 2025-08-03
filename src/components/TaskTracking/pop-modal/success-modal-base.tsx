@@ -4,8 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { CategoryIcon } from "@/components/ui/icons/task-tracking/category";
 import { TaskSuccessIcon } from "@/components/ui/icons/task-tracking/Tasksuccess";
-
-import BaseModal from "./base-modal";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -33,16 +32,16 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   );
 
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
+    <ScrollableDialog
+      open={isOpen}
+      onOpenChange={onClose}
       title=""
-      footer={footer}
-      className="max-w-[420px] !max-w-[420px] sm:!max-w-[420px] bg-navigation"
+      className="w-full max-w-[420px] bg-navigation sm:w-auto sm:max-w-[420px]"
       childrenWrapperClassName="p-0"
+      footer={footer}
     >
       <div className="text-center py-4">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mt-6 mb-4">
           {isTask ? (
             <TaskSuccessIcon className="w-16 h-16 text-green-500" />
           ) : (
@@ -50,7 +49,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           )}
         </div>
         
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white ">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
           {isTask ? "Task" : "Category"} Created Successfully
         </h2>
         
@@ -58,7 +57,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           Your {isTask ? "task" : "category"} has been added and is now available in your list..
         </p>
       </div>
-    </BaseModal>
+    </ScrollableDialog>
   );
 };
 

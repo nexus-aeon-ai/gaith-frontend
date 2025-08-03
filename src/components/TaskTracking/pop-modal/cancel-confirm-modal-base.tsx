@@ -3,8 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { CancelTaskIcon } from "@/components/ui/icons/task-tracking/cancelTask";
 import { CategoryIcon } from "@/components/ui/icons/task-tracking/category";
-
-import BaseModal from "./base-modal";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 
 interface CancelConfirmModalProps {
   isOpen: boolean;
@@ -42,16 +41,16 @@ const CancelConfirmModal: React.FC<CancelConfirmModalProps> = ({
   );
 
   return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
+    <ScrollableDialog
+      open={isOpen}
+      onOpenChange={onClose}
       title=""
-      footer={footer}
-      className="max-w-[420px] !max-w-[420px] sm:!max-w-[420px] bg-navigation"
+      className="w-full max-w-[420px] bg-navigation sm:w-auto sm:max-w-[420px]"
       childrenWrapperClassName="p-0"
+      footer={footer}
     >
       <div className="text-center py-4">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mt-6 mb-4">
           {isTask ? (
             <CancelTaskIcon className="w-16 h-16 text-[#EA3B1F]" />
           ) : (
@@ -59,7 +58,7 @@ const CancelConfirmModal: React.FC<CancelConfirmModalProps> = ({
           )}
         </div>
         
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
           Cancel {isTask ? "Task" : "Category"}?
         </h2>
         
@@ -67,7 +66,7 @@ const CancelConfirmModal: React.FC<CancelConfirmModalProps> = ({
           Are you sure you want to cancel this {isTask ? "task" : "category"}? This action cannot be undone.
         </p>
       </div>
-    </BaseModal>
+    </ScrollableDialog>
   );
 };
 

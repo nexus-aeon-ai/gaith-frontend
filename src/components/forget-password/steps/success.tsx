@@ -1,5 +1,4 @@
 import { useRouter } from "next/navigation";
-import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +33,7 @@ export default function Success() {
   const router = useRouter();
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-xl bg-card text-card-foreground p-6 text-center">
+    <Card className="w-full max-w-sm mx-auto shadow-xl bg-navigation text-card-foreground p-6 text-center">
       <CardHeader className="flex flex-col items-center gap-2">
         <SuccessIcon />
         <CardTitle className="text-2xl font-bold">Success!</CardTitle>

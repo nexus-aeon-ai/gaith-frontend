@@ -194,8 +194,8 @@ const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEven
               // For multiple tasks, use the blue grouped style
               return {
                 style: {
-                  backgroundColor: "#3B82F6",
-                  color: "#FFFFFF",
+                  backgroundColor: "#3072c014",
+                  color: "#508CD3",
                   borderRadius: "6px",
                   border: "none",
                   fontSize: "11px",

@@ -1,14 +1,13 @@
-import { CircleEllipsis, CirclePlus, Download, FileText } from "lucide-react";
+import { CircleEllipsis, Download, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-interface TaskFiltersProps {
-  onCreateCategory: () => void;
-}
+import { AddCategoryButton } from "../add-modal";
 
-const TaskFilters = ({ onCreateCategory }: TaskFiltersProps) => {
+const TaskFilters = () => {
+
   return (
     <div className={cn(
       "bg-card rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 md:mb-6 shadow-sm",
@@ -97,20 +96,11 @@ const TaskFilters = ({ onCreateCategory }: TaskFiltersProps) => {
           </Select>
         </div>
         
-        <Button 
-          onClick={onCreateCategory}
-          className={cn(
-            "flex items-center gap-2",
-            "bg-card border-2 border-[#508CD3] text-[#508CD3]",
-            "hover:bg-[#508CD3] hover:text-white",
-            "w-full xl:w-60 h-10 sm:h-12 rounded-2xl",
-            "text-xs sm:text-sm",
-          )}
+        <AddCategoryButton 
+          className="w-full xl:w-60 h-10 sm:h-12 rounded-2xl"
         >
-          <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Add New Category</span>
-          <span className="sm:hidden">Add Category</span>
-        </Button>
+          Add New Category
+        </AddCategoryButton>
       </div>
     </div>
   );
