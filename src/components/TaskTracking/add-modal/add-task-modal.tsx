@@ -101,7 +101,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
       open={isOpen}
       onOpenChange={onClose}
       title="Create New Task"
-      className="w-full max-w-3xl bg-card sm:w-auto sm:max-w-3xl"
+      className=" max-w-3xl bg-card "
       childrenWrapperClassName="space-y-3"
       footer={footer}
     >
