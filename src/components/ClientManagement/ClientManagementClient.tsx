@@ -238,7 +238,7 @@ const ClientManagementClient = () => {
   return (
     <div className={cn(
       "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
-      "bg-[#F9FBFA] dark:bg-[#0F1220] overflow-x-hidden",
+      "bg-background overflow-x-hidden",
     )}>
       {/* Header Section */}
       <div className={cn(
@@ -276,19 +276,19 @@ const ClientManagementClient = () => {
 
       {/* Search and Actions Section */}
       <div className={cn(
-        "bg-card rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 lg:mb-6 shadow-sm",
+        " items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm",
       )}>
         <div className={cn(
-          "flex flex-col sm:flex-row items-start sm:items-center justify-between",
-          "gap-2 sm:gap-3 mb-3 sm:mb-4",
+          "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
+          "gap-2 sm:gap-3 ",
         )}>
-          <div className="relative flex-1 max-w-md">
+          <div className=" flex-1 max-w-md justify-center  items-center">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search clients"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input"
+              className="pl-10 bg-input h-12"
             />
           </div>
           <div className="flex gap-1 sm:gap-2 md:gap-3">
@@ -385,7 +385,7 @@ const ClientManagementClient = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
               {filteredClients.map((client) => (
                 <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-4 py-3">

@@ -161,7 +161,7 @@ body {
 }
 
 .dark {
-  --background: oklch(0.13 0.028 261.692);
+  --background: oklch(0.1867 0.029 274.03);
   --foreground: oklch(0.985 0.002 247.839);
   --card: oklch(0.288 0.0527 270.72);
   --card-foreground: oklch(0.985 0.002 247.839);
@@ -196,6 +196,7 @@ body {
   --primary-text :oklch(0.9852 0.0067 233.64);
   --input :oklch(0.2184 0.0326 253.02);
   --navigation :oklch(0.1356 0.0164 269.4);
+
 }
 
 @layer base {
