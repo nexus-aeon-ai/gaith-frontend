@@ -55,7 +55,7 @@ const mainItems = [
   {
     label: "Client Management",
     icon: <ClientManagmentIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/clients",
+    href: "/client-management",
   },
   {
     label: "Employees",
