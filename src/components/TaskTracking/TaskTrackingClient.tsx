@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCategoryModalStore, useTaskModalStore } from "@/lib/store/taskModalStore";
 
 import { cn } from "../../lib/utils";
@@ -20,7 +21,6 @@ const TaskTrackingClient = () => {
   const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } = useCategoryModalStore();
   
   const [selectedCategory, setSelectedCategory] = useState("Social Media Calendar");
-  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
   
   // State for tasks and categories
@@ -188,77 +188,34 @@ const TaskTrackingClient = () => {
               )}>
                 {selectedCategory}
               </h2>
-              <div 
-                role="switch" 
-                aria-checked={viewMode === "list"}
-                aria-label="View mode toggle"
-                tabIndex={0}
-                className={cn(
-                  "relative bg-card rounded-lg p-0.5 w-full sm:w-auto",
-                  "border border-border cursor-pointer",
-                
-                )}
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const width = rect.width;
-                  if (x < width / 2) {
-                    setViewMode("list");
-                  } else {
-                    setViewMode("calendar");
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
-                    setViewMode(viewMode === "list" ? "calendar" : "list");
-                  }
-                }}
-              >
-                <div 
-                  className={cn(
-                    "absolute top-0.5 bottom-0.5 w-1/2",
-                    "bg-gradient-to-r from-[#D29A09] to-[#F7C649] rounded-lg",
-                    "transition-all duration-300 ease-in-out",
-                    viewMode === "list" ? "left-0.5" : "left-[calc(50%-1px)]",
-                  )}
-                />
-                <div className="relative flex pointer-events-none rounded-lg">
-                  <div className="flex-1 px-6 py-3 text-xs sm:text-sm font-medium text-center">
-                    <span className={cn(
-                      viewMode === "list" ? "text-black font-semibold" : "text-primary-text",
-                    )}>
-                      List
-                    </span>
-                  </div>
-                  <div className="flex-1 px-6 py-3 text-xs sm:text-sm font-medium text-center">
-                    <span className={cn(
-                      viewMode === "calendar" ? "text-black font-semibold" : "text-primary-text",
-                    )}>
-                      Calendar
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
             
-            {viewMode === "list" ? (
-              <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-                {tasks.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
+            <Tabs defaultValue="list" className="rounded-3xl">
+              <div className="flex justify-end mb-4">
+                <TabsList className=" h-12  rounded-3xl  bg-card border-1 border-border">
+                  <TabsTrigger value="list" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">List</TabsTrigger>
+                  <TabsTrigger value="calendar" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">Calendar</TabsTrigger>
+                </TabsList>
               </div>
-            ) : (
-              <div className="overflow-x-auto -mx-2 sm:-mx-3 md:-mx-4 px-2 sm:px-3 md:px-4">
-                <TaskCalendar 
-                  tasks={tasks}
-                  categories={categoriesList}
-                  currentDate={currentDate}
-                  onNavigate={setCurrentDate}
-                  onSelectEvent={handleCalendarEventSelect}
-                />
-              </div>
-            )}
+              <TabsContent value="list">
+                <div className="space-y-2 sm:space-y-3 lg:space-y-4 rounded-3xl p-4 pb-6 bg-card">
+                  {tasks.map((task) => (
+                    <TaskCard key={task.id} task={task} />
+                  ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="calendar">
+                <div className="overflow-x-auto -mx-2 sm:-mx-3 md:-mx-4 px-2 sm:px-3 md:px-4 rounded-3xl p-4 pb-6 bg-card">
+                  <TaskCalendar 
+                    tasks={tasks}
+                    categories={categoriesList}
+                    currentDate={currentDate}
+                    onNavigate={setCurrentDate}
+                    onSelectEvent={handleCalendarEventSelect}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
