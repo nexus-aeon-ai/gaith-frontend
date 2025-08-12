@@ -97,7 +97,7 @@ const TaskFilters = () => {
         </div>
         
         <AddCategoryButton 
-          className="w-full xl:w-60 h-10 sm:h-12 rounded-2xl"
+          className="w-full xl:w-60 h-10 sm:h-12 rounded-2xl bg-card"
         >
           Add New Category
         </AddCategoryButton>

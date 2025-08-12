@@ -1,4 +1,7 @@
+import React from "react";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +25,9 @@ interface TaskSidebarProps {
   onCategorySelect: (category: string) => void;
 }
 
-const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect }: TaskSidebarProps) => {
+const TaskSidebar:React.FC<TaskSidebarProps> = ({ 
+  categories, statuses, selectedCategory, onCategorySelect, 
+}) => {
   return (
     <div className="w-full space-y-3 sm:space-y-4 lg:space-y-6">
       {/* Task Categories */}
@@ -37,11 +42,11 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
           <div className="space-y-1 sm:space-y-2">
             {categories.map((category, index) => (
               <div key={index}>
-                <button
+                <Button
                   type="button"
                   className={cn(
                     "flex items-center justify-between p-1.5 sm:p-2 rounded cursor-pointer",
-                    "transition-colors w-full text-left",
+                    "transition-colors w-full text-left bg-card border-none shadow-none",
                     selectedCategory === category.name
                       ? "bg-blue-100 dark:bg-blue-900/20"
                       : "hover:bg-gray-50 dark:hover:bg-gray-700",
@@ -69,7 +74,7 @@ const TaskSidebar = ({ categories, statuses, selectedCategory, onCategorySelect 
                   >
                     {category.count}
                   </Badge>
-                </button>
+                </Button>
                 {category.name === "Social Media Calendar" && selectedCategory === category.name && (
                   <div className="ml-5 space-y-1">
                     <div className="flex items-center justify-between p-2 text-xs text-gray-500 dark:text-gray-400">

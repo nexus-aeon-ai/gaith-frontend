@@ -1,5 +1,6 @@
       
 
+import { Button } from "../ui/button";
 import { EndingIcon } from "../ui/icons/alerts/ending";
 import { PendingIcon } from "../ui/icons/alerts/pending";
 import { UnassignedIcon } from "../ui/icons/alerts/unassigned";
@@ -10,7 +11,7 @@ const alerts = [
     type: "Pending Content Approval",
     message: "12 content pieces are waiting for your approval for TechVision campaign.",
     actions: ["Review Now", "Dismiss"],
-    icon: <PendingIcon className="text-[#fbbf24]" />,
+    icon: <PendingIcon className="text-[#fbrbf24]" />,
     time: "3h",
     color: "#ECA33814",
   },
@@ -39,7 +40,7 @@ const AlertsNotifications = () => (
   <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
     <div className="flex items-center justify-between mb-2">
       <h2 className="font-semibold text-lg text-card-foreground">Alerts & Notifications</h2>
-      <button className="text-xs px-2 py-1 bg-card rounded">View All</button>
+      <Button className="text-xs px-2 py-1 bg-card rounded">View All</Button>
     </div>
     <div className="space-y-3">
 
@@ -47,10 +48,10 @@ const AlertsNotifications = () => (
         <div
           key={alert.id}
           className="p-3 rounded-lg border flex flex-col gap-2"
-          style={{ borderLeft: `4px solid ${alert.color}` }}
+          style={{ backgroundColor: `${alert.color}` }}
         >
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm" style={{ color: alert.color }}>
+            <span className="font-medium text-sm text-primary-text">
               {alert.type}
             </span>
             <span className="text-xs text-gray-400">{alert.time}</span>
@@ -60,12 +61,12 @@ const AlertsNotifications = () => (
           <div className="flex gap-2">
             {alert.actions.map((action, idx) => (
 
-              <button 
+              <Button 
                 key={idx} 
                 className="text-xs px-4 py-2 rounded-3xl bg-[#3072C0] hover:bg-[#2563eb] font-medium text-white transition-colors duration-200 "
               >
                 {action}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

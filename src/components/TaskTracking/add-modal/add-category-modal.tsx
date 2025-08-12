@@ -128,9 +128,9 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose, on
           </Label>
           <div className="flex gap-2 mt-2">
             {colorOptions.map((color, index) => (
-              <button
+              <Button
                 key={index}
-                type="button"
+                
                 className={cn(
                   "w-8 h-8",
                   color.bg,

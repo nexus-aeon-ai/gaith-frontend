@@ -135,7 +135,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
           </Label>
           <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("w-full py-2 sm:py-3 rounded-lg justify-start text-left font-normal bg-input mt-1 sm:mt-2 border-none text-[#94A2AB] hover:bg-input hover:text-[#94A2AB] h-8 sm:h-10 text-xs sm:text-sm", errors.dueDate ? "border-red-500" : "")}>
+              <Button variant="outline" className={cn("w-full py-2 sm:py-3 rounded-lg justify-start text-left font-normal bg-input mt-1 sm:mt-2 border-none text-[#94A2AB] hover:bg-input hover:text-[#94A2AB] h-8 sm:h-10 text-xs sm:text-sm", 
+                errors.dueDate ? "border-red-500" : "")}>
                 <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                 {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
               </Button>
