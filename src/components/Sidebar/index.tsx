@@ -35,7 +35,7 @@ const mainItems = [
   {
     label: "Dashboard",
     icon: <DashboardListIcon className="dark:text-[#E6EFF9]" />,
-    href: "/dashboard",
+    href: "/",
   },
   {
     label: "Task Tracking",
