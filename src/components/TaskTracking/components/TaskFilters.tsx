@@ -10,7 +10,7 @@ const TaskFilters = () => {
 
   return (
     <div className={cn(
-      "bg-card rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 md:mb-6 shadow-sm",
+      "bg-card rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 md:mb-6 shadow-sm cursor-pointer",
     )}>
       <div className={cn(
         "flex flex-col sm:flex-row items-start sm:items-center justify-between",
@@ -27,7 +27,7 @@ const TaskFilters = () => {
             variant="outline" 
             className={cn(
               "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
+              "bg-card border-border text-xs h-8 sm:h-10 cursor-pointer ",
               "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
               "hover:bg-[#508CD3]",
             )}
@@ -39,7 +39,7 @@ const TaskFilters = () => {
             variant="outline" 
             className={cn(
               "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
+              "bg-card border-border text-xs h-8 sm:h-10 cursor-pointer",
               "hover:bg-[#508CD3]",
             )}
           >
@@ -51,7 +51,7 @@ const TaskFilters = () => {
             variant="outline" 
             className={cn(
               "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
+              "bg-card border-border text-xs h-8 sm:h-10 cursor-pointer",
               "hover:bg-[#508CD3]",
             )}
           >
@@ -71,7 +71,7 @@ const TaskFilters = () => {
         )}>
           <Select>
             <SelectTrigger className={cn(
-              "w-72 p-3 sm:p-4 md:p-7 rounded-2xl",
+              "w-72 p-3 sm:p-4 md:p-7 rounded-2xl cursor-pointer",
               "text-xs sm:text-sm",
             )}>
               <SelectValue placeholder="Client" />
@@ -83,7 +83,7 @@ const TaskFilters = () => {
           </Select>
           <Select>
             <SelectTrigger className={cn(
-              "w-72 p-3 sm:p-4 md:p-7 rounded-2xl",
+              "w-72 p-3 sm:p-4 md:p-7 rounded-2xl cursor-pointer",
               "text-xs sm:text-sm",
             )}>
               <SelectValue placeholder="Task Category" />
@@ -97,7 +97,7 @@ const TaskFilters = () => {
         </div>
         
         <AddCategoryButton 
-          className="w-full xl:w-60 h-10 sm:h-12 rounded-2xl bg-card"
+          className="w-full xl:w-60 h-10 sm:h-12 rounded-2xl bg-card cursor-pointer"
         >
           Add New Category
         </AddCategoryButton>
