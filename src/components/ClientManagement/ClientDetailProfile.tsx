@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -227,34 +228,54 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
         </TabsList>
 
         <TabsContent value="main-info" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* First Row - Smaller Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Agreement Period Card */}
-            <Card className="border border-gray-200 shadow-sm p-4">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Agreement Period</CardTitle>
+            <Card className="border border-gray-200 shadow-sm p-4 pb-2 m-0  h-64">
+              <CardHeader className="p-0 mb-1">
+                <CardTitle className="text-lg font-semibold text-gray-900">
+                   Agreement Period
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+
+              {/* Remove default padding */}
+              <CardContent className="p-0 space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">From:</span>
-                  <span className="font-medium text-gray-900">{clientDetailData.agreementPeriod.start}</span>
+                  <span className="text-gray-600 text-md">From</span>
+                  <span className="text-gray-600 text-md ml-auto pl-4">To</span>
                 </div>
+
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">To:</span>
-                  <span className="font-medium text-gray-900">{clientDetailData.agreementPeriod.end}</span>
+                  <span className="font-medium text-gray-900">
+                    {clientDetailData.agreementPeriod.start}
+                  </span>
+                  <span className="font-medium text-gray-900">
+                    {clientDetailData.agreementPeriod.end}
+                  </span>
                 </div>
+
+                <Separator className="my-2" />
+
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Contract Status:</span>
+                  <span className="text-gray-600 text-md">Contract Status:</span>
                   <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 text-xs">
                     {clientDetailData.contractStatus}
                   </Badge>
                 </div>
+
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Renewal Due:</span>
-                  <span className="font-medium text-orange-600">{clientDetailData.renewalDue}</span>
+                  <span className="text-gray-600 text-md">Renewal Due:</span>
+                  <span className="font-medium text-orange-600">
+                    {clientDetailData.renewalDue}
+                  </span>
                 </div>
-                <div className="pt-3 border-t border-gray-100">
-                  <span className="text-gray-600 text-sm font-medium">Assigned To:</span>
-                  <div className="flex -space-x-2 mt-3">
+
+                <Separator className="my-2" />
+
+                {/* removed mt-3 */}
+                <div className="flex items-center w-full justify-between space-x-2">
+                  <span className="text-gray-600 text-md font-medium">Assigned To:</span>
+                  <div className="flex -space-x-2">
                     {client.assignedTo.map((person, index) => (
                       <div
                         key={index}
@@ -273,7 +294,7 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
             </Card>
 
             {/* Business Overview Card */}
-            <Card className="border border-gray-200 shadow-sm p-4">
+            <Card className="border border-gray-200 shadow-sm p-4 h-64">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Business Overview</CardTitle>
               </CardHeader>
@@ -299,7 +320,7 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
             </Card>
 
             {/* Social Media & Contact Card */}
-            <Card className="border border-gray-200 shadow-sm p-4">
+            <Card className="border border-gray-200 shadow-sm p-4 h-64">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Social Media & Contact</CardTitle>
               </CardHeader>
@@ -334,6 +355,10 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Second Row - Larger Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* Market Information Card */}
             <Card className="border border-gray-200 shadow-sm p-4">
