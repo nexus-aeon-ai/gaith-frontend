@@ -15,8 +15,119 @@ interface ClientDetailProfileProps {
   onBack: () => void;
 }
 
-const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
+// Extended client data structure for detailed profile
+interface ClientDetailData {
+  // Basic Info
+  id: string;
+  name: string;
+  email: string;
+  status: "Active" | "Inactive" | "Pending";
+  services: string;
+  clientSince: string;
+  
+  // Agreement Details
+  agreementPeriod: {
+    start: string;
+    end: string;
+  };
+  contractStatus: string;
+  renewalDue: string;
+  
+  // Business Info
+  businessOverview: {
+    description: string;
+    founded: string;
+    employees: string;
+    headquarters: string;
+  };
+  
+  // Contact & Social
+  contactInfo: {
+    email: string;
+    phone: string;
+    website: string;
+  };
+  socialMedia: {
+    linkedin: string;
+    twitter: string;
+    instagram: string;
+    facebook: string;
+  };
+  
+  // Market Info
+  marketInfo: {
+    primaryRegion: string;
+    secondaryRegions: string;
+    targetMarkets: string;
+  };
+  
+  // Vision & Mission
+  vision: string;
+  mission: string;
+  
+  // Team Assignment
+  assignedTeam: Array<{
+    id: string;
+    name: string;
+    role: string;
+    initial: string;
+    color: string;
+  }>;
+}
+
+const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
   const [activeTab, setActiveTab] = useState("main-info");
+
+  // Mock detailed client data - this will be fetched from backend
+  const clientDetailData: ClientDetailData = {
+    id: client.id,
+    name: client.name,
+    email: client.email,
+    status: client.status,
+    services: client.services,
+    clientSince: "March 2023",
+    
+    agreementPeriod: client.agreementPeriod,
+    contractStatus: "Active",
+    renewalDue: "In 8 Months",
+    
+    businessOverview: {
+      description: "Global Solutions Inc. is a leading technology company specializing in enterprise software solutions and digital transformation services for Fortune 500 companies.",
+      founded: "2010",
+      employees: "1,200+",
+      headquarters: "AED",
+    },
+    
+    contactInfo: {
+      email: client.email,
+      phone: client.contactInfo,
+      website: "www.globalsolutions.com",
+    },
+    
+    socialMedia: {
+      linkedin: "linkedin.com/company/globalsolutions",
+      twitter: "twitter.com/globalsolutions",
+      instagram: "instagram.com/globalsolutions",
+      facebook: "facebook.com/globalsolutions",
+    },
+    
+    marketInfo: {
+      primaryRegion: client.marketRegion,
+      secondaryRegions: "(MENA)",
+      targetMarkets: "Enterprise, Mid-Market",
+    },
+    
+    vision: "To be the global leader in innovative technology solutions that empower businesses to achieve digital excellence and sustainable growth.",
+    mission: "We deliver cutting-edge technology solutions that solve complex business challenges, drive efficiency, and create lasting value for our clients and stakeholders.",
+    
+    assignedTeam: [
+      { id: "1", name: "MA Michael Anderson", role: "Account Manager", initial: "MA", color: "bg-blue-500" },
+      { id: "2", name: "JB James Brown", role: "Data Analyst", initial: "JB", color: "bg-green-500" },
+      { id: "3", name: "MA Michael Anderson", role: "Social Media", initial: "MA", color: "bg-purple-500" },
+      { id: "4", name: "EW Emily Williams", role: "UX Researcher", initial: "EW", color: "bg-orange-500" },
+      { id: "5", name: "SP Sophia Patel", role: "Head of Operations", initial: "SP", color: "bg-red-500" },
+    ],
+  };
 
   return (
     <div className="min-h-screen w-full p-4 bg-background">
@@ -33,7 +144,7 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
             Client Management
           </Button>
           <span className="text-gray-400">/</span>
-          <span className="text-gray-700 font-medium">Global Solutions Inc.</span>
+          <span className="text-gray-700 font-medium">{clientDetailData.name}</span>
         </div>
       </div>
 
@@ -46,13 +157,13 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 mb-2">
-                Global Solutions Inc.
+                {clientDetailData.name}
                 <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1 text-sm font-medium">
-                  Active
+                  {clientDetailData.status}
                 </Badge>
               </h1>
               <p className="text-gray-600 text-lg">
-                Digital Marketing - Client since March 2023
+                {clientDetailData.services} - Client since {clientDetailData.clientSince}
               </p>
             </div>
           </div>
@@ -118,44 +229,40 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
         <TabsContent value="main-info" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Agreement Period Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Agreement Period</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">From:</span>
-                  <span className="font-medium text-gray-900">Jul 5, 2025</span>
+                  <span className="font-medium text-gray-900">{clientDetailData.agreementPeriod.start}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">To:</span>
-                  <span className="font-medium text-gray-900">Jul 5, 2025</span>
+                  <span className="font-medium text-gray-900">{clientDetailData.agreementPeriod.end}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Contract Status:</span>
                   <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 text-xs">
-                    Active
+                    {clientDetailData.contractStatus}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Renewal Due:</span>
-                  <span className="font-medium text-orange-600">In 8 Months</span>
+                  <span className="font-medium text-orange-600">{clientDetailData.renewalDue}</span>
                 </div>
                 <div className="pt-3 border-t border-gray-100">
                   <span className="text-gray-600 text-sm font-medium">Assigned To:</span>
                   <div className="flex -space-x-2 mt-3">
-                    {[
-                      { initial: "AA", color: "bg-blue-500" },
-                      { initial: "SI", color: "bg-green-500" },
-                      { initial: "S", color: "bg-purple-500" },
-                      { initial: "&", color: "bg-orange-500" },
-                    ].map((person, index) => (
+                    {client.assignedTo.map((person, index) => (
                       <div
                         key={index}
                         className={cn(
                           "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white shadow-sm",
                           person.color,
                         )}
+                        title={person.name}
                       >
                         {person.initial}
                       </div>
@@ -166,33 +273,33 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
             </Card>
 
             {/* Business Overview Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Business Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  Global Solutions Inc. is a leading technology company specializing in enterprise software solutions and digital transformation services for Fortune 500 companies.
+                  {clientDetailData.businessOverview.description}
                 </p>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Founded:</span>
-                    <span className="font-medium text-gray-900">2010</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.founded}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Employees:</span>
-                    <span className="font-medium text-gray-900">1,200+</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.employees}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Headquarters:</span>
-                    <span className="font-medium text-gray-900">AED</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.headquarters}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Social Media & Contact Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Social Media & Contact</CardTitle>
               </CardHeader>
@@ -214,22 +321,22 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Mail className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">contact@globalsolutions.com</span>
+                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.email}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">+9670000000000</span>
+                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.phone}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Globe className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">www.globalsolutions.com</span>
+                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.website}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Market Information Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Market Information</CardTitle>
               </CardHeader>
@@ -243,22 +350,22 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Primary Region:</span>
-                    <span className="font-medium text-gray-900">UAE</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.primaryRegion}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Secondary Regions:</span>
-                    <span className="font-medium text-gray-900">(MENA)</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.secondaryRegions}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Target Markets:</span>
-                    <span className="font-medium text-gray-900">Enterprise, Mid-Market</span>
+                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.targetMarkets}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Vision & Mission Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Vision & Mission</CardTitle>
               </CardHeader>
@@ -266,32 +373,26 @@ const ClientDetailProfile = ({ onBack }: ClientDetailProfileProps) => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2 text-sm">Vision</h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    To be the global leader in innovative technology solutions that empower businesses to achieve digital excellence and sustainable growth.
+                    {clientDetailData.vision}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2 text-sm">Mission</h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    We deliver cutting-edge technology solutions that solve complex business challenges, drive efficiency, and create lasting value for our clients and stakeholders.
+                    {clientDetailData.mission}
                   </p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Assigned Team Card */}
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border border-gray-200 shadow-sm p-4   ">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900">Assigned Team</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { name: "MA Michael Anderson", role: "Account Manager", initial: "MA", color: "bg-blue-500" },
-                  { name: "JB James Brown", role: "Data Analyst", initial: "JB", color: "bg-green-500" },
-                  { name: "MA Michael Anderson", role: "Social Media", initial: "MA", color: "bg-purple-500" },
-                  { name: "EW Emily Williams", role: "UX Researcher", initial: "EW", color: "bg-orange-500" },
-                  { name: "SP Sophia Patel", role: "Head of Operations", initial: "SP", color: "bg-red-500" },
-                ].map((member, index) => (
-                  <div key={index} className="flex items-center gap-3">
+                {clientDetailData.assignedTeam.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3">
                     <div className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-sm",
                       member.color,
