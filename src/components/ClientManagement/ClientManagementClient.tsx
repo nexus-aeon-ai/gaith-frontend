@@ -1,30 +1,15 @@
 "use client";
-import { CirclePlus, Download, FileText, MoreHorizontal, Search } from "lucide-react";
+import type { SortingState } from "@tanstack/react-table";
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { CirclePlus, Download, FileText, Search } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import DataTable from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  status: "Active" | "Inactive" | "Pending";
-  agreementPeriod: {
-    start: string;
-    end: string;
-  };
-  marketRegion: string;
-  services: string;
-  contactInfo: string;
-  assignedTo: {
-    name: string;
-    initial: string;
-    color: string;
-  }[];
-}
+import useTableColumns, { Client } from "./TableConfig";
 
 const mockClients: Client[] = [
   {
@@ -209,31 +194,44 @@ const mockClients: Client[] = [
   },
 ];
 
+// Mock paginated response type
+interface TGenericPaginatedResponse<T> {
+  results: T[];
+  count: number;
+  next?: string | null;
+  previous?: string | null;
+  page_count: number;
+}
+
 const ClientManagementClient = () => {
-  const [clients, setClients] = useState<Client[]>(mockClients);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const columns = useTableColumns();
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedClients(clients.map(client => client.id));
-    } else {
-      setSelectedClients([]);
-    }
+  // Mock paginated data
+  const data: TGenericPaginatedResponse<Client> = {
+    results: mockClients,
+    count: mockClients.length,
+    next: null,
+    previous: null,
+    page_count: 1,
   };
 
-  const handleSelectClient = (clientId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedClients(prev => [...prev, clientId]);
-    } else {
-      setSelectedClients(prev => prev.filter(id => id !== clientId));
-    }
-  };
-
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const table = useReactTable({
+    data: data.results,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    state: { 
+      sorting,
+      globalFilter,
+    },
+    manualPagination: true,
+  });
 
   return (
     <div className={cn(
@@ -243,7 +241,7 @@ const ClientManagementClient = () => {
       {/* Header Section */}
       <div className={cn(
         "flex flex-col sm:flex-row justify-between items-start",
-        "gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6",
+        "gap-2 sm:gap-3 lg:gap-4 mb-2 sm:mb-4 lg:mb-2",
       )}>
         <div className="flex-1 min-w-0">
           <h1 className={cn(
@@ -262,8 +260,8 @@ const ClientManagementClient = () => {
         <Button 
           className={cn(
             "flex items-center gap-1 sm:gap-2",
-            "bg-[#508CD3] rounded-3xl w-full sm:w-auto",
-            "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
+            "bg-[#508CD3] rounded-2xl w-full sm:w-auto",
+            "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-14  lg:w-60",
             "hover:bg-blue-700 text-white",
             "text-xs sm:text-sm lg:text-base",
           )}
@@ -289,8 +287,8 @@ const ClientManagementClient = () => {
             {/* Input Field */}
             <Input
               placeholder="Search clients"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-10 bg-card min-h-14 text-base rounded-xl"
             />
           </div>
@@ -350,127 +348,12 @@ const ClientManagementClient = () => {
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left">
-                  <Checkbox 
-                    checked={selectedClients.length === clients.length}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Client Name
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Agreement Period
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Market Region
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Services
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact Info
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assigned To
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredClients.map((client) => (
-                <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
-                    <Checkbox 
-                      checked={selectedClients.includes(client.id)}
-                      onCheckedChange={(checked) => handleSelectClient(client.id, checked as boolean)}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-blue-600">
-                            {client.name.split(" ").map(n => n[0]).join("")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {client.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {client.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                      client.status === "Active" 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : client.status === "Inactive"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-                    )}>
-                      {client.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {client.agreementPeriod.start} - {client.agreementPeriod.end}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {client.marketRegion}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {client.services}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {client.contactInfo}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex -space-x-2">
-                      {client.assignedTo.map((person, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
-                            person.color,
-                          )}
-                          title={person.name}
-                        >
-                          {person.initial}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Data Table Section */}
+      <DataTable 
+        table={table} 
+        colSpan={columns.length} 
+        dataPagination={data} 
+      />
     </div>
   );
 };
