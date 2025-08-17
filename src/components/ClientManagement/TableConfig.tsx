@@ -25,7 +25,13 @@ export interface Client {
   }[];
 }
 
-const useTableColumns = () => {
+interface UseTableColumnsProps {
+  onViewDetails: (client: Client) => void;
+  onEdit: (client: Client) => void;
+  onDelete: (client: Client) => void;
+}
+
+const useTableColumns = ({ onViewDetails, onEdit, onDelete }: UseTableColumnsProps) => {
   const columns: ColumnDef<Client>[] = [
     {
       id: "select",
@@ -173,14 +179,14 @@ const useTableColumns = () => {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem 
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => console.log("View details for:", client.name)}
+                onClick={() => onViewDetails(client)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
                 <span>View Details</span>
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => console.log("Edit client:", client.name)}
+                onClick={() => onEdit(client)}
               >
                 <Edit className="h-4 w-4 text-green-500" />
                 <span>Edit</span>
@@ -188,7 +194,7 @@ const useTableColumns = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
-                onClick={() => console.log("Delete client:", client.name)}
+                onClick={() => onDelete(client)}
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Delete</span>
