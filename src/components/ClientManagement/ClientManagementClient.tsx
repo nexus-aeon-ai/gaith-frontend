@@ -1,6 +1,5 @@
 "use client";
-import type { SortingState } from "@tanstack/react-table";
-import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { CirclePlus, Download, FileText, Search } from "lucide-react";
 import { useState } from "react";
 
