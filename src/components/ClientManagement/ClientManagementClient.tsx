@@ -282,13 +282,16 @@ const ClientManagementClient = () => {
           "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
           "gap-3 sm:gap-4 ",
         )}>
-          <div className=" flex-1 max-w-md justify-center  items-center">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="relative flex-1 max-w-md">
+            {/* Search Icon */}
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+            {/* Input Field */}
             <Input
               placeholder="Search clients"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 bg-card h-24 text-xl px-6 py-4 min-h-[60px]"
+              className="pl-10 bg-card min-h-14 text-base rounded-xl"
             />
           </div>
           <div className="flex gap-2 sm:gap-3 md:gap-4">
