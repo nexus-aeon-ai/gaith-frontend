@@ -276,27 +276,27 @@ const ClientManagementClient = () => {
 
       {/* Search and Actions Section */}
       <div className={cn(
-        " items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm",
+        " items-center justify-center bg-card rounded-lg px-6 py-6 mb-3 shadow-sm",
       )}>
         <div className={cn(
           "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
-          "gap-2 sm:gap-3 ",
+          "gap-3 sm:gap-4 ",
         )}>
           <div className=" flex-1 max-w-md justify-center  items-center">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               placeholder="Search clients"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input h-12"
+              className="pl-12 bg-card h-24 text-xl px-6 py-4 min-h-[60px]"
             />
           </div>
-          <div className="flex gap-1 sm:gap-2 md:gap-3">
+          <div className="flex gap-2 sm:gap-3 md:gap-4">
             <Button 
               variant="outline" 
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
+                "bg-card border-border text-xs h-10 sm:h-12",
                 "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
                 "hover:bg-[#508CD3]",
               )}
@@ -310,7 +310,7 @@ const ClientManagementClient = () => {
               variant="outline" 
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
+                "bg-card border-border text-xs h-10 sm:h-12",
                 "hover:bg-[#508CD3]",
               )}
             >
@@ -323,7 +323,7 @@ const ClientManagementClient = () => {
               variant="outline" 
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
+                "bg-card border-border text-xs h-10 sm:h-12",
                 "hover:bg-[#508CD3]",
               )}
             >
@@ -335,7 +335,7 @@ const ClientManagementClient = () => {
               variant="outline" 
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
+                "bg-card border-border text-xs h-10 sm:h-12",
                 "hover:bg-[#508CD3]",
               )}
             >
