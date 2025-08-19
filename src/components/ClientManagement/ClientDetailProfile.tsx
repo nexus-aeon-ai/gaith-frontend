@@ -294,15 +294,15 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
             </Card>
 
             {/* Business Overview Card */}
-            <Card className="border border-gray-200 shadow-sm p-4 h-64">
-              <CardHeader className="pb-4">
+            <Card className="border border-gray-200 shadow-sm p-2 h-64">
+              <CardHeader className="pb-2 px-0">
                 <CardTitle className="text-lg font-semibold text-gray-900">Business Overview</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-700 text-sm leading-relaxed">
+              <CardContent className="space-y-2 p-0">
+                <p className="text-gray-700 text-md leading-relaxed">
                   {clientDetailData.businessOverview.description}
                 </p>
-                <div className="space-y-3">
+                <div className="space-y-1">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Founded:</span>
                     <span className="font-medium text-gray-900">{clientDetailData.businessOverview.founded}</span>
