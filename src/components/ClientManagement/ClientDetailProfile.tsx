@@ -1,12 +1,12 @@
 "use client";
-import { ArrowLeft, Building2, Download, Edit, Globe, Mail, MapPin, Phone, Plus } from "lucide-react";
+import { AlertCircle, ArrowLeft, Building2, Download, Edit, FolderOpen, Globe, Mail, MapPin, Megaphone, Phone, Plus, Target } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 import { Client } from "./TableConfig";
@@ -187,287 +187,316 @@ const ClientDetailProfile = ({ client, onBack }: ClientDetailProfileProps) => {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-lg">
-          <TabsTrigger 
-            value="main-info" 
-            className={cn(
-              "data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm",
-              "text-gray-600 font-medium",
-            )}
-          >
-            Main Information
-          </TabsTrigger>
-          <TabsTrigger 
-            value="campaign-tasks"
-            className={cn(
-              "data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm",
-              "text-gray-600 font-medium",
-            )}
-          >
-            Campaign & Tasks
-          </TabsTrigger>
-          <TabsTrigger 
-            value="historical-performance"
-            className={cn(
-              "data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm",
-              "text-gray-600 font-medium",
-            )}
-          >
-            Historical Performance
-          </TabsTrigger>
-          <TabsTrigger 
-            value="integrations"
-            className={cn(
-              "data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm",
-              "text-gray-600 font-medium",
-            )}
-          >
-            Integrations
-          </TabsTrigger>
-        </TabsList>
+      <div className="space-y-8">
+        <div className="bg-card  p-1">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
+              <TabsTrigger 
+                value="main-info" 
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 transition-all duration-200 rounded-none",
+                  "data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600",
+                  "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50",
+                  "font-medium text-sm",
+                )}
+              >
+                <AlertCircle className="w-4 h-4" />
+                Main Information
+              </TabsTrigger>
+              <TabsTrigger 
+                value="campaign-tasks"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 transition-all duration-200 rounded-none",
+                  "data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600",
+                  "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50",
+                  "font-medium text-sm",
+                )}
+              >
+                <Megaphone className="w-4 h-4" />
+                Campaign & Tasks
+              </TabsTrigger>
+              <TabsTrigger 
+                value="historical-performance"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 transition-all duration-200 rounded-none",
+                  "data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600",
+                  "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50",
+                  "font-medium text-sm",
+                )}
+              >
+                <Target className="w-4 h-4" />
+                Historical Performance
+              </TabsTrigger>
+              <TabsTrigger 
+                value="integrations"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 transition-all duration-200 rounded-none",
+                  "data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600",
+                  "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50",
+                  "font-medium text-sm",
+                )}
+              >
+                <FolderOpen className="w-4 h-4" />
+                Integrations
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        
+      
+        {/* Tab Content */}
+        <div>
+          {activeTab === "main-info" && (
+            <div className="space-y-6">
+              {/* First Row - Smaller Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Agreement Period Card */}
+                <Card className="border border-gray-200 shadow-sm p-2 h-64">
+                  <CardHeader className="p-0 mb-1">
+                    <CardTitle className="text-lg font-semibold text-gray-900">
+                       Agreement Period
+                    </CardTitle>
+                  </CardHeader>
 
-        <TabsContent value="main-info" className="space-y-6">
-          {/* First Row - Smaller Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Agreement Period Card */}
-            <Card className="border border-gray-200 shadow-sm p-4 pb-2 m-0  h-64">
-              <CardHeader className="p-0 mb-1">
-                <CardTitle className="text-lg font-semibold text-gray-900">
-                   Agreement Period
-                </CardTitle>
-              </CardHeader>
+                  {/* Remove default padding */}
+                  <CardContent className="p-0 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-md">From</span>
+                      <span className="text-gray-600 text-md ml-auto pl-4">To</span>
+                    </div>
 
-              {/* Remove default padding */}
-              <CardContent className="p-0 space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-md">From</span>
-                  <span className="text-gray-600 text-md ml-auto pl-4">To</span>
-                </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-900">
+                        {clientDetailData.agreementPeriod.start}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {clientDetailData.agreementPeriod.end}
+                      </span>
+                    </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-900">
-                    {clientDetailData.agreementPeriod.start}
-                  </span>
-                  <span className="font-medium text-gray-900">
-                    {clientDetailData.agreementPeriod.end}
-                  </span>
-                </div>
+                    <Separator className="my-2" />
 
-                <Separator className="my-2" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-md">Contract Status:</span>
+                      <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 text-xs">
+                        {clientDetailData.contractStatus}
+                      </Badge>
+                    </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-md">Contract Status:</span>
-                  <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 text-xs">
-                    {clientDetailData.contractStatus}
-                  </Badge>
-                </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-md">Renewal Due:</span>
+                      <span className="font-medium text-orange-600">
+                        {clientDetailData.renewalDue}
+                      </span>
+                    </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-md">Renewal Due:</span>
-                  <span className="font-medium text-orange-600">
-                    {clientDetailData.renewalDue}
-                  </span>
-                </div>
+                    <Separator className="my-2" />
 
-                <Separator className="my-2" />
+                    {/* removed mt-3 */}
+                    <div className="flex items-center w-full justify-between space-x-2">
+                      <span className="text-gray-600 text-md font-medium">Assigned To:</span>
+                      <div className="flex -space-x-2">
+                        {client.assignedTo.map((person, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white shadow-sm",
+                              person.color,
+                            )}
+                            title={person.name}
+                          >
+                            {person.initial}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                {/* removed mt-3 */}
-                <div className="flex items-center w-full justify-between space-x-2">
-                  <span className="text-gray-600 text-md font-medium">Assigned To:</span>
-                  <div className="flex -space-x-2">
-                    {client.assignedTo.map((person, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white shadow-sm",
-                          person.color,
-                        )}
-                        title={person.name}
-                      >
-                        {person.initial}
+                {/* Business Overview Card */}
+                <Card className="border border-gray-200 shadow-sm p-2 h-64">
+                  <CardHeader className="pb-2 px-0">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Business Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 p-0">
+                    <p className="text-gray-700 text-md leading-relaxed">
+                      {clientDetailData.businessOverview.description}
+                    </p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Founded:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.businessOverview.founded}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Employees:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.businessOverview.employees}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Headquarters:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.businessOverview.headquarters}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Social Media & Contact Card */}
+                <Card className="border border-gray-200 shadow-sm p-2 h-64">
+                  <CardHeader className="pb-4 px-0">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Social Media & Contact</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-0">
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-bold text-sm">in</span>
+                      </div>
+                      <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">X</span>
+                      </div>
+                      <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                        <span className="text-pink-600 font-bold text-sm">IG</span>
+                      </div>
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">f</span>
+                      </div>
+                    </div>
+                    <Separator className="my-4" />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        <span className="text-md text-gray-700">{clientDetailData.contactInfo.email}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <span className="text-md text-gray-700">{clientDetailData.contactInfo.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-4 h-4 text-gray-500" />
+                        <span className="text-md text-gray-700">{clientDetailData.contactInfo.website}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Second Row - Larger Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* Market Information Card */}
+                <Card className="border border-gray-200 shadow-sm p-2">
+                  <CardHeader className="pb-4 px-0">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Market Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-0">
+                    <div className="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
+                      <div className="text-center">
+                        <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-xs text-gray-500">Map placeholder</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Primary Region:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.marketInfo.primaryRegion}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Secondary Regions:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.marketInfo.secondaryRegions}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Target Markets:</span>
+                        <span className="font-medium text-gray-900">{clientDetailData.marketInfo.targetMarkets}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Vision & Mission Card */}
+                <Card className="border border-gray-200 shadow-sm p-2">
+                  <CardHeader className="pb-2 px-0">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Vision & Mission</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 p-0">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1 text-sm">Vision</h4>
+                      <p className="text-lg text-gray-700 leading-relaxed">
+                        {clientDetailData.vision}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1 text-sm">Mission</h4>
+                      <p className="text-lg text-gray-700 leading-relaxed">
+                        {clientDetailData.mission}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Assigned Team Card */}
+                <Card className="border border-gray-200 shadow-sm p-2">
+                  <CardHeader className="pb-4 px-0">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Assigned Team</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-0">
+                    {clientDetailData.assignedTeam.map((member) => (
+                      <div key={member.id} className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-sm",
+                          member.color,
+                        )}>
+                          {member.initial}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{member.name}</p>
+                          <p className="text-xs text-gray-600">{member.role}</p>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
 
-            {/* Business Overview Card */}
-            <Card className="border border-gray-200 shadow-sm p-2 h-64">
-              <CardHeader className="pb-2 px-0">
-                <CardTitle className="text-lg font-semibold text-gray-900">Business Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 p-0">
-                <p className="text-gray-700 text-md leading-relaxed">
-                  {clientDetailData.businessOverview.description}
-                </p>
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Founded:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.founded}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Employees:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.employees}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Headquarters:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.businessOverview.headquarters}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {activeTab === "campaign-tasks" && (
+            <div className="space-y-6">
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Campaign & Tasks</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">Campaign and tasks information will be displayed here.</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-            {/* Social Media & Contact Card */}
-            <Card className="border border-gray-200 shadow-sm p-4 h-64">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Social Media & Contact</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-sm">in</span>
-                  </div>
-                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">X</span>
-                  </div>
-                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                    <span className="text-pink-600 font-bold text-sm">IG</span>
-                  </div>
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">f</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">{clientDetailData.contactInfo.website}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {activeTab === "historical-performance" && (
+            <div className="space-y-6">
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Historical Performance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">Historical performance data will be displayed here.</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          {/* Second Row - Larger Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            {/* Market Information Card */}
-            <Card className="border border-gray-200 shadow-sm p-4">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Market Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
-                  <div className="text-center">
-                    <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-xs text-gray-500">Map placeholder</p>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Primary Region:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.primaryRegion}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Secondary Regions:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.secondaryRegions}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Target Markets:</span>
-                    <span className="font-medium text-gray-900">{clientDetailData.marketInfo.targetMarkets}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Vision & Mission Card */}
-            <Card className="border border-gray-200 shadow-sm p-4">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Vision & Mission</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2 text-sm">Vision</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {clientDetailData.vision}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2 text-sm">Mission</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {clientDetailData.mission}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Assigned Team Card */}
-            <Card className="border border-gray-200 shadow-sm p-4   ">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Assigned Team</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {clientDetailData.assignedTeam.map((member) => (
-                  <div key={member.id} className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-sm",
-                      member.color,
-                    )}>
-                      {member.initial}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{member.name}</p>
-                      <p className="text-xs text-gray-600">{member.role}</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="campaign-tasks" className="space-y-6">
-          <Card className="border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Campaign & Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Campaign and tasks information will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="historical-performance" className="space-y-6">
-          <Card className="border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Historical Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Historical performance data will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="integrations" className="space-y-6">
-          <Card className="border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Integrations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Integration settings and connections will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {activeTab === "integrations" && (
+            <div className="space-y-6">
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Integrations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">Integration settings and connections will be displayed here.</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
