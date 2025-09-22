@@ -1,6 +1,16 @@
-'use client';
-import React, { useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceArea, CartesianGrid, Legend } from "recharts";
+"use client";
+import { useState } from "react";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const data = [
   { month: "JAN", social: 13, email: 12, website: 11 },
@@ -42,8 +52,13 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
         <div className="font-semibold mb-1">{label}</div>
         {payload.map((entry, idx) => (
           <div key={idx} className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full" style={{ background: entry.color }}></span>
-            <span>{entry.name}: <span className="font-bold">{entry.value}%</span></span>
+            <span
+              className="inline-block w-2 h-2 rounded-full"
+              style={{ background: entry.color }}
+            />
+            <span>
+              {entry.name}: <span className="font-bold">{entry.value}%</span>
+            </span>
           </div>
         ))}
       </div>
@@ -81,19 +96,24 @@ const EngagementTrend = () => {
           <option>12 Month</option>
         </select>
       </div>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height={430}>
         <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
           {/* Grid lines */}
-          <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={true} stroke="#64748b44" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={true}
+            horizontal={true}
+            stroke="#64748b44"
+          />
           {/* ReferenceArea bars for each month */}
           {referenceAreas}
-          <XAxis dataKey="month" tick={{ fill: '#a3a3a3', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: '#a3a3a3', fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <Tooltip content={CustomTooltip} />
+          <XAxis dataKey="month" tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
+          <Tooltip content={CustomTooltip} contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }} />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: 12, gap: 30 }} formatter={(value) => {
-            if (value === 'social') return <span className="text-[#3b82f6] font-medium">Social Media</span>;
-            if (value === 'email') return <span className="text-[#fbbf24] font-medium">Email</span>;
-            if (value === 'website') return <span className="text-[#10b981] font-medium">Website</span>;
+            if (value === "social") return <span className="text-[#3b82f6] font-medium">Social Media</span>;
+            if (value === "email") return <span className="text-[#fbbf24] font-medium">Email</span>;
+            if (value === "website") return <span className="text-[#10b981] font-medium">Website</span>;
             return value;
           }} />
           <Line type="monotone" dataKey="social" stroke={colors.social} strokeWidth={2} dot={false} name="Social Media" />
@@ -105,4 +125,4 @@ const EngagementTrend = () => {
   );
 };
 
-export default EngagementTrend; 
+export default EngagementTrend;

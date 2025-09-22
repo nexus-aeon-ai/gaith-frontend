@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
+import React, { useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { calculatePasswordStrength, generateStrongPassword } from "@/lib/functions";
+import { cn } from "@/lib/utils";
 
 import { Button } from "./button";
 import { Input } from "./input";

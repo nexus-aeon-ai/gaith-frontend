@@ -1,6 +1,6 @@
 interface IResponse<T> {
-    data: T;
-    status: number;
+  data: T;
+  status: number;
 }
 
 export type { IResponse };

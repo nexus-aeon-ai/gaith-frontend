@@ -1,9 +1,7 @@
-/* eslint-disable max-lines */
-
 "use client";
 
-import React, { useEffect, useRef, useState, type FC } from "react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import React, { useEffect, useRef, useState, type FC } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -47,7 +45,7 @@ const formatDate = (date: Date, locale: string = "en-us"): string => {
 const getDateAdjustedForTimezone = (dateInput: Date | string): Date => {
   if (typeof dateInput === "string") {
     // Split the date string to get year, month, and day parts
-    const parts = dateInput.split("-").map((part) => parseInt(part, 10));
+    const parts = dateInput.split("-").map(part => parseInt(part, 10));
     // Create a new Date object using the local timezone
     // Note: Month is 0-indexed, so subtract 1 from the month part
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -278,10 +276,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     >
       <>
         <span className={cn("pr-2 opacity-0", isSelected && "opacity-70")}>
-          <CheckIcon
-            width={18}
-            height={18}
-          />
+          <CheckIcon width={18} height={18} />
         </span>
         {label}
       </>
@@ -316,10 +311,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       }}
     >
       <PopoverTrigger asChild>
-        <Button
-          size="lg"
-          variant="outline"
-        >
+        <Button size="lg" variant="outline">
           <div className="text-right">
             <div className="py-1">
               <div>{`${formatDate(range.from, locale)}${
@@ -338,10 +330,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        align={align}
-        className="w-auto"
-      >
+      <PopoverContent align={align} className="w-auto">
         <div className="flex py-2">
           <div className="flex">
             <div className="flex flex-col">
@@ -389,9 +378,9 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                   <div className="flex gap-2">
                     <DateInput
                       value={range.from}
-                      onChange={(date) => {
+                      onChange={date => {
                         const toDate = range.to == null || date > range.to ? date : range.to;
-                        setRange((prevRange) => ({
+                        setRange(prevRange => ({
                           ...prevRange,
                           from: date,
                           to: toDate,
@@ -401,9 +390,9 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     <div className="py-1">-</div>
                     <DateInput
                       value={range.to}
-                      onChange={(date) => {
+                      onChange={date => {
                         const fromDate = date < range.from ? date : range.from;
-                        setRange((prevRange) => ({
+                        setRange(prevRange => ({
                           ...prevRange,
                           from: fromDate,
                           to: date,
@@ -415,13 +404,13 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     <div className="flex gap-2">
                       <DateInput
                         value={rangeCompare?.from}
-                        onChange={(date) => {
+                        onChange={date => {
                           if (rangeCompare) {
                             const compareToDate =
                               rangeCompare.to == null || date > rangeCompare.to
                                 ? date
                                 : rangeCompare.to;
-                            setRangeCompare((prevRangeCompare) => ({
+                            setRangeCompare(prevRangeCompare => ({
                               ...prevRangeCompare,
                               from: date,
                               to: compareToDate,
@@ -437,7 +426,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                       <div className="py-1">-</div>
                       <DateInput
                         value={rangeCompare?.to}
-                        onChange={(date) => {
+                        onChange={date => {
                           if (rangeCompare && rangeCompare.from) {
                             const compareFromDate =
                               date < rangeCompare.from ? date : rangeCompare.from;
@@ -456,7 +445,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               {isSmallScreen && (
                 <Select
                   defaultValue={selectedPreset}
-                  onValueChange={(value) => {
+                  onValueChange={value => {
                     setPreset(value);
                   }}
                 >
@@ -464,11 +453,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRESETS.map((preset) => (
-                      <SelectItem
-                        key={preset.name}
-                        value={preset.name}
-                      >
+                    {PRESETS.map(preset => (
+                      <SelectItem key={preset.name} value={preset.name}>
                         {preset.label}
                       </SelectItem>
                     ))}
@@ -495,7 +481,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
           {!isSmallScreen && (
             <div className="flex flex-col items-end gap-1 pb-6 pl-6 pr-2">
               <div className="flex w-full flex-col items-end gap-1 pb-6 pl-6 pr-2">
-                {PRESETS.map((preset) => (
+                {PRESETS.map(preset => (
                   <PresetButton
                     key={preset.name}
                     preset={preset.name}

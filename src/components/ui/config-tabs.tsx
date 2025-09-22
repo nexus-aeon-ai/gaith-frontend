@@ -12,7 +12,7 @@ interface TabsProps {
 export function Tabs({ value, onValueChange, children, className }: TabsProps) {
   return (
     <div className={cn("flex flex-row gap-2 border-b border-muted", className)}>
-      {React.Children.map(children, (child) => {
+      {React.Children.map(children, child => {
         if (!React.isValidElement<TabProps>(child)) return null;
         return React.cloneElement(child, {
           selected: child.props.value === value,

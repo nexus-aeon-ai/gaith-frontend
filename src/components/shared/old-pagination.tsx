@@ -1,14 +1,11 @@
-/* eslint-disable no-plusplus */
-
 "use client";
 
-import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils";
-import { PAGE_SIZE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { PAGE_SIZE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type TPaginationProps = {
   paginationProps: {
@@ -36,11 +33,11 @@ export default function Pagination({ paginationProps }: TPaginationProps) {
   const renderPageItem = (page: number) => (
     <div
       className={cn(
-        `flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-[#b5b5b5] bg-white`,
+        "flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-[#b5b5b5] bg-white",
         currentPage === page && "border-primary-500 bg-primary-500/20 text-primary-500"
       )}
       onClick={() => handlePageClick(page)}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === "Enter" || e.key === " ") {
           handlePageClick(page);
         }
@@ -64,10 +61,7 @@ export default function Pagination({ paginationProps }: TPaginationProps) {
         pageItems.push(renderPageItem(i));
       }
       pageItems.push(
-        <p
-          key="dots"
-          className="text-slate-500"
-        >
+        <p key="dots" className="text-slate-500">
           ...
         </p>
       );
@@ -75,10 +69,7 @@ export default function Pagination({ paginationProps }: TPaginationProps) {
     } else if (currentPage >= totalPages - 2) {
       pageItems.push(renderPageItem(1));
       pageItems.push(
-        <p
-          key="dots"
-          className="text-slate-500"
-        >
+        <p key="dots" className="text-slate-500">
           ...
         </p>
       );
@@ -88,10 +79,7 @@ export default function Pagination({ paginationProps }: TPaginationProps) {
     } else {
       pageItems.push(renderPageItem(1));
       pageItems.push(
-        <p
-          key="dots"
-          className="text-slate-500"
-        >
+        <p key="dots" className="text-slate-500">
           ...
         </p>
       );
@@ -99,10 +87,7 @@ export default function Pagination({ paginationProps }: TPaginationProps) {
         pageItems.push(renderPageItem(i));
       }
       pageItems.push(
-        <p
-          key="dots2"
-          className="text-slate-500"
-        >
+        <p key="dots2" className="text-slate-500">
           ...
         </p>
       );

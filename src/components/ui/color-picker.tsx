@@ -1,14 +1,15 @@
 import * as React from "react";
 import { HexColorInput, HexColorPicker } from "react-colorful";
 
-import { cn } from "@/lib/utils";
-import { DEFAULT_TAG_COLOR, PRESET_TAG_COLORS } from "@/lib/utils/constants";
-import { isValidHex } from "@/lib/utils/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TagBadge } from "@/components/ui/tag-badge";
+import { cn } from "@/lib/utils";
+
+import { DEFAULT_TAG_COLOR, PRESET_TAG_COLORS } from "@/lib/utils/constants";
+import { isValidHex } from "@/lib/utils/functions";
 
 interface ColorPickerProps {
   value?: string;
@@ -57,10 +58,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
               variant="outline"
               className="border-black-0 bg-transparent hover:bg-transparent sm:h-10"
             >
-              <TagBadge
-                label={label || "Tag Preview"}
-                color={inputValue}
-              />
+              <TagBadge label={label || "Tag Preview"} color={inputValue} />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-4">
@@ -71,7 +69,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 className="!h-48 !w-full"
               />
               <div className="flex flex-wrap justify-between gap-2">
-                {PRESET_TAG_COLORS.map((color) => (
+                {PRESET_TAG_COLORS.map(color => (
                   <button
                     key={color}
                     type="button"

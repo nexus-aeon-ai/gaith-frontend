@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import Providers from "@/provider/providers";
+
 import React from "react";
+import "./globals.css";
+
+import Providers from "@/provider/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +28,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased p-4`}
-      >
-        <Providers>
-          {children}
-        </Providers>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>{children}</Providers>
+        <footer className="w-full text-center py-4 text-xs text-gray-500 dark:text-gray-400">
+          © {new Date().getFullYear()} Gaith | All rights reserved |{" "}
+          <a href="https://gaith.ae" className="underline hover:text-blue-600">
+            Terms of Service
+          </a>
+        </footer>
       </body>
     </html>
   );

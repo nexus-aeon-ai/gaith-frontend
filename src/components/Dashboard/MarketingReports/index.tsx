@@ -1,1 +1,1 @@
-export { default } from "./MarketingReports"; 
+export { default } from "./MarketingReports";

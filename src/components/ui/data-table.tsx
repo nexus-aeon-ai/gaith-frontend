@@ -1,8 +1,7 @@
-import React from "react";
 import { flexRender } from "@tanstack/react-table";
 import type { Table as TTable } from "@tanstack/react-table";
+import React from "react";
 
-import type { TPagination } from "@/types/general";
 import {
   Table,
   TableBody,
@@ -13,6 +12,8 @@ import {
 } from "@/components/ui/table";
 
 import PagePaginationFilters from "../shared/page-pagination-filters";
+
+import type { TPagination } from "@/types/general";
 
 interface DataTableProps {
   table: TTable<any>;
@@ -26,9 +27,9 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
       <div className="w-full overflow-auto rounded-md border border-gray-300 bg-card">
         <Table>
           <TableHeader className="text-left">
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -42,12 +43,9 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
+              table.getRowModel().rows.map(row => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                  {row.getVisibleCells().map(cell => {
                     return (
                       <TableCell key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -58,10 +56,7 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={colSpan}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={colSpan} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

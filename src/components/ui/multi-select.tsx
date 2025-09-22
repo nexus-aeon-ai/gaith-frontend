@@ -1,8 +1,7 @@
-import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, ChevronDown, Sparkles, XCircle, XIcon } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -16,6 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/scrollable-popover";
 import { Separator } from "@/components/ui/separator";
 import { TagBadge } from "@/components/ui/tag-badge";
+import { cn } from "@/lib/utils";
 
 const multiSelectVariants = cva(
   "m-1 !flex transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110",
@@ -96,7 +96,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
     const toggleOption = (value: string) => {
       const newSelectedValues = selectedValues.includes(value)
-        ? selectedValues.filter((v) => v !== value)
+        ? selectedValues.filter(v => v !== value)
         : [...selectedValues, value];
       setSelectedValues(newSelectedValues);
       onValueChange(newSelectedValues);
@@ -111,7 +111,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       if (refetchQuery && !isPopoverOpen) {
         refetchQuery();
       }
-      setIsPopoverOpen((prev) => !prev);
+      setIsPopoverOpen(prev => !prev);
     };
 
     const clearExtraOptions = () => {
@@ -124,17 +124,14 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       if (selectedValues.length === options.length) {
         handleClear();
       } else {
-        const allValues = options.map((option) => option.value);
+        const allValues = options.map(option => option.value);
         setSelectedValues(allValues);
         onValueChange(allValues);
       }
     };
 
     return (
-      <Popover
-        open={isPopoverOpen}
-        onOpenChange={setIsPopoverOpen}
-      >
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
           <Button
             ref={ref}
@@ -148,8 +145,8 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             {selectedValues.length > 0 ? (
               <div className="flex w-full items-center justify-between">
                 <div className="flex flex-wrap items-center">
-                  {selectedValues.slice(0, maxCount).map((value) => {
-                    const option = options.find((o) => o.value === value);
+                  {selectedValues.slice(0, maxCount).map(value => {
+                    const option = options.find(o => o.value === value);
                     const IconComponent = option?.icon;
                     return (
                       <TagBadge
@@ -187,15 +184,12 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                 <div className="flex items-center justify-between">
                   <XIcon
                     className="mx-2 h-4 cursor-pointer text-muted-foreground"
-                    onClick={(event) => {
+                    onClick={event => {
                       event.stopPropagation();
                       handleClear();
                     }}
                   />
-                  <Separator
-                    orientation="vertical"
-                    className="flex h-full min-h-6"
-                  />
+                  <Separator orientation="vertical" className="flex h-full min-h-6" />
                   <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground" />
                 </div>
               </div>
@@ -213,19 +207,12 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
           <Command>
-            <CommandInput
-              placeholder="Search..."
-              onKeyDown={handleInputKeyDown}
-            />
+            <CommandInput placeholder="Search..." onKeyDown={handleInputKeyDown} />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {selectAll && (
-                  <CommandItem
-                    key="all"
-                    onSelect={toggleAll}
-                    className="cursor-pointer"
-                  >
+                  <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
                     <div
                       className={cn(
                         "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
@@ -239,7 +226,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     <span>(Select All)</span>
                   </CommandItem>
                 )}
-                {options.map((option) => {
+                {options.map(option => {
                   const isSelected = selectedValues.includes(option.value);
                   return (
                     <CommandItem
@@ -282,10 +269,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                       >
                         Clear
                       </CommandItem>
-                      <Separator
-                        orientation="vertical"
-                        className="flex h-full min-h-6"
-                      />
+                      <Separator orientation="vertical" className="flex h-full min-h-6" />
                     </>
                   )}
                   <CommandSeparator />

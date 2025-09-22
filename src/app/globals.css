@@ -41,14 +41,84 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-secondary-text: var(--secondary-text);
+  --color-primary-text: var(--primary-text);
+  --color-input: var(--input);
+  --color-navigation: var(--navigation);
 }
 
 body {
-  background-color: #F9FBFA !important;
+  background-color: #f9fbfa !important;
 }
 
 .dark body {
-  background-color: #181C23 !important;
+  background-color: #0F1220 !important;
+}
+
+/* Calendar Styles */
+.rbc-month-view {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+.rbc-month-row {
+  margin-bottom: 8px !important;
+}
+
+.rbc-date-cell {
+  border-radius: 16px !important;
+  padding: 10px !important;
+}
+
+.rbc-day-bg {
+  border-radius: 24px !important;
+  margin: 4px !important;
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.rbc-today {
+  border-radius: 24px !important;
+  margin: 0 !important;
+  background-color: var(--card) !important;
+  border: 2px solid #3072C0 !important;
+}
+
+.rbc-off-range-bg {
+  border-radius: 24px !important;
+  margin: 4px !important;
+  background-color: var(--card) !important;
+  opacity: 0.6 !important;
+}
+
+.rbc-header {
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 4px !important;
+  font-weight: 500 !important;
+  color: #94A3B8 !important;
+  z-index: 1 !important;
+}
+
+.rbc-toolbar {
+  display: none !important;
+}
+
+.rbc-toolbar-label {
+  display: none !important;
+}
+
+.rbc-btn-group {
+  display: none !important;
+}
+
+.rbc-month-row + .rbc-month-row {
+  border-top: none !important;
+}
+
+.rbc-month-row {
+  border: none !important;
 }
 
 :root {
@@ -84,12 +154,16 @@ body {
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
+  --secondary-text :oklch(0.3281 0.0289 273.77);
+  --primary-text :oklch(0.1431 0.0223 273.48);
+  --input :oklch(0.9048 0.007 247.9);
+  --navigation :oklch(0.9855 0.0034 174.49);
 }
 
 .dark {
-  --background: oklch(0.13 0.028 261.692);
+  --background: oklch(0.1867 0.029 274.03);
   --foreground: oklch(0.985 0.002 247.839);
-  --card: oklch(0.21 0.034 264.665);
+  --card: oklch(0.288 0.0527 270.72);
   --card-foreground: oklch(0.985 0.002 247.839);
   --popover: oklch(0.21 0.034 264.665);
   --popover-foreground: oklch(0.985 0.002 247.839);
@@ -118,6 +192,11 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --secondary-text :oklch(0.8558 0.0169 274.79);
+  --primary-text :oklch(0.9852 0.0067 233.64);
+  --input :oklch(0.2184 0.0326 253.02);
+  --navigation :oklch(0.1356 0.0164 269.4);
+
 }
 
 @layer base {

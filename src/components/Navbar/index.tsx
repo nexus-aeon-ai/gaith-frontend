@@ -1,125 +1,167 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/lib/store/authStore";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sun, Moon } from "lucide-react";
-import { ChevronDown } from "lucide-react";
-import { Button } from "../ui/button";
-import Image from "next/image";
 import { setCookie } from "cookies-next";
-import { IProfile } from "@/lib/types";
+import { ChevronDown, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-// Simple spinner component
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/lib/store/authStore";
+import { IProfile } from "@/lib/types";
+
+// Spinner
 const Spinner = () => (
   <div className="flex items-center justify-center">
-    <div className="animate-spin rounded-full h-7 w-7 border-t-2 border-b-2 border-primary"></div>
+    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary" />
   </div>
 );
 
 interface NavbarProps {
-  user: IProfile; 
+  user: IProfile | null;
 }
+
 const Navbar = ({ user }: NavbarProps) => {
-  const { setUser, setLanguage, language: languageStore  } = useAuthStore();
+  const { setUser, setLanguage, language: languageStore } = useAuthStore();
   const { theme: themeNext, setTheme: setThemeNext } = useTheme();
+
   const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    setUser(user);
-    setAvatar(user?.profilePic || "/images/default-avatar.jpg");
-    if (user?.profilePic) {
-      setAvatarLoading(true);
-    }else{
-      setAvatarLoading(false);
+    if (user) {
+      setUser(user);
+      setAvatar(user?.profilePic || "/images/default-avatar.jpg");
+      setAvatarLoading(!!user?.profilePic);
     }
   }, [user, setUser]);
 
   const handleThemeChange = (theme: string) => {
     setThemeNext(theme as "light" | "dark");
     setCookie("theme", theme);
-  }
+  };
+
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
-  }
-
+  };
   return (
-    <nav className="w-full flex items-center justify-between px-6 py-4 bg-background rounded-xl text-foreground">
-      {/* Logo */}
-      <div className="flex items-center gap-2 h-10 w-10">
-        <Image
-          src="/images/logo.svg"
-          alt="Logo"
-          className={`h-10 w-10`}
-          width={40}
-          height={40}
-        />
-      </div>
-      {/* Date Range */}
-      <div className="flex items-center gap-4">
-        {/* Theme Switcher */}
-        <div className="flex gap-2 bg-card rounded-[28px] px-2 py-1">
-          <Button
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition border-2 ${themeNext === "light" ? "bg-[#FFD250] border-[#FFD250]" : "bg-transparent border-transparent"}`}
-            onClick={() => handleThemeChange("light")}
-            aria-label="Light mode"
-          >
-            <Sun className="w-7 h-7" color="#A97A00" fill={themeNext === "light" ? "#FFD250" : "none"} />
-          </Button>
-          <Button
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition border-2 ${themeNext === "dark" ? "bg-[#23272E] border-[#FFD250]" : "bg-transparent border-transparent"}`}
-            onClick={() => handleThemeChange("dark")}
-            aria-label="Dark mode"
-          >
-            <Moon className="w-7 h-7" color="#FFD250" fill={themeNext === "dark" ? "#23272E" : "none"} />
-          </Button>
-        </div>
-        {/* Language Switcher */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2 bg-card rounded-[28px] px-4 py-2 cursor-pointer min-w-[60px]">
-              <span className="text-lg text-foreground">{languageStore}</span>
-              <ChevronDown className="w-5 h-5 text-foreground" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent >
-            <DropdownMenuItem onClick={() => handleLanguageChange("EN")}>🇺🇸 English</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleLanguageChange("AR")}>🇸🇦 العربية</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* User Profile */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 bg-card rounded-[28px] px-4 py-2 cursor-pointer min-w-[100px]">
-              <div className="relative h-7 w-7">
-                {avatarLoading && <Spinner />}
-                <Image
-                  src={avatar}
-                  alt="User Avatar"
-                  className={`h-7 w-7 rounded-full ${avatarLoading ? "hidden" : ""}`}
-                  width={32}
-                  height={32}
-                  onLoad={() => setAvatarLoading(false)}
-                  onError={() => {
-                      setAvatar("/images/default-avatar.jpg");
-                      setAvatarLoading(false);
-                  }}
-                />
+    <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
+      <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
+        <NavigationMenu className="min-w-full w-full mx-auto flex items-center justify-between px-6 py-4 bg-background rounded-none text-foreground shadow max-h-16">
+          <NavigationMenuList className="flex justify-between min-w-full !w-full items-center">
+            {/* Sidebar Trigger */}
+            <NavigationMenuItem>
+              <SidebarTrigger />
+            </NavigationMenuItem> 
+            {/* Logo */}
+            <NavigationMenuItem>
+              <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
+            </NavigationMenuItem>
+
+            {/* Actions */}
+            <NavigationMenuItem>
+              <div className="flex items-center gap-4">
+                {/* Theme Toggle */}
+                <div className="flex gap-2 bg-card rounded-full px-2 py-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`rounded-full border-2 ${
+                      themeNext === "light" ? "bg-[#FFD250] border-[#FFD250]" : "border-transparent"
+                    }`}
+                    onClick={() => handleThemeChange("light")}
+                    aria-label="Light Mode"
+                  >
+                    <Sun
+                      className="h-6 w-6"
+                      color="#A97A00"
+                      fill={themeNext === "light" ? "#FFD250" : "none"}
+                    />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`rounded-full border-2 ${
+                      themeNext === "dark" ? "bg-[#23272E] border-[#FFD250]" : "border-transparent"
+                    }`}
+                    onClick={() => handleThemeChange("dark")}
+                    aria-label="Dark Mode"
+                  >
+                    <Moon
+                      className="h-6 w-6"
+                      color="#FFD250"
+                      fill={themeNext === "dark" ? "#23272E" : "none"}
+                    />
+                  </Button>
+                </div>
+
+                {/* Language Switcher */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 cursor-pointer min-w-[60px]">
+                      <span className="text-base font-medium">{languageStore}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleLanguageChange("EN")}>
+                  🇺🇸 English
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleLanguageChange("AR")}>
+                  🇸🇦 العربية
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* User Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center gap-3 bg-card rounded-full px-4 py-2 cursor-pointer min-w-[120px]">
+                      <div className="relative h-7 w-7">
+                        {avatarLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Image
+                            src={avatar}
+                            alt="User Avatar"
+                            className="rounded-full object-cover"
+                            fill
+                            onLoad={() => setAvatarLoading(false)}
+                            onError={() => {
+                              setAvatar("/images/default-avatar.jpg");
+                              setAvatarLoading(false);
+                            }}
+                          />
+                        )}
+                      </div>
+                      <span className="text-base font-medium truncate">{user?.fullName || "User"}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem>Logout</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <span className="text-lg text-foreground">{user?.fullName}</span>
-              <ChevronDown className="w-5 h-5 text-foreground" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
       </div>
-    </nav>
+    </header>
   );
 };
 
-export default Navbar; 
+export default Navbar;

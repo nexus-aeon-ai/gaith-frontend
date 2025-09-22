@@ -8,14 +8,14 @@
  * @returns {Promise<string | null>} The auth token if present, otherwise null.
  */
 export const getAuthToken = async (): Promise<string | null> => {
-    if (typeof window !== "undefined") {
-      // Client-side
-      const match = document.cookie.match(/(^| )authToken=([^;]+)/);
-      return match ? match[2] : null;
-    }
-  
-    // Server-side
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    return cookieStore.get("authToken")?.value || null;
-  };
+  if (typeof window !== "undefined") {
+    // Client-side
+    const match = document.cookie.match(/(^| )authToken=([^;]+)/);
+    return match ? match[2] : null;
+  }
+
+  // Server-side
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  return cookieStore.get("authToken")?.value || null;
+};
