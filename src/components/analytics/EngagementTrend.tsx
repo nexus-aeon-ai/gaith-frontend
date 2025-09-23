@@ -10,6 +10,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  // ComposedChart
+  ComposedChart,
+  Bar,
 } from "recharts";
 
 const data = [
@@ -25,6 +28,15 @@ const data = [
   { month: "OCT", social: 18, email: 11, website: 14 },
   { month: "NOV", social: 15, email: 13, website: 13 },
   { month: "DEC", social: 17, email: 14, website: 15 },
+];
+const data2 = [
+  { name: "Jan", sales: 4000, revenue: 2400 },
+  { name: "Feb", sales: 3000, revenue: 1398 },
+  { name: "Mar", sales: 2000, revenue: 9800 },
+  { name: "Apr", sales: 2780, revenue: 3908 },
+  { name: "May", sales: 1890, revenue: 4800 },
+  { name: "Jun", sales: 2390, revenue: 3800 },
+  { name: "Jul", sales: 3490, revenue: 4300 },
 ];
 
 const colors = {
@@ -96,31 +108,23 @@ const EngagementTrend = () => {
           <option>12 Month</option>
         </select>
       </div>
-      <ResponsiveContainer width="100%" height={430}>
-        <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-          {/* Grid lines */}
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={true}
-            horizontal={true}
-            stroke="#64748b44"
-          />
-          {/* ReferenceArea bars for each month */}
-          {referenceAreas}
-          <XAxis dataKey="month" tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 30]} tickFormatter={v => `${v}%`} tick={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 15 }} axisLine={false} tickLine={false} />
-          <Tooltip content={CustomTooltip} contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }} />
-          <Legend iconType="circle" wrapperStyle={{ paddingTop: 12, gap: 30 }} formatter={(value) => {
-            if (value === "social") return <span className="text-[#3b82f6] font-medium">Social Media</span>;
-            if (value === "email") return <span className="text-[#fbbf24] font-medium">Email</span>;
-            if (value === "website") return <span className="text-[#10b981] font-medium">Website</span>;
-            return value;
-          }} />
-          <Line type="monotone" dataKey="social" stroke={colors.social} strokeWidth={2} dot={false} name="Social Media" />
-          <Line type="monotone" dataKey="email" stroke={colors.email} strokeWidth={2} dot={false} name="Email" />
-          <Line type="monotone" dataKey="website" stroke={colors.website} strokeWidth={2} dot={false} name="Website" />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="w-full h-[400px]">
+        <ResponsiveContainer>
+          <ComposedChart data={data2} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+
+            {/* Bar chart */}
+            <Bar dataKey="sales" barSize={40} fill="#82ca9d" />
+
+            {/* Line chart */}
+            <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={3} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
