@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 import { getProfile } from "@/lib/api/auth";
-import { redirect } from "next/navigation";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const userProfile = await getProfile();

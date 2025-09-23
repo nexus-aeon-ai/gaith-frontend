@@ -1,8 +1,8 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/store/authStore";
 import { IProfile } from "@/lib/types";
@@ -38,6 +33,9 @@ const Navbar = ({ user }: NavbarProps) => {
 
   const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
+  useEffect(() => {
+    console.log("Current theme:", themeNext);
+}, [themeNext]);
 
   useEffect(() => {
     if (user) {
@@ -57,22 +55,24 @@ const Navbar = ({ user }: NavbarProps) => {
     setCookie("language", language);
   };
   return (
-    <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
+    <header className="flex sticky z-50 w-full items-center">
       <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
-        <NavigationMenu className="min-w-full w-full mx-auto flex items-center justify-between px-6 py-4 bg-background rounded-none text-foreground shadow max-h-16">
-          <NavigationMenuList className="flex justify-between min-w-full !w-full items-center">
-            {/* Sidebar Trigger */}
-            <NavigationMenuItem>
-              <SidebarTrigger />
-            </NavigationMenuItem> 
-            {/* Logo */}
-            <NavigationMenuItem>
-              <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
-            </NavigationMenuItem>
-
-            {/* Actions */}
-            <NavigationMenuItem>
-              <div className="flex items-center gap-4">
+        <div className="min-w-full flex items-center justify-between sm:px-6 px-4 py-8 bg-background rounded-xl text-foreground shadow max-h-16">
+          <div className="flex flex-1 items-center justify-between w-full">
+            {/* logo and collapse trigger */}
+            <div className="flex w-full items-center gap-4">
+              {/* Sidebar Trigger */}
+              <div>
+                <SidebarTrigger />
+              </div>
+              {/* Logo */}
+              <div className="sm:block hidden">
+                <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
+              </div>
+            </div>
+            {/* Actions list */}
+            <div className="flex w-full items-center md:justify-end justify-center ">
+              <div className="flex items-center md:gap-4 gap-1">
                 {/* Theme Toggle */}
                 <div className="flex gap-2 bg-card rounded-full px-2 py-1">
                   <Button
@@ -117,10 +117,10 @@ const Navbar = ({ user }: NavbarProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleLanguageChange("EN")}>
-                  🇺🇸 English
+                      🇺🇸 English
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleLanguageChange("AR")}>
-                  🇸🇦 العربية
+                      🇸🇦 العربية
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -128,7 +128,7 @@ const Navbar = ({ user }: NavbarProps) => {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <div className="flex items-center gap-3 bg-card rounded-full px-4 py-2 cursor-pointer min-w-[120px]">
+                    <div className="flex items-center gap-3 bg-card rounded-full px-2 md:px-4 py-2 cursor-pointer">
                       <div className="relative h-7 w-7">
                         {avatarLoading ? (
                           <Spinner />
@@ -146,7 +146,12 @@ const Navbar = ({ user }: NavbarProps) => {
                           />
                         )}
                       </div>
-                      <span className="text-base font-medium truncate">{user?.fullName || "User"}</span>
+                      <span className="md:hidden block text-base font-medium truncate">
+                        {user?.fullName.slice(0, 1) || "User"}
+                      </span>
+                      <span className=" md:block hidden text-base font-medium truncate">
+                        {user?.fullName || "User"}
+                      </span>
                       <ChevronDown className="h-4 w-4" />
                     </div>
                   </DropdownMenuTrigger>
@@ -156,9 +161,9 @@ const Navbar = ({ user }: NavbarProps) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
