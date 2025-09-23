@@ -33,9 +33,6 @@ const Navbar = ({ user }: NavbarProps) => {
 
   const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
-  useEffect(() => {
-    console.log("Current theme:", themeNext);
-}, [themeNext]);
 
   useEffect(() => {
     if (user) {
@@ -55,7 +52,7 @@ const Navbar = ({ user }: NavbarProps) => {
     setCookie("language", language);
   };
   return (
-    <header className="flex sticky z-50 w-full items-center">
+    <header className="flex sticky top-0 z-50 w-full items-center">
       <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
         <div className="min-w-full flex items-center justify-between sm:px-6 px-4 py-8 bg-background rounded-xl text-foreground shadow max-h-16">
           <div className="flex flex-1 items-center justify-between w-full">
