@@ -1,198 +1,84 @@
-// "use client";
-// import { useTheme } from "next-themes";
-// import React from "react";
-// import { Cell, Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
-
-
-// const budgetData = [
-//   { label: "Nexus", value: 25, color: "#F5B719" },
-//   { label: "Nexus", value: 30, color: "#A1C2E7" },
-//   { label: "Nexus", value: 15, color: "#91E4C8" },
-//   { label: "Nexus", value: 30, color: "#3072C0" },
-// ];
-
-// const RADIAN = Math.PI / 180;
-
-// const CustomTooltip = ({ active, payload }: any) => {
-//   if (active && payload && payload.length) {
-//     const data = payload[0].payload;
-//     return (
-//       <div className="bg-white z-100 absolute top-12 dark:bg-gray-800 shadow-md rounded-md px-3 py-2 text-sm">
-//         <p className="font-semibold">{data.label}</p>
-//         <p>{data.value} Đ</p>
-//       </div>
-//     );
-//   }
-//   return null;
-// };
-
-// // Active slice only moves outward
-// const renderActiveShape = (props: any) => {
-//   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-
-//   // Simply increase outerRadius
-//   const expandedOuterRadius = outerRadius + 10;
-
-//   return (
-//     <Sector
-//       cx={cx}
-//       cy={cy}
-//       innerRadius={innerRadius}
-//       outerRadius={expandedOuterRadius}
-//       startAngle={startAngle}
-//       endAngle={endAngle}
-//       fill={fill}
-//     />
-//   );
-// };
-
-// const BudgetUtilization = () => {
-//   const { theme: themeNext } = useTheme();
-
-
-//   return (
-//     <div className="bg-card rounded-lg shadow-md p-4 w-full flex flex-col text-card-foreground">
-//       <div className="flex items-center justify-between mb-4">
-//         <h2 className="font-semibold text-lg text-card-foreground">Budget Utilization</h2>
-//         <select className="text-sm px-3 py-1 bg-card rounded-3xl border appearance-none">
-//           <option>3 Month</option>
-//         </select>
-//       </div>
-//       <hr className="border-t border-gray-300 dark:border-gray-600 mb-4" />
-
-//       <div className="flex-1 flex items-center justify-center">
-//         <div className="relative w-full h-[400px]">
-//           <ResponsiveContainer width="100%" height="100%">
-//             <PieChart>
-//               <Pie
-//                 activeShape={renderActiveShape}
-//                 data={budgetData}
-//                 dataKey="value"
-//                 nameKey="label"
-//                 cx="50%"
-//                 cy="50%"
-//                 innerRadius={110}
-//                 outerRadius={160}
-//                 paddingAngle={1}
-//                 cornerRadius={5}
-//                 label={false} // disable default labels
-//               >
-//                 {budgetData.map((entry, index) => (
-//                   <Cell key={`cell-${index}`} fill={entry.color} />
-//                 ))}
-//               </Pie>
-
-//               {/* Inner Circle */}
-//               <Pie
-//                 data={[{ value: 1 }]}
-//                 dataKey="value"
-//                 cx="50%"
-//                 cy="50%"
-//                 outerRadius={100}
-//                 fill={themeNext === "light" ? "#F3F7FC" : "#0D1E32"}
-//                 stroke="none"
-//                 isAnimationActive={false}
-//               />
-//               <Tooltip content={CustomTooltip} />
-//             </PieChart>
-//           </ResponsiveContainer>
-
-//           {/* Overlay Text */}
-//           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-//             <div
-//               className="bg-[#E4E9F1] dark:bg-[#0F1220] rounded-full w-[170px] h-[170px] flex flex-col items-center justify-center text-center"
-//               style={{
-//                 boxShadow: "0px 3.11px 15.57px 0px #00000029",
-//               }}
-//             >
-//               <div className="font-bold text-xl text-gray-900 dark:text-gray-100">100,887.5 Đ</div>
-//               <div className="text-xs text-gray-500 dark:text-gray-400">Total Budget</div>
-//             </div>
-//           </div>
-
-//           {/* Render labels manually so they never vanish */}
-//           <svg className="absolute inset-0 w-full h-full pointer-events-none">
-//             {budgetData.map((entry, index) => {
-//               const total = budgetData.reduce((sum, d) => sum + d.value, 0);
-//               const startAngle =
-//                 index === 0
-//                   ? 0
-//                   : budgetData.slice(0, index).reduce((sum, d) => sum + (d.value / total) * 360, 0);
-//               const midAngle = startAngle + ((entry.value / total) * 360) / 2;
-
-//               const radius = 110 + (160 - 110) * 0.5; // same as inner + half width
-//               const cx = 200; // center x, adjust to match container
-//               const cy = 200; // center y
-//               const x = cx + radius * Math.cos(-midAngle * RADIAN);
-//               const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-//               return (
-//                 <text
-//                   key={index}
-//                   x={x}
-//                   y={y}
-//                   fill="black"
-//                   textAnchor="middle"
-//                   dominantBaseline="central"
-//                   fontSize={12}
-//                   fontWeight="bold"
-//                 >
-//                   {`${((entry.value / total) * 100).toFixed(0)}%`}
-//                 </text>
-//               );
-//             })}
-//           </svg>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default BudgetUtilization;
-
-
-
 "use client";
-import { useTheme } from "next-themes";
-import React from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
 
-const budgetData = [
-  { label: "Nexus", value: 25, color: "#F5B719" },
-  { label: "Nexus", value: 30, color: "#A1C2E7" },
-  { label: "Nexus", value: 15, color: "#91E4C8" },
-  { label: "Nexus", value: 30, color: "#3072C0" },
+import { ChevronDown } from "lucide-react";
+import React, { useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Mock data for different time periods
+const budgetDataByPeriod = {
+  3: [
+    { label: "Marketing", value: 25, color: "#F5B719" },
+    { label: "Development", value: 30, color: "#A1C2E7" },
+    { label: "Operations", value: 15, color: "#91E4C8" },
+    { label: "Sales", value: 30, color: "#3072C0" },
+  ],
+  6: [
+    { label: "Marketing", value: 35, color: "#F5B719" },
+    { label: "Development", value: 25, color: "#A1C2E7" },
+    { label: "Operations", value: 20, color: "#91E4C8" },
+    { label: "Sales", value: 20, color: "#3072C0" },
+  ],
+  9: [
+    { label: "Marketing", value: 20, color: "#F5B719" },
+    { label: "Development", value: 40, color: "#A1C2E7" },
+    { label: "Operations", value: 25, color: "#91E4C8" },
+    { label: "Sales", value: 15, color: "#3072C0" },
+  ],
+  12: [
+    { label: "Marketing", value: 30, color: "#F5B719" },
+    { label: "Development", value: 35, color: "#A1C2E7" },
+    { label: "Operations", value: 10, color: "#91E4C8" },
+    { label: "Sales", value: 25, color: "#3072C0" },
+  ],
+};
+
+const timeOptions = [
+  { value: 3 as const, label: "3 Months" },
+  { value: 6 as const, label: "6 Months" },
+  { value: 9 as const, label: "9 Months" },
+  { value: 12 as const, label: "12 Months" },
 ];
 
 const RADIAN = Math.PI / 180;
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className="bg-white z-100 absolute top-12 dark:bg-gray-800 shadow-md rounded-md px-3 py-2 text-sm">
-        <p className="font-semibold">{data.label}</p>
-        <p>{data.value} Đ</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Active slice only moves outward
+// Enhanced active shape that scales the slice
 const renderActiveShape = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-  const expandedOuterRadius = outerRadius + 10;
+  
   return (
-    <Sector
-      cx={cx}
-      cy={cy}
-      innerRadius={innerRadius}
-      outerRadius={expandedOuterRadius}
-      startAngle={startAngle}
-      endAngle={endAngle}
-      fill={fill}
-    />
+    <g>
+      {/* Regular slice */}
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+      {/* Expanded overlay slice */}
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        stroke="#fff"
+        strokeWidth={2}
+        style={{ filter: "brightness(1.1)" }}
+      />
+    </g>
   );
 };
 
@@ -210,27 +96,27 @@ const useMediaQuery = (query: string) => {
 };
 
 const BudgetUtilization: React.FC = () => {
-  const { theme: themeNext } = useTheme();
+  const [selectedPeriod, setSelectedPeriod] = useState<3 | 6 | 9 | 12>(3);
+  
+  // Get current data based on selected period
+  const currentData = budgetDataByPeriod[selectedPeriod];
+  const selectedOption = timeOptions.find(option => option.value === selectedPeriod);
+  
+  // Calculate total budget for selected period
+  const totalBudget = currentData.reduce((sum, item) => sum + item.value, 0);
 
   // responsive breakpoints
   const isSmall = useMediaQuery("(max-width: 640px)");
   const isMedium = useMediaQuery("(max-width: 1024px)");
 
   // radii based on viewport
-  const innerRadius = isSmall ? 60 : isMedium ? 80 : 110;
-  const outerRadius = isSmall ? 90 : isMedium ? 120 : 160;
+  const innerRadius = isSmall ? 90 : isMedium ? 110 : 120;
+  const outerRadius = isSmall ? 130: isMedium ? 150 : 180;
   const overlaySize = Math.max(64, Math.min(220, Math.round(innerRadius * 1.6)));
 
   // custom label uses actual cx/cy provided by Recharts (fixes positioning)
   const renderCustomizedLabel = (props: any) => {
-    const {
-      cx,
-      cy,
-      midAngle,
-      innerRadius: ir,
-      outerRadius: orr,
-      percent,
-    } = props;
+    const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent } = props;
 
     // position the label between inner and outer radius
     const factor = isSmall ? 0.2 : isMedium ? 0.4 : 0.4;
@@ -241,13 +127,13 @@ const BudgetUtilization: React.FC = () => {
     // pick anchor so text doesn't run into the center
     const textAnchor = x > cx ? "start" : "end";
     const fontSize = isSmall ? 10 : 12;
-    const fill = themeNext === "light" ? "#000" : "#fff";
+   
 
     return (
       <text
         x={x}
         y={y}
-        fill={fill}
+        fill={"#000"}
         textAnchor={textAnchor}
         dominantBaseline="central"
         fontSize={fontSize}
@@ -262,9 +148,28 @@ const BudgetUtilization: React.FC = () => {
     <div className="bg-card rounded-lg shadow-md p-4 w-full flex flex-col text-card-foreground">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-lg text-card-foreground">Budget Utilization</h2>
-        <select className="text-sm px-3 py-1 bg-card rounded-3xl border appearance-none">
-          <option>3 Month</option>
-        </select>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="text-sm px-3 py-1 dark:bg-card bg-white dark:hover:bg-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:hover:text-gray-100 rounded-3xl border h-auto gap-1"
+            >
+              {selectedOption?.label}
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[120px]">
+            {timeOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => setSelectedPeriod(option.value)}
+                className={selectedPeriod === option.value ? "bg-accent" : ""}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <hr className="border-t border-gray-300 dark:border-gray-600 mb-4" />
 
@@ -274,35 +179,25 @@ const BudgetUtilization: React.FC = () => {
             <PieChart>
               <Pie
                 activeShape={renderActiveShape}
-                data={budgetData}
+                data={currentData}
                 dataKey="value"
                 nameKey="label"
                 cx="50%"
                 cy="50%"
                 innerRadius={innerRadius}
                 outerRadius={outerRadius}
-                paddingAngle={1}
+                paddingAngle={3}
                 cornerRadius={5}
                 labelLine={false}
-                label={renderCustomizedLabel} // <-- custom labels positioned correctly
+                label={renderCustomizedLabel}
               >
-                {budgetData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {currentData.map((entry) => (
+                  <Cell  
+                    key={`cell-${entry.label}`} 
+                    fill={entry.color}
+                  />
                 ))}
               </Pie>
-
-              {/* Inner Circle */}
-              <Pie
-                data={[{ value: 1 }]}
-                dataKey="value"
-                cx="50%"
-                cy="50%"
-                outerRadius={innerRadius - 8}
-                fill={themeNext === "light" ? "#F3F7FC" : "#0D1E32"}
-                stroke="none"
-                isAnimationActive={false}
-              />
-              <Tooltip content={CustomTooltip} />
             </PieChart>
           </ResponsiveContainer>
 
@@ -316,11 +211,19 @@ const BudgetUtilization: React.FC = () => {
                 boxShadow: "0px 3.11px 15.57px 0px #00000029",
               }}
             >
-              <div className={`font-bold ${isSmall ? "text-sm" : "text-xl"} text-gray-900 dark:text-gray-100`}>
-                100,887.5 Đ
+              <div
+                className={`font-bold ${
+                  isSmall ? "text-sm" : "text-xl"
+                } text-gray-900 dark:text-gray-100`}
+              >
+                {totalBudget.toLocaleString()}K Đ
               </div>
-              <div className={`text-gray-500 dark:text-gray-400 ${isSmall ? "text-[10px]" : "text-xs"}`}>
-                Total Budget
+              <div
+                className={`text-gray-500 dark:text-gray-400 ${
+                  isSmall ? "text-[10px]" : "text-xs"
+                }`}
+              >
+                Total Budget ({selectedPeriod}M)
               </div>
             </div>
           </div>
