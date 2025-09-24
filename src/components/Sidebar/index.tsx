@@ -120,8 +120,8 @@ const settingsItems = [
   },
 ];
 const SidebarUI  = () => (
-  <Sidebar className="top-(--header-height) !h-[calc(100svh-var(--header-height))]">
-    <SidebarContent>
+  <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none">
+    <SidebarContent className="h-full bg-background md:shadow-md rounded-2xl scrollbar-hide overflow-y-auto">
       <SidebarGroup>
         <SidebarMenu>
           {mainItems.map(item => (
