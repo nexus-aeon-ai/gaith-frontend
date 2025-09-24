@@ -54,7 +54,7 @@ const Navbar = ({ user }: NavbarProps) => {
   return (
     <header className="flex sticky top-0 z-50 w-full items-center px-4">
       <div className="flex h-[--header-height] w-full items-center gap-2 ">
-        <div className="min-w-full flex items-center justify-between sm:px-6 px-4 py-8 bg-background rounded-xl text-foreground shadow h-[85px]">
+        <div className="min-w-full flex items-center justify-between px-2 py-8 bg-background rounded-xl text-foreground shadow h-[85px]">
           <div className="flex flex-1 items-center justify-between w-full">
             {/* logo and collapse trigger */}
             <div className="flex w-full items-center gap-4">
