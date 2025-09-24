@@ -84,7 +84,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
           <div className="flex items-start     gap-2 sm:gap-3 min-w-0 flex-1">
             <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
-              <ChatbotIcon />
+              <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
             </Avatar>
             <div className="min-w-0 flex-1">
               <h1 className="font-semibold text-foreground text-sm sm:text-base truncate">
@@ -99,10 +99,10 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <div className="hover:opacity-[70%] cursor-pointer">
-            <UsersIcon color={themeNext === "dark" ? "white" : "#687192"} />
+            <UsersIcon color={themeNext === "dark" ? "#CACCD6" : "#687192"} />
           </div>
           <div className="hover:opacity-[70%] cursor-pointer">
-            <SettingsIcon color={themeNext === "dark" ? "white" : "#687192"} />
+            <SettingsIcon color={themeNext === "dark" ? "#CACCD6" : "#687192"} />
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
             >
               {message.sender === "assistant" && (
                 <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
-                  <ChatbotIcon />
+                  <ChatbotIcon color={themeNext === "light" ? "white": "black"}/>
                 </Avatar>
               )}
 
