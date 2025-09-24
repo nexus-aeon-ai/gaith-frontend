@@ -155,7 +155,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-3 pt-1 sm:p-4 dark:sm:pb-0 sm:pt-1">
+      <div className="p-3 pt-1 sm:p-4 sm:pb-0 sm:pt-1">
         <div className="w-full">
           {/* Quick Actions */}
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
@@ -163,7 +163,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
               variant="outline"
               size="sm"
               onClick={() => handleQuickAction("Generate Ad Copy")}
-              className="border-none dark:bg-[#0F1B29] dark:border-[#404663] dark:text-[#CCCFDB] hover:opacity-[70%]"
+              className="border-none dark:bg-[#0F1B29] dark:border-[#404663] dark:text-[#CCCFDB] dark:hover:opacity-[70%] hover:bg-gray-200 hover:text-dark"
             >
               <SpeakerIcon color={themeNext === "dark" ? "white" : "black"} />
               Generate Ad Copy
@@ -172,7 +172,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
               variant="outline"
               size="sm"
               onClick={() => handleQuickAction("Generate Ad Copy")}
-              className="border-none dark:bg-[#0F1B29] dark:border-[#404663] dark:text-[#CCCFDB] hover:opacity-[70%]"
+              className="border-none dark:bg-[#0F1B29] dark:border-[#404663] dark:text-[#CCCFDB] dark:hover:opacity-[70%] hover:bg-gray-200 hover:text-dark"
             >
               <EditPencilIcon color={themeNext === "dark" ? "white" : "black"} />
               Write Blog Title
