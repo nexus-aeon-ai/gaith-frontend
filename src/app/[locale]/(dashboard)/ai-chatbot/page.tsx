@@ -25,8 +25,8 @@ const mockChats: Chat[] = [
   {
     id: "1",
     title: "MK Marketing Team Chat",
-    client: "Global Solutions Inc.",
-    lastMessage: "Generate ad copy for new seasonal blend campaign",
+    client: "Global Solutions Inc.",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+
     timestamp: "2h ago",
     messages: [
       {
@@ -60,8 +60,8 @@ const mockChats: Chat[] = [
   {
     id: "2",
     title: "TechStart Campaign",
-    client: "TechStart",
-    lastMessage: "Generate ad copy for new seasonal blend campaign",
+    client: "TechStart",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+
     timestamp: "1d ago",
     messages: [
       {
@@ -91,7 +91,7 @@ const mockChats: Chat[] = [
     id: "4",
     title: "E-commerce Strategy",
     client: "Global Solutions Inc.",
-    lastMessage: "Generate ad copy for new seasonal blend campaign",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
     timestamp: "2h ago",
     messages: [
       {
@@ -106,7 +106,8 @@ const mockChats: Chat[] = [
     id: "5",
     title: "Social Media Campaign",
     client: "TechStart",
-    lastMessage: "Generate ad copy for new seasonal blend campaign",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+
     timestamp: "1d ago",
     messages: [
       {
@@ -122,6 +123,37 @@ const mockChats: Chat[] = [
     title: "Brand Positioning",
     client: "HealthApp",
     lastMessage: "Generate ad copy for new seasonal blend campaign",
+    timestamp: "1d ago",
+    messages: [
+      {
+        id: "1",
+        content: "Time to refine your brand positioning strategy.",
+        sender: "assistant",
+        timestamp: "4:15 PM",
+      },
+    ],
+  },
+  {
+    id: "7",
+    title: "Brand Positioning",
+    client: "HealthApp",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+
+    timestamp: "1d ago",
+    messages: [
+      {
+        id: "1",
+        content: "Time to refine your brand positioning strategy.",
+        sender: "assistant",
+        timestamp: "4:15 PM",
+      },
+    ],
+  },
+  {
+    id: "8",
+    title: "Brand Positioning",
+    client: "HealthApp",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+
     timestamp: "1d ago",
     messages: [
       {
@@ -175,9 +207,10 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background dark w-full">
+    <div className="flex p-3 h-[calc(100vh-var(--header-height))] w-full overflow-hidden bg-background">
       {/* Mobile backdrop */}
       {isSidebarOpen && (
+        // eslint-disable-next-line
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
@@ -187,7 +220,7 @@ export default function ChatbotPage() {
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:relative inset-y-0 left-0 z-50 w-80 
+        fixed lg:relative inset-y-0 left-0 z-50 md:z-0 w-full sm:w-80 lg:w-80 h-full
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
@@ -196,7 +229,7 @@ export default function ChatbotPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-full">
+      <div className="flex-1 flex flex-col h-full w-full">
         <ChatWindow
           chat={activeChat}
           onSendMessage={handleSendMessage}

@@ -52,6 +52,7 @@ const Navbar = ({ user }: NavbarProps) => {
     setCookie("theme", theme);
   };
 
+
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
