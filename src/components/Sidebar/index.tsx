@@ -103,7 +103,7 @@ const aiToolsItems = [
   {
     label: "AI Chatbot",
     icon: <AIChatbotIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/chatbot",
+    href: "/ai-chatbot",
   },
 ];
 
