@@ -4,28 +4,10 @@ import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export interface Client {
-  id: string;
-  name: string;
-  email: string;
-  status: "Active" | "Inactive" | "Pending";
-  agreementPeriod: {
-    start: string;
-    end: string;
-  };
-  marketRegion: string;
-  services: string;
-  contactInfo: string;
-  assignedTo: {
-    name: string;
-    initial: string;
-    color: string;
-  }[];
-}
-
-const useTableColumns = () => {
+const useTableColumns = (onViewDetails?: (client: Client) => void) => {
   const columns: ColumnDef<Client>[] = [
     {
       id: "select",
@@ -173,7 +155,7 @@ const useTableColumns = () => {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem 
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => console.log("View details for:", client.name)}
+                onClick={() => onViewDetails?.(client)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
                 <span>View Details</span>

@@ -19,7 +19,7 @@ const ClientTableSection = <T,>({ table, columns, dataPagination }: ClientTableS
     <DataTable 
       table={table} 
       colSpan={columns.length} 
-      dataPagination={dataPagination} 
+      dataPagination={dataPagination}
     />
   );
 };

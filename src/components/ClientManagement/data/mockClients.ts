@@ -1,22 +1,23 @@
-import { Client } from "../TableConfig";
+import { Client } from "@/lib/types";
 
 export const mockClients: Client[] = [
   {
     id: "1",
-    name: "Michael Anderson",
-    email: "anderson@email.com",
+    name: "Global Solutions Inc.",
+    email: "contact@globalsolutions.com",
     status: "Active",
     agreementPeriod: {
-      start: "Jul 9, 2025",
-      end: "Jul 24, 2025",
+      start: "Jul 5, 2025",
+      end: "Jul 5, 2025",
     },
-    marketRegion: "Europe",
+    marketRegion: "UAE",
     services: "Digital Marketing",
-    contactInfo: "+9640000000",
+    contactInfo: "+9670000000000",
     assignedTo: [
-      { name: "Alice", initial: "A", color: "bg-red-500" },
-      { name: "Sarah", initial: "S", color: "bg-blue-500" },
-      { name: "Steve", initial: "S", color: "bg-green-500" },
+      { name: "Alice", initial: "A", color: "bg-pink-500" },
+      { name: "Sarah", initial: "S", color: "bg-orange-500" },
+      { name: "Steve", initial: "S", color: "bg-blue-500" },
+      { name: "Team", initial: "&", color: "bg-green-500" },
     ],
   },
   {

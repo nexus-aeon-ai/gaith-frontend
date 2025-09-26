@@ -4,17 +4,19 @@ import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { Client, TGenericPaginatedResponse } from "@/lib/types";
+import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
 import { mockClients } from "./data/mockClients";
 import HeaderSection from "./HeaderSection";
 import SearchAndActionsSection from "./SearchAndActionsSection";
-import useTableColumns, { Client } from "./TableConfig";
-import { TGenericPaginatedResponse } from "./types";
+import useTableColumns from "./TableConfig";
 
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const columns = useTableColumns();
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const columns = useTableColumns(setSelectedClient);
 
   // Mock paginated data
   const data: TGenericPaginatedResponse<Client> = {
@@ -41,6 +43,16 @@ const ClientManagementClient = () => {
     manualPagination: true,
   });
 
+  // If a client is selected, show the details view
+  if (selectedClient) {
+    return (
+      <ClientDetailsView 
+        client={selectedClient} 
+        onBack={() => setSelectedClient(null)} 
+      />
+    );
+  }
+
   return (
     <div className={cn(
       "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
@@ -54,7 +66,7 @@ const ClientManagementClient = () => {
       <ClientTableSection 
         table={table} 
         columns={columns} 
-        dataPagination={data} 
+        dataPagination={data}
       />
     </div>
   );
