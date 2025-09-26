@@ -29,6 +29,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
+import { DashboardListIcon } from "../../../../../../components/ui/icons/sidebar/dashboard-list";
+
 const EditLeadPage = () => {
   const [formData, setFormData] = useState<CreateLeadFormData>({
     fullName: "",
@@ -244,18 +246,20 @@ const EditLeadPage = () => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">
+                <DashboardListIcon className="dark:text-[#E6EFF9]" />
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads">Leads</Link>
+              <Link href="/leads" className="text-blue-600 font-medium text-md">Leads</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Lead</BreadcrumbPage>
+            <BreadcrumbPage >Edit Lead</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

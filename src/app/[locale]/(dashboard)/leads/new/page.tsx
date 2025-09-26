@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
+import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import Gallery from "@/components/ui/icons/options/gallery";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -244,13 +245,17 @@ const NewLeadPage = () => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">
+                <DashboardListIcon className="dark:text-[#E6EFF9]" />
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads">Leads</Link>
+              <Link href="/leads" className="text-blue-600 font-medium text-md">
+                Leads
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
