@@ -1,11 +1,27 @@
 "use client";
-import { ChevronLeft, ChevronRight, CirclePlus, Download, EllipsisVertical, FileText, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import DeleteIcon from "@/components/ui/icons/options/delete-icon";
+import EditIcon from "@/components/ui/icons/options/edit-icon";
+import ExcelIcon from "@/components/ui/icons/options/excel-icon";
+import FilterIcon from "@/components/ui/icons/options/filter-icon";
+import MenuIcon from "@/components/ui/icons/options/menu-icon";
+import PdfIcon from "@/components/ui/icons/options/pdf-icon";
+import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+import FilterSheet from "../../../../components/sheet/Filter";
 
 interface Client {
   id: string;
@@ -236,7 +252,9 @@ const LeadsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const itemsPerPage = 5;
+  const { theme: themNext } = useTheme();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -273,7 +291,7 @@ const LeadsPage = () => {
   const getVisiblePages = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -281,18 +299,18 @@ const LeadsPage = () => {
     } else {
       let startPage = Math.max(1, currentPage - 2);
       let endPage = Math.min(totalPages, currentPage + 2);
-      
+
       if (currentPage <= 3) {
         endPage = maxVisiblePages;
       } else if (currentPage >= totalPages - 2) {
         startPage = totalPages - maxVisiblePages + 1;
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
@@ -301,7 +319,6 @@ const LeadsPage = () => {
       className={cn(
         "min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
         "bg-background overflow-x-hidden",
-        
       )}
     >
       {/* Header Section */}
@@ -314,13 +331,13 @@ const LeadsPage = () => {
         <div className="flex-1 min-w-0">
           <h1
             className={cn(
-              "text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold",
+              "text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold",
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
             Leads Management
           </h1>
-          <p className={cn("text-xs sm:text-sm md:text-base", "text-gray-600 dark:text-gray-300")}>
+          <p className={cn("text-xs sm:text-sm", "text-gray-600 dark:text-gray-300")}>
             Track and manage sales prospects through the conversion pipeline.
           </p>
         </div>
@@ -335,7 +352,7 @@ const LeadsPage = () => {
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Add New Lead</span>
-          <span className="sm:hidden">Add Client</span>
+          <span className="sm:hidden">Add Lead</span>
         </Button>
       </div>
 
@@ -359,56 +376,70 @@ const LeadsPage = () => {
             />
           </div>
           <div className="flex gap-1 sm:gap-2 md:gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex items-center gap-1 sm:gap-2",
+                    "bg-card border-border text-xs h-8 sm:h-10",
+                    "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
+                    "hover:bg-card hover:border-blue-500",
+                  )}
+                >
+                  <MenuIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => {
+                    // Handle delete action here
+                    // TODO: Implement delete functionality
+                  }}
+                >
+                  <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="outline"
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
                 "bg-card border-border text-xs h-8 sm:h-10",
                 "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
-                "hover:bg-[#508CD3]",
+                "hover:bg-card hover:border-blue-500",
+              )}
+              onClick={() => setIsFilterSheetOpen(true)}
+            >
+              <FilterIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-card border-border text-xs h-8 sm:h-10",
+                "hover:bg-card hover:border-blue-500",
               )}
             >
-              <div className="w-4 h-4 border-2 border-gray-400 rounded-sm flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-sm" />
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-sm ml-0.5" />
-              </div>
+              <ExcelIcon />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
+              <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
             </Button>
             <Button
               variant="outline"
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
                 "bg-card border-border text-xs h-8 sm:h-10",
-                "hover:bg-[#508CD3]",
+                "hover:bg-card hover:border-blue-500",
               )}
             >
-              <div className="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center">
-                <div className="w-2 h-2 border-l-2 border-t-2 border-gray-400 transform rotate-45" />
-              </div>
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
-            <Button
-              variant="outline"
-              className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
-                "hover:bg-[#508CD3]",
-              )}
-            >
-              <Download className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Export Excel</span>
-              <span className="sm:hidden">Excel</span>
-            </Button>
-            <Button
-              variant="outline"
-              className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
-                "hover:bg-[#508CD3]",
-              )}
-            >
-              <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Export PDF</span>
-              <span className="sm:hidden">PDF</span>
+              <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Export PDF</span>
+              <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
             </Button>
           </div>
         </div>
@@ -451,8 +482,8 @@ const LeadsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentClients.map(client => (
-                <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              {currentClients.map((client, index) => (
+                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-4 py-3">
                     <Checkbox
                       className="!rounded-[8px]"
@@ -489,8 +520,8 @@ const LeadsPage = () => {
                         client.status === "Active"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : client.status === "Inactive"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
                       )}
                     >
                       {client.status}
@@ -503,10 +534,10 @@ const LeadsPage = () => {
                         client.source === "Website"
                           ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                           : client.source === "Social Media"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : client.source === "Campaign"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : client.source === "Campaign"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
                       )}
                     >
                       {client.source}
@@ -520,9 +551,9 @@ const LeadsPage = () => {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex -space-x-3 justify-center">
-                      {client.assignedTo.map(person => (
+                      {client.assignedTo.map((person, index) => (
                         <div
-                          key={client.id}
+                          key={index}
                           className={cn(
                             "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
                             person.color,
@@ -535,9 +566,49 @@ const LeadsPage = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <EllipsisVertical className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // Handle view action
+                            // TODO: Implement view functionality
+                          }}
+                        >
+                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            View
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // Handle edit action
+                            // TODO: Implement edit functionality
+                          }}
+                        >
+                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Edit
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => {
+                            // Handle delete action
+                            // TODO: Implement delete functionality
+                          }}
+                        >
+                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Delete
+                          </span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))}
@@ -574,9 +645,9 @@ const LeadsPage = () => {
 
             {/* Page numbers */}
             <div className="flex items-center gap-1">
-              {getVisiblePages().map((page) => (
+              {getVisiblePages().map((page, index) => (
                 <Button
-                  key={page}
+                  key={index}
                   variant={currentPage === page ? "default" : "ghost"}
                   size="sm"
                   onClick={() => handlePageChange(page)}
@@ -584,15 +655,15 @@ const LeadsPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}
@@ -618,6 +689,8 @@ const LeadsPage = () => {
           </div>
         </div>
       </div>
+
+      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
     </div>
   );
 };
