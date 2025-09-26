@@ -33,7 +33,7 @@ const roiClients = [
   { name: "Soylent", percent: 2.1 },
 ];
 
-const barColor = "#3b82f6";
+const barColor = "#3072C0";
 
 const renderBarChart = (clients: { name: string; percent: number }[]) => (
   <ResponsiveContainer width="100%" height={400}>
@@ -43,21 +43,38 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
       barGap={18}
       barCategoryGap={18}
       margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-      
     >
-      <CartesianGrid strokeDasharray="2 2" vertical={false} />
-      <XAxis type="number" domain={[0, 20]} axisLine={false} tickLine={false} fontSize={13} tick={{ fill: "var(--secondary-text)" }} />
-      <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 15, fill: "var(--secondary-text)", fontWeight: 500 }} axisLine={false} tickLine={false} />
-      <Tooltip formatter={(value) => `${value}%`} cursor={{ fill: "rgba(59, 130, 246, 0.1)" }} contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }} />
-      <Bar dataKey="percent" radius={[0, 10, 10, 0]} fill={barColor} minPointSize={3}>
-        <LabelList  
-          dataKey="percent" 
-          position="right" 
-          formatter={(label) => typeof label === "number" ? `${label}%` : label} 
-          style={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 14, paddingLeft: 4 }} 
+      <CartesianGrid vertical horizontal={false} strokeDasharray="5 5" strokeOpacity={0.3} />
+      <XAxis
+        domain={[-0.2, 20]}
+        type="number"
+        axisLine={{ stroke: "#DCE0E4", strokeWidth: 1 }}
+        tickLine={false}
+        fontSize={13}
+        tick={{ fill: "var(--secondary-text)" }}
+      />
+      <YAxis
+        type="category"
+        dataKey="name"
+        width={70}
+        tick={{ fontSize: 15, fill: "var(--secondary-text)", fontWeight: 500 }}
+        axisLine={{ stroke: "#DCE0E4", strokeWidth: 1 }}
+        tickLine={false}
+      />
+      <Tooltip
+        formatter={value => `${value}%`}
+        cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+        contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }}
+      />
+      <Bar dataKey="percent" radius={[5, 5, 5, 5]} fill={barColor} minPointSize={20}>
+        <LabelList
+          dataKey="percent"
+          position="right"
+          formatter={label => (typeof label === "number" ? `${label}%` : label)}
+          style={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 14, paddingLeft: 4 }}
         />
         {clients.map((_, index) => (
-          <Cell key={`cell-${index}`} fill={barColor} />
+          <Cell startOffset={10} key={`cell-${clients[index].name}`} height={25} fill={barColor} />
         ))}
       </Bar>
     </BarChart>
@@ -66,7 +83,7 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
 
 const TopClients = () => {
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-lg py-3 w-full text-card-foreground">
+    <div className="bg-card rounded-2xl border border-border shadow-lg py-4 w-full text-card-foreground">
       <div className="flex items-center justify-between mb-2 px-3">
         <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
         <Tabs defaultValue="engagement" className="min-w-[200px]">
@@ -86,7 +103,7 @@ const TopClients = () => {
           </TabsList>
         </Tabs>
       </div>
-      <Tabs defaultValue="engagement" className="w-full">
+      <Tabs defaultValue="engagement" className="w-full px-4">
         <TabsContent value="engagement">{renderBarChart(engagementClients)}</TabsContent>
         <TabsContent value="roi">{renderBarChart(roiClients)}</TabsContent>
       </Tabs>
