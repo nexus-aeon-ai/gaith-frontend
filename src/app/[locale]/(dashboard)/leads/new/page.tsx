@@ -1,9 +1,18 @@
 "use client";
 
 import { CirclePlus } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -18,9 +27,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
 const NewLeadPage = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateLeadFormData>({
     fullName: "",
     nationality: "",
     email: "",
@@ -29,8 +39,8 @@ const NewLeadPage = () => {
     region: "",
     area: "",
     fullAddress: "",
-    leadSource: "",
-    assignedTo: "",
+    leadSource: "website",
+    assignedTo: "creative-director",
     visionStatement: "",
     missionStatement: "",
     linkedinUrl: "",
@@ -40,18 +50,40 @@ const NewLeadPage = () => {
     instagramUrl: "",
     websiteUrl: "",
     additionalNotes: "",
+    productsServices: {
+      software: false,
+      hardware: false,
+      consulting: false,
+      webDesign: false,
+      mobileApp: false,
+      cloudServices: false,
+    },
+    additionalTeamMembers: {
+      software: false,
+      hardware: false,
+      consulting: false,
+      webDesign: false,
+      mobileApp: false,
+      cloudServices: false,
+      marketing: false,
+    },
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [productsServices, setProductsServices] = useState({
-    software: false,
-    hardware: false,
-    consulting: false,
-    webDesign: false,
-    mobileApp: false,
-    cloudServices: false,
-  });
+  const { theme } = useTheme();
+
+  // Helper function to get error message for a field
+  const getFieldError = (field: string) => {
+    return validationErrors[field] || "";
+  };
+
+  // Helper function to check if field has error
+  const hasFieldError = (field: string) => {
+    return !!validationErrors[field];
+  };
 
   const productsServicesOptions = [
     { id: "software", label: "Software Development", value: "software" },
@@ -73,16 +105,6 @@ const NewLeadPage = () => {
     { value: "other", label: "Other" },
   ];
 
-  const [additionalTeamMembers, setAdditionalTeamMembers] = useState({
-    software: false,
-    hardware: false,
-    consulting: false,
-    webDesign: false,
-    mobileApp: false,
-    cloudServices: false,
-    marketing: false,
-  });
-
   const additionalTeamMembersOptions = [
     { id: "creative-director", label: "Creative Director", value: "creative-director" },
     { id: "social-media-manager", label: "Social Media Manager", value: "social-media-manager" },
@@ -93,26 +115,38 @@ const NewLeadPage = () => {
     { id: "seo-specialist", label: "SEO Specialist", value: "seo-specialist" },
   ];
 
-  const { theme } = useTheme();
-
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
+    // Clear validation error for this field
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleProductsServicesChange = (field: string, checked: boolean) => {
-    setProductsServices(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: checked,
+      productsServices: {
+        ...prev.productsServices,
+        [field]: checked,
+      },
     }));
   };
 
   const handleAdditionalTeamMembersChange = (field: string, checked: boolean) => {
-    setAdditionalTeamMembers(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: checked,
+      additionalTeamMembers: {
+        ...prev.additionalTeamMembers,
+        [field]: checked,
+      },
     }));
   };
 
@@ -127,8 +161,8 @@ const NewLeadPage = () => {
       region: "",
       area: "",
       fullAddress: "",
-      leadSource: "",
-      assignedTo: "",
+      leadSource: "website",
+      assignedTo: "creative-director",
       visionStatement: "",
       missionStatement: "",
       linkedinUrl: "",
@@ -138,11 +172,62 @@ const NewLeadPage = () => {
       instagramUrl: "",
       websiteUrl: "",
       additionalNotes: "",
+      productsServices: {
+        software: false,
+        hardware: false,
+        consulting: false,
+        webDesign: false,
+        mobileApp: false,
+        cloudServices: false,
+      },
+      additionalTeamMembers: {
+        software: false,
+        hardware: false,
+        consulting: false,
+        webDesign: false,
+        mobileApp: false,
+        cloudServices: false,
+        marketing: false,
+      },
     });
+    setValidationErrors({});
+    setSelectedFile(null);
   };
 
-  const handleSave = () => {
-    // Handle form submission
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    setValidationErrors({});
+
+    try {
+      // Validate form data
+      const result = createLeadSchema.safeParse(formData);
+
+      if (!result.success) {
+        // Extract validation errors
+        const errors: Record<string, string> = {};
+        result.error.issues.forEach(issue => {
+          const field = issue.path.join(".");
+          errors[field] = issue.message;
+        });
+        setValidationErrors(errors);
+        return;
+      }
+
+      // If validation passes, proceed with form submission
+      // TODO: Log valid form data for debugging
+      // console.log("Valid form data:", result.data);
+
+      // TODO: Implement actual form submission logic here
+      // await submitLeadForm(result.data);
+
+      // Show success message or redirect
+      alert("Lead created successfully!");
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("An error occurred while creating the lead. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,6 +239,27 @@ const NewLeadPage = () => {
 
   return (
     <div className="w-full mx-auto p-6">
+      {/* Breadcrumb */}
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/leads">Leads</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create Lead</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
@@ -173,9 +279,10 @@ const NewLeadPage = () => {
           <Button
             onClick={handleSave}
             variant={"outline"}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent"
+            disabled={isSubmitting}
+            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Lead
+            {isSubmitting ? "Saving..." : "Save Lead"}
           </Button>
         </div>
       </div>
@@ -195,8 +302,13 @@ const NewLeadPage = () => {
                   placeholder="Client Name"
                   value={formData.fullName}
                   onChange={e => handleInputChange("fullName", e.target.value)}
-                  className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                  className={`dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] ${
+                    hasFieldError("fullName") ? "border-red-500 focus:border-red-500" : ""
+                  }`}
                 />
+                {hasFieldError("fullName") && (
+                  <p className="text-red-500 text-sm mt-1">{getFieldError("fullName")}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nationality">Nationality</Label>
@@ -220,24 +332,36 @@ const NewLeadPage = () => {
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                <Label htmlFor="email">
+                  Email Address <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="email"
                   placeholder="Email Address"
                   value={formData.email}
                   onChange={e => handleInputChange("email", e.target.value)}
-                  className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                  className={`dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] ${
+                    hasFieldError("email") ? "border-red-500 focus:border-red-500" : ""
+                  }`}
                 />
+                {hasFieldError("email") && (
+                  <p className="text-red-500 text-sm mt-1">{getFieldError("email")}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nationality">Phone Number</Label>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
                 <Input
                   id="phoneNumber"
                   placeholder="+97655555"
                   value={formData.phoneNumber}
                   onChange={e => handleInputChange("phoneNumber", e.target.value)}
-                  className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                  className={`dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] ${
+                    hasFieldError("phoneNumber") ? "border-red-500 focus:border-red-500" : ""
+                  }`}
                 />
+                {hasFieldError("phoneNumber") && (
+                  <p className="text-red-500 text-sm mt-1">{getFieldError("phoneNumber")}</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -371,7 +495,11 @@ const NewLeadPage = () => {
                         <div key={option.id} className="flex items-center space-x-2">
                           <CheckboxSquare
                             id={option.id}
-                            checked={productsServices[option.id as keyof typeof productsServices]}
+                            checked={
+                              formData.productsServices[
+                                option.id as keyof typeof formData.productsServices
+                              ]
+                            }
                             onCheckedChange={checked =>
                               handleProductsServicesChange(option.id, checked as boolean)
                             }
@@ -387,7 +515,11 @@ const NewLeadPage = () => {
                         <div key={option.id} className="flex items-center space-x-2">
                           <CheckboxSquare
                             id={option.id}
-                            checked={productsServices[option.id as keyof typeof productsServices]}
+                            checked={
+                              formData.productsServices[
+                                option.id as keyof typeof formData.productsServices
+                              ]
+                            }
                             onCheckedChange={checked =>
                               handleProductsServicesChange(option.id, checked as boolean)
                             }
@@ -715,7 +847,9 @@ const NewLeadPage = () => {
                           <CheckboxSquare
                             id={option.id}
                             checked={
-                              additionalTeamMembers[option.id as keyof typeof additionalTeamMembers]
+                              formData.additionalTeamMembers[
+                                option.id as keyof typeof formData.additionalTeamMembers
+                              ]
                             }
                             onCheckedChange={checked =>
                               handleAdditionalTeamMembersChange(option.id, checked as boolean)
@@ -733,7 +867,9 @@ const NewLeadPage = () => {
                           <CheckboxSquare
                             id={option.id}
                             checked={
-                              additionalTeamMembers[option.id as keyof typeof additionalTeamMembers]
+                              formData.additionalTeamMembers[
+                                option.id as keyof typeof formData.additionalTeamMembers
+                              ]
                             }
                             onCheckedChange={checked =>
                               handleAdditionalTeamMembersChange(option.id, checked as boolean)

@@ -24,7 +24,6 @@ import { cn } from "@/lib/utils";
 
 import FilterSheet from "../../../../components/sheet/Filter";
 
-
 interface Client {
   id: string;
   name: string;
@@ -588,17 +587,19 @@ const LeadsPage = () => {
                             View
                           </span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            // Handle edit action
-                            // TODO: Implement edit functionality
-                          }}
-                        >
-                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Edit
-                          </span>
-                        </DropdownMenuItem>
+                        <Link href={`/leads/${client.id}/edit`}>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              // Handle edit action
+                              // TODO: Implement edit functionality
+                            }}
+                          >
+                            <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                              Edit
+                            </span>
+                          </DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => {
