@@ -56,7 +56,7 @@ const eslintConfig = [
       "import/named": "off", // TypeScript handles this
 
       // General rules
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-console": ["warn", { allow: ["warn", "error", "log"] }],
       "no-debugger": "error",
       "no-var": "error",
       "prefer-const": "error",

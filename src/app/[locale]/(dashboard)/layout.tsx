@@ -17,7 +17,7 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="[--header-height:calc(theme(spacing.16))]">
+    <div className="[--header-height:85px] ">
       <SidebarProvider className="flex flex-col">
         <Navbar user={userProfile.data} />
         <div className="flex flex-1">
