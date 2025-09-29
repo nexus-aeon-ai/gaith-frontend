@@ -1,11 +1,15 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AudioLines, CirclePlus, Menu, Mic } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import ChatbotIcon from "@/components/ui/icons/chatbot/chatbot";
 import EditPencilIcon from "@/components/ui/icons/chatbot/edit-pencil";
 import SettingsIcon from "@/components/ui/icons/chatbot/settings";
@@ -14,9 +18,9 @@ import UserIcon from "@/components/ui/icons/chatbot/user-icon";
 import UsersIcon from "@/components/ui/icons/chatbot/users";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Chat } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import type { Chat } from "./chatbot";
 
 interface ChatWindowProps {
   chat: Chat;
@@ -24,17 +28,35 @@ interface ChatWindowProps {
   onToggleSidebar: () => void;
 }
 
+const formSchema = z.object({
+  message: z.string().min(1, "Message is required").max(1000, "Message is too long"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowProps) {
-  const [inputValue, setInputValue] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const { theme: themeNext } = useTheme();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      onSendMessage(inputValue.trim());
-      setInputValue("");
-    }
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chat.messages]); // Scroll when messages change
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      message: "",
+    },
+  });
+
+  const onSubmit = (data: FormValues) => {
+    onSendMessage(data.message);
+    form.reset();
   };
 
   const handleQuickAction = (action: string) => {
@@ -120,7 +142,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
             >
               {message.sender === "assistant" && (
                 <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
-                  <ChatbotIcon color={themeNext === "light" ? "white": "black"}/>
+                  <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
                 </Avatar>
               )}
 
@@ -146,11 +168,12 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
               {message.sender === "user" && (
                 <Avatar className="flex items-center justify-center dark:bg-[#212945] bg-white pt-[2px] h-9 w-9 flex-shrink-0">
-                  <UserIcon color={themeNext === "dark" ? "white" : "#687192"}/>
+                  <UserIcon color={themeNext === "dark" ? "white" : "#687192"} />
                 </Avatar>
               )}
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
@@ -181,22 +204,25 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
           {/* Message Input */}
           <div className="space-y-3 border-1 dark:border-[#404663] rounded-[12px] text-sm dark:bg-[#0F1B29] bg-white dark:text-[#CCCFDB]">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                placeholder="Let the magic begin, Ask a question"
-                className="flex-1 shadow-none dark:bg-input bg-white border-none focus:border-none focus:ring-0 focus:outline-none"
-              />
-              {/* <Button
-                type="submit"
-                size="sm"
-                disabled={!inputValue.trim()}
-                className="flex-shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </Button> */}
-            </form>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Let the magic begin, Ask a question"
+                          className="shadow-none dark:bg-input bg-white border-none focus:border-none focus:ring-0 focus:outline-none"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
 
             {/* Bottom Row - Attachment and Voice Controls */}
             <div className="flex items-center justify-between">
