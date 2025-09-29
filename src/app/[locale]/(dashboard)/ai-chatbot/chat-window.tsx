@@ -69,9 +69,9 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#eeeeee] dark:bg-background">
+    <div className="flex flex-col h-full w-full bg-[#eeeeee] rounded-[12px] dark:bg-background">
       {/* Header */}
-      <div className="flex items-start rounded-tr-[12px] rounded-tl-[12px] lg:rounded-tl-none justify-between p-3 sm:p-4 border-b border-border dark:bg-[#212945] bg-white">
+      <div className="flex items-start rounded-tr-[12px] rounded-t-[12px] lg:rounded-tl-none justify-between p-3 sm:p-4 border-b border-border dark:bg-[#212945] bg-white">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           <Button
             variant="ghost"

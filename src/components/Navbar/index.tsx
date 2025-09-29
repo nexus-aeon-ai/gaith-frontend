@@ -1,8 +1,8 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
