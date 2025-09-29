@@ -1,13 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import SearchIcon from "@/components/ui/icons/chatbot/search";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-import { Button } from "../../../../components/ui/button";
-
-import type { Chat } from "./page";
+import type { Chat } from "./chatbot";
 
 interface ChatSidebarProps {
   chats: Chat[];
@@ -48,8 +47,8 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
               onClick={() => onChatSelect(chat)}
               variant="ghost"
               className={cn(
-                "w-full p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
-                "hover:opacity-80 transition-opacity",
+                "w-full cursor-pointer p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
+                "hover:opacity-40 transition-opacity",
                 "justify-start",
                 activeChat.id === chat.id
                   ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
