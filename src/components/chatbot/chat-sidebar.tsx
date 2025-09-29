@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import SearchIcon from "@/components/ui/icons/chatbot/search";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Chat } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import type { Chat } from "./chatbot";
 
 interface ChatSidebarProps {
   chats: Chat[];

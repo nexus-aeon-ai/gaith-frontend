@@ -2,30 +2,17 @@
 
 import { useState } from "react";
 
+import type { Message, Chat } from "@/lib/types";
+
 import { ChatSidebar } from "./chat-sidebar";
 import { ChatWindow } from "./chat-window";
-
-export interface Chat {
-  id: string;
-  title: string;
-  client: string;
-  lastMessage: string;
-  timestamp: string;
-  messages: Message[];
-}
-
-export interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "assistant";
-  timestamp: string;
-}
 
 const mockChats: Chat[] = [
   {
     id: "1",
     title: "MK Marketing Team Chat",
-    client: "Global Solutions Inc.",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+    client: "Global Solutions Inc.",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
 
     timestamp: "2h ago",
     messages: [
@@ -60,7 +47,8 @@ const mockChats: Chat[] = [
   {
     id: "2",
     title: "TechStart Campaign",
-    client: "TechStart",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+    client: "TechStart",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
 
     timestamp: "1d ago",
     messages: [
@@ -152,7 +140,8 @@ const mockChats: Chat[] = [
   {
     id: "8",
     title: "Brand Positioning",
-    client: "HealthApp",    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
+    client: "HealthApp",
+    lastMessage: "Generate ad copy for new seasonal blend campaign for the e-commerce website",
 
     timestamp: "1d ago",
     messages: [
