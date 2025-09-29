@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-import type { Chat } from "./page";
+import { Button } from "../../../../components/ui/button";
 
+import type { Chat } from "./page";
 
 interface ChatSidebarProps {
   chats: Chat[];
@@ -16,12 +17,12 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProps) {
   return (
-    <div className="h-full pb-2 rounded-l-[12px] dark:bg-[#212945] border-r border-sidebar-border flex flex-col min-w-0">
+    <ScrollArea className="h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
       {/* Header */}
       <div className="p-3 sm:p-2 ">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h2 className="text-base sm:text-lg  mx-1 font-semibold text-sidebar-foreground truncate">
-            Smart Memory
+            Chat List
           </h2>
           {/* <Button size="sm" variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
             <Plus className="h-4 w-4" />
@@ -39,15 +40,17 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
       </div>
 
       {/* Chat List */}
-      <ScrollArea className="flex-1 h-0">
+      <div className="flex-1 h-0">
         <div className="px-2 space-y-2">
           {chats.map(chat => (
-            <button
+            <Button
               key={chat.id}
               onClick={() => onChatSelect(chat)}
+              variant="ghost"
               className={cn(
-                "w-full p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors",
+                "w-full p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
                 "hover:opacity-80 transition-opacity",
+                "justify-start",
                 activeChat.id === chat.id
                   ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
                   : "text-sidebar-foreground",
@@ -66,10 +69,10 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
                   <p className="text-xs text-muted-foreground line-clamp-2">{chat.lastMessage}</p>
                 </div>
               </div>
-            </button>
+            </Button>
           ))}
         </div>
-      </ScrollArea>
-    </div>
+      </div>
+    </ScrollArea>
   );
 }

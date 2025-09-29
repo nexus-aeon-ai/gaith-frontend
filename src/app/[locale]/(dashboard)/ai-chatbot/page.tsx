@@ -220,7 +220,7 @@ export default function ChatbotPage() {
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:relative inset-y-0 left-0 z-50 md:z-0 w-full sm:w-80 lg:w-80 h-full
+        fixed lg:relative inset-y-0 left-0 z-[100] w-full sm:w-80 lg:w-80 h-full
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}

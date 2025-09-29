@@ -82,7 +82,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
             <Menu className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-start     gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
             <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
               <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
             </Avatar>
@@ -156,7 +156,7 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
       {/* Input Area */}
       <div className="p-3 pt-1 sm:p-4 sm:pb-0 sm:pt-1">
-        <div className="w-full">
+        <div className="w-full pb-4">
           {/* Quick Actions */}
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
             <Button
@@ -238,12 +238,6 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
                 </Button>
               </div>
             </div>
-          </div>
-
-          <div className="hidden sm:flex items-center justify-center mt-3">
-            <p className="text-[14px] font-[500] text-inter dark:text-white text-gray-500 text-center">
-              © 2025 Gaith | All rights reserved | Terms of Service
-            </p>
           </div>
         </div>
       </div>
