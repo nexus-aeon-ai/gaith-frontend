@@ -27,6 +27,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
+import Fb from "../ui/icons/socials/fb";
+import Linkedin from "../ui/icons/socials/linkedin";
+import Twitterx from "../ui/icons/socials/twitterx";
+import Website from "../ui/icons/socials/website";
+import Youtube from "../ui/icons/socials/youtube";
+
 interface LeadFormProps {
   initialData?: CreateLeadFormData;
   onSubmit: (data: CreateLeadFormData) => void;
@@ -94,10 +100,7 @@ const leadSourceOptions = [
   { value: "other", label: "Other" },
 ];
 
-const LeadForm = ({
-  initialData,
-  onSubmit,
-}: LeadFormProps) => {
+const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const { theme } = useTheme();
 
   const form = useForm<CreateLeadFormData>({
@@ -108,7 +111,11 @@ const LeadForm = ({
 
   return (
     <Form {...form}>
-      <form  id="lead-form" onSubmit={form.handleSubmit(onSubmit)} className="w-full mx-auto space-y-4">
+      <form
+        id="lead-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full mx-auto space-y-4"
+      >
         {/* Basic Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
@@ -400,9 +407,7 @@ const LeadForm = ({
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] rounded-full h-8 w-8 flex items-center justify-center p-1">
                               {/* LinkedIn SVG */}
-                              <svg width="14" height="13" viewBox="0 0 14 13" fill="none">
-                                <path d="M3.31991 1.83333..." fill="#3072C0" />
-                              </svg>
+                              <Linkedin />
                             </div>
                             <Input
                               placeholder="https://linkedin.com/company/..."
@@ -427,9 +432,7 @@ const LeadForm = ({
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
                               {/* Facebook SVG */}
-                              <svg width="8" height="15" viewBox="0 0 8 15" fill="none">
-                                <path d="M5.1735 8.49935..." fill="#3072C0" />
-                              </svg>
+                              <Fb />
                             </div>
                             <Input
                               placeholder="https://facebook.com/company/..."
@@ -454,10 +457,7 @@ const LeadForm = ({
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#FF000014] rounded-full h-8 w-8 flex items-center justify-center p-1">
                               {/* YouTube SVG */}
-                              <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-                                <path d="M13.4342 2.26696..." fill="#FF0000" />
-                                <path d="M5.65576 7.51485..." fill="white" />
-                              </svg>
+                              <Youtube />
                             </div>
                             <Input
                               placeholder="https://youtube.com/channel/..."
@@ -485,9 +485,7 @@ const LeadForm = ({
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#07091314] rounded-full h-8 w-8 flex items-center justify-center p-1">
                               {/* Twitter SVG */}
-                              <svg width="14" height="13" viewBox="0 0 14 13" fill="none">
-                                <path d="M5.98667 8.27333..." fill="#070913" />
-                              </svg>
+                              <Twitterx />
                             </div>
                             <Input
                               placeholder="https://twitter.com/company"
@@ -511,10 +509,8 @@ const LeadForm = ({
                         <FormControl>
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
-                              {/* Reuse Facebook SVG for demo, you’d replace with Instagram */}
-                              <svg width="8" height="15" viewBox="0 0 8 15" fill="none">
-                                <path d="M5.1735 8.49935..." fill="#3072C0" />
-                              </svg>
+                              {/* Reuse Facebook SVG for demo */}
+                              <Fb />
                             </div>
                             <Input
                               placeholder="https://instagram.com/company"
@@ -539,9 +535,7 @@ const LeadForm = ({
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="h-8 w-8 flex items-center justify-center">
                               {/* Website SVG */}
-                              <svg width="24" height="25" viewBox="0 0 24 25" fill="none">
-                                <path d="M7.65006 21.4098..." fill="#303444" />
-                              </svg>
+                              <Website />
                             </div>
                             <Input
                               placeholder="https://company.com"
