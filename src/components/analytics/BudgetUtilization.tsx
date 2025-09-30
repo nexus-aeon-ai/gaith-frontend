@@ -3,6 +3,8 @@
 import { ChevronDown } from "lucide-react";
 import React, { useState } from "react";
 import { Pie, PieChart, Sector } from "recharts";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
+import { ActiveShape } from "recharts/types/util/types";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,7 +110,7 @@ const renderActiveShape = (props: ActiveShapeProps) => {
         cx={cx}
         cy={cy}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 8}
+        outerRadius={outerRadius ? outerRadius + 8 : 0}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
@@ -238,8 +240,8 @@ const BudgetUtilization: React.FC = () => {
                 cornerRadius={5}
                 labelLine={false}
                 label={renderCustomizedLabel}
-                activeIndex={activeIndex}
-                activeShape={renderActiveShape}
+                activeIndex={activeIndex !== undefined ? activeIndex : -1}
+                activeShape={renderActiveShape as ActiveShape<PieSectorDataItem>}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(undefined)}
               />
