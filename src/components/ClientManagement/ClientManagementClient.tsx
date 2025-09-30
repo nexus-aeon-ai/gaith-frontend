@@ -2,9 +2,9 @@
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
 
+import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
 import { mockClients } from "./data/mockClients";
@@ -72,4 +72,4 @@ const ClientManagementClient = () => {
   );
 };
 
-export default ClientManagementClient; 
+export default ClientManagementClient;
