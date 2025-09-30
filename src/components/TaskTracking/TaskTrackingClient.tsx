@@ -166,7 +166,7 @@ const TaskTrackingClient = () => {
         "gap-2 sm:gap-3 lg:gap-4 xl:gap-6",
       )}>
         {/* Left Column - Categories and Status */}
-        <div className="w-full lg:w-72 xl:w-80 lg:flex-shrink-0">
+        <div className="w-full lg:w-72 xl:w-80 lg:flex-shrink-0  ">
           <TaskSidebar 
             categories={categoriesList}
             statuses={statuses}
@@ -191,7 +191,7 @@ const TaskTrackingClient = () => {
             </div>
             
             <Tabs defaultValue="list" className="rounded-3xl">
-              <div className="flex justify-end mb-4">
+              <div className="flex justify-end ">
                 <TabsList className=" h-12  rounded-3xl  bg-card border-1 border-border">
                   <TabsTrigger value="list" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">List</TabsTrigger>
                   <TabsTrigger value="calendar" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">Calendar</TabsTrigger>
