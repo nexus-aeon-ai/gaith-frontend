@@ -11,4 +11,4 @@ const AIChatbotPage = () => {
   );
 };
 
-export default AIChatbotPage; 
+export default AIChatbotPage;

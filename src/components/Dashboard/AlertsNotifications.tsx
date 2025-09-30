@@ -1,4 +1,4 @@
-      
+import { ChevronRight } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { EndingIcon } from "../ui/icons/alerts/ending";
@@ -6,7 +6,7 @@ import { PendingIcon } from "../ui/icons/alerts/pending";
 import { UnassignedIcon } from "../ui/icons/alerts/unassigned";
 
 const alerts = [
-  {     
+  {
     id: 1,
     type: "Pending Content Approval",
     message: "12 content pieces are waiting for your approval for TechVision campaign.",
@@ -40,10 +40,14 @@ const AlertsNotifications = () => (
   <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
     <div className="flex items-center justify-between mb-2">
       <h2 className="font-semibold text-lg text-card-foreground">Alerts & Notifications</h2>
-      <Button className="text-xs px-2 py-1 bg-card rounded">View All</Button>
+      <div className="flex items-center">
+        <a href="#none" className="text-md px-1 font-[500] text-[#3072C0]">
+          View All
+        </a>
+        <ChevronRight size={20} stroke="#3072C0"/>
+      </div>
     </div>
     <div className="space-y-3">
-
       {alerts.map(alert => (
         <div
           key={alert.id}
@@ -51,18 +55,14 @@ const AlertsNotifications = () => (
           style={{ backgroundColor: `${alert.color}` }}
         >
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm text-primary-text">
-              {alert.type}
-            </span>
+            <span className="font-medium text-sm text-primary-text">{alert.type}</span>
             <span className="text-xs text-gray-400">{alert.time}</span>
-
           </div>
           <div className="text-xs text-secondary-text font-medium mb-1">{alert.message}</div>
           <div className="flex gap-2">
             {alert.actions.map((action, idx) => (
-
-              <Button 
-                key={idx} 
+              <Button
+                key={idx}
                 className="text-xs px-4 py-2 rounded-3xl bg-[#3072C0] hover:bg-[#2563eb] font-medium text-white transition-colors duration-200 "
               >
                 {action}
