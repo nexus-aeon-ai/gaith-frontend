@@ -1,17 +1,25 @@
 "use client";
+
+import { ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { CartesianGrid, Line, XAxis, YAxis, ComposedChart, Bar } from "recharts";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  CartesianGrid,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  ComposedChart,
-  Bar,
-} from "recharts";
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+} from "@/components/ui/chart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const data = [
   { month: "JAN", social: 13, email: 12, website: 11, bar: 27 },
@@ -28,11 +36,24 @@ const data = [
   { month: "DEC", social: 17, email: 14, website: 15, bar: 27 },
 ];
 
-const colors = {
-  social: "#3FD09F",
-  email: "#3072C0",
-  website: "#D29A09",
-};
+const chartConfig = {
+  social: {
+    label: "Social",
+    color: "#3FD09F",
+  },
+  email: {
+    label: "Email",
+    color: "#3072C0",
+  },
+  website: {
+    label: "Website",
+    color: "#D29A09",
+  },
+  bar: {
+    label: "Background",
+    color: "hsl(var(--muted))",
+  },
+} satisfies ChartConfig;
 
 const EngagementTrend = () => {
   const [range, setRange] = useState("12 Month");
@@ -43,7 +64,7 @@ const EngagementTrend = () => {
       return (
         <div className="relative flex justify-center min-w-[70px]">
           {/* Bubble */}
-          <div className="dark:bg-white dark:text-black bg-black text-white px-4 py-2 rounded-full shadow-lg">
+          <div className="bg-foreground text-background px-4 py-2 rounded-full shadow-lg">
             7.5 Đ
           </div>
 
@@ -51,7 +72,7 @@ const EngagementTrend = () => {
           <div
             className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-0 h-0 
                           border-l-8 border-r-8 border-t-8 border-transparent 
-                          dark:border-t-white border-t-black"
+                          border-t-foreground"
           />
         </div>
       );
@@ -60,21 +81,28 @@ const EngagementTrend = () => {
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-lg py-3 w-full text-card-foreground">
-      <div className="flex items-center justify-between mb-2 px-3">
-        <h2 className="font-semibold text-lg text-card-foreground">Engagement Rate Trend</h2>
-        <select
-          value={range}
-          onChange={e => setRange(e.target.value)}
-          className="bg-muted text-xs rounded-md px-3 py-1 border border-border focus:outline-none"
-        >
-          <option>3 Month</option>
-          <option>6 Month</option>
-          <option>12 Month</option>
-        </select>
-      </div>
-      <div className="w-full h-[400px]">
-        <ResponsiveContainer>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pt-4 pb-2">
+        <CardTitle>Engagement Rate Trend</CardTitle>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="text-sm px-3 py-1 dark:bg-card bg-white dark:hover:bg-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:hover:text-gray-100 rounded-3xl border h-auto gap-1"
+            >
+              {range}
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[120px]">
+            <DropdownMenuItem onClick={() => setRange("3 Month")}>3 Month</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRange("6 Month")}>6 Month</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRange("12 Month")}>12 Month</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig} className="h-[400px] w-full">
           <ComposedChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
             {/* Define gradients */}
             <defs>
@@ -97,15 +125,25 @@ const EngagementTrend = () => {
             </defs>
 
             <CartesianGrid
-              horizontal={true}
               vertical={false}
+              horizontal={true}
               strokeDasharray="3 3"
-              stroke="#404663"
+              stroke="#DCE0E4"
+              opacity={0.3}
             />
-            <XAxis dataKey="month" axisLine={false} tickLine={false} />
-            <YAxis axisLine={false} tickLine={false} />
-            <Tooltip content={CustomTooltip} />
-            <Legend iconType="circle" />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "hsl(var(--muted-foreground))" }}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "hsl(var(--muted-foreground))" }}
+            />
+            <ChartTooltip content={CustomTooltip} />
+            <ChartLegend content={<ChartLegendContent />} />
 
             {/* Bar with gradient + hover gradient */}
             <Bar
@@ -120,28 +158,28 @@ const EngagementTrend = () => {
             <Line
               type="monotone"
               dataKey="email"
-              stroke={colors.email}
+              stroke="var(--color-email)"
               strokeWidth={3}
               dot={false}
             />
             <Line
               type="monotone"
               dataKey="social"
-              stroke={colors.social}
+              stroke="var(--color-social)"
               strokeWidth={3}
               dot={false}
             />
             <Line
               type="monotone"
               dataKey="website"
-              stroke={colors.website}
+              stroke="var(--color-website)"
               strokeWidth={3}
               dot={false}
             />
           </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };
 

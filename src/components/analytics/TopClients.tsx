@@ -1,16 +1,8 @@
 "use client";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  LabelList,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts";
+
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const engagementClients = [
@@ -36,7 +28,15 @@ const roiClients = [
 const barColor = "#3072C0";
 
 const renderBarChart = (clients: { name: string; percent: number }[]) => (
-  <ResponsiveContainer width="100%" height={400}>
+  <ChartContainer
+    className="h-[400px] w-full"
+    config={{
+      percent: {
+        label: "Percent",
+        color: barColor,
+      },
+    }}
+  >
     <BarChart
       data={clients}
       layout="vertical"
@@ -44,7 +44,7 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
       barCategoryGap={18}
       margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
     >
-      <CartesianGrid vertical horizontal={false} strokeDasharray="5 5" strokeOpacity={0.3} />
+      <CartesianGrid vertical={true} horizontal={false} strokeDasharray="5 5" strokeOpacity={0.3} />
       <XAxis
         domain={[-0.2, 20]}
         type="number"
@@ -61,24 +61,28 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
         axisLine={{ stroke: "#DCE0E4", strokeWidth: 1 }}
         tickLine={false}
       />
-      <Tooltip
-        formatter={value => `${value}%`}
+      <ChartTooltip
         cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
-        contentStyle={{ backgroundColor: "var(--background)", color: "var(--secondary-text)" }}
+        content={<ChartTooltipContent formatter={value => `${value}%`} />}
       />
-      <Bar dataKey="percent" radius={[5, 5, 5, 5]} fill={barColor} minPointSize={20}>
+      <Bar dataKey="percent" radius={[5, 5, 5, 5]} minPointSize={20}>
         <LabelList
           dataKey="percent"
           position="right"
           formatter={label => (typeof label === "number" ? `${label}%` : label)}
-          style={{ fill: "var(--secondary-text)", fontWeight: 600, fontSize: 14, paddingLeft: 4 }}
+          style={{
+            fill: "var(--secondary-text)",
+            fontWeight: 600,
+            fontSize: 14,
+            paddingLeft: 4,
+          }}
         />
         {clients.map((_, index) => (
-          <Cell startOffset={10} key={`cell-${clients[index].name}`} height={25} fill={barColor} />
+          <Cell key={`cell-${clients[index].name}`} height={25} fill={barColor} />
         ))}
       </Bar>
     </BarChart>
-  </ResponsiveContainer>
+  </ChartContainer>
 );
 
 const TopClients = () => {
