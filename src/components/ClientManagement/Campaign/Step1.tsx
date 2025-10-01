@@ -91,7 +91,7 @@ function StepPersonal({ form }: StepFormProps) {
         <FormField
           control={control}
           name="startDate"
-          render={({ field: { value, onChange, ...field } }) => (
+          render={({ field: { value, onChange } }) => (
             <FormItem>
               <FormLabel>Start Date</FormLabel>
               <FormControl>
