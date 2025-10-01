@@ -1,17 +1,7 @@
-"use client";
 import { CirclePlus } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useState } from "react";
 
-import DotMenu from "@/components/ActionMenu/DotMenu";
-import ExportButton from "@/components/ActionMenu/ExportButton";
-import FilterButton from "@/components/ActionMenu/FilterButton";
-import SearchBar from "@/components/ActionMenu/SearchBar";
-import FilterSheet from "@/components/sheet/Filter";
-import { columns } from "@/components/Tabels/columns";
-import { DataTable } from "@/components/Tabels/data-table";
+import LeadsClientWrapper from "@/components/LeadsClientWrapper/LeadsClientWrapper";
 import { Button } from "@/components/ui/button";
-import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import { cn } from "@/lib/utils";
 
 interface Client {
@@ -112,7 +102,6 @@ const mockClients: Client[] = [
       { name: "Alice", initial: "A", color: "bg-red-500" },
       { name: "Sarah", initial: "S", color: "bg-blue-500" },
       { name: "Steve", initial: "S", color: "bg-green-500" },
-
       { name: "Stacey", initial: "S", color: "bg-yellow-500" },
     ],
   },
@@ -238,21 +227,16 @@ const mockClients: Client[] = [
   },
 ];
 
-const LeadsPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const { theme } = useTheme();
+async function getLeads(): Promise<Client[]> {
+  // const response = await fetch('your-api-endpoint', { cache: 'no-store' });
+  // return response.json();
+  return mockClients;
+}
 
-  const DeleteLead = () => {
-    // Handle delete action here
-  };
-  const menuOptions = [
-    {
-      label: "Delete",
-      action: () => DeleteLead(),
-      icon: <DeleteIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />,
-    },
-  ];
+const LeadsPage = async () => {
+  // Fetch data on the server
+  const clients = await getLeads();
+
   return (
     <div
       className={cn(
@@ -300,43 +284,11 @@ const LeadsPage = () => {
         </Button>
       </div>
 
-      {/* Search and Actions Section */}
-      <div
-        className={cn(" items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm")}
-      >
-        <div
-          className={cn(
-            "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
-            "gap-2 sm:gap-3 ",
-          )}
-        >
-          <SearchBar searchTerm={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          <div className="flex gap-1 sm:gap-2 md:gap-3">
-            <DotMenu options={menuOptions} />
-            <FilterButton setIsFilterSheetOpen={setIsFilterSheetOpen} />
-
-            <ExportButton fileType="excel" />
-            <ExportButton fileType="pdf" />
-          </div>
-        </div>
-      </div>
-
-      {/* Table Section */}
-      <DataTable
-        columns={columns}
-        data={
-          searchTerm
-            ? mockClients.filter(
-              client =>
-                client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-            )
-            : mockClients
-        }
-      />
-      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      {/* Client Wrapper with Interactive Components */}
+      <LeadsClientWrapper clients={clients} />
     </div>
   );
 };
 
 export default LeadsPage;
+

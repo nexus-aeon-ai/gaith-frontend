@@ -122,7 +122,7 @@ export default function FilterSheet({
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 sm:p-4 p-2">
           {/* Added Date Section */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Added Date</Label>
