@@ -16,18 +16,14 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProps) {
   return (
-    <ScrollArea className="h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
+    <ScrollArea className="relative h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
       {/* Header */}
-      <div className="p-3 sm:p-2">
+      <div className="p-3 sm:p-2 fixed bg-white dark:bg-[#212945] z-20 w-full lg:h-[120px] h-[190px]">
         <div className="flex items-center justify-between mb-3 sm:mb-4 pt-[70px] lg:pt-0">
           <h2 className="text-base sm:text-lg  mx-1 font-semibold text-sidebar-foreground truncate">
             Chat List
           </h2>
-          {/* <Button size="sm" variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
-            <Plus className="h-4 w-4" />
-          </Button> */}
         </div>
-
         {/* Search */}
         <div className="relative flex items-center border-1 dark:border-gray-600 border-[#DCE0E4] p-2 px-3 dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px]">
           <SearchIcon className="" />
@@ -39,7 +35,7 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 h-0">
+      <div className="flex-1 z-10 h-0 lg:mt-[120px] mt-[200px]">
         <div className="px-2 space-y-2">
           {chats.map(chat => (
             <Button

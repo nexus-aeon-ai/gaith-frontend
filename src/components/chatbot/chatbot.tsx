@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { Message, Chat } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 import { ChatSidebar } from "./chat-sidebar";
 import { ChatWindow } from "./chat-window";
@@ -208,11 +209,13 @@ export default function Chatbot() {
 
       {/* Sidebar */}
       <div
-        className={`
-        fixed lg:relative inset-y-0 left-0 z-[100] w-full sm:w-80 lg:w-80 h-full
-        transform transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-      `}
+        className={cn(
+          "fixed lg:relative inset-y-0 left-0 z-[100] w-full sm:w-80 lg:w-80 h-full transform transition-transform duration-300 ease-in-out",
+          {
+            "translate-x-0": isSidebarOpen,
+            "-translate-x-full lg:translate-x-0": !isSidebarOpen,
+          },
+        )}
       >
         <ChatSidebar chats={mockChats} activeChat={activeChat} onChatSelect={handleChatSelect} />
       </div>

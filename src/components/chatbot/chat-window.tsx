@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AudioLines, CirclePlus, Menu, Mic } from "lucide-react";
+import { AudioLines, CirclePlus, Menu, Mic, Send } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,11 +16,11 @@ import SettingsIcon from "@/components/ui/icons/chatbot/settings";
 import SpeakerIcon from "@/components/ui/icons/chatbot/speaker";
 import UserIcon from "@/components/ui/icons/chatbot/user-icon";
 import UsersIcon from "@/components/ui/icons/chatbot/users";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Chat } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+import { Textarea } from "../ui/textarea";
 
 interface ChatWindowProps {
   chat: Chat;
@@ -53,6 +53,9 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
       message: "",
     },
   });
+
+  const { watch } = form;
+  const messageValue = watch("message");
 
   const onSubmit = (data: FormValues) => {
     onSendMessage(data.message);
@@ -92,8 +95,8 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
 
   return (
     <div className="flex flex-col h-full w-full bg-[#eeeeee] rounded-[12px] dark:bg-background">
-      {/* Header */}
-      <div className="flex items-start rounded-tr-[12px] rounded-t-[12px] lg:rounded-tl-none justify-between p-3 sm:p-4 border-b border-border dark:bg-[#212945] bg-white">
+      {/* Header - Non-scrollable */}
+      <div className="flex-shrink-0 flex items-start rounded-tr-[12px] rounded-t-[12px] lg:rounded-tl-none justify-between p-3 sm:p-4 border-b border-border dark:bg-[#212945] bg-white">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           <Button
             variant="ghost"
@@ -129,56 +132,58 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
         </div>
       </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-3 sm:p-4 sm:pb-2 min-h-0">
-        <div className="space-y-3 sm:space-y-4 w-full">
-          {chat.messages.map(message => (
-            <div
-              key={message.id}
-              className={cn(
-                "flex gap-2 sm:gap-3 w-full",
-                message.sender === "user" ? "justify-end" : "justify-start",
-              )}
-            >
-              {message.sender === "assistant" && (
-                <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
-                  <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
-                </Avatar>
-              )}
-
+      {/* Messages - Scrollable container */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-3 sm:p-4 sm:pb-2 space-y-3 sm:space-y-4">
+            {chat.messages.map(message => (
               <div
+                key={message.id}
                 className={cn(
-                  "flex flex-col max-w-[85%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2",
-                  message.sender === "user"
-                    ? " bg-[#3072C0] text-primary-foreground  ml-auto"
-                    : "dark:bg-[#212945] bg-white dark:text-[#CCCFDB] text-[#303444]",
+                  "flex gap-2 sm:gap-3 w-full",
+                  message.sender === "user" ? "justify-end" : "justify-start",
                 )}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  {message.content}
-                </p>
-                <p
-                  className={`text-xs opacity-70 mt-1 ${
-                    message.sender === "user" ? "self-end" : "self-start"
-                  }`}
-                >
-                  {message.timestamp}
-                </p>
-              </div>
+                {message.sender === "assistant" && (
+                  <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
+                    <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
+                  </Avatar>
+                )}
 
-              {message.sender === "user" && (
-                <Avatar className="flex items-center justify-center dark:bg-[#212945] bg-white pt-[2px] h-9 w-9 flex-shrink-0">
-                  <UserIcon color={themeNext === "dark" ? "white" : "#687192"} />
-                </Avatar>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+                <div
+                  className={cn(
+                    "flex flex-col max-w-[85%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2",
+                    message.sender === "user"
+                      ? " bg-[#3072C0] text-primary-foreground  ml-auto"
+                      : "dark:bg-[#212945] bg-white dark:text-[#CCCFDB] text-[#303444]",
+                  )}
+                >
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    {message.content}
+                  </p>
+                  <p
+                    className={`text-xs opacity-70 mt-1 ${
+                      message.sender === "user" ? "self-end" : "self-start"
+                    }`}
+                  >
+                    {message.timestamp}
+                  </p>
+                </div>
+
+                {message.sender === "user" && (
+                  <Avatar className="flex items-center justify-center dark:bg-[#212945] bg-white pt-[2px] h-9 w-9 flex-shrink-0">
+                    <UserIcon color={themeNext === "dark" ? "white" : "#687192"} />
+                  </Avatar>
+                )}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+      </div>
 
       {/* Input Area */}
-      <div className="p-3 pt-1 sm:p-4 sm:pb-0 sm:pt-1">
+      <div className="flex-shrink-0 p-3 pt-1 sm:p-4 sm:pb-0 sm:pt-1 bg-[#eeeeee] dark:bg-background">
         <div className="w-full pb-4">
           {/* Quick Actions */}
           <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
@@ -203,19 +208,21 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
           </div>
 
           {/* Message Input */}
-          <div className="space-y-3 border-1 dark:border-[#404663] rounded-[12px] text-sm dark:bg-[#0F1B29] bg-white dark:text-[#CCCFDB]">
+          <div className="space-y-3 p-1 border-1 dark:border-[#404663] rounded-[12px] text-sm dark:bg-[#0F1B29] bg-white dark:text-[#CCCFDB] focus-within:ring-1 focus-within:ring-blue-500">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2">
                 <FormField
                   control={form.control}
                   name="message"
                   render={({ field }) => (
-                    <FormItem className="flex-1">
+                    <FormItem className="flex-1 border-none outline-none ">
                       <FormControl>
-                        <Input
+                        <Textarea
                           {...field}
+                          rows={2}
                           placeholder="Let the magic begin, Ask a question"
-                          className="shadow-none dark:bg-input bg-white border-none focus:border-none focus:ring-0 focus:outline-none"
+                          className="!shadow-none !focus:shadow-none !border-none bg-transparent !focus:!stroke-none
+                 !ring-0 !outline-none !focus:ring-0 !focus:outline-none"
                         />
                       </FormControl>
                     </FormItem>
@@ -225,8 +232,8 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
             </Form>
 
             {/* Bottom Row - Attachment and Voice Controls */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 p-2">
+            <div className="flex p-0 items-center justify-between">
+              <div className="flex items-center gap-3 p-0">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -243,10 +250,11 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "p-2 h-auto transition-all duration-200",
-                    isRecording
-                      ? "text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20"
-                      : "hover:opacity-70 dark:text-[#CCCFDB]",
+                    "p-2 h-auto transition-all duration-200", // base
+                    {
+                      "text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20": isRecording,
+                      "hover:opacity-70 dark:text-[#CCCFDB]": !isRecording,
+                    },
                   )}
                   onClick={handleVoiceRecording}
                   title={isRecording ? "Stop recording" : "Start voice recording"}
@@ -260,7 +268,11 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
                   onClick={handleVoiceRecording}
                   title={isRecording ? "Stop recording" : "Start voice recording"}
                 >
-                  <AudioLines className="h-8 w-4" />
+                  {messageValue?.trim() ? (
+                    <Send className="h-5 w-5" />
+                  ) : (
+                    <AudioLines className="h-8 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
