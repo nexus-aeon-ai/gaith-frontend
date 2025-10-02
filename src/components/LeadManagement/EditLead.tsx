@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import LeadForm from "@/components/Forms/LeadForm";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,101 +13,23 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
+import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { CreateLeadFormData, createLeadSchema } from "@/lib/validations/lead";
 
-import LeadForm from "../../../../../../components/Forms/LeadForm";
-import { DashboardListIcon } from "../../../../../../components/ui/icons/sidebar/dashboard-list";
-
-const EditLeadPage = () => {
-  const [formData, setFormData] = useState<CreateLeadFormData>({
-    fullName: "",
-    nationality: "",
-    email: "",
-    phoneNumber: "",
-    country: "",
-    region: "",
-    area: "",
-    fullAddress: "",
-    leadSource: "website",
-    assignedTo: "creative-director",
-    visionStatement: "",
-    missionStatement: "",
-    linkedinUrl: "",
-    facebookUrl: "",
-    youtubeUrl: "",
-    twitterUrl: "",
-    instagramUrl: "",
-    websiteUrl: "",
-    additionalNotes: "",
-    productsServices: {
-      software: false,
-      hardware: false,
-      consulting: false,
-      webDesign: false,
-      mobileApp: false,
-      cloudServices: false,
-    },
-    additionalTeamMembers: {
-      software: false,
-      hardware: false,
-      consulting: false,
-      webDesign: false,
-      mobileApp: false,
-      cloudServices: false,
-      marketing: false,
-    },
-  });
+const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCancel = () => {
-    // Reset form or navigate away
-    setFormData({
-      fullName: "",
-      nationality: "",
-      email: "",
-      phoneNumber: "",
-      country: "",
-      region: "",
-      area: "",
-      fullAddress: "",
-      leadSource: "website",
-      assignedTo: "creative-director",
-      visionStatement: "",
-      missionStatement: "",
-      linkedinUrl: "",
-      facebookUrl: "",
-      youtubeUrl: "",
-      twitterUrl: "",
-      instagramUrl: "",
-      websiteUrl: "",
-      additionalNotes: "",
-      productsServices: {
-        software: false,
-        hardware: false,
-        consulting: false,
-        webDesign: false,
-        mobileApp: false,
-        cloudServices: false,
-      },
-      additionalTeamMembers: {
-        software: false,
-        hardware: false,
-        consulting: false,
-        webDesign: false,
-        mobileApp: false,
-        cloudServices: false,
-        marketing: false,
-      },
-    });
+    closeEditLeadForm();
   };
 
-  const handleSave = async () => {
+  const handleSave = async (data: CreateLeadFormData) => {
     setIsSubmitting(true);
 
     try {
       // Validate form data
-      const result = createLeadSchema.safeParse(formData);
+      const result = createLeadSchema.safeParse(data);
 
       if (!result.success) {
         // Extract validation errors
@@ -117,14 +40,6 @@ const EditLeadPage = () => {
         });
         return;
       }
-
-      // If validation passes, proceed with form submission
-      // TODO: Log valid form data for debugging
-      // console.log("Valid form data:", result.data);
-
-      // TODO: Implement actual form submission logic here
-      // await submitLeadForm(result.data);
-
       // Show success message or redirect
       alert("Lead created successfully!");
     } catch (error) {
@@ -150,7 +65,7 @@ const EditLeadPage = () => {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads" className="text-blue-600 font-medium text-md">
+              <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeEditLeadForm}>
                 Leads
               </Link>
             </BreadcrumbLink>
@@ -191,7 +106,6 @@ const EditLeadPage = () => {
       </div>
 
       <LeadForm
-        initialData={formData}
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
@@ -201,4 +115,4 @@ const EditLeadPage = () => {
   );
 };
 
-export default EditLeadPage;
+export default EditLead;

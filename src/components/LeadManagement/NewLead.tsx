@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
-const NewLeadPage = () => {
+const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async (data: CreateLeadFormData) => {
@@ -36,7 +36,7 @@ const NewLeadPage = () => {
         return;
       }
 
-      // If validation passes, proceed with form submission API
+      // If validation passes, proceed with create lead api
     } catch (error) {
       console.error("Form submission error:", error);
       alert("An error occurred while creating the lead. Please try again.");
@@ -47,6 +47,7 @@ const NewLeadPage = () => {
 
   const handleCancel = () => {
     // Handle cancel action
+    closeNewLeadForm();
   };
 
   return (
@@ -64,7 +65,7 @@ const NewLeadPage = () => {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads" className="text-blue-600 font-medium text-md">
+              <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeNewLeadForm}>
                 Leads
               </Link>
             </BreadcrumbLink>
@@ -104,9 +105,9 @@ const NewLeadPage = () => {
         </div>
       </div>
 
-      <LeadForm onSubmit={handleSave} onCancel={handleCancel} />
+      <LeadForm mode="create" onSubmit={handleSave} onCancel={handleCancel} isSubmitting={isSubmitting} />
     </div>
   );
 };
 
-export default NewLeadPage;
+export default NewLead;

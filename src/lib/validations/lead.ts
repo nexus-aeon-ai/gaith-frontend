@@ -33,6 +33,8 @@ const productsServicesSchema = z.object({
   cloudServices: z.boolean(),
 });
 
+const optionalUrl = z.string().url().or(z.literal("")).optional();
+
 // Main Lead Form Validation Schema
 export const createLeadSchema = z.object({
   // Basic Information
@@ -98,13 +100,13 @@ export const createLeadSchema = z.object({
     .max(1000, "Mission statement must be less than 1000 characters"),
 
   // Social Media URLs - Optional but validated if provided
-  linkedinUrl: z.string().url("Invalid LinkedIn URL").optional(),
-  facebookUrl: z.string().url("Invalid Facebook URL").optional(),
-  youtubeUrl: z.string().url("Invalid YouTube URL").optional(),
-  twitterUrl: z.string().url("Invalid Twitter URL").optional(),
-  instagramUrl: z.string().url("Invalid Instagram URL").optional(),
+  linkedinUrl: optionalUrl,
+  facebookUrl: optionalUrl,
+  youtubeUrl: optionalUrl,
+  twitterUrl: optionalUrl,
+  instagramUrl: optionalUrl,
   websiteUrl: z.string().url("Invalid Website URL").optional(),
-  
+
   // Additional Notes
   additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
 

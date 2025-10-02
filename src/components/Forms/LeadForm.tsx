@@ -539,6 +539,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             </div>
                             <Input
                               placeholder="https://company.com"
+                              required={false}
                               {...field}
                               className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
                             />
