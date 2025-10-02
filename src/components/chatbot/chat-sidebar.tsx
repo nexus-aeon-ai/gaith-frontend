@@ -18,8 +18,8 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
   return (
     <ScrollArea className="h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
       {/* Header */}
-      <div className="p-3 sm:p-2 ">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="p-3 sm:p-2">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 pt-[70px] lg:pt-0">
           <h2 className="text-base sm:text-lg  mx-1 font-semibold text-sidebar-foreground truncate">
             Chat List
           </h2>

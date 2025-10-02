@@ -52,20 +52,22 @@ const Navbar = ({ user }: NavbarProps) => {
     setCookie("theme", theme);
   };
 
-
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
   };
   return (
-    <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
+    <header
+      style={{ zIndex: 999 }}
+      className="flex sticky top-0 w-full items-center border-b bg-background"
+    >
       <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
         <NavigationMenu className="min-w-full w-full mx-auto flex items-center justify-between px-6 py-4 bg-background rounded-none text-foreground shadow max-h-16">
           <NavigationMenuList className="flex justify-between min-w-full !w-full items-center">
             {/* Sidebar Trigger */}
             <NavigationMenuItem>
               <SidebarTrigger />
-            </NavigationMenuItem> 
+            </NavigationMenuItem>
             {/* Logo */}
             <NavigationMenuItem>
               <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
@@ -118,10 +120,10 @@ const Navbar = ({ user }: NavbarProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleLanguageChange("EN")}>
-                  🇺🇸 English
+                      🇺🇸 English
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleLanguageChange("AR")}>
-                  🇸🇦 العربية
+                      🇸🇦 العربية
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -147,7 +149,9 @@ const Navbar = ({ user }: NavbarProps) => {
                           />
                         )}
                       </div>
-                      <span className="text-base font-medium truncate">{user?.fullName || "User"}</span>
+                      <span className="text-base font-medium truncate">
+                        {user?.fullName || "User"}
+                      </span>
                       <ChevronDown className="h-4 w-4" />
                     </div>
                   </DropdownMenuTrigger>
