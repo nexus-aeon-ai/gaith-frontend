@@ -1,51 +1,43 @@
+// this file will be used later on for AI data entry form
+
 import { z } from "zod";
 
+// Lead Source options validation
+const clientSourceSchema = z.enum([
+  "website",
+  "social-media",
+  "referral",
+  "campaign",
+  "cold-call",
+  "email",
+  "trade-show",
+  "other",
+]);
+
+// Assigned To options validation
+const assignedToSchema = z.enum([
+  "creative-director",
+  "social-media-manager",
+  "ux-researcher",
+  "web-developer",
+  "content-writer",
+  "graphic-designer",
+  "seo-specialist",
+]);
+
+// Products & Services validation for client
+const clientProductsServicesSchema = z.object({
+  socialMedia: z.boolean(),
+  blogCreation: z.boolean(),
+  marketingPlan: z.boolean(),
+  mediaBuyingPlan: z.boolean(),
+  graphicDesigns: z.boolean(),
+});
+
+// languages for client market/target audience
+const languages = ["English", "Spanish", "French", "German", "Chinese"] as const;
+
 const optionalUrl = z.string().url().or(z.literal("")).optional();
-
-export const industryOptions = [
-  {
-    value: "technology",
-    label: "Technology",
-  },
-  {
-    value: "healthcare",
-    label: "Healthcare",
-  },
-  {
-    value: "finance",
-    label: "Finance",
-  },
-  {
-    value: "education",
-    label: "Education",
-  },
-  {
-    value: "e-commerce",
-    label: "E-commerce & Retail",
-  },
-  {
-    value: "manufacturing",
-    label: "Manufacturing",
-  },
-  {
-    value: "hospitality",
-    label: "Hospitality",
-  },
-  {
-    value: "real-estate",
-    label: "Real Estate",
-  },
-  {
-    value: "transportation",
-    label: "Transportation & Logistics",
-  },
-  {
-    value: "media",
-    label: "Media & Entertainment",
-  },
-] as const;
-
-export const companySizeOptions = ["0-50", "50-200", "200-500", "500-1000", "1000+"] as const;
 
 export const createClientSchema = z.object({
   // Basic Information
@@ -55,15 +47,11 @@ export const createClientSchema = z.object({
     .max(100, "Full name must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
 
-  industry: z.enum(industryOptions.map(i => i.value) as [string, ...string[]], {
-    required_error: "Industry is required",
-    invalid_type_error: "Invalid industry selected",
-  }),
-
-  companySize: z.enum(companySizeOptions, {
-    required_error: "Company size is required",
-    invalid_type_error: "Invalid company size selected",
-  }),
+  industry: z
+    .string()
+    .min(2, "Nationality must be at least 2 characters")
+    .max(50, "Nationality must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
 
   // Contact Information - Email is required
   businessOverview: z
@@ -114,11 +102,6 @@ export const createClientSchema = z.object({
     .max(500, "Full address must be less than 500 characters"),
 
   // Agreement information
-  accountManager: z.string().min(2, "Account manager must be at least 2 characters"),
-  clientSince: z.date({
-    required_error: "Client since date is required",
-    invalid_type_error: "Invalid client since selected",
-  }),
   agreementStartDate: z.date().min(new Date(), "Agreement start date must be in the future"),
   agreementEndDate: z.date().min(new Date(), "Agreement end date must be in the future"),
   contractDuration: z
@@ -126,26 +109,56 @@ export const createClientSchema = z.object({
     .min(2, "Contract duration must be at least 2 characters")
     .max(50, "Contract duration must be less than 50 characters"),
 
-  clientStatus: z.enum(["active", "inactive", "pending", "suspended"], {
-    required_error: "Client status is required",
-    invalid_type_error: "Invalid client status selected",
+  // Market and target audience
+  primaryRegion: z.enum(["North America", "Europe", "Asia", "Other"], {
+    required_error: "Primary region is required",
+    invalid_type_error: "Invalid region selected",
   }),
 
-  monthlyBudget: z.number().min(0, "Monthly budget must be at least 0").optional(),
-
-  priorityLevel: z.enum(["low", "medium", "high"], {
-    required_error: "Priority level is required",
-    invalid_type_error: "Invalid priority level selected",
+  targetAudience: z.enum(["B2B", "B2C", "Enterprise", "Startups"], {
+    required_error: "Target audience is required",
+    invalid_type_error: "Invalid target audience selected",
   }),
+
+  seondaryMarkets: z
+    .string()
+    .min(2, "Secondary markets must be at least 2 characters")
+    .max(50, "Secondary markets must be less than 50 characters"),
+
+  languagesSupported: z.array(z.enum(languages)).nonempty({
+    message: "Select at least one language",
+  }),
+
+  // Company profile
+  visionStatement: z
+    .string()
+    .min(10, "Vision statement must be at least 10 characters")
+    .max(1000, "Vision statement must be less than 1000 characters"),
+
+  missionStatement: z
+    .string()
+    .min(10, "Mission statement must be at least 10 characters")
+    .max(1000, "Mission statement must be less than 1000 characters"),
+
+  clientProductsServicesSchema: clientProductsServicesSchema,
 
   // Social Media URLs - Optional but validated if provided
+  linkedinUrl: optionalUrl,
+  facebookUrl: optionalUrl,
+  youtubeUrl: optionalUrl,
+  twitterUrl: optionalUrl,
+  instagramUrl: optionalUrl,
   websiteUrl: z.string().url("Invalid Website URL").optional(),
 
-  // Internal Notes
-  internalNotes: z
-    .string()
-    .max(2000, "Internal notes must be less than 2000 characters")
-    .optional(),
+  // Team Assignment
+  leadSource: clientSourceSchema,
+  assignedTo: assignedToSchema,
+
+  // Additional Team Members
+  additionalTeamMembers: z.record(z.boolean().optional()),
+
+  // Additional Notes
+  additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
 });
 
 // Type inference from schema

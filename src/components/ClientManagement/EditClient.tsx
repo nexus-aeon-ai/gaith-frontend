@@ -14,13 +14,19 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { Client } from "@/lib/types";
 import { CreateClientFormData, createClientSchema } from "@/lib/validations/client";
 
-const EditClient = ({ closeEditClientForm }: { closeEditClientForm: () => void }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface EditClientProps {
+  client: Client | null;
+  closeEditClientForm: () => void;
+}
 
+const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleCancel = () => {
     closeEditClientForm();
+    console.warn(client);
   };
 
   const handleSave = async (data: CreateClientFormData) => {
@@ -65,11 +71,23 @@ const EditClient = ({ closeEditClientForm }: { closeEditClientForm: () => void }
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                href="/leads"
+                href="/client-management"
                 className="text-blue-600 font-medium text-md"
                 onClick={closeEditClientForm}
               >
                 Client Management
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                href="/client-management"
+                className="text-blue-600 font-medium text-md"
+                onClick={closeEditClientForm}
+              >
+                {client?.name}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
