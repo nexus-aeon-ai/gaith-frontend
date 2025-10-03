@@ -16,8 +16,12 @@ import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
+import PopupModal from "../PopupModal/Modal";
+import { X } from "lucide-react";
+
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const handleSave = async (data: CreateClientFormData) => {
     setIsSubmitting(true);
@@ -92,7 +96,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={handleCancel}
+            onClick={() => setShowCancelModal(true)}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
             Cancel
@@ -114,6 +118,17 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
+      />
+      <PopupModal
+        open={showCancelModal}
+        onOpenChange={setShowCancelModal}
+        title="Cancel Changes?"
+        iconComponent={
+          <X className="bg-red-200 rounded-full p-2" strokeWidth={3} size={40} color="#EA3B1F" />
+        }
+        description="Are you sure you want to cancel this Changes? This action cannot be undone.?"
+        cancelButton={{ label: "Yes, Cancel", onClick: () => setShowCancelModal(false) }}
+        confirmButton={{ label: "No, Keep", onClick: () => setShowCancelModal(false) }}
       />
     </div>
   );
