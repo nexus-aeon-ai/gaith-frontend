@@ -131,7 +131,7 @@ export const createClientSchema = z.object({
     invalid_type_error: "Invalid client status selected",
   }),
 
-  monthlyBudget: z.number().min(0, "Monthly budget must be at least 0").optional(),
+  monthlyBudget: z.string().min(0, "Monthly budget is required").optional(),
 
   priorityLevel: z.enum(["low", "medium", "high"], {
     required_error: "Priority level is required",
