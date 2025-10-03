@@ -3,25 +3,34 @@ import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const useTableColumns = (onViewDetails?: (client: Client) => void) => {
+const useTableColumns = (
+  onViewDetails?: (client: Client) => void,
+  onEditClientToggle?: (arg:boolean) => void,
+) => {
   const columns: ColumnDef<Client>[] = [
     {
       id: "select",
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={value => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),
@@ -38,17 +47,16 @@ const useTableColumns = (onViewDetails?: (client: Client) => void) => {
             <div className="flex-shrink-0">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-blue-600">
-                  {client.name.split(" ").map(n => n[0]).join("")}
+                  {client.name
+                    .split(" ")
+                    .map(n => n[0])
+                    .join("")}
                 </span>
               </div>
             </div>
             <div className="ml-3">
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                {client.name}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                {client.email}
-              </div>
+              <div className="text-sm font-medium text-gray-900 dark:text-white">{client.name}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{client.email}</div>
             </div>
           </div>
         );
@@ -60,14 +68,16 @@ const useTableColumns = (onViewDetails?: (client: Client) => void) => {
       cell: ({ row }) => {
         const status = row.original.status;
         return (
-          <span className={cn(
-            "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-            status === "Active" 
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-              : status === "Inactive"
-                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-          )}>
+          <span
+            className={cn(
+              "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+              status === "Active"
+                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                : status === "Inactive"
+                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+            )}
+          >
             {status}
           </span>
         );
@@ -89,27 +99,21 @@ const useTableColumns = (onViewDetails?: (client: Client) => void) => {
       accessorKey: "marketRegion",
       header: "Market Region",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">
-          {row.original.marketRegion}
-        </span>
+        <span className="text-sm text-gray-900 dark:text-white">{row.original.marketRegion}</span>
       ),
     },
     {
       accessorKey: "services",
       header: "Services",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">
-          {row.original.services}
-        </span>
+        <span className="text-sm text-gray-900 dark:text-white">{row.original.services}</span>
       ),
     },
     {
       accessorKey: "contactInfo",
       header: "Contact Info",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">
-          {row.original.contactInfo}
-        </span>
+        <span className="text-sm text-gray-900 dark:text-white">{row.original.contactInfo}</span>
       ),
     },
     {
@@ -140,35 +144,31 @@ const useTableColumns = (onViewDetails?: (client: Client) => void) => {
       header: "Actions",
       cell: ({ row }) => {
         const client = row.original;
-        
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => onViewDetails?.(client)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
                 <span>View Details</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => console.log("Edit client:", client.name)}
+                onClick={() => onEditClientToggle?.(true)}
               >
                 <Edit className="h-4 w-4 text-green-500" />
                 <span>Edit</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
                 onClick={() => console.log("Delete client:", client.name)}
               >

@@ -1,14 +1,22 @@
 "use client";
-import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { useState } from "react";
 
+import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
 import { mockClients } from "./data/mockClients";
+import EditClient from "./EditClient";
 import HeaderSection from "./HeaderSection";
+import NewClient from "./NewClient";
 import SearchAndActionsSection from "./SearchAndActionsSection";
 import useTableColumns from "./TableConfig";
 
@@ -16,7 +24,9 @@ const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const columns = useTableColumns(setSelectedClient);
+  const [editClientToggle, setEditClientToggle] = useState<boolean>(false);
+  const [newClientToggle, setNewClientToggle] = useState<boolean>(false);
+  const columns = useTableColumns(setSelectedClient, setEditClientToggle);
 
   // Mock paginated data
   const data: TGenericPaginatedResponse<Client> = {
@@ -36,7 +46,7 @@ const ClientManagementClient = () => {
     getSortedRowModel: getSortedRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
-    state: { 
+    state: {
       sorting,
       globalFilter,
     },
@@ -45,31 +55,27 @@ const ClientManagementClient = () => {
 
   // If a client is selected, show the details view
   if (selectedClient) {
-    return (
-      <ClientDetailsView 
-        client={selectedClient} 
-        onBack={() => setSelectedClient(null)} 
-      />
-    );
+    return <ClientDetailsView client={selectedClient} onBack={() => setSelectedClient(null)} />;
+  }
+  if (newClientToggle) {
+    return <NewClient closeNewClientForm={() => setNewClientToggle(false)} />;
+  }
+  if (editClientToggle) {
+    return <EditClient closeEditClientForm={() => setEditClientToggle(false)} />;
   }
 
   return (
-    <div className={cn(
-      "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
-      "bg-background overflow-x-hidden",
-    )}>
-      <HeaderSection />
-      <SearchAndActionsSection 
-        globalFilter={globalFilter} 
-        setGlobalFilter={setGlobalFilter} 
-      />
-      <ClientTableSection 
-        table={table} 
-        columns={columns} 
-        dataPagination={data}
-      />
+    <div
+      className={cn(
+        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
+        "bg-background overflow-x-hidden",
+      )}
+    >
+      <HeaderSection setNewClientToggle={setNewClientToggle}/>
+      <SearchAndActionsSection globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+      <ClientTableSection table={table} columns={columns} dataPagination={data} />
     </div>
   );
 };
 
-export default ClientManagementClient; 
+export default ClientManagementClient;

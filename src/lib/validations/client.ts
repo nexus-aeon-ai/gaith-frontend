@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Lead Source options validation
-const leadSourceSchema = z.enum([
+const clientSourceSchema = z.enum([
   "website",
   "social-media",
   "referral",
@@ -23,16 +23,6 @@ const assignedToSchema = z.enum([
   "seo-specialist",
 ]);
 
-// Products & Services validation for lead
-const productsServicesSchema = z.object({
-  software: z.boolean(),
-  hardware: z.boolean(),
-  consulting: z.boolean(),
-  webDesign: z.boolean(),
-  mobileApp: z.boolean(),
-  cloudServices: z.boolean(),
-});
-
 // Products & Services validation for client
 const clientProductsServicesSchema = z.object({
   socialMedia: z.boolean(),
@@ -46,98 +36,6 @@ const clientProductsServicesSchema = z.object({
 const languages = ["English", "Spanish", "French", "German", "Chinese"] as const;
 
 const optionalUrl = z.string().url().or(z.literal("")).optional();
-
-// Main Lead Form Validation Schema
-export const createLeadSchema = z.object({
-  // Basic Information
-  fullName: z
-    .string()
-    .min(2, "Full name must be at least 2 characters")
-    .max(100, "Full name must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
-
-  nationality: z
-    .string()
-    .min(2, "Nationality must be at least 2 characters")
-    .max(50, "Nationality must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
-
-  // Contact Information - Email is required
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(100, "Email must be less than 100 characters"),
-
-  phoneNumber: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number must be less than 15 digits")
-    .regex(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number"),
-
-  // Address Information
-  country: z
-    .string()
-    .min(2, "Country must be at least 2 characters")
-    .max(50, "Country must be less than 50 characters"),
-
-  region: z
-    .string()
-    .min(2, "Region must be at least 2 characters")
-    .max(50, "Region must be less than 50 characters"),
-
-  area: z
-    .string()
-    .min(2, "Area must be at least 2 characters")
-    .max(50, "Area must be less than 50 characters"),
-
-  fullAddress: z
-    .string()
-    .min(10, "Full address must be at least 10 characters")
-    .max(500, "Full address must be less than 500 characters"),
-
-  // Team Assignment
-  leadSource: leadSourceSchema,
-  assignedTo: assignedToSchema,
-
-  // Company Profile
-  visionStatement: z
-    .string()
-    .min(10, "Vision statement must be at least 10 characters")
-    .max(1000, "Vision statement must be less than 1000 characters"),
-
-  missionStatement: z
-    .string()
-    .min(10, "Mission statement must be at least 10 characters")
-    .max(1000, "Mission statement must be less than 1000 characters"),
-
-  // Social Media URLs - Optional but validated if provided
-  linkedinUrl: optionalUrl,
-  facebookUrl: optionalUrl,
-  youtubeUrl: optionalUrl,
-  twitterUrl: optionalUrl,
-  instagramUrl: optionalUrl,
-  websiteUrl: z.string().url("Invalid Website URL").optional(),
-
-  // Additional Notes
-  additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
-
-  // Products & Services
-  productsServices: productsServicesSchema,
-
-  // Additional Team Members
-  additionalTeamMembers: z.record(z.boolean().optional()),
-
-  //company logo
-  companyLogo: z
-    .instanceof(File)
-    .refine(file => file.size <= 5 * 1024 * 1024, "File size must be less than 5MB")
-    .refine(
-      file => ["image/png", "image/jpeg", "image/jpg", "image/webp"].includes(file.type),
-      "Only .jpg, .jpeg, .png, .webp formats are supported",
-    )
-    .optional(),
-});
 
 export const createClientSchema = z.object({
   // Basic Information
@@ -156,9 +54,8 @@ export const createClientSchema = z.object({
   // Contact Information - Email is required
   businessOverview: z
     .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(100, "Email must be less than 100 characters"),
+    .min(1, "Overview is required")
+    .max(500, "Overview must be less than 500 characters"),
 
   email: z
     .string()
@@ -230,11 +127,8 @@ export const createClientSchema = z.object({
   instagramUrl: optionalUrl,
   websiteUrl: z.string().url("Invalid Website URL").optional(),
 
-  // Products & Services
-  productsServices: productsServicesSchema,
-
   // Team Assignment
-  leadSource: leadSourceSchema,
+  leadSource: clientSourceSchema,
   assignedTo: assignedToSchema,
 
   // Additional Team Members
@@ -245,22 +139,21 @@ export const createClientSchema = z.object({
 });
 
 // Type inference from schema
-export type CreateLeadFormData = z.infer<typeof createLeadSchema>;
 export type CreateClientFormData = z.infer<typeof createClientSchema>;
 
 // Partial schema for updates (all fields optional)
-export const updateLeadSchema = createLeadSchema.partial();
+export const updateClientSchema = createClientSchema.partial();
 
 // Type for update operations
-export type UpdateLeadFormData = z.infer<typeof updateLeadSchema>;
+export type UpdateClientFormData = z.infer<typeof updateClientSchema>;
 
 // Validation helper functions
-export const validateLeadForm = (data: unknown) => {
-  return createLeadSchema.safeParse(data);
+export const validateClientForm = (data: unknown) => {
+  return createClientSchema.safeParse(data);
 };
 
-export const validateLeadUpdate = (data: unknown) => {
-  return updateLeadSchema.safeParse(data);
+export const validateClientUpdate = (data: unknown) => {
+  return updateClientSchema.safeParse(data);
 };
 
 // Field-specific validation helpers
