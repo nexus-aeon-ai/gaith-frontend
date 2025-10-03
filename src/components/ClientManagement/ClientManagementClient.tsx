@@ -54,14 +54,16 @@ const ClientManagementClient = () => {
   });
 
   // If a client is selected, show the details view
-  if (selectedClient) {
+  if (selectedClient && !editClientToggle) {
     return <ClientDetailsView client={selectedClient} onBack={() => setSelectedClient(null)} />;
   }
   if (newClientToggle) {
     return <NewClient closeNewClientForm={() => setNewClientToggle(false)} />;
   }
   if (editClientToggle) {
-    return <EditClient closeEditClientForm={() => setEditClientToggle(false)} />;
+    return (
+      <EditClient client={selectedClient} closeEditClientForm={() => setEditClientToggle(false)} />
+    );
   }
 
   return (
@@ -71,7 +73,7 @@ const ClientManagementClient = () => {
         "bg-background overflow-x-hidden",
       )}
     >
-      <HeaderSection setNewClientToggle={setNewClientToggle}/>
+      <HeaderSection setNewClientToggle={setNewClientToggle} />
       <SearchAndActionsSection globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       <ClientTableSection table={table} columns={columns} dataPagination={data} />
     </div>
