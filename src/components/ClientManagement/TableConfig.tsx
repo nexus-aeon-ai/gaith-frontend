@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const useTableColumns = (
   onViewDetails?: (client: Client) => void,
-  onEditClientToggle?: (arg:boolean) => void,
+  onEditClientToggle?: (arg: boolean) => void,
 ) => {
   const columns: ColumnDef<Client>[] = [
     {
@@ -162,7 +162,10 @@ const useTableColumns = (
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => onEditClientToggle?.(true)}
+                onClick={() => {
+                  onViewDetails?.(client);
+                  onEditClientToggle?.(true);
+                }}
               >
                 <Edit className="h-4 w-4 text-green-500" />
                 <span>Edit</span>

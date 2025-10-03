@@ -66,7 +66,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                href="/leads"
+                href="/client-management"
                 className="text-blue-600 font-medium text-md"
                 onClick={closeNewClientForm}
               >
@@ -102,9 +102,9 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
             form="lead-form"
             variant={"outline"}
             disabled={isSubmitting}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-white dark:text-black text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Save Client"}
+            {isSubmitting ? "Adding..." : "Add Client"}
           </Button>
         </div>
       </div>
