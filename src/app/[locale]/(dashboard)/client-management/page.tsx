@@ -2,4 +2,4 @@ import ClientManagementClient from "@/components/ClientManagement/ClientManageme
 
 export default function ClientManagementPage() {
   return <ClientManagementClient />;
-} 
+}
