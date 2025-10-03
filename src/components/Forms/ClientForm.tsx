@@ -444,7 +444,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
 
               <FormField
                 control={form.control}
-                name="department"
+                name="contractDuration"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contract Duration</FormLabel>
