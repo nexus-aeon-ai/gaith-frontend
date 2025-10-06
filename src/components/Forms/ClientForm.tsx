@@ -65,7 +65,7 @@ const defaultFormData: CreateClientFormData = {
   contractDuration: "",
 
   clientStatus: "active", // default from enum: active | inactive | Pending | Suspended
-  monthlyBudget: 0,
+  monthlyBudget: "0",
   priorityLevel: "low", // default from enum: low | medium | high
 
   // Website
