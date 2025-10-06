@@ -6,14 +6,14 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Checkbox = React.forwardRef<
+const CheckboxSquare = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "peer size-6 shrink-0 rounded-full border border-white-600 ring-offset-background focus-visible:outline-none  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary",
+      "peer size-5 shrink-0 rounded-sm border border-white-600 ring-offset-background focus-visible:outline-none  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary",
       className,
     )}
     {...props}
@@ -23,6 +23,6 @@ const Checkbox = React.forwardRef<
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ));
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+CheckboxSquare.displayName = CheckboxPrimitive.Root.displayName;
 
-export { Checkbox };
+export { CheckboxSquare };
