@@ -14,6 +14,10 @@ import UsersIconFilled from "@/components/ui/icons/user-filled";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
+import GeneralTabForm from "../Forms/Settings/GeneralTabForm";
+import NotificationForm from "../Forms/Settings/NotificationForm";
+import UserManagementForm from "../Forms/Settings/UserManagementForm";
+
 type SettingsTabsProps = {
   className?: string;
   defaultTab?: "general" | "users" | "notifications" | "security";
@@ -44,7 +48,7 @@ export function SettingsTabs({ defaultTab = "general" }: SettingsTabsProps) {
         className={cn(
           "w-full gap-0 h-auto",
           "rounded-t-xl rounded-b-none border bg-card ",
-          "p-0 overflow-hidden",
+          "p-0 overflow-hidden mt-3",
         )}
       >
         {items.map(({ value, label, Icon, Filled }) => {
@@ -78,14 +82,14 @@ export function SettingsTabs({ defaultTab = "general" }: SettingsTabsProps) {
       </TabsList>
 
       {/* Example content panes; replace with real forms as needed */}
-      <TabsContent className=" rouned-none" value="general">
-        <SectionPlaceholder title="General" />
+      <TabsContent className="m-0 rounded-none" value="general">
+        <GeneralTabForm onSubmit={data => console.log(data)} />
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="users">
-        <SectionPlaceholder title="User Management" />
+        <UserManagementForm onSubmit={data => console.log(data)}/>
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="notifications">
-        <SectionPlaceholder title="Notifications" />
+        <NotificationForm onSubmit={data => console.log(data)} />
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="security">
         <SectionPlaceholder title="Security" />
