@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 import GeneralTabForm from "../Forms/Settings/GeneralTabForm";
 import NotificationForm from "../Forms/Settings/NotificationForm";
+import SecurityForm from "../Forms/Settings/SecurityForm";
 import UserManagementForm from "../Forms/Settings/UserManagementForm";
 
 type SettingsTabsProps = {
@@ -86,27 +87,14 @@ export function SettingsTabs({ defaultTab = "general" }: SettingsTabsProps) {
         <GeneralTabForm onSubmit={data => console.log(data)} />
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="users">
-        <UserManagementForm onSubmit={data => console.log(data)}/>
+        <UserManagementForm onSubmit={data => console.log(data)} />
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="notifications">
         <NotificationForm onSubmit={data => console.log(data)} />
       </TabsContent>
       <TabsContent className="m-0 rounded-none" value="security">
-        <SectionPlaceholder title="Security" />
+        <SecurityForm onSubmit={data => console.log(data)} />
       </TabsContent>
     </Tabs>
-  );
-}
-
-function SectionPlaceholder({ title }: { title: string }) {
-  return (
-    <div
-      className={cn(
-        "rounded-none m-0 border border-t-transparent bg-card p-6",
-        "text-sm text-muted-foreground",
-      )}
-    >
-      <p>{title} content goes here. Replace this with your settings form sections.</p>
-    </div>
   );
 }

@@ -1,15 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus, Pencil, Trash2 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { CirclePlus } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Path, useForm } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form } from "@/components/ui/form";
+import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
+import EditIcon from "@/components/ui/icons/options/edit-icon-v2";
 import {
   Table,
   TableBody,
@@ -18,30 +19,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Employee, Permissions } from "@/lib/types";
 import {
   createSettingsSchema,
   type CreateSettingsFormData,
   permissionsList,
+  defaultFormData,
 } from "@/lib/validations/settings";
 
 import { cn } from "../../../lib/utils";
 import { Button } from "../../ui/button";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
-
-interface Permissions {
-  delete: boolean;
-  approve: boolean;
-  edit: boolean;
-  view: boolean;
-}
-
-interface Employee {
-  id: number;
-  name: string;
-  role: string;
-  status: "active" | "inactive";
-  permissions: Permissions;
-}
 
 const mockEmployees: Employee[] = [
   {
@@ -106,6 +94,17 @@ const mockEmployees: Employee[] = [
   },
 ];
 
+const roleStyles: Record<string, { bg: string; text: string }> = {
+  "Software Engineer": { bg: "bg-blue-100", text: "text-blue-800" },
+  "Product Manager": { bg: "bg-green-100", text: "text-green-800" },
+  Designer: { bg: "bg-purple-100", text: "text-purple-800" },
+  "Team Lead": { bg: "bg-yellow-100", text: "text-yellow-800" },
+  Developer: { bg: "bg-red-100", text: "text-red-800" },
+};
+
+type FormValues = CreateSettingsFormData;
+type PermissionKey = keyof FormValues["permissions"];
+
 interface ClientFormProps {
   onSubmit: (data: CreateSettingsFormData) => void;
   onCancel?: () => void;
@@ -113,14 +112,15 @@ interface ClientFormProps {
 }
 
 const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
-  const { theme } = useTheme();
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
 
   const handlePermissionChange = (
-    permission: string,
+    permission: PermissionKey,
     role: "superadmin" | "admin" | "employee",
   ) => {
-    setValue(`permissions.${permission}`, role, { shouldValidate: true });
+    setValue(`permissions.${permission}` as Path<FormValues>, role, {
+      shouldValidate: true,
+    });
   };
 
   const handleEmpPermissionChange = (id: number, permission: keyof Permissions) => {
@@ -128,9 +128,9 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
       employees.map(emp =>
         emp.id === id
           ? {
-            ...emp,
-            permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
-          }
+              ...emp,
+              permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
+            }
           : emp,
       ),
     );
@@ -146,51 +146,6 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
     }
   };
 
-  const defaultFormData: CreateSettingsFormData = {
-    // ***** GENERAL SECTION *****
-    fullName: "",
-    email: "",
-    jobTitle: "",
-    department: "Sales", // default from departments enum
-
-    // Language and regional settings
-    interfaceLang: "English",
-    textDirection: "left-to-right",
-
-    // Theme preferences
-    darkThemeStatus: theme === "dark",
-
-    // Data export settings
-    defaultExport: "XLSX",
-    includeMetaData: false,
-
-    // ***** NOTIFICATIONS SECTION *****
-    // Email notifications
-    newClientAdded: false,
-    clientStatusChanged: false,
-    weeklyReports: false,
-
-    // SMS notifications
-    enableSMSAlerts: false,
-    phoneNumber: "",
-
-    // In App notifications
-    desktopNotifications: false,
-    soundAlerts: false,
-    notificationFrequency: "5min",
-
-    // ***** SECURITY SECTION *****
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    twoFactorAuth: false,
-
-    permissions: permissionsList.reduce(
-      (acc, p) => ({ ...acc, [p]: "employee" }), // default role = employee
-      {},
-    ) as Record<(typeof permissionsList)[number], "superadmin" | "admin" | "employee">,
-  };
-
   const form = useForm<CreateSettingsFormData>({
     resolver: zodResolver(createSettingsSchema),
     defaultValues: defaultFormData,
@@ -199,20 +154,6 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
 
   const { watch, setValue } = form;
   const permissions = watch("permissions") || {};
-
-  // const handleStartDateClick = () => {
-  //   const input = document.getElementById("date-start") as HTMLInputElement & {
-  //     showPicker?: () => void;
-  //   };
-  //   input?.showPicker?.();
-  // };
-
-  // const handleEndDateClick = () => {
-  //   const input = document.getElementById("date-end") as HTMLInputElement & {
-  //     showPicker?: () => void;
-  //   };
-  //   input?.showPicker?.();
-  // };
 
   return (
     <Form {...form}>
@@ -257,19 +198,30 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
                     {employees.map(employee => (
                       <TableRow key={employee.id}>
                         <TableCell className="font-medium">{employee.name}</TableCell>
-                        <TableCell>{employee.role}</TableCell>
                         <TableCell>
                           <Badge
-                            variant={employee.status === "active" ? "default" : "secondary"}
+                            variant={"default"}
+                            className={cn(
+                              "p-2 rounded-sm font-[400]",
+                              roleStyles[employee.role]?.bg,
+                              roleStyles[employee.role]?.text,
+                            )}
+                          >
+                            {employee.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={"default"}
                             className={
-                              employee.status === "active" ? "bg-green-500 hover:bg-green-600" : ""
+                              "bg-[#2BAE8214] font-[400] p-2 rounded-sm capitalize hover:bg-[#2BAE8214] dark:text-[#68DAB3] text-[#175E46]"
                             }
                           >
                             {employee.status}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-wrap gap-3">
+                          <div className="flex md:flex-row flex-col gap-3">
                             {(["delete", "approve", "edit", "view"] as const).map(key => (
                               <div key={key} className="flex items-center gap-2">
                                 <Checkbox
@@ -297,14 +249,14 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
                               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                               title="Edit"
                             >
-                              <Pencil className="w-4 h-4 text-blue-600" />
+                              <EditIcon />
                             </button>
                             <button
                               onClick={() => handleDelete(employee.id)}
                               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                               title="Delete"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" />
+                              <DeleteIcon />
                             </button>
                           </div>
                         </TableCell>

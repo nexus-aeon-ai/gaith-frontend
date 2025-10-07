@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,11 +15,12 @@ import {
 import {
   createSettingsSchema,
   type CreateSettingsFormData,
-  permissionsList,
+  defaultFormData,
 } from "@/lib/validations/settings";
 
-import { Switch } from "../../ui/switch";
 import { Input } from "../../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { Switch } from "../../ui/switch";
 
 interface ClientFormProps {
   onSubmit: (data: CreateSettingsFormData) => void;
@@ -29,52 +29,6 @@ interface ClientFormProps {
 }
 
 const NotificationForm = ({ onSubmit }: ClientFormProps) => {
-  const { theme } = useTheme();
-
-  const defaultFormData: CreateSettingsFormData = {
-    // ***** GENERAL SECTION *****
-    fullName: "",
-    email: "",
-    jobTitle: "",
-    department: "Sales", // default from departments enum
-
-    // Language and regional settings
-    interfaceLang: "English",
-    textDirection: "left-to-right",
-
-    // Theme preferences
-    darkThemeStatus: theme === "dark",
-
-    // Data export settings
-    defaultExport: "XLSX",
-    includeMetaData: false,
-
-    // ***** NOTIFICATIONS SECTION *****
-    // Email notifications
-    newClientAdded: false,
-    clientStatusChanged: false,
-    weeklyReports: false,
-
-    // SMS notifications
-    enableSMSAlerts: false,
-    phoneNumber: "",
-
-    // In App notifications
-    desktopNotifications: false,
-    soundAlerts: false,
-    notificationFrequency: "5min",
-
-    // ***** SECURITY SECTION *****
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    twoFactorAuth: false,
-
-    permissions: permissionsList.reduce(
-      (acc, p) => ({ ...acc, [p]: "employee" }), // default role = employee
-      {},
-    ) as Record<(typeof permissionsList)[number], "superadmin" | "admin" | "employee">,
-  };
 
   const form = useForm<CreateSettingsFormData>({
     resolver: zodResolver(createSettingsSchema),
@@ -279,9 +233,7 @@ const NotificationForm = ({ onSubmit }: ClientFormProps) => {
                 <div className="col-span-3 flex items-center justify-between border rounded-[12px] p-4">
                   <div className="flex flex-col ">
                     <p className="text-md font-[600] ">Desktop Notifications</p>
-                    <p className="text-sm font-[400]">
-                      Receive important notifications via SMS
-                    </p>
+                    <p className="text-sm font-[400]">Receive important notifications via SMS</p>
                   </div>
 
                   <FormField
@@ -306,9 +258,7 @@ const NotificationForm = ({ onSubmit }: ClientFormProps) => {
                 <div className="col-span-3 flex items-center justify-between border rounded-[12px] p-4">
                   <div className="flex flex-col ">
                     <p className="text-md font-[600] ">Sound Alerts</p>
-                    <p className="text-sm font-[400]">
-                      Receive important notifications via SMS
-                    </p>
+                    <p className="text-sm font-[400]">Receive important notifications via SMS</p>
                   </div>
 
                   <FormField
@@ -338,13 +288,21 @@ const NotificationForm = ({ onSubmit }: ClientFormProps) => {
                       render={({ field }) => (
                         <FormItem className="col-span-3">
                           <FormLabel>Notifications Frequency</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Every 15 minutes"
-                              className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                                <SelectValue placeholder="Select frequency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="5min">Every 5 minutes</SelectItem>
+                              <SelectItem value="15min">Every 15 minutes</SelectItem>
+                              <SelectItem value="1hr">Every 1 hour</SelectItem>
+                              <SelectItem value="4hrs">Every 4 hours</SelectItem>
+                              <SelectItem value="12hrs">Every 12 hours</SelectItem>
+                              <SelectItem value="24hrs">Every 24 hours</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -58,7 +58,7 @@ export const createSettingsSchema = z.object({
   textDirection: z.enum(["left-to-right", "right-to-left"]),
 
   // Theme preferences
-  darkThemeStatus: z.boolean(),
+  darkThemeStatus: z.boolean().optional(),
 
   // Data export settings
   defaultExport: z.enum(["XLSX", "PDF"]),
@@ -96,6 +96,45 @@ export const createSettingsSchema = z.object({
   permissions: z.record(z.enum(permissionsList), z.enum(["superadmin", "admin", "employee"])),
 });
 
+
+export const defaultFormData: CreateSettingsFormData = {
+  // ***** GENERAL SECTION *****
+  fullName: "",
+  email: "",
+  jobTitle: "",
+  department: "Sales", // default from departments enum
+
+  // Language and regional settings
+  interfaceLang: "English",
+  textDirection: "left-to-right",
+
+  // Data export settings
+  defaultExport: "XLSX",
+  includeMetaData: false,
+
+  // ***** NOTIFICATIONS SECTION *****
+  // Email notifications
+  newClientAdded: false,
+  clientStatusChanged: false,
+  weeklyReports: false,
+
+  // SMS notifications
+  enableSMSAlerts: false,
+  phoneNumber: "",
+
+  // In App notifications
+  desktopNotifications: false,
+  soundAlerts: false,
+  notificationFrequency: "5min",
+
+  // ***** SECURITY SECTION *****
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+  twoFactorAuth: false,
+
+  permissions: {},
+};
 // Type inference from schema
 export type CreateSettingsFormData = z.infer<typeof createSettingsSchema>;
 
