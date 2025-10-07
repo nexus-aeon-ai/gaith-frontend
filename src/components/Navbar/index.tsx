@@ -1,9 +1,10 @@
 "use client";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@radix-ui/react-navigation-menu";
-import { setCookie } from "cookies-next";
+import { deleteCookie, setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun, UserRound } from "lucide-react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -31,9 +32,9 @@ interface NavbarProps {
 
 const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore } = useAuthStore();
+  const router = useRouter();
   const { theme: themeNext, setTheme: setThemeNext, resolvedTheme } = useTheme();
 
-  const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
   const [mounted, setMounted] = useState(false);
 
@@ -45,7 +46,6 @@ const Navbar = ({ user }: NavbarProps) => {
   useEffect(() => {
     if (user) {
       setUser(user);
-      setAvatar(user?.profilePic || "/images/default-avatar.jpg");
       setAvatarLoading(!!user?.profilePic);
     }
   }, [user, setUser]);
@@ -58,6 +58,13 @@ const Navbar = ({ user }: NavbarProps) => {
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
     setCookie("language", language, { maxAge: 60 * 60 * 24 * 365 });
+  };
+
+  const handleLogout = () => {
+    // Remove auth cookie and reset user in store, then redirect to login
+    deleteCookie("authToken", { path: "/" });
+    setUser({} as IProfile);
+    router.push("/login");
   };
 
   // Use resolvedTheme for accurate theme detection (handles "system" theme)
@@ -191,7 +198,7 @@ const Navbar = ({ user }: NavbarProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Logout</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
