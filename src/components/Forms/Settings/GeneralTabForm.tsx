@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   createSettingsSchema,
   defaultExports,
+  defaultFormData,
   departments,
   type CreateSettingsFormData,
 } from "@/lib/validations/settings";
@@ -41,48 +42,6 @@ interface ClientFormProps {
 
 const GeneralTabForm = ({ onSubmit }: ClientFormProps) => {
   const { theme, setTheme } = useTheme();
-
-  const defaultFormData: CreateSettingsFormData = {
-    // ***** GENERAL SECTION *****
-    fullName: "",
-    email: "",
-    jobTitle: "",
-    department: "Sales", // default from departments enum
-
-    // Language and regional settings
-    interfaceLang: "English",
-    textDirection: "left-to-right",
-
-    // Theme preferences
-    darkThemeStatus: theme === "dark",
-
-    // Data export settings
-    defaultExport: "XLSX",
-    includeMetaData: false,
-
-    // ***** NOTIFICATIONS SECTION *****
-    // Email notifications
-    newClientAdded: false,
-    clientStatusChanged: false,
-    weeklyReports: false,
-
-    // SMS notifications
-    enableSMSAlerts: false,
-    phoneNumber: "",
-
-    // In App notifications
-    desktopNotifications: false,
-    soundAlerts: false,
-    notificationFrequency: "5min",
-
-    // ***** SECURITY SECTION *****
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    twoFactorAuth: false,
-
-    permissions: {},
-  };
 
   const form = useForm<CreateSettingsFormData>({
     resolver: zodResolver(createSettingsSchema),
