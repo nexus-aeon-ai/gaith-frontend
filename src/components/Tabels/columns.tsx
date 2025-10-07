@@ -120,7 +120,7 @@ export const columns: ColumnDef<Lead>[] = [
     cell: ({ row }) => {
       const assignedTo = row.original.assignedTo;
       return (
-        <div className="flex -space-x-3 justify-center">
+        <div className="flex -space-x-3">
           {assignedTo.map(person => (
             <div
               key={`${row.id}-${person.name}-${person.initial}`}
@@ -139,8 +139,14 @@ export const columns: ColumnDef<Lead>[] = [
   },
   {
     id: "actions",
+    accessorKey: "actions",
+    header: "Actions",
     cell: () => {
-      return <ActionsCell />;
+      return (
+        <div className="flex justify-center">
+          <ActionsCell />
+        </div>
+      );
     },
   },
 ];

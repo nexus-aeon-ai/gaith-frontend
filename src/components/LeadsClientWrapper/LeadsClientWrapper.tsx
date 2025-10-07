@@ -74,7 +74,7 @@ const LeadsClientWrapper = ({ clients }: LeadsClientWrapperProps) => {
           )}
         >
           <SearchBar searchTerm={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          <div className="flex gap-1 sm:gap-2 md:gap-3">
+          <div className="flex gap-1 sm:gap-2 md:gap-3 self-end sm:self-auto">
             <DotMenu options={menuOptions} />
             <FilterButton setIsFilterSheetOpen={setIsFilterSheetOpen} />
             <ExportButton fileType="excel" />

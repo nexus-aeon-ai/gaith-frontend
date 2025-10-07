@@ -1,5 +1,5 @@
 "use client";
-
+import { getCookie } from "cookies-next";
 import type { FC } from "react";
 import { ToastContainer } from "react-toastify";
 
@@ -7,7 +7,6 @@ import ReactQueryProvider from "./react-query-provider";
 import { ThemeProvider } from "./theme-provider";
 
 import "react-toastify/dist/ReactToastify.css";
-import { getCookie } from "cookies-next";
 
 interface ProvidersProps {
   children: React.ReactNode;

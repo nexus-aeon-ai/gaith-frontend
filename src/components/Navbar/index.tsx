@@ -1,8 +1,8 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -34,10 +34,16 @@ interface NavbarProps {
 
 const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore } = useAuthStore();
-  const { theme: themeNext, setTheme: setThemeNext } = useTheme();
+  const { theme: themeNext, setTheme: setThemeNext, resolvedTheme } = useTheme();
 
   const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Wait for component to mount (fixes hydration issues)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -49,13 +55,45 @@ const Navbar = ({ user }: NavbarProps) => {
 
   const handleThemeChange = (theme: string) => {
     setThemeNext(theme as "light" | "dark");
-    setCookie("theme", theme);
+    setCookie("theme", theme, { maxAge: 60 * 60 * 24 * 365 }); // 1 year
   };
 
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
-    setCookie("language", language);
+    setCookie("language", language, { maxAge: 60 * 60 * 24 * 365 });
   };
+
+  // Use resolvedTheme for accurate theme detection (handles "system" theme)
+  const currentTheme = resolvedTheme || themeNext;
+
+  // Prevent hydration mismatch by not rendering theme buttons until mounted
+  if (!mounted) {
+    return (
+      <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
+        <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
+          <NavigationMenu className="min-w-full w-full mx-auto flex items-center justify-between px-6 py-4 bg-background rounded-none text-foreground shadow max-h-16">
+            <NavigationMenuList className="flex justify-between min-w-full !w-full items-center">
+              <NavigationMenuItem>
+                <SidebarTrigger />
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <div className="flex items-center gap-4">
+                  {/* Placeholder to prevent layout shift */}
+                  <div className="h-10 w-24 bg-card rounded-full" />
+                  <div className="h-10 w-[60px] bg-card rounded-full" />
+                  <div className="h-10 w-[120px] bg-card rounded-full" />
+                </div>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
       <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
@@ -64,7 +102,7 @@ const Navbar = ({ user }: NavbarProps) => {
             {/* Sidebar Trigger */}
             <NavigationMenuItem>
               <SidebarTrigger />
-            </NavigationMenuItem> 
+            </NavigationMenuItem>
             {/* Logo */}
             <NavigationMenuItem>
               <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
@@ -78,8 +116,10 @@ const Navbar = ({ user }: NavbarProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`rounded-full border-2 ${
-                      themeNext === "light" ? "bg-[#FFD250] border-[#FFD250]" : "border-transparent"
+                    className={`rounded-full border-2 transition-all ${
+                      currentTheme === "light"
+                        ? "bg-[#FFD250] border-[#FFD250]"
+                        : "border-transparent"
                     }`}
                     onClick={() => handleThemeChange("light")}
                     aria-label="Light Mode"
@@ -87,14 +127,16 @@ const Navbar = ({ user }: NavbarProps) => {
                     <Sun
                       className="h-6 w-6"
                       color="#A97A00"
-                      fill={themeNext === "light" ? "#FFD250" : "none"}
+                      fill={currentTheme === "light" ? "#FFD250" : "none"}
                     />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`rounded-full border-2 ${
-                      themeNext === "dark" ? "bg-[#23272E] border-[#FFD250]" : "border-transparent"
+                    className={`rounded-full border-2 transition-all ${
+                      currentTheme === "dark"
+                        ? "bg-[#23272E] border-[#FFD250]"
+                        : "border-transparent"
                     }`}
                     onClick={() => handleThemeChange("dark")}
                     aria-label="Dark Mode"
@@ -102,7 +144,7 @@ const Navbar = ({ user }: NavbarProps) => {
                     <Moon
                       className="h-6 w-6"
                       color="#FFD250"
-                      fill={themeNext === "dark" ? "#23272E" : "none"}
+                      fill={currentTheme === "dark" ? "#23272E" : "none"}
                     />
                   </Button>
                 </div>
@@ -117,10 +159,10 @@ const Navbar = ({ user }: NavbarProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleLanguageChange("EN")}>
-                  🇺🇸 English
+                      🇺🇸 English
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleLanguageChange("AR")}>
-                  🇸🇦 العربية
+                      🇸🇦 العربية
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -146,7 +188,9 @@ const Navbar = ({ user }: NavbarProps) => {
                           />
                         )}
                       </div>
-                      <span className="text-base font-medium truncate">{user?.fullName || "User"}</span>
+                      <span className="text-base font-medium truncate">
+                        {user?.fullName || "User"}
+                      </span>
                       <ChevronDown className="h-4 w-4" />
                     </div>
                   </DropdownMenuTrigger>

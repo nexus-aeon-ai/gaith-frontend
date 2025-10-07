@@ -1,4 +1,3 @@
-import { useTheme } from "next-themes";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ interface DotMenuProps {
 }
 
 const DotMenu = ({ options }: DotMenuProps) => {
-  const { theme: themeNext } = useTheme();
 
   return (
     <DropdownMenu>
@@ -29,12 +27,12 @@ const DotMenu = ({ options }: DotMenuProps) => {
           variant="outline"
           className={cn(
             "flex items-center gap-1 sm:gap-2",
-            "bg-card border-border text-xs h-8 sm:h-10",
+            "bg-card border-border text-xs h-12",
             "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
             "hover:bg-card hover:border-blue-500",
           )}
         >
-          <MenuIcon color={themeNext === "dark" ? "#CCCFDB" : "#303444"} />
+          <MenuIcon style={{ color: "var(--icon-primary)" }} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

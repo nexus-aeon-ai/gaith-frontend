@@ -35,7 +35,7 @@ const ExportButton = ({ fileType }: { fileType: string }) => {
       variant="outline"
       className={cn(
         "flex items-center gap-1 sm:gap-2",
-        "bg-card border-border text-xs h-8 sm:h-10",
+        "bg-card border-border text-xs h-12",
         "hover:bg-card hover:border-blue-500",
       )}
     >
