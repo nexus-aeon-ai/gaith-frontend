@@ -2,9 +2,18 @@
 
 import { ChevronDown } from "lucide-react";
 import React, { useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
+import { Pie, PieChart, Sector } from "recharts";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
+import { ActiveShape } from "recharts/types/util/types";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,30 +24,53 @@ import {
 // Mock data for different time periods
 const budgetDataByPeriod = {
   3: [
-    { label: "Marketing", value: 25, color: "#F5B719" },
-    { label: "Development", value: 30, color: "#A1C2E7" },
-    { label: "Operations", value: 15, color: "#91E4C8" },
-    { label: "Sales", value: 30, color: "#3072C0" },
+    { label: "Marketing", value: 25, fill: "var(--color-marketing)" },
+    { label: "Development", value: 30, fill: "var(--color-development)" },
+    { label: "Operations", value: 15, fill: "var(--color-operations)" },
+    { label: "Sales", value: 30, fill: "var(--color-sales)" },
   ],
   6: [
-    { label: "Marketing", value: 35, color: "#F5B719" },
-    { label: "Development", value: 25, color: "#A1C2E7" },
-    { label: "Operations", value: 20, color: "#91E4C8" },
-    { label: "Sales", value: 20, color: "#3072C0" },
+    { label: "Marketing", value: 35, fill: "var(--color-marketing)" },
+    { label: "Development", value: 25, fill: "var(--color-development)" },
+    { label: "Operations", value: 20, fill: "var(--color-operations)" },
+    { label: "Sales", value: 20, fill: "var(--color-sales)" },
   ],
   9: [
-    { label: "Marketing", value: 20, color: "#F5B719" },
-    { label: "Development", value: 40, color: "#A1C2E7" },
-    { label: "Operations", value: 25, color: "#91E4C8" },
-    { label: "Sales", value: 15, color: "#3072C0" },
+    { label: "Marketing", value: 20, fill: "var(--color-marketing)" },
+    { label: "Development", value: 40, fill: "var(--color-development)" },
+    { label: "Operations", value: 25, fill: "var(--color-operations)" },
+    { label: "Sales", value: 15, fill: "var(--color-sales)" },
   ],
   12: [
-    { label: "Marketing", value: 30, color: "#F5B719" },
-    { label: "Development", value: 35, color: "#A1C2E7" },
-    { label: "Operations", value: 10, color: "#91E4C8" },
-    { label: "Sales", value: 25, color: "#3072C0" },
+    { label: "Marketing", value: 30, fill: "var(--color-marketing)" },
+    { label: "Development", value: 35, fill: "var(--color-development)" },
+    { label: "Operations", value: 10, fill: "var(--color-operations)" },
+    { label: "Sales", value: 25, fill: "var(--color-sales)" },
   ],
 };
+
+// Chart configuration for shadcn
+const chartConfig = {
+  value: {
+    label: "Budget",
+  },
+  marketing: {
+    label: "Marketing",
+    color: "#F5B719",
+  },
+  development: {
+    label: "Development",
+    color: "#A1C2E7",
+  },
+  operations: {
+    label: "Operations",
+    color: "#91E4C8",
+  },
+  sales: {
+    label: "Sales",
+    color: "#3072C0",
+  },
+} satisfies ChartConfig;
 
 const timeOptions = [
   { value: 3 as const, label: "3 Months" },
@@ -49,13 +81,22 @@ const timeOptions = [
 
 const RADIAN = Math.PI / 180;
 
+interface ActiveShapeProps {
+  cx: number;
+  cy: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  startAngle?: number;
+  endAngle?: number;
+  fill?: string;
+}
+
 // Enhanced active shape that scales the slice
-const renderActiveShape = (props: any) => {
+const renderActiveShape = (props: ActiveShapeProps) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-  
+
   return (
     <g>
-      {/* Regular slice */}
       <Sector
         cx={cx}
         cy={cy}
@@ -65,16 +106,15 @@ const renderActiveShape = (props: any) => {
         endAngle={endAngle}
         fill={fill}
       />
-      {/* Expanded overlay slice */}
       <Sector
         cx={cx}
         cy={cy}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 8}
+        outerRadius={outerRadius ? outerRadius + 8 : 0}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
-        stroke="#fff"
+        stroke="hsl(var(--background))"
         strokeWidth={2}
         style={{ filter: "brightness(1.1)" }}
       />
@@ -82,7 +122,7 @@ const renderActiveShape = (props: any) => {
   );
 };
 
-// small responsive hook
+// Responsive hook
 const useMediaQuery = (query: string) => {
   const [matches, setMatches] = React.useState(false);
   React.useEffect(() => {
@@ -97,47 +137,51 @@ const useMediaQuery = (query: string) => {
 
 const BudgetUtilization: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<3 | 6 | 9 | 12>(3);
-  
-  // Get current data based on selected period
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+
   const currentData = budgetDataByPeriod[selectedPeriod];
   const selectedOption = timeOptions.find(option => option.value === selectedPeriod);
-  
-  // Calculate total budget for selected period
+
   const totalBudget = currentData.reduce((sum, item) => sum + item.value, 0);
 
-  // responsive breakpoints
-  const isSmall = useMediaQuery("(max-width: 640px)");
-  const isMedium = useMediaQuery("(max-width: 1024px)");
+  const isXs = useMediaQuery("(max-width: 480px)");
+  const isSm = useMediaQuery("(max-width: 640px)");
+  const isMd = useMediaQuery("(max-width: 768px)");
+  const isLg = useMediaQuery("(max-width: 1024px)");
+  const isXl = useMediaQuery("(max-width: 1280px)");
 
-  // radii based on viewport
-  const innerRadius = isSmall ? 90 : isMedium ? 110 : 120;
-  const outerRadius = isSmall ? 130: isMedium ? 150 : 180;
-  const overlaySize = Math.max(64, Math.min(220, Math.round(innerRadius * 1.6)));
+  // Decide radii based on breakpoints
+  const innerRadius = isXs ? 60 : isSm ? 70 : isMd ? 80 : isLg ? 90 : isXl ? 100 : 100;
 
-  // custom label uses actual cx/cy provided by Recharts (fixes positioning)
+  const outerRadius = isXs ? 85 : isSm ? 100 : isMd ? 110 : isLg ? 130 : isXl ? 130 : 150;
+
+  const overlaySize = Math.max(64, Math.min(240, Math.round(innerRadius * 1.6)));
+
   const renderCustomizedLabel = (props: any) => {
     const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent } = props;
 
-    // position the label between inner and outer radius
-    const factor = isSmall ? 0.2 : isMedium ? 0.4 : 0.4;
+    // Adjust factor per breakpoint
+    const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.3 : isLg ? 0.35 : isXl ? 0.3 : 0.35;
+
     const radius = ir + (orr - ir) * factor;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    // pick anchor so text doesn't run into the center
     const textAnchor = x > cx ? "start" : "end";
-    const fontSize = isSmall ? 10 : 12;
-   
+
+    // Adjust font size per breakpoint
+    const fontSize = isXs ? 8 : isSm ? 10 : isMd ? 11 : isLg ? 12 : isXl ? 13 : 14;
 
     return (
       <text
         x={x}
         y={y}
-        fill={"#000"}
+        fill="hsl(var(--foreground))"
         textAnchor={textAnchor}
         dominantBaseline="central"
         fontSize={fontSize}
         fontWeight="bold"
+        pointerEvents={"none"}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
@@ -145,9 +189,11 @@ const BudgetUtilization: React.FC = () => {
   };
 
   return (
-    <div className="bg-card rounded-lg shadow-md p-4 w-full flex flex-col text-card-foreground">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold text-lg text-card-foreground">Budget Utilization</h2>
+    <Card className="w-full lg:col-span-1 col-span-1">
+      <CardHeader className="flex flex-row items-center justify-between pt-4">
+        <CardTitle className="font-semibold text-lg text-card-foreground">
+          Budget Utilization
+        </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -159,7 +205,7 @@ const BudgetUtilization: React.FC = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[120px]">
-            {timeOptions.map((option) => (
+            {timeOptions.map(option => (
               <DropdownMenuItem
                 key={option.value}
                 onClick={() => setSelectedPeriod(option.value)}
@@ -170,66 +216,51 @@ const BudgetUtilization: React.FC = () => {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-      <hr className="border-t border-gray-300 dark:border-gray-600 mb-4" />
-
-      <div className="flex-1 flex items-center justify-center">
+      </CardHeader>
+      <CardContent>
         <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
+          {/* Center overlay - moved outside ChartContainer */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+            <div
+              className="bg-muted rounded-full flex flex-col items-center justify-center text-center"
+              style={{
+                width: overlaySize,
+                height: overlaySize,
+                boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <div className={`font-bold ${isSm ? "text-sm" : "text-xl"} text-foreground`}>
+                {totalBudget.toLocaleString()}K Đ
+              </div>
+              <div className={`text-muted-foreground ${isSm ? "text-[10px]" : "text-xs"}`}>
+                Total Budget ({selectedPeriod}M)
+              </div>
+            </div>
+          </div>
+
+          <ChartContainer config={chartConfig} className="w-full h-full aspect-square mx-auto">
             <PieChart>
+              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
               <Pie
-                activeShape={renderActiveShape}
                 data={currentData}
                 dataKey="value"
                 nameKey="label"
-                cx="50%"
-                cy="50%"
                 innerRadius={innerRadius}
                 outerRadius={outerRadius}
                 paddingAngle={3}
                 cornerRadius={5}
                 labelLine={false}
                 label={renderCustomizedLabel}
-              >
-                {currentData.map((entry) => (
-                  <Cell  
-                    key={`cell-${entry.label}`} 
-                    fill={entry.color}
-                  />
-                ))}
-              </Pie>
+                isAnimationActive={false}
+                activeShape={renderActiveShape as ActiveShape<PieSectorDataItem>}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(undefined)}
+              />
             </PieChart>
-          </ResponsiveContainer>
-
-          {/* Overlay Text (center) */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <div
-              className="bg-[#E4E9F1] dark:bg-[#0F1220] rounded-full flex flex-col items-center justify-center text-center"
-              style={{
-                width: overlaySize,
-                height: overlaySize,
-                boxShadow: "0px 3.11px 15.57px 0px #00000029",
-              }}
-            >
-              <div
-                className={`font-bold ${
-                  isSmall ? "text-sm" : "text-xl"
-                } text-gray-900 dark:text-gray-100`}
-              >
-                {totalBudget.toLocaleString()}K Đ
-              </div>
-              <div
-                className={`text-gray-500 dark:text-gray-400 ${
-                  isSmall ? "text-[10px]" : "text-xs"
-                }`}
-              >
-                Total Budget ({selectedPeriod}M)
-              </div>
-            </div>
-          </div>
+          </ChartContainer>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -12,15 +12,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="[--header-height:calc(theme(spacing.16))]">
+    <div className="[--header-height:85px]">
       <SidebarProvider className="flex flex-col">
         <Navbar user={userProfile.data} />
         <div className="flex flex-1">
           <SidebarUI />
-          <div className="flex-1 flex flex-col">
+          <div>
             {children}
-            <div className="px-2">
-              <AiChatInput />
+            <div className="flex flex-col">
+              <div className="px-2">
+                <AiChatInput />
+              </div>
             </div>
           </div>
         </div>
