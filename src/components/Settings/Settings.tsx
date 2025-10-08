@@ -1,11 +1,25 @@
+"use client";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
+import { useSettingsStore } from "../../lib/store/settingStore";
 import { Button } from "../ui/button";
 
 import { SettingsTabs } from "./SettingTabs";
+import AddNewUser from "./UserManagement/AddUser";
+import EditUser from "./UserManagement/EditUser";
 
 const Settings = () => {
+  const { showAddUserForm, toggleAddUserForm, showEditUserForm, toggleEditUserForm } =
+    useSettingsStore();
+
+  if (showAddUserForm) {
+    return <AddNewUser closeNewUserForm={toggleAddUserForm} />;
+  }
+  if (showEditUserForm) {
+    return <EditUser closeNewUserForm={toggleEditUserForm} />;
+  }
+
   return (
     <div className="p-6 font-inter w-full">
       <h1 className="text-2xl font-bold mb-1">Settings</h1>

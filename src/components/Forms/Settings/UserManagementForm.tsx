@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { mockEmployees } from "@/lib/mockdata/employees";
 import type { Employee, Permissions } from "@/lib/types";
 import {
   createSettingsSchema,
@@ -27,72 +28,10 @@ import {
   defaultFormData,
 } from "@/lib/validations/settings";
 
+import { useSettingsStore } from "../../../lib/store/settingStore";
 import { cn } from "../../../lib/utils";
 import { Button } from "../../ui/button";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
-
-const mockEmployees: Employee[] = [
-  {
-    id: 1,
-    name: "John Smith",
-    role: "Software Engineer",
-    status: "active",
-    permissions: {
-      delete: true,
-      approve: false,
-      edit: true,
-      view: true,
-    },
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    role: "Product Manager",
-    status: "active",
-    permissions: {
-      delete: true,
-      approve: true,
-      edit: true,
-      view: true,
-    },
-  },
-  {
-    id: 3,
-    name: "Michael Brown",
-    role: "Designer",
-    status: "inactive",
-    permissions: {
-      delete: false,
-      approve: false,
-      edit: true,
-      view: true,
-    },
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    role: "Team Lead",
-    status: "active",
-    permissions: {
-      delete: true,
-      approve: true,
-      edit: true,
-      view: true,
-    },
-  },
-  {
-    id: 5,
-    name: "David Wilson",
-    role: "Developer",
-    status: "active",
-    permissions: {
-      delete: false,
-      approve: false,
-      edit: true,
-      view: true,
-    },
-  },
-];
 
 const roleStyles: Record<string, { bg: string; text: string }> = {
   "Software Engineer": { bg: "bg-blue-100", text: "text-blue-800" },
@@ -113,6 +52,7 @@ interface ClientFormProps {
 
 const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
+  const { toggleAddUserForm,toggleEditUserForm } = useSettingsStore();
 
   const handlePermissionChange = (
     permission: PermissionKey,
@@ -128,16 +68,12 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
       employees.map(emp =>
         emp.id === id
           ? {
-              ...emp,
-              permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
-            }
+            ...emp,
+            permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
+          }
           : emp,
       ),
     );
-  };
-
-  const handleEdit = (id: number) => {
-    alert(`Edit employee with ID: ${id}`);
   };
 
   const handleDelete = (id: number) => {
@@ -171,9 +107,10 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
               size="sm"
               className={cn(
                 "flex items-center gap-2",
-                "rounded-2xl px-4 h-10",
+                "rounded-2xl px-4 h-10 border-none",
                 "bg-[#3072C0] hover:bg-[#3072c0]/80 text-white",
               )}
+              onClick={toggleAddUserForm}
             >
               <CirclePlus className="w-4 h-4" />
               Add User
@@ -230,12 +167,12 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
                                     handleEmpPermissionChange(employee.id, key)
                                   }
                                   className="
-                            rounded-sm h-5 w-5
-                            bg-card border border-[#3072C0]/50     
-                            data-[state=checked]:bg-[#3072C0]/30  
-                            data-[state=checked]:text-[#3072C0]     
-                            data-[state=checked]:border-[#3072C0]/30
-                          "
+                                  rounded-sm h-5 w-5
+                                  bg-card border border-[#3072C0]/50     
+                                  data-[state=checked]:bg-[#3072C0]/30  
+                                  data-[state=checked]:text-[#3072C0]     
+                                  data-[state=checked]:border-[#3072C0]/30
+                                "
                                 />
                                 <label className="text-sm cursor-pointer">{key}</label>
                               </div>
@@ -245,7 +182,7 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <button
-                              onClick={() => handleEdit(employee.id)}
+                              onClick={toggleEditUserForm}
                               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                               title="Edit"
                             >
