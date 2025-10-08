@@ -171,7 +171,7 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
               size="sm"
               className={cn(
                 "flex items-center gap-2",
-                "rounded-2xl px-4 h-10",
+                "rounded-2xl px-4 h-10 border-none",
                 "bg-[#3072C0] hover:bg-[#3072c0]/80 text-white",
               )}
             >
