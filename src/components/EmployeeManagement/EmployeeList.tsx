@@ -150,7 +150,7 @@ const EmployeeList = () => {
       >
         <div
           className={cn(
-            "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
+            "flex flex-col sm:flex-row items-start sm:items-center justify-between",
             "gap-2 sm:gap-3 ",
           )}
         >
@@ -175,7 +175,7 @@ const EmployeeList = () => {
                     "hover:bg-card hover:border-blue-500",
                   )}
                 >
-                  <MenuIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                  <MenuIcon style={{ color: "var(--icon-primary)" }} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -186,7 +186,7 @@ const EmployeeList = () => {
                     // TODO: Implement delete functionality
                   }}
                 >
-                  <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                  <DeleteIcon style={{ color: "var(--icon-primary)" }} />
                   <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -201,7 +201,7 @@ const EmployeeList = () => {
               )}
               onClick={() => setIsFilterSheetOpen(true)}
             >
-              <FilterIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+              <FilterIcon style={{ color: "var(--icon-primary)" }} />
               <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
             </Button>
 
@@ -417,7 +417,7 @@ const EmployeeList = () => {
 
             {/* Page numbers */}
             <div className="flex items-center gap-1">
-              {getVisiblePages().map((page) => (
+              {getVisiblePages().map(page => (
                 <Button
                   key={page}
                   variant={currentPage === page ? "default" : "ghost"}

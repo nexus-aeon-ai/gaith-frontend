@@ -54,7 +54,7 @@ body {
 }
 
 .dark body {
-  background-color: #0F1220 !important;
+  background-color: #0f1220 !important;
 }
 
 /* Calendar Styles */
@@ -84,7 +84,7 @@ body {
   border-radius: 24px !important;
   margin: 0 !important;
   background-color: var(--card) !important;
-  border: 2px solid #3072C0 !important;
+  border: 2px solid #3072c0 !important;
 }
 
 .rbc-off-range-bg {
@@ -99,7 +99,7 @@ body {
   background: transparent !important;
   padding: 8px 4px !important;
   font-weight: 500 !important;
-  color: #94A3B8 !important;
+  color: #94a3b8 !important;
   z-index: 1 !important;
 }
 
@@ -156,10 +156,16 @@ body {
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
-  --secondary-text :oklch(0.3281 0.0289 273.77);
-  --primary-text :oklch(0.1431 0.0223 273.48);
-  --input :oklch(0.9048 0.007 247.9);
-  --navigation :oklch(0.9855 0.0034 174.49);
+  --secondary-text: oklch(0.3281 0.0289 273.77);
+  --primary-text: oklch(0.1431 0.0223 273.48);
+  --input: oklch(0.9048 0.007 247.9);
+  --navigation: oklch(0.9855 0.0034 174.49);
+
+  /* Icon colors - Light mode */
+    --icon-primary: #303444;
+    --icon-secondary: #666666;
+    --icon-accent: #FFD250;
+    --icon-muted: #999999;
 }
 
 .dark {
@@ -194,11 +200,27 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --secondary-text :oklch(0.8558 0.0169 274.79);
-  --primary-text :oklch(0.9852 0.0067 233.64);
-  --input :oklch(0.2184 0.0326 253.02);
-  --navigation :oklch(0.1356 0.0164 269.4);
+  --secondary-text: oklch(0.8558 0.0169 274.79);
+  --primary-text: oklch(0.9852 0.0067 233.64);
+  --input: oklch(0.2184 0.0326 253.02);
+  --navigation: oklch(0.1356 0.0164 269.4);
 
+  /* Icon colors - Dark mode */
+  --icon-primary: #cccfdb;
+  --icon-secondary: #aaaaaa;
+  --icon-accent: #ffd250;
+  --icon-muted: #6b7280;
+}
+.text-icon-primary {
+  color: var(--icon-primary);
+}
+
+.text-icon-secondary {
+  color: var(--icon-secondary);
+}
+
+.text-icon-accent {
+  color: var(--icon-accent);
 }
 
 @layer base {
