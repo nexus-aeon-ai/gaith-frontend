@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -10,7 +11,6 @@ import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import Image from "next/image";
 
 interface Assignee {
   id: number;
@@ -286,11 +286,9 @@ export default function FilterSheet({
           </div>
 
           {/* Assignee Section */}
-          {/* Assignee Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Assignee</label>
-
+              <p className="text-sm font-medium">Assignee</p>
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-assignees"
