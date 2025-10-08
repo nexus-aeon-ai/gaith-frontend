@@ -97,7 +97,7 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Client Name"
+                          placeholder="Full Name"
                           className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />

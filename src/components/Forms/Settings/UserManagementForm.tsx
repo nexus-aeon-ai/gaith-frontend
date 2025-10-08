@@ -140,11 +140,11 @@ const UserManagementForm = ({ onSubmit }: ClientFormProps) => {
                             variant={"default"}
                             className={cn(
                               "p-2 rounded-sm font-[400]",
-                              roleStyles[employee.role]?.bg,
-                              roleStyles[employee.role]?.text,
+                              roleStyles[employee.role.name]?.bg,
+                              roleStyles[employee.role.name]?.text,
                             )}
                           >
-                            {employee.role}
+                            {employee.role.name}
                           </Badge>
                         </TableCell>
                         <TableCell>
