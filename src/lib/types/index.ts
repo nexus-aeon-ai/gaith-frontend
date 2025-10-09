@@ -4,3 +4,4 @@ export * from "./password";
 export * from "./profile";
 export * from "./chat";
 export * from "./lead";
+export * from "./quotation";

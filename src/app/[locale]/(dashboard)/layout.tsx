@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Navbar user={userProfile.data} />
         <div className="flex flex-1">
           <SidebarUI />
-          <div>
+          <div className="w-full p-4">
             {children}
             <div className="flex flex-col">
               <div className="px-2">
