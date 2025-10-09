@@ -34,12 +34,17 @@ import { cn } from "@/lib/utils";
 import { mockEmployees } from "../../lib/mockdata/employees";
 import { Employee } from "../../lib/types";
 
+import AddNewEmployee from "./AddEmployee";
+import EditEmployee from "./EditEmployee";
+
 const EmployeeList = () => {
   const employees = mockEmployees;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
+  const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
 
@@ -101,6 +106,14 @@ const EmployeeList = () => {
     return pages;
   };
 
+  if (showAddEmployeeForm) {
+    return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
+  }
+
+  if (showEditEmployeeForm) {
+    return <EditEmployee closeEmployeeForm={() => setshowEditEmployeeForm(false)} />;
+  }
+
   return (
     <div
       className={cn(
@@ -137,6 +150,7 @@ const EmployeeList = () => {
             "hover:bg-blue-700 text-white",
             "text-xs sm:text-sm lg:text-base",
           )}
+          onClick={() => setShowAddEmployeeForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Add New Employee</span>
@@ -367,7 +381,7 @@ const EmployeeList = () => {
                             View
                           </span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setshowEditEmployeeForm(true)}>
                           <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             Edit
