@@ -24,6 +24,14 @@ import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import SendIcon from "@/components/ui/icons/options/send-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
@@ -115,7 +123,7 @@ const QuotesPage = () => {
         "bg-backgrournd mb-3 overflow-x-hidden",
       )}
     >
-      {/* Header Section */}
+      {/* Title Section */}
       <div
         className={cn(
           "flex flex-col sm:flex-row justify-between items-start",
@@ -151,7 +159,6 @@ const QuotesPage = () => {
           <span className="sm:hidden">Create Quotation</span>
         </Button>
       </div>
-
       {/* Search and Actions Section */}
       <div
         className={cn(" items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm")}
@@ -168,7 +175,7 @@ const QuotesPage = () => {
               placeholder="Search quotations"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="border-none shadow-none focus:outline-none h-12 lg:min-w-md w-full"
+              className="border-none shadow-none focus:outline-none h-12 lg:max-w-md w-full"
             />
           </div>
           <div className="flex gap-1 sm:gap-2 md:gap-3">
@@ -240,198 +247,157 @@ const QuotesPage = () => {
           </div>
         </div>
       </div>
-
       {/* Table Section */}
-      <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr className="text-[#303444] dark:text-[#CCCFDB]">
-                <th className="px-4 py-3 text-left">
+      <div className="w-full overflow-auto border border-gray-200 rounded-lg shadow dark:border-gray-800">
+        <Table className="bg-card">
+          <TableHeader>
+            <TableRow className="text-[#303444] dark:text-[#CCCFDB]">
+              <TableHead className="w-12 text-left">
+                <Checkbox
+                  className="!rounded-[8px]"
+                  checked={
+                    selectedQuotations.length === currentQuotations.length &&
+                    currentQuotations.length > 0
+                  }
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
+              <TableHead className="text-xs font-semibold">Quotation ID</TableHead>
+              <TableHead className="text-xs font-semibold">Customer</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Amount</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Status</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Created Date</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Valid Until</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {currentQuotations.map((quote, index) => (
+              <TableRow
+                key={index}
+                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                {/* Checkbox */}
+                <TableCell className="px-4 py-3">
                   <Checkbox
                     className="!rounded-[8px]"
-                    checked={selectedQuotations.length === currentQuotations.length}
-                    onCheckedChange={handleSelectAll}
+                    checked={selectedQuotations.includes(quote.quotationId)}
+                    onCheckedChange={checked =>
+                      handleSelectQuotation(quote.quotationId, checked as boolean)
+                    }
                   />
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-[500">
-                  Quotation ID
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-[500]">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-[500]">
-                  Amount
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-[500]">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-[500]">
-                  Created Date
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-[500]">
-                  Valid Until
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-[500]">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentQuotations.map((quote, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  {/* Checkbox */}
-                  <td className="px-4 py-3">
-                    <Checkbox
-                      className="!rounded-[8px]"
-                      checked={selectedQuotations.includes(quote.quotationId)}
-                      onCheckedChange={checked =>
-                        handleSelectQuotation(quote.quotationId, checked as boolean)
-                      }
+                </TableCell>
+
+                {/* Quotation ID */}
+                <TableCell className="text-sm font-medium text-[#3072C0] whitespace-nowrap">
+                  {quote.quotationId}
+                </TableCell>
+
+                {/* Customer */}
+                <TableCell className="min-w-[220px]">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={quote.customer.avatar}
+                      alt={quote.customer.name}
+                      width={40}
+                      height={40}
+                      className="rounded-full shrink-0"
                     />
-                  </td>
-
-                  {/* Quotation ID */}
-                  <td className="px-4 py-3 text-sm font-medium text-[#3072C0]">
-                    {quote.quotationId}
-                  </td>
-
-                  {/* Customer */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <Image
-                        src={quote.customer.avatar}
-                        alt={quote.customer.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {quote.customer.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {quote.customer.email}
-                        </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {quote.customer.name}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {quote.customer.email}
                       </div>
                     </div>
-                  </td>
+                  </div>
+                </TableCell>
 
-                  {/* Amount */}
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    ${quote.amount.toLocaleString()}
-                  </td>
+                {/* Amount */}
+                <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                  ${quote.amount.toLocaleString()}
+                </TableCell>
 
-                  {/* Status */}
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
-                        quote.status === "completed"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : quote.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : quote.status === "draft"
-                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-                      )}
-                    >
-                      {quote.status}
-                    </span>
-                  </td>
+                {/* Status */}
+                <TableCell className="text-center">
+                  <span
+                    className={cn(
+                      "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
+                      quote.status === "completed"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        : quote.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : quote.status === "draft"
+                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                    )}
+                  >
+                    {quote.status}
+                  </span>
+                </TableCell>
 
-                  {/* Created Date */}
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {quote.createdDate}
-                  </td>
+                {/* Created Date */}
+                <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                  {quote.createdDate}
+                </TableCell>
 
-                  {/* Valid Until */}
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    <div>{quote.validUntil.date}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {quote.validUntil.text}
-                    </div>
-                  </td>
+                {/* Valid Until */}
+                <TableCell className="text-center text-sm text-gray-900 dark:text-white">
+                  <div>{quote.validUntil.date}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {quote.validUntil.text}
+                  </div>
+                </TableCell>
 
-                  {/* Actions */}
-                  <td className="px-4 py-3 text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <EllipsisVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            /* Handle view */
-                          }}
-                        >
-                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            View Details
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Edit
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="default"
-                          onClick={() => {
-                            /* Handle send to client */
-                          }}
-                        >
-                          <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Send To Client 
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="default"
-                          onClick={() => {
-                            /* Handle generate invoice */
-                          }}
-                        >
-                          <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Generate Invoice
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="default"
-                          onClick={() => {
-                            /* Handle copy */
-                          }}
-                        >
-                          <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Copy
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => {
-                            /* Handle delete */
-                          }}
-                        >
-                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Delete
-                          </span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                {/* Actions */}
+                <TableCell className="text-center whitespace-nowrap">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <EllipsisVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem onClick={() => {}}>
+                        <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">
+                          View Details
+                        </span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {}}>
+                        <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {}}>
+                        <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">
+                          Send To Client
+                        </span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {}}>
+                        <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">
+                          Generate Invoice
+                        </span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {}}>
+                        <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">Copy</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {}}>
+                        <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                        <span className="ml-2 text-sm dark:text-white text-gray-900">Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-
       {/* Pagination Section */}
       <div className="p-4 mt-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -504,7 +470,6 @@ const QuotesPage = () => {
           </div>
         </div>
       </div>
-
       <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
     </div>
   );
