@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import LeadForm from "@/components/Forms/LeadForm";
+import QuotationForm from "@/components/Forms/QuotationForm";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,22 +14,29 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
-import { CreateLeadFormData, createLeadSchema } from "@/lib/validations/lead";
+import { CreateQuotationFormData, createQuoteSchema } from "@/lib/validations/quotation";
 
-const EditQuote = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
+import { Quotation } from "../../lib/types";
 
+const EditQuote = ({
+  closeEditQuoteForm,
+  quotation,
+}: {
+  closeEditQuoteForm: () => void;
+  quotation: Quotation | null;
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCancel = () => {
-    closeEditLeadForm();
+    closeEditQuoteForm();
   };
 
-  const handleSave = async (data: CreateLeadFormData) => {
+  const handleSave = async (data: CreateQuotationFormData) => {
     setIsSubmitting(true);
 
     try {
       // Validate form data
-      const result = createLeadSchema.safeParse(data);
+      const result = createQuoteSchema.safeParse(data);
 
       if (!result.success) {
         // Extract validation errors
@@ -65,14 +72,18 @@ const EditQuote = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => 
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeEditLeadForm}>
-                Quotations
+              <Link
+                href="/quotations"
+                className="text-blue-600 font-medium text-md"
+                onClick={closeEditQuoteForm}
+              >
+                Quotations Management
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Quote</BreadcrumbPage>
+            <BreadcrumbPage>Edit Quotation</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -80,10 +91,8 @@ const EditQuote = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => 
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Lead</h1>
-          <p className="text-muted-foreground">
-            Create a comprehensive client profile with all necessary information.
-          </p>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Quotation</h1>
+          <p className="text-muted-foreground">{quotation?.quotationId} - {quotation?.customer.name}</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -98,18 +107,19 @@ const EditQuote = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => 
             form="lead-form"
             variant={"outline"}
             disabled={isSubmitting}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-none bg-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      <LeadForm
+      <QuotationForm
+        mode="edit"
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
-        mode="edit"
+        quotation={quotation}
       />
     </div>
   );

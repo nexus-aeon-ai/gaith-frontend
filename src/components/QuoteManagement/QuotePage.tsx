@@ -35,16 +35,62 @@ import {
 import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
+import { Quotation } from "../../lib/types";
+
 import EditQuote from "./EditQuote";
 import NewQuote from "./NewQuote";
+import ViewQuoteDetails from "./ViewQuoteDetails";
+
+const data = {
+  title: "Enterprise Software Solution",
+  description: "Complete software development and implementation package",
+  status: "Pending Approval",
+  services: [
+    { name: "Digital Marketing Strategy", price: 2500 },
+    { name: "Social Media Management", price: 2500 },
+    { name: "SEO Optimization", price: 2500 },
+    { name: "One-Time Setup Fee", price: 2500 },
+    { name: "Digital Marketing Strategy", price: 2500 },
+    { name: "Social Media Management", price: 2500 },
+    { name: "SEO Optimization", price: 2500 },
+    { name: "One-Time Setup Fee", price: 500 },
+  ],
+  setupFee: 0,
+  customer: {
+    name: "TechCorp Solutions",
+    subtitle: "Technology Company",
+    email: "tech@techcorp.com",
+    phone: "+1 (555) 123-4567",
+    address: "123 Tech Street, Silicon Valley",
+  },
+  details: {
+    number: "QUO-2024-001",
+    createdDate: "December 15, 2024",
+    currency: "USD",
+    createdBy: "Sales Manager",
+  },
+  terms: [
+    "Payment terms: 50% upfront, 50% upon completion",
+    "Project timeline: 3–4 months",
+    "Includes 6 months of technical support",
+    "Additional changes may incur extra charges",
+    "All work will be completed according to agreed specifications",
+    "Client approval required for major changes",
+  ],
+  notes:
+    "This quotation includes comprehensive software development with modern technologies and best practices. Regular progress updates will be provided throughout the project. The solution will be scalable and maintainable for future enhancements.",
+  currencyCode: "USD",
+};
 
 const QuotesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [quoteToEdit, setQuoteToEdit] = useState<Quotation | null>(null);
   const [selectedQuotations, setSelectedQuotations] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [showNewLeadForm, setShowNewLeadForm] = useState(false);
-  const [showEditLeadForm, setShowEditLeadForm] = useState(false);
+  const [showNewLeadForm, setShowNewQuoteForm] = useState(false);
+  const [showEditQuoteForm, setShowEditQuoteForm] = useState(false);
+  const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
 
@@ -109,11 +155,16 @@ const QuotesPage = () => {
   };
 
   if (showNewLeadForm) {
-    return <NewQuote closeNewLeadForm={() => setShowNewLeadForm(false)} />;
+    return <NewQuote closeNewQuoteForm={() => setShowNewQuoteForm(false)} />;
   }
 
-  if (showEditLeadForm) {
-    return <EditQuote closeEditLeadForm={() => setShowEditLeadForm(false)} />;
+  if (showEditQuoteForm) {
+    return (
+      <EditQuote quotation={quoteToEdit} closeEditQuoteForm={() => setShowEditQuoteForm(false)} />
+    );
+  }
+  if (showQuoteDetails) {
+    return <ViewQuoteDetails data={data} closeViewDetails={() => setShowEditQuoteForm(false)} />;
   }
 
   return (
@@ -152,7 +203,7 @@ const QuotesPage = () => {
             "hover:bg-blue-700 text-white",
             "text-xs sm:text-sm lg:text-base",
           )}
-          onClick={() => setShowNewLeadForm(true)}
+          onClick={() => setShowNewQuoteForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Create New Quotation</span>
@@ -360,13 +411,22 @@ const QuotesPage = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem onClick={() => {}}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowQuoteDetails(true);
+                        }}
+                      >
                         <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">
                           View Details
                         </span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setQuoteToEdit(quote);
+                          setShowEditQuoteForm(true);
+                        }}
+                      >
                         <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
                       </DropdownMenuItem>

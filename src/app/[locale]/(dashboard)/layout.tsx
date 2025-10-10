@@ -13,7 +13,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="[--header-height:85px]">
-      <SidebarProvider className="flex flex-col min-h-screen overflow-hidden">
+      <SidebarProvider className="flex flex-col min-h-screen">
         <Navbar user={userProfile.data} />
 
         <div className="flex flex-1 min-h-0">
@@ -33,20 +33,3 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </div>
   );
 }
-
-// <div className="[--header-height:85px]">
-//   <SidebarProvider className="flex flex-col">
-//     <Navbar user={userProfile.data} />
-//     <div className="flex flex-1">
-//       <SidebarUI />
-//       <div className="w-full p-4">
-//         {children}
-//         <div className="flex flex-col">
-//           <div className="px-2">
-//             <AiChatInput />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   </SidebarProvider>
-// </div>
