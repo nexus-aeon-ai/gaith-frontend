@@ -120,7 +120,7 @@ export const createClientSchema = z.object({
     invalid_type_error: "Invalid target audience selected",
   }),
 
-  seondaryMarkets: z
+  secondaryMarkets: z
     .string()
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),

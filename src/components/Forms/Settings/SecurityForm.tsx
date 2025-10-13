@@ -156,7 +156,7 @@ const SecurityForm = ({ onSubmit }: ClientFormProps) => {
                           autoComplete="new-password"
                           autoCorrect="off"
                           spellCheck={false}
-                          type={showNewPassword ? "text" : "password"}
+                          type={showConfirmPassword ? "text" : "password"}
                           className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-12"
                           {...field}
                         />

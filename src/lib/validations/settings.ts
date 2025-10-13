@@ -41,8 +41,7 @@ export const createSettingsSchema = z.object({
 
   email: z
     .string()
-    .min(2, "Country must be at least 2 characters")
-    .max(50, "Country must be less than 50 characters"),
+    .email("Please enter a valid email address"),
 
   jobTitle: z
     .string()
@@ -71,7 +70,7 @@ export const createSettingsSchema = z.object({
   clientStatusChanged: z.boolean(),
   weeklyReports: z.boolean(),
 
-  // SMS notificaitons
+  // SMS notifications
   enableSMSAlerts: z.boolean(),
   phoneNumber: z
     .string()
@@ -83,7 +82,7 @@ export const createSettingsSchema = z.object({
   desktopNotifications: z.boolean(),
   soundAlerts: z.boolean(),
 
-  notificationFrequency: z.enum(["5min", "15min", "1hr", "4hrs", "12hrs", " 24hrs"]),
+  notificationFrequency: z.enum(["5min", "15min", "1hr", "4hrs", "12hrs", "24hrs"]),
 
   // ***** SECURITY SECTION *****
   // Account security
@@ -95,7 +94,6 @@ export const createSettingsSchema = z.object({
 
   permissions: z.record(z.enum(permissionsList), z.enum(["superadmin", "admin", "employee"])),
 });
-
 
 export const defaultFormData: CreateSettingsFormData = {
   // ***** GENERAL SECTION *****
