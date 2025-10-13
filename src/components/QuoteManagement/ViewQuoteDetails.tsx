@@ -18,6 +18,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
+import EditIcon from "@/components/ui/icons/options/edit-icon";
+import PdfIcon from "@/components/ui/icons/options/pdf-icon";
+import { Send, SquarePen } from "lucide-react";
 
 type ServiceItem = {
   name: string;
@@ -121,7 +124,7 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create New Quotation</BreadcrumbPage>
+            <BreadcrumbPage>Quotation Details</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -129,24 +132,38 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Create New Quotation</h1>
-          <p className="text-muted-foreground">Create New Quotation</p>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">
+            Quotation Details - QUO-2024-001
+          </h1>
+          <p className="text-muted-foreground">
+            Track quotation details, customer info, and updates.
+          </p>
         </div>
         <div className="flex gap-3">
           <Button
             variant="outline"
             onClick={handleCancel}
-            className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
+            className="p-6 px-8 text-[16px] font-[400] border-none bg-card rounded-[16px] shadow=none border hover:bg-gray-200 dark:hover:bg-card/80 hover:text-dark"
           >
-            Cancel
+            <PdfIcon />
+            Export PDF
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            className="p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
+          >
+            <SquarePen />
+            Edit Quotations
           </Button>
           <Button
             type="submit"
             form="lead-form"
             variant={"outline"}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {"Save Quotation"}
+            <Send />
+            Send To Client
           </Button>
         </div>
       </div>
@@ -186,7 +203,7 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
         >
           {/* Left: Services */}
           <section
-            className="rounded-lg border p-4 md:p-5 bg-card/50"
+            className="rounded-lg border p-4 md:p-5 bg-[#F3F5F7] dark:bg-[#0F1B29]"
             aria-labelledby="selected-services-heading"
           >
             <h3 id="selected-services-heading" className="text-sm font-semibold text-foreground">
@@ -238,15 +255,15 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
           <div className="space-y-4 md:space-y-5">
             {/* Customer Info */}
             <section
-              className="rounded-lg border p-4 md:p-5 bg-card/50"
+              className="rounded-lg border p-4 md:p-5 bg-[#F3F5F7] dark:bg-[#0F1B29]"
               aria-labelledby="customer-info-heading"
             >
-              <h3 id="customer-info-heading" className="text-sm font-semibold text-foreground">
+              <h3 id="customer-info-heading" className="text-sm mb-2 font-semibold text-foreground">
                 Customer Information
               </h3>
-
-              <div className="mt-3 rounded-md border bg-muted/40">
-                <div className="flex items-center gap-3 p-3">
+              <Separator />
+              <div className="mt-3">
+                <div className="flex items-center gap-3 pb-3">
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={"/images/girl-avatar.jpg"} alt={customer.name} />
                     <AvatarFallback>
@@ -265,9 +282,9 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
                     ) : null}
                   </div>
                 </div>
-                <Separator />
+
                 {/* Inline key/value rows */}
-                <div className="flex flex-col gap-2 p-3" role="list">
+                <div className="flex flex-col gap-2" role="list">
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                     <span className="text-muted-foreground">Email</span>
                     <span className="font-medium text-foreground text-right break-all">
@@ -293,14 +310,17 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
 
             {/* Quotation Details */}
             <section
-              className="rounded-lg border p-4 md:p-5 bg-card/50"
+              className="rounded-lg border p-4 md:p-5 bg-[#F3F5F7] dark:bg-[#0F1B29]"
               aria-labelledby="quotation-details-heading"
             >
-              <h3 id="quotation-details-heading" className="text-sm font-semibold text-foreground">
+              <h3
+                id="quotation-details-heading"
+                className="text-sm mb-2 font-semibold text-foreground"
+              >
                 Quotation Details
               </h3>
-
-              <div className="mt-3 rounded-md border bg-muted/40 p-3">
+              <Separator />
+              <div className="mt-3 rounded-md">
                 {/* Inline key/value rows (was <KeyValueRow />) */}
                 <div role="list" className="flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
@@ -330,14 +350,14 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             </section>
 
             {/* Terms */}
+            <h3 id="terms-heading" className="text-sm mb-2 font-semibold text-foreground">
+              Terms &amp; Conditions
+            </h3>
             <section
-              className="rounded-lg border p-4 md:p-5 bg-card/50"
+              className="rounded-lg border p-3 bg-[#F3F5F7] dark:bg-[#0F1B29]"
               aria-labelledby="terms-heading"
             >
-              <h3 id="terms-heading" className="text-sm font-semibold">
-                Terms &amp; Conditions
-              </h3>
-              <div className="mt-3 rounded-md border bg-muted/40 p-3">
+              <div>
                 <ul className="list-disc pl-5 text-sm text-foreground/90 space-y-1">
                   {terms.map((t, i) => (
                     <li key={i}>{t}</li>
@@ -347,17 +367,15 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             </section>
 
             {/* Notes */}
+            <h3 id="notes-heading" className="text-sm mb-2 font-semibold">
+              Notes
+            </h3>
             {notes ? (
               <section
-                className="rounded-lg border p-4 md:p-5 bg-card/50"
+                className="rounded-lg border p-3 bg-[#F3F5F7] dark:bg-[#0F1B29]"
                 aria-labelledby="notes-heading"
               >
-                <h3 id="notes-heading" className="text-sm font-semibold">
-                  Notes
-                </h3>
-                <div className="mt-3 rounded-md border bg-muted/40 p-3 text-sm leading-relaxed text-foreground/90">
-                  {notes}
-                </div>
+                <div className="text-sm leading-relaxed text-foreground/90">{notes}</div>
               </section>
             ) : null}
           </div>

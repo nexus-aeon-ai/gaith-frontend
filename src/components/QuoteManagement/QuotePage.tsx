@@ -54,6 +54,14 @@ const data = {
     { name: "Social Media Management", price: 2500 },
     { name: "SEO Optimization", price: 2500 },
     { name: "One-Time Setup Fee", price: 500 },
+    { name: "Digital Marketing Strategy", price: 2500 },
+    { name: "Social Media Management", price: 2500 },
+    { name: "SEO Optimization", price: 2500 },
+    { name: "One-Time Setup Fee", price: 2500 },
+    { name: "Digital Marketing Strategy", price: 2500 },
+    { name: "Social Media Management", price: 2500 },
+    { name: "SEO Optimization", price: 2500 },
+    { name: "One-Time Setup Fee", price: 500 },
   ],
   setupFee: 0,
   customer: {
@@ -164,7 +172,7 @@ const QuotesPage = () => {
     );
   }
   if (showQuoteDetails) {
-    return <ViewQuoteDetails data={data} closeViewDetails={() => setShowEditQuoteForm(false)} />;
+    return <ViewQuoteDetails data={data} closeViewDetails={() => setShowQuoteDetails(false)} />;
   }
 
   return (
