@@ -1,10 +1,7 @@
 "use client";
 
-import { useTheme } from "next-themes";
-
 import { Button } from "@/components/ui/button";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
-import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 import { cn } from "../../../lib/utils";
@@ -16,10 +13,8 @@ export default function InvoiceSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { theme } = useTheme();
 
-
-  const applyFilters = () => {
+  const generateInvoice = () => {
     onOpenChange(false);
   };
 
@@ -120,7 +115,7 @@ export default function InvoiceSheet({
             <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
           </Button>
           <Button
-            onClick={applyFilters}
+            onClick={generateInvoice}
             className="flex items-center p-6 bg-[#3072C0] text-white rounded-[16px] text-[16px] font-normal"
           >
             <p>Send Invoice</p>

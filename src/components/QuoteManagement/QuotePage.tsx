@@ -37,6 +37,7 @@ import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
+import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
 import NewQuote from "./NewQuote";
@@ -100,6 +101,7 @@ const QuotesPage = () => {
   const [showNewLeadForm, setShowNewQuoteForm] = useState(false);
   const [showEditQuoteForm, setShowEditQuoteForm] = useState(false);
   const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
+  const [showSendToClientSheet, setShowSendToClientSheet] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
@@ -440,13 +442,21 @@ const QuotesPage = () => {
                         <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowSendToClientSheet(true);
+                        }}
+                      >
                         <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">
                           Send To Client
                         </span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {setIsInvoiceSheetOpen(true);}}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIsInvoiceSheetOpen(true);
+                        }}
+                      >
                         <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">
                           Generate Invoice
@@ -541,7 +551,8 @@ const QuotesPage = () => {
         </div>
       </div>
       <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
-      <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen}/>
+      <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
+      <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} />
     </div>
   );
 };
