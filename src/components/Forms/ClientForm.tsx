@@ -65,7 +65,7 @@ const defaultFormData: CreateClientFormData = {
   contractDuration: "",
 
   clientStatus: "active", // default from enum: active | inactive | Pending | Suspended
-  monthlyBudget: 0,
+  monthlyBudget: "0",
   priorityLevel: "low", // default from enum: low | medium | high
 
   // Website
@@ -144,20 +144,18 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                   <FormItem>
                     <FormLabel>Industry Sector</FormLabel>
                     <FormControl>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select campaign type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {industryOptions.map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select campaign type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {industryOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -416,7 +414,13 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                             const date = new Date(e.target.value);
                             onChange(date);
                           }}
-                          min={form.getValues().agreementEndDate?.toISOString().split("T")[0]}
+                          min={
+                            form.getValues().agreementStartDate
+                              ? new Date(form.getValues().agreementStartDate)
+                                .toISOString()
+                                .split("T")[0]
+                              : undefined
+                          }
                           {...field}
                           className="
                     dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
@@ -504,7 +508,6 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                               const date = new Date(e.target.value);
                               onChange(date);
                             }}
-                            min={form.getValues().agreementEndDate?.toISOString().split("T")[0]}
                             {...field}
                             className="
                     dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
