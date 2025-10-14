@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
-import FilterSheet from "@/components/sheet/QuotationFilter";
+import InvoiceSheet from "@/components/sheet/Quotation/InvoiceSheet";
+import QuotationFilterSheet from "@/components/sheet/Quotation/QuotationFilter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -98,6 +99,7 @@ const QuotesPage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewQuoteForm] = useState(false);
   const [showEditQuoteForm, setShowEditQuoteForm] = useState(false);
+  const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
@@ -444,7 +446,7 @@ const QuotesPage = () => {
                           Send To Client
                         </span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
+                      <DropdownMenuItem onClick={() => {setIsInvoiceSheetOpen(true);}}>
                         <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                         <span className="ml-2 text-sm dark:text-white text-gray-900">
                           Generate Invoice
@@ -538,7 +540,8 @@ const QuotesPage = () => {
           </div>
         </div>
       </div>
-      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen}/>
     </div>
   );
 };
