@@ -4,7 +4,6 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import SendIcon from "@/components/ui/icons/options/send-icon";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 
 import { CheckboxSquare } from "../../ui/checkbox-square";
 import { Textarea } from "../../ui/textarea";
+import { Send } from "lucide-react";
 
 // ✅ Corrected interface
 interface EmailFormState {
@@ -49,6 +49,7 @@ export default function SendToClientSheet({
       message: "",
       sendCopy: false,
     });
+    onOpenChange(false);
   };
 
   const handleSend = () => {
@@ -70,9 +71,7 @@ export default function SendToClientSheet({
             <Input
               type="email"
               value={emailForm.recipientEmail}
-              onChange={(e) =>
-                setEmailForm((prev) => ({ ...prev, recipientEmail: e.target.value }))
-              }
+              onChange={e => setEmailForm(prev => ({ ...prev, recipientEmail: e.target.value }))}
               placeholder="client@example.com"
               className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-3"
             />
@@ -83,8 +82,8 @@ export default function SendToClientSheet({
             <Label className="mb-2">Delivery Method</Label>
             <RadioGroup
               value={emailForm.deliveryMethod}
-              onValueChange={(value) =>
-                setEmailForm((prev) => ({
+              onValueChange={value =>
+                setEmailForm(prev => ({
                   ...prev,
                   deliveryMethod: value as "email" | "customer_portal",
                 }))
@@ -120,9 +119,7 @@ export default function SendToClientSheet({
             <Input
               type="text"
               value={emailForm.subject}
-              onChange={(e) =>
-                setEmailForm((prev) => ({ ...prev, subject: e.target.value }))
-              }
+              onChange={e => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
               placeholder="Enter subject"
               className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-3"
             />
@@ -133,9 +130,7 @@ export default function SendToClientSheet({
             <Label className="mb-2 font-normal">Email Message</Label>
             <Textarea
               value={emailForm.message}
-              onChange={(e) =>
-                setEmailForm((prev) => ({ ...prev, message: e.target.value }))
-              }
+              onChange={e => setEmailForm(prev => ({ ...prev, message: e.target.value }))}
               placeholder="Write your message here..."
               className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-3"
               rows={6}
@@ -147,9 +142,7 @@ export default function SendToClientSheet({
             <CheckboxSquare
               id="send-copy"
               checked={emailForm.sendCopy}
-              onCheckedChange={() =>
-                setEmailForm((prev) => ({ ...prev, sendCopy: !prev.sendCopy }))
-              }
+              onCheckedChange={() => setEmailForm(prev => ({ ...prev, sendCopy: !prev.sendCopy }))}
               className="cursor-pointer"
             />
             <Label htmlFor="send-copy" className="text-[14px] cursor-pointer font-normal">
@@ -160,14 +153,14 @@ export default function SendToClientSheet({
 
         {/* Action Buttons */}
         <div className="absolute w-full flex bottom-0 gap-3 p-4 border-t">
-          <Button variant="ghost" onClick={clearForm} className="flex-1 py-6">
+          <Button variant="outline" onClick={clearForm} className="flex-1 rounded-[16px] py-6 bg-card text-dark hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-dark">
             Cancel
           </Button>
           <Button
             onClick={handleSend}
-            className="flex items-center flex-1 py-6 bg-[#3072C0] text-white rounded-[16px] text-[16px] font-medium"
+            className="flex items-center flex-1 py-6 sm:px-8 px-6 bg-[#3072C0] hover:bg-[#3072C0]/80 text-white rounded-[16px] text-[16px] font-medium"
           >
-            <SendIcon color={"#F6FBFE"} />
+            <Send size={28} />
             <p>Send Quotation</p>
           </Button>
         </div>
