@@ -306,7 +306,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="visionStatement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Visoin Statement</FormLabel>
+                      <FormLabel>Vision Statement</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Street Address, City, State, Zip Code"
@@ -653,7 +653,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             </div>
                             {field.value && (
                               <p className="text-sm text-green-600 font-medium">
-                                Selected: {field.value.name}
+                                Selected: {field.value?.name}
                               </p>
                             )}
                           </div>

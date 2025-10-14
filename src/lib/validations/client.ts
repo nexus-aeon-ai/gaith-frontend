@@ -83,10 +83,7 @@ export const createClientSchema = z.object({
     .max(100, "Job title must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Job title can only contain letters and spaces"),
 
-  email: z
-    .string()
-    .min(2, "Country must be at least 2 characters")
-    .max(50, "Country must be less than 50 characters"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
 
   phoneNumber: z
     .string()

@@ -149,21 +149,17 @@ export const createClientSchema = z.object({
 
   industry: z
     .string()
-    .min(2, "Nationality must be at least 2 characters")
-    .max(50, "Nationality must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
+    .min(2, "Industry must be at least 2 characters")
+    .max(50, "Industry must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Industry can only contain letters and spaces"),
 
   // Contact Information - Email is required
   businessOverview: z
     .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(100, "Email must be less than 100 characters"),
+    .min(10, "Business overview must be at least 10 characters")
+    .max(1000, "Business overview must be less than 1000 characters"),
 
-  email: z
-    .string()
-    .min(2, "Country must be at least 2 characters")
-    .max(50, "Country must be less than 50 characters"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
 
   phoneNumber: z
     .string()
@@ -200,7 +196,7 @@ export const createClientSchema = z.object({
     invalid_type_error: "Invalid target audience selected",
   }),
 
-  seondaryMarkets: z
+  secondaryMarkets: z
     .string()
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),
