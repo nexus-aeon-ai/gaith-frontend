@@ -80,7 +80,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Lead</BreadcrumbPage>
+            <BreadcrumbPage>Add New Client</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
