@@ -394,10 +394,10 @@ const QuotesPage = () => {
                       quote.status === "completed"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : quote.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : quote.status === "draft"
-                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : quote.status === "draft"
+                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
                     )}
                   >
                     {quote.status}
@@ -519,15 +519,15 @@ const QuotesPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                          "bg-[#3072C0] text-white border border-[#3072C0]",
-                          "hover:bg-blue-700 hover:border-blue-700",
-                          "dark:bg-blue-600 dark:border-blue-600",
-                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                        )
+                        "bg-[#3072C0] text-white border border-[#3072C0]",
+                        "hover:bg-blue-700 hover:border-blue-700",
+                        "dark:bg-blue-600 dark:border-blue-600",
+                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                      )
                       : cn(
-                          "text-gray-500 dark:text-gray-400",
-                          "hover:text-gray-700 dark:hover:text-gray-200",
-                        ),
+                        "text-gray-500 dark:text-gray-400",
+                        "hover:text-gray-700 dark:hover:text-gray-200",
+                      ),
                   )}
                 >
                   {page}

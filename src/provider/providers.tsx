@@ -1,5 +1,4 @@
 "use client";
-import { getCookie } from "cookies-next";
 import type { FC } from "react";
 import { ToastContainer } from "react-toastify";
 
@@ -13,13 +12,13 @@ interface ProvidersProps {
 }
 
 const Providers: FC<ProvidersProps> = ({ children }) => {
-  const theme = getCookie("theme");
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme={typeof theme === "string" ? theme : "system"}
+      defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      enableColorScheme
     >
       <ReactQueryProvider>{children}</ReactQueryProvider>
       <ToastContainer />
