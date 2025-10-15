@@ -14,6 +14,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 interface FilterState {
   dateFrom: string;
   dateTo: string;
+  minAmount?: number;
+  maxAmount?: number;
   assignees: string[];
   statuses: string[];
   sources: string[];
@@ -32,6 +34,8 @@ export default function FilterSheet({
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
     dateTo: "",
+    minAmount: undefined,
+    maxAmount: undefined,
     assignees: [],
     statuses: [],
     sources: [],
@@ -68,6 +72,8 @@ export default function FilterSheet({
     setFilters({
       dateFrom: "",
       dateTo: "",
+      minAmount: undefined,
+      maxAmount: undefined,
       assignees: [],
       statuses: [],
       sources: [],
@@ -75,8 +81,55 @@ export default function FilterSheet({
     });
   };
 
+  const hasActiveFilters = () => {
+    return (
+      filters.dateFrom !== "" ||
+      filters.dateTo !== "" ||
+      filters.minAmount !== undefined ||
+      filters.maxAmount !== undefined ||
+      filters.assignees.length > 0 ||
+      filters.statuses.length > 0 ||
+      filters.sources.length > 0 ||
+      filters.clients.length > 0
+    );
+  };
+
   const applyFilters = () => {
+    // Validate and auto-correct filters before applying
+    setFilters(prev => {
+      const corrected = { ...prev };
+
+      // Validate date range
+      if (corrected.dateFrom && corrected.dateTo && corrected.dateTo < corrected.dateFrom) {
+        corrected.dateTo = corrected.dateFrom;
+      }
+
+      // Clear dateTo if dateFrom is not set
+      if (!corrected.dateFrom && corrected.dateTo) {
+        corrected.dateTo = "";
+      }
+
+      // Validate amount range
+      if (corrected.minAmount !== undefined && corrected.maxAmount !== undefined) {
+        if (corrected.maxAmount < corrected.minAmount) {
+          corrected.maxAmount = corrected.minAmount;
+        }
+      }
+
+      // Clear maxAmount if minAmount is not set
+      if (corrected.minAmount === undefined && corrected.maxAmount !== undefined) {
+        corrected.maxAmount = undefined;
+      }
+
+      return corrected;
+    });
+
+    // Close the sheet and apply filters
+    console.log("Applying filters:", filters);
     onOpenChange(false);
+
+    // Here you would typically call your filter application logic
+    // onApply?.(filters);
   };
 
   const handleDateFromClick = () => {
@@ -101,10 +154,11 @@ export default function FilterSheet({
         </SheetHeader>
 
         <div className="space-y-6 sm:p-4 p-2">
-          {/* Added Date Section */}
+          {/* Date Section */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Due Date</Label>
             <div className="flex flex-row justify-between gap-2">
+              {/* From Date */}
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">From</Label>
                 <div className="relative w-full">
@@ -112,26 +166,38 @@ export default function FilterSheet({
                     id="date-from"
                     type="date"
                     value={filters.dateFrom}
-                    onChange={e => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                    onChange={e => {
+                      const newFrom = e.target.value;
+                      setFilters(prev => {
+                        // if dateTo exists and is before new dateFrom → adjust it
+                        if (prev.dateTo && newFrom > prev.dateTo) {
+                          return { ...prev, dateFrom: newFrom, dateTo: newFrom };
+                        }
+                        return { ...prev, dateFrom: newFrom };
+                      });
+                    }}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
-            pr-10
-            [&::-webkit-calendar-picker-indicator]:opacity-0 
-            [&::-webkit-calendar-picker-indicator]:absolute 
-            [&::-webkit-calendar-picker-indicator]:w-full 
-            [&::-webkit-calendar-picker-indicator]:h-full
-            "
+                      dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                      pr-10
+                      [&::-webkit-calendar-picker-indicator]:opacity-0 
+                      [&::-webkit-calendar-picker-indicator]:absolute 
+                      [&::-webkit-calendar-picker-indicator]:w-full 
+                      [&::-webkit-calendar-picker-indicator]:h-full
+                    "
                   />
 
                   <button
                     type="button"
                     onClick={handleDateFromClick}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    aria-label="Select from date"
                   >
                     <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
                   </button>
                 </div>
               </div>
+
+              {/* To Date */}
               <div className="space-y-2">
                 <Label htmlFor="date-to" className="text-xs text-muted-foreground">
                   To
@@ -141,23 +207,42 @@ export default function FilterSheet({
                   <Input
                     id="date-to"
                     type="date"
+                    disabled={!filters.dateFrom}
                     value={filters.dateTo}
-                    onChange={e => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
-                    className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
-
-            pr-10
-            [&::-webkit-calendar-picker-indicator]:opacity-0 
-            [&::-webkit-calendar-picker-indicator]:absolute 
-            [&::-webkit-calendar-picker-indicator]:w-full 
-            [&::-webkit-calendar-picker-indicator]:h-full
-          "
+                    onChange={e => {
+                      const newTo = e.target.value;
+                      setFilters(prev => ({ ...prev, dateTo: newTo }));
+                    }}
+                    onBlur={e => {
+                      // Validate when user finishes
+                      const newTo = e.target.value;
+                      setFilters(prev => {
+                        if (prev.dateFrom && newTo && newTo < prev.dateFrom) {
+                          return { ...prev, dateTo: prev.dateFrom };
+                        }
+                        return prev;
+                      });
+                    }}
+                    className={`
+                      dark:bg-[#0F1B29] bg-[#DCE0E4] p-6 pr-10
+                      ${!filters.dateFrom ? "opacity-50 cursor-not-allowed" : ""}
+                      [&::-webkit-calendar-picker-indicator]:opacity-0 
+                      [&::-webkit-calendar-picker-indicator]:absolute 
+                      [&::-webkit-calendar-picker-indicator]:w-full 
+                      [&::-webkit-calendar-picker-indicator]:h-full
+                    `}
                   />
 
                   <button
                     type="button"
                     onClick={handleDateToClick}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    disabled={!filters.dateFrom}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 ${
+                      !filters.dateFrom
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                    aria-label="Select to date"
                   >
                     <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
                   </button>
@@ -199,23 +284,69 @@ export default function FilterSheet({
             </div>
           </div>
 
+          {/* Amount Range Section */}
           <div>
-            <Label className="text-sm mb-2 font-medium">Amount</Label>
+            <Label className="text-sm mb-2 font-medium">Amount Range</Label>
             <div className="space-y-3 grid grid-cols-2 gap-2">
+              {/* Min Amount */}
               <div>
-                <Label className="mb-1">From</Label>
+                <Label className="mb-1">Min</Label>
                 <Input
-                  type="text"
-                  onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  type="number"
+                  min="0"
+                  value={filters.minAmount ?? ""}
+                  onChange={e => {
+                    const value = e.target.value;
+                    const newMin = value === "" ? undefined : Number(value);
+                    setFilters(prev => {
+                      // if maxAmount exists and is less than newMin → adjust it
+                      if (
+                        prev.maxAmount !== undefined &&
+                        newMin !== undefined &&
+                        newMin > prev.maxAmount
+                      ) {
+                        return { ...prev, minAmount: newMin, maxAmount: newMin };
+                      }
+                      return { ...prev, minAmount: newMin };
+                    });
+                  }}
                   className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-6"
                 />
               </div>
+
+              {/* Max Amount */}
               <div>
-                <Label className="mb-1">To</Label>
+                <Label className="mb-1">Max</Label>
                 <Input
-                  type="text"
-                  onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-6"
+                  type="number"
+                  value={filters.maxAmount ?? ""}
+                  onChange={e => {
+                    // Allow any input during typing
+                    const value = e.target.value;
+                    setFilters(prev => ({
+                      ...prev,
+                      maxAmount: value === "" ? undefined : Number(value),
+                    }));
+                  }}
+                  onBlur={e => {
+                    // Validate only when user finishes (loses focus)
+                    const value = e.target.value;
+                    const newMax = value === "" ? undefined : Number(value);
+                    setFilters(prev => {
+                      if (
+                        prev.minAmount !== undefined &&
+                        newMax !== undefined &&
+                        newMax < prev.minAmount
+                      ) {
+                        return { ...prev, maxAmount: prev.minAmount }; // Set to min if invalid
+                      }
+                      return prev;
+                    });
+                  }}
+                  disabled={filters.minAmount === undefined}
+                  className={`dark:bg-[#0F1B29] bg-[#DCE0E4] p-6 ${
+                    filters.minAmount === undefined ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 />
               </div>
             </div>
@@ -223,13 +354,14 @@ export default function FilterSheet({
         </div>
 
         {/* Action Buttons */}
-        <div className="absolute w-full flex  bottom-0 gap-3 p-4 border-t">
-          <Button variant="ghost" onClick={clearFilters} className="flex-1  py-6">
+        <div className="absolute w-full flex bottom-0 gap-3 p-4 border-t bg-card">
+          <Button variant="ghost" onClick={clearFilters} className="flex-1 py-6">
             Clear Filters
           </Button>
           <Button
             onClick={applyFilters}
-            className="flex items-center flex-1 py-6 bg-[#3072C0] text-white rounded-[16px] text-[16px] font-medium"
+            disabled={!hasActiveFilters()}
+            className="flex items-center flex-1 py-6 bg-[#3072C0] text-white rounded-[16px] text-[16px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <p>Apply Filter</p>
             <RightArrowIcon color={theme === "dark" ? "#F6FBFE" : "#303444"} />
