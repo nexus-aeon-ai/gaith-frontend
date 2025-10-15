@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import CopyIcon from "@/components/ui/icons/options/copy-icon";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
+import DeleteIconFilled from "@/components/ui/icons/options/delete-icon-filled";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import FilterIcon from "@/components/ui/icons/options/filter-icon";
@@ -37,6 +38,7 @@ import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
+import { ConfirmDialog } from "../Popups/PopupModal";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
@@ -103,6 +105,8 @@ const QuotesPage = () => {
   const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
   const [showSendToClientSheet, setShowSendToClientSheet] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
+  const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
+
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
 
@@ -260,8 +264,7 @@ const QuotesPage = () => {
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => {
-                    // Handle delete action here
-                    // TODO: Implement delete functionality
+                    setShowDeleteAllPopup(true);
                   }}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -391,10 +394,10 @@ const QuotesPage = () => {
                       quote.status === "completed"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : quote.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : quote.status === "draft"
-                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                        : quote.status === "draft"
+                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
                     )}
                   >
                     {quote.status}
@@ -516,15 +519,15 @@ const QuotesPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}
@@ -553,6 +556,17 @@ const QuotesPage = () => {
       <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
       <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
       <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} />
+
+      {/* Delete Popup */}
+      <ConfirmDialog
+        open={showDeleteAllPopup}
+        onOpenChange={setShowDeleteAllPopup}
+        title="Delete Quotations?"
+        description="Are you sure you want to Delete Quotations? This action cannot be undone."
+        confirmText="No, Keep"
+        cancelText="Yes, Cancel"
+        icon={<DeleteIconFilled width={70} height={70} />}
+      />
     </div>
   );
 };

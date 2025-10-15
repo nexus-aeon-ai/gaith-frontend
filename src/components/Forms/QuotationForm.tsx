@@ -661,7 +661,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                       className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-all  p-1  h-auto w-auto"
                       title="Remove service"
                     >
-                      <DeleteIcon className="w-12 h-12" />
+                      <DeleteIcon className="w-8 h-8" />
                     </button>
                   </div>
                 </div>
