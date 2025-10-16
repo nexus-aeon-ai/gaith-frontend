@@ -9,6 +9,7 @@ import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface FilterState {
@@ -16,13 +17,14 @@ interface FilterState {
   dateTo: string;
   minAmount?: number;
   maxAmount?: number;
-  assignees: string[];
   statuses: string[];
-  sources: string[];
-  clients: string[];
+  type: string[];
+  platforms: string[];
 }
 
 const statusOptions = ["Draft", "Pending", "Accepted", "Rejected"];
+const typeOptions = ["Display", "Video", "Social Media", "Email", "Search"];
+const platformOptions = ["Facebook", "Instagram", "LinkedIn", "X", "Google Ads"];
 
 export default function FilterSheet({
   open,
@@ -36,16 +38,15 @@ export default function FilterSheet({
     dateTo: "",
     minAmount: undefined,
     maxAmount: undefined,
-    assignees: [],
     statuses: [],
-    sources: [],
-    clients: [],
+    type: [],
+    platforms: [],
   });
 
   const { theme } = useTheme();
 
   const handleCheckboxChange = (
-    category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
+    category: keyof Pick<FilterState, "type" | "statuses" | "platforms">,
     value: string,
     checked: boolean,
   ) => {
@@ -58,7 +59,7 @@ export default function FilterSheet({
   };
 
   const handleSelectAll = (
-    category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
+    category: keyof Pick<FilterState, "type" | "statuses" | "platforms">,
     options: string[],
   ) => {
     const allSelected = options.every(option => filters[category].includes(option));
@@ -74,10 +75,9 @@ export default function FilterSheet({
       dateTo: "",
       minAmount: undefined,
       maxAmount: undefined,
-      assignees: [],
+      type: [],
       statuses: [],
-      sources: [],
-      clients: [],
+      platforms: [],
     });
   };
 
@@ -87,10 +87,9 @@ export default function FilterSheet({
       filters.dateTo !== "" ||
       filters.minAmount !== undefined ||
       filters.maxAmount !== undefined ||
-      filters.assignees.length > 0 ||
+      filters.type.length > 0 ||
       filters.statuses.length > 0 ||
-      filters.sources.length > 0 ||
-      filters.clients.length > 0
+      filters.platforms.length > 0
     );
   };
 
@@ -149,18 +148,18 @@ export default function FilterSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="dark:bg-[#212945] bg-card w-[400px] sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
-        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 sm:p-4 p-2">
+        <div className="space-y-6 sm:p-4 sm:pt-0 p-2">
           {/* Date Section */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Due Date</Label>
+            <Label className="text-sm font-medium">Date Range</Label>
             <div className="flex flex-row justify-between gap-2">
               {/* From Date */}
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">From</Label>
+                <Label className="text-sm text-muted-foreground">From</Label>
                 <div className="relative w-full">
                   <Input
                     id="date-from"
@@ -199,7 +198,7 @@ export default function FilterSheet({
 
               {/* To Date */}
               <div className="space-y-2">
-                <Label htmlFor="date-to" className="text-xs text-muted-foreground">
+                <Label htmlFor="date-to" className="text-sm text-muted-foreground">
                   To
                 </Label>
 
@@ -276,7 +275,7 @@ export default function FilterSheet({
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm">
+                  <Label htmlFor={`status-${status}`} className="text-sm font-normal">
                     {status}
                   </Label>
                 </div>
@@ -284,13 +283,84 @@ export default function FilterSheet({
             </div>
           </div>
 
-          {/* Amount Range Section */}
+          <Separator />
+
+          {/* Type Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Type</Label>
+              <div className="flex items-center space-x-2">
+                <CheckboxSquare
+                  id="select-all-types"
+                  checked={typeOptions.every(option => filters.type.includes(option))}
+                  onCheckedChange={() => handleSelectAll("type", typeOptions)}
+                />
+                <Label htmlFor="select-all-types" className="text-sm text-muted-foreground">
+                  Select All
+                </Label>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {typeOptions.map(option => (
+                <div key={option} className="flex items-center space-x-2">
+                  <CheckboxSquare
+                    id={`status-${option}`}
+                    checked={filters.type.includes(option)}
+                    onCheckedChange={checked =>
+                      handleCheckboxChange("type", option, checked as boolean)
+                    }
+                  />
+                  <Label htmlFor={`option-${option}`} className="text-sm font-normal">
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Platform Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Platform</Label>
+              <div className="flex items-center space-x-2">
+                <CheckboxSquare
+                  id="select-all-platforms"
+                  checked={platformOptions.every(option => filters.platforms.includes(option))}
+                  onCheckedChange={() => handleSelectAll("platforms", platformOptions)}
+                />
+                <Label htmlFor="select-all-platforms" className="text-sm text-muted-foreground">
+                  Select All
+                </Label>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {platformOptions.map(platform => (
+                <div key={status} className="flex items-center space-x-2">
+                  <CheckboxSquare
+                    id={`status-${platform}`}
+                    checked={filters.platforms.includes(platform)}
+                    onCheckedChange={checked =>
+                      handleCheckboxChange("platforms", platform, checked as boolean)
+                    }
+                  />
+                  <Label htmlFor={`status-${platform}`} className="text-sm font-normal">
+                    {platform}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Separator />
+
+          {/* Budget Range Section */}
           <div>
-            <Label className="text-sm mb-2 font-medium">Amount Range</Label>
+            <Label className="text-sm mb-2 font-medium">Budget Range</Label>
             <div className="space-y-3 grid grid-cols-2 gap-2">
               {/* Min Amount */}
               <div>
-                <Label className="mb-1">Min</Label>
+                <Label className="text-sm text-muted-foreground mb-1">From</Label>
                 <Input
                   type="number"
                   min="0"
@@ -316,7 +386,7 @@ export default function FilterSheet({
 
               {/* Max Amount */}
               <div>
-                <Label className="mb-1">Max</Label>
+                <Label className="text-sm text-muted-foreground mb-1">To</Label>
                 <Input
                   type="number"
                   value={filters.maxAmount ?? ""}
@@ -354,7 +424,7 @@ export default function FilterSheet({
         </div>
 
         {/* Action Buttons */}
-        <div className="absolute w-full flex bottom-0 gap-3 p-4 border-t bg-card">
+        <div className="sticky w-full flex bottom-0 gap-3 p-4 border-t bg-card">
           <Button variant="ghost" onClick={clearFilters} className="flex-1 py-6">
             Clear Filters
           </Button>

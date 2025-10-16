@@ -44,7 +44,10 @@ export interface Campaign {
   endDate: string;
   status: "Inprogress" | "On Track" | "Completed";
   tasksRemaining: number;
-  budget: string;
+  budget: {
+    totalBudget: string;
+    perDayBudget: string;
+  };
   roi: string;
   lastUpdated: string;
   icon: string;

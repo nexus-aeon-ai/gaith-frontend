@@ -14,7 +14,6 @@ import { CheckboxSquare } from "../../ui/checkbox-square";
 import { Textarea } from "../../ui/textarea";
 import { Send } from "lucide-react";
 
-// ✅ Corrected interface
 interface EmailFormState {
   recipientEmail: string;
   deliveryMethod: "email" | "customer_portal";
