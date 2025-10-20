@@ -147,7 +147,7 @@ export default function FilterSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="dark:bg-[#212945] bg-card w-[400px] sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
+      <SheetContent className="dark:bg-[#212945] bg-card w-screen sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
         <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>

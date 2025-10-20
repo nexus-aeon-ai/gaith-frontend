@@ -1,10 +1,9 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import { Send } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import SendIcon from "@/components/ui/icons/options/send-icon";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -12,7 +11,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 
 import { CheckboxSquare } from "../../ui/checkbox-square";
 import { Textarea } from "../../ui/textarea";
-import { Send } from "lucide-react";
 
 interface EmailFormState {
   recipientEmail: string;
@@ -37,8 +35,6 @@ export default function SendToClientSheet({
     message: "",
     sendCopy: false,
   });
-
-  const { theme } = useTheme();
 
   const clearForm = () => {
     setEmailForm({

@@ -12,6 +12,7 @@ import {
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import { CampaignSubmittedForm } from "@/components/CampaignSubmitted/Campaign/Campaign";
 import CampaignFilterSheet from "@/components/sheet/Campaign/CampaignFilter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -46,12 +47,13 @@ import { cn } from "@/lib/utils";
 
 import ViewCampaignDetails from "./ViewCampaignDetails";
 
-
 const CampaignSubPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [showNewCampaignForm, setShowNewCampaignForm] = useState(false);
+  const [showEditCampaignForm, setShowEditCampaignForm] = useState(false);
 
   const [showCampaignDetails, setShowCampaignDetails] = useState(false);
 
@@ -116,9 +118,7 @@ const CampaignSubPage = () => {
   };
 
   if (showCampaignDetails) {
-    return (
-      <ViewCampaignDetails closeViewDetails={() => setShowCampaignDetails(false)} />
-    );
+    return <ViewCampaignDetails closeViewDetails={() => setShowCampaignDetails(false)} />;
   }
 
   const getPlatformIcon = (platform: string) => {
@@ -132,11 +132,18 @@ const CampaignSubPage = () => {
       case "linkedin":
         return <LkIcon />;
       case "google":
-        return <GoogleIcon/>;
+        return <GoogleIcon />;
       default:
         return null;
     }
   };
+
+  if (showNewCampaignForm) {
+    return <CampaignSubmittedForm mode="create" setCampaignOpen={setShowNewCampaignForm} />;
+  }
+  if (showEditCampaignForm) {
+    return <CampaignSubmittedForm mode="edit" setCampaignOpen={setShowEditCampaignForm} />;
+  }
 
   return (
     <div
@@ -175,11 +182,11 @@ const CampaignSubPage = () => {
             "hover:bg-blue-700 text-white",
             "text-xs sm:text-sm lg:text-base",
           )}
-          // onClick={() => setShowNewQuoteForm(true)}
+          onClick={() => setShowNewCampaignForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Create New Campaign</span>
-          <span className="sm:hidden">Create Quotation</span>
+          <span className="sm:hidden">Create Campaign</span>
         </Button>
       </div>
       {/* Search and Actions Section */}
@@ -422,8 +429,7 @@ const CampaignSubPage = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
-                          // setCampaignToEdit(campaign);
-                          // setShowEditCampaignForm(true);
+                          setShowEditCampaignForm(true);
                         }}
                       >
                         <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -515,19 +521,6 @@ const CampaignSubPage = () => {
         </div>
       </div>
       <CampaignFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
-      {/* <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
-      <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} /> */}
-
-      {/* Delete Popup */}
-      {/* <ConfirmDialog
-        open={showDeleteAllPopup}
-        onOpenChange={setShowDeleteAllPopup}
-        title="Delete Quotations?"
-        description="Are you sure you want to Delete Quotations? This action cannot be undone."
-        confirmText="No, Keep"
-        cancelText="Yes, Cancel"
-        icon={<DeleteIconFilled width={70} height={70} />}
-      /> */}
     </div>
   );
 };
