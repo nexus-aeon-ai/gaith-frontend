@@ -1,29 +1,33 @@
 "use client";
 
+import { Calendar, FileText, Megaphone, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Campaign, CampaignTasksTabProps, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import { Calendar, FileText, Megaphone, Search } from "lucide-react";
-
-import { Separator } from "@/components/ui/separator";
-import { Campaign, CampaignTasksTabProps, Task } from "@/lib/types";
 import { mockCampaigns, mockTasks } from "../../data";
 
 const getIconComponent = (iconName: string, color: string) => {
   const iconProps = { className: `h-5 w-5 ${color}` };
   switch (iconName) {
-    case "megaphone": return <Megaphone {...iconProps} />;
-    case "search": return <Search {...iconProps} />;
-    case "calendar": return <Calendar {...iconProps} />;
-    case "file-text": return <FileText {...iconProps} />;
-    default: return null;
+    case "megaphone":
+      return <Megaphone {...iconProps} />;
+    case "search":
+      return <Search {...iconProps} />;
+    case "calendar":
+      return <Calendar {...iconProps} />;
+    case "file-text":
+      return <FileText {...iconProps} />;
+    default:
+      return null;
   }
 };
 
-const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
+const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps) => {
   const campaigns = mockCampaigns;
   const tasks = mockTasks;
 
@@ -68,20 +72,36 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
             <CardTitle>Campaign Overview</CardTitle>
             <Tabs defaultValue="Active" className="w-auto">
               <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-card  p-1 text-muted-foreground">
-                <TabsTrigger value="Active" className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]">Active</TabsTrigger>
-                <TabsTrigger value="Completed" className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]">Completed</TabsTrigger>
+                <TabsTrigger
+                  value="Active"
+                  className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
+                >
+                  Active
+                </TabsTrigger>
+                <TabsTrigger
+                  value="Completed"
+                  className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
+                >
+                  Completed
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </CardHeader>
-        <Separator  />   
+        <Separator />
         <CardContent>
           <Tabs defaultValue="Active" className="w-full">
             <TabsContent value="Active" className="space-y-4">
-              {campaigns.map((campaign) => (
+              {campaigns.map(campaign => (
                 <div
                   key={campaign.id}
+                  role="button"
                   className="p-4 w-full border border-border bg-background rounded-lg hover:bg-muted/50 transition-colors"
+                  onClick={() => setShowPendingTasks(true)}
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ") setShowPendingTasks(true);
+                  }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -96,15 +116,11 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-foreground">
-                        {campaign.budget}
-                      </div>
-                      <div className="text-sm font-medium text-green-600">
-                        {campaign.roi}
-                      </div>
+                      <div className="text-sm font-medium text-foreground">{campaign.budget}</div>
+                      <div className="text-sm font-medium text-green-600">{campaign.roi}</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <Badge className={cn("text-xs", getStatusColor(campaign.status))}>
@@ -114,9 +130,7 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
                         {campaign.tasksRemaining} tasks remaining
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {campaign.lastUpdated}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{campaign.lastUpdated}</span>
                   </div>
                 </div>
               ))}
@@ -137,17 +151,27 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
             <CardTitle>Pending Tasks</CardTitle>
             <Tabs defaultValue="Today" className="w-auto">
               <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-card p-1 text-muted-foreground">
-                <TabsTrigger value="Today" className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]">Today</TabsTrigger>
-                <TabsTrigger value="Upcoming" className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2  text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]">Upcoming</TabsTrigger>
+                <TabsTrigger
+                  value="Today"
+                  className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
+                >
+                  Today
+                </TabsTrigger>
+                <TabsTrigger
+                  value="Upcoming"
+                  className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-2xl px-4 py-2  text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
+                >
+                  Upcoming
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </CardHeader>
-        <Separator  />   
+        <Separator />
         <CardContent>
           <Tabs defaultValue="Today" className="w-full">
             <TabsContent value="Today" className="space-y-4">
-              {tasks.map((task) => (
+              {tasks.map(task => (
                 <div
                   key={task.id}
                   className="p-4 border border-border bg-background rounded-lg hover:bg-muted/50 transition-colors"
@@ -166,7 +190,7 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
                       {task.due}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Badge className={cn("text-xs", getPriorityColor(task.priority))}>
                       {task.priority}
@@ -177,9 +201,7 @@ const CampaignTasksTab = ({ client }: CampaignTasksTabProps) => {
               ))}
             </TabsContent>
             <TabsContent value="Upcoming" className="space-y-4">
-              <div className="text-center py-8 text-muted-foreground">
-                No upcoming tasks.
-              </div>
+              <div className="text-center py-8 text-muted-foreground">No upcoming tasks.</div>
             </TabsContent>
           </Tabs>
         </CardContent>

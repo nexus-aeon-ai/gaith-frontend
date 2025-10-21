@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+import PendingTasks from "./PendingTasks";
 import {
   CampaignTasksTab,
   HistoricalPerformanceTab,
@@ -39,6 +40,11 @@ interface ClientDetailsViewProps {
 
 const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
   const [activeTab, setActiveTab] = useState("main-info");
+  const [showPendingTasks, setShowPendingTasks] = useState(true);
+
+  if (showPendingTasks) {
+    return <PendingTasks client={client} onBack={() => setShowPendingTasks(false)} />;
+  }
 
   return (
     <div
@@ -76,8 +82,8 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
                     client.status === "Active"
                       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                       : client.status === "Inactive"
-                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                      ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
                   )}
                 >
                   {client.status}
@@ -227,7 +233,7 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
         </TabsContent>
 
         <TabsContent value="campaign-tasks" className="mt-0">
-          <CampaignTasksTab client={client} />
+          <CampaignTasksTab client={client} setShowPendingTasks={setShowPendingTasks} />
         </TabsContent>
 
         <TabsContent value="historical-performance" className="mt-0">

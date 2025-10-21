@@ -26,6 +26,7 @@ export interface MainInformationTabProps {
 
 export interface CampaignTasksTabProps {
   client: Client;
+  setShowPendingTasks: (show: boolean) => void;
 }
 
 export interface HistoricalPerformanceTabProps {
