@@ -49,7 +49,7 @@ export const resetPassword = async (
   email: string,
   otp: string,
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
 ): Promise<IResponse<unknown>> => {
   const response = await fetchInstance(`${authEndpoint}reset-password/`, {
     method: "POST",
