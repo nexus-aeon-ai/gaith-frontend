@@ -113,7 +113,6 @@ const PendingTasks = ({ client, onBack }: ClientDetailsViewProps) => {
             <Button
               variant="outline"
               className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
-              onClick={onBack}
             >
               Cancel
             </Button>

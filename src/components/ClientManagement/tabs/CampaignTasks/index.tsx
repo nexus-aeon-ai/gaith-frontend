@@ -95,13 +95,13 @@ const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps
               {campaigns.map(campaign => (
                 <div
                   key={campaign.id}
-                  role="button"
                   className="p-4 w-full border border-border bg-background rounded-lg hover:bg-muted/50 transition-colors"
-                  onClick={() => setShowPendingTasks(true)}
-                  tabIndex={0}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") setShowPendingTasks(true);
-                  }}
+                  // role="button"
+                  // onClick={() => setShowPendingTasks(true)}
+                  // tabIndex={0}
+                  // onKeyDown={e => {
+                  //   if (e.key === "Enter" || e.key === " ") setShowPendingTasks(true);
+                  // }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -174,6 +174,12 @@ const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps
               {tasks.map(task => (
                 <div
                   key={task.id}
+                  role="button"
+                  onClick={() => setShowPendingTasks(true)}
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ") setShowPendingTasks(true);
+                  }}
                   className="p-4 border border-border bg-background rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-3">

@@ -40,7 +40,7 @@ interface ClientDetailsViewProps {
 
 const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
   const [activeTab, setActiveTab] = useState("main-info");
-  const [showPendingTasks, setShowPendingTasks] = useState(true);
+  const [showPendingTasks, setShowPendingTasks] = useState(false);
 
   if (showPendingTasks) {
     return <PendingTasks client={client} onBack={() => setShowPendingTasks(false)} />;
