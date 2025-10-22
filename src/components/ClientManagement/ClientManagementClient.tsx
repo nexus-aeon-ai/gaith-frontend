@@ -6,10 +6,13 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+import PopupModal from "../PopupModal/Modal";
 
 import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
@@ -27,6 +30,8 @@ const ClientManagementClient = () => {
   const [editClientToggle, setEditClientToggle] = useState<boolean>(false);
   const [newClientToggle, setNewClientToggle] = useState<boolean>(false);
   const columns = useTableColumns(setSelectedClient, setEditClientToggle);
+  const [deleteClientToggle, setDeleteClientToggle] = useState<boolean>(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
   // Mock paginated data
   const data: TGenericPaginatedResponse<Client> = {
@@ -53,6 +58,19 @@ const ClientManagementClient = () => {
     manualPagination: true,
   });
 
+  const handleDeleteClient = (client: Client) => {
+    setClientToDelete(client);
+    setDeleteClientToggle(true);
+  };
+
+  const confirmDeleteClient = () => {
+    if (!clientToDelete) return;
+    console.log("Deleting client:", clientToDelete);
+    // TODO: call API for deletion
+    setDeleteClientToggle(false);
+    setClientToDelete(null);
+  };
+
   // If a client is selected, show the details view
   if (selectedClient && !editClientToggle) {
     return <ClientDetailsView client={selectedClient} onBack={() => setSelectedClient(null)} />;
@@ -75,7 +93,29 @@ const ClientManagementClient = () => {
     >
       <HeaderSection setNewClientToggle={setNewClientToggle} />
       <SearchAndActionsSection globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-      <ClientTableSection table={table} columns={columns} dataPagination={data} />
+      <ClientTableSection
+        table={table}
+        columns={columns}
+        dataPagination={data}
+        onDelete={handleDeleteClient}
+      />
+      <PopupModal
+        open={deleteClientToggle}
+        onOpenChange={setDeleteClientToggle}
+        title="Delete Client?"
+        iconComponent={
+          <X className="bg-red-200 rounded-full p-2" strokeWidth={3} size={40} color="#EA3B1F" />
+        }
+        description="Are you sure you want to Delete Client? This action cannot be undone."
+        cancelButton={{
+          label: "Yes, Delete",
+          onClick: () => {
+            setDeleteClientToggle(false);
+            confirmDeleteClient();
+          },
+        }}
+        confirmButton={{ label: "No, Keep", onClick: () => setDeleteClientToggle(false) }}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -17,7 +18,6 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
 import PopupModal from "../PopupModal/Modal";
-import { X } from "lucide-react";
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -127,7 +127,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           <X className="bg-red-200 rounded-full p-2" strokeWidth={3} size={40} color="#EA3B1F" />
         }
         description="Are you sure you want to cancel this Changes? This action cannot be undone.?"
-        cancelButton={{ label: "Yes, Cancel", onClick: () => setShowCancelModal(false) }}
+        cancelButton={{ label: "Yes, Cancel", onClick: () => {setShowCancelModal(false); closeNewClientForm();} }}
         confirmButton={{ label: "No, Keep", onClick: () => setShowCancelModal(false) }}
       />
     </div>

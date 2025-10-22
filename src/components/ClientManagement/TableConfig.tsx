@@ -74,8 +74,8 @@ const useTableColumns = (
               status === "Active"
                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                 : status === "Inactive"
-                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
             )}
           >
             {status}
@@ -142,9 +142,9 @@ const useTableColumns = (
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const client = row.original;
-
+        const onDelete = table.options.meta?.onDelete;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -173,7 +173,7 @@ const useTableColumns = (
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
-                onClick={() => console.log("Delete client:", client.name)}
+                onClick={() => onDelete?.(client)}
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Delete</span>

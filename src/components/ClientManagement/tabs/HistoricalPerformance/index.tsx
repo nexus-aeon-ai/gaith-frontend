@@ -1,19 +1,38 @@
 "use client";
 
 import { ArrowRight, FileSpreadsheet, FileText } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { HistoricalPerformanceTabProps } from "@/lib/types";
+
 import {
-    mockBudgetData,
-    mockFinancialData,
-    mockPerformanceData,
-    mockSummaryMetrics
+  mockBudgetData,
+  mockFinancialData,
+  mockPerformanceData,
+  mockSummaryMetrics,
 } from "../../data";
 
 const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => {
@@ -22,7 +41,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
   const financialData = mockFinancialData;
   const summaryMetrics = mockSummaryMetrics.map(metric => ({
     ...metric,
-    icon: metric.icon === "arrow-right" ? <ArrowRight className="h-4 w-4" /> : metric.icon
+    icon: metric.icon === "arrow-right" ? <ArrowRight className="h-4 w-4" /> : metric.icon,
   }));
 
   return (
@@ -31,7 +50,9 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground">Historical Performance</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">Track success metrics and campaign performance</p>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Track success metrics and campaign performance
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Select defaultValue="3-month">
@@ -46,12 +67,20 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
             </SelectContent>
           </Select>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" size="sm" className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white"
+            >
               <FileSpreadsheet className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Export Excel</span>
               <span className="sm:hidden">Excel</span>
             </Button>
-            <Button variant="outline" size="sm" className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white"
+            >
               <FileText className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Export PDF</span>
               <span className="sm:hidden">PDF</span>
@@ -79,38 +108,41 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
               </Select>
             </div>
           </CardHeader>
-          <Separator  className="mb-4"/>   
+          <Separator className="mb-4" />
           <CardContent>
             <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={performanceData} margin={{ top: 10, right: 5, left: 5, bottom: 10 }}>
+                <AreaChart
+                  data={performanceData}
+                  margin={{ top: 10, right: 5, left: 5, bottom: 10 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="month" 
+                  <XAxis
+                    dataKey="month"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#666' }}
+                    tick={{ fontSize: 10, fill: "#666" }}
                     interval="preserveStartEnd"
                   />
-                  <YAxis 
+                  <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#666' }}
+                    tick={{ fontSize: 10, fill: "#666" }}
                     domain={[0, 1000]}
                     ticks={[0, 500, 1000]}
                   />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      backgroundColor: "white",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                     }}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#3b82f6" 
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3b82f6"
                     fill="transparent"
                     strokeWidth={8}
                     strokeLinecap="round"
@@ -126,8 +158,8 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between p-2">
-              <CardTitle >Budget Overview</CardTitle>
-              <Select  defaultValue="last-year">
+              <CardTitle>Budget Overview</CardTitle>
+              <Select defaultValue="last-year">
                 <SelectTrigger className="w-24 p-2">
                   <SelectValue />
                 </SelectTrigger>
@@ -139,7 +171,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
               </Select>
             </div>
           </CardHeader>
-          <Separator  className="mb-4"/>   
+          <Separator className="mb-4" />
           <CardContent>
             <div className="flex items-center justify-center h-40 sm:h-48">
               <div className="relative">
@@ -203,28 +235,32 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
         <CardContent>
           <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={financialData} margin={{ top: 20, right: 10, left: 10, bottom: 10 }} barCategoryGap="40%">
+              <BarChart
+                data={financialData}
+                margin={{ top: 20, right: 10, left: 10, bottom: 10 }}
+                barCategoryGap="40%"
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="quarter" 
+                <XAxis
+                  dataKey="quarter"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: '#666' }}
+                  tick={{ fontSize: 10, fill: "#666" }}
                   interval="preserveStartEnd"
                 />
-                <YAxis 
+                <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: '#666' }}
+                  tick={{ fontSize: 10, fill: "#666" }}
                   domain={[0, 100000]}
                   ticks={[0, 50000, 100000]}
                 />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                   }}
                 />
                 <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={35} />
@@ -242,16 +278,18 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className={`text-base sm:text-lg font-bold ${metric.isGreen ? 'text-green-600' : 'text-foreground'}`}>
+                  <p
+                    className={`text-base sm:text-lg font-bold ${
+                      metric.isGreen ? "text-green-600" : "text-foreground"
+                    }`}
+                  >
                     {metric.value}
                   </p>
-                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">{metric.label}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+                    {metric.label}
+                  </p>
                 </div>
-                {metric.icon && (
-                  <div className="text-muted-foreground ml-2">
-                    {metric.icon}
-                  </div>
-                )}
+                {metric.icon && <div className="text-muted-foreground ml-2">{metric.icon}</div>}
               </div>
             </CardContent>
           </Card>

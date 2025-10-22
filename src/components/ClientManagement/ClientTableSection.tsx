@@ -12,16 +12,17 @@ interface ClientTableSectionProps<T> {
     previous?: string | null;
     page_count: number;
   };
+  onDelete?: (row: T) => void;
 }
 
-const ClientTableSection = <T,>({ table, columns, dataPagination }: ClientTableSectionProps<T>) => {
-  return (
-    <DataTable 
-      table={table} 
-      colSpan={columns.length} 
-      dataPagination={dataPagination}
-    />
-  );
+const ClientTableSection = <T,>({
+  table,
+  columns,
+  dataPagination,
+  onDelete,
+}: ClientTableSectionProps<T>) => {
+  table.options.meta = { ...(table.options.meta ?? {}), onDelete };
+  return <DataTable table={table} colSpan={columns.length} dataPagination={dataPagination} />;
 };
 
 export default ClientTableSection;
