@@ -157,9 +157,9 @@ export const createClientSchema = z.object({
   businessOverview: z
     .string()
     .min(10, "Business overview must be at least 10 characters")
-    .max(1000, "Business overview must be less than 1000 characters"),
+    .max(100, "Business overview must be less than 100 characters"),
 
-  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address"),
 
   phoneNumber: z
     .string()

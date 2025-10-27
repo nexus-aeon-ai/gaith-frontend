@@ -146,7 +146,7 @@ export const mockLeads: Lead[] = [
     id: "EMP008",
     name: "Michael Anderson",
     email: "anderson@email.com",
-    source: "Socila Media",
+    source: "Social Media",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
