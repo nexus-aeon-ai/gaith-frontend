@@ -1,10 +1,7 @@
-
-// import CampaignSubPage from "@/components/CampaignSubmitted/CampaignPage";
-import AnalyticsPage from "@/components/CampaignSubmitted/Analytics/AnalyticsPage";
+import CampaignSubPage from "@/components/CampaignSubmitted/CampaignPage";
 
 const SubmittedPage = () => {
-  // return <CampaignSubPage />;
-  return <AnalyticsPage />;
+  return <CampaignSubPage />;
 };
 
 export default SubmittedPage;
