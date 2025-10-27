@@ -42,7 +42,7 @@ export function ScrollableDialog({
       <DialogContent
         className={cn(
           "flex w-full max-w-full flex-col gap-0 overflow-y-visible bg-white p-0 sm:max-w-xl",
-          className
+          className,
         )}
       >
         {(title || description) && (

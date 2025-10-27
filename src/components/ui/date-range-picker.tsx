@@ -100,12 +100,12 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   const [rangeCompare, setRangeCompare] = useState<DateRange | undefined>(
     initialCompareFrom
       ? {
-          from: new Date(new Date(initialCompareFrom)),
-          to: initialCompareTo
-            ? new Date(new Date(initialCompareTo))
-            : new Date(new Date(initialCompareFrom)),
-        }
-      : undefined
+        from: new Date(new Date(initialCompareFrom)),
+        to: initialCompareTo
+          ? new Date(new Date(initialCompareTo))
+          : new Date(new Date(initialCompareFrom)),
+      }
+      : undefined,
   );
 
   // Refs to store the values of range and rangeCompare when the date picker is opened
@@ -115,7 +115,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
 
   const [isSmallScreen, setIsSmallScreen] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 960 : false
+    typeof window !== "undefined" ? window.innerWidth < 960 : false,
   );
 
   useEffect(() => {
@@ -243,13 +243,13 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     setRangeCompare(
       initialCompareFrom
         ? {
-            from:
+          from:
               typeof initialCompareFrom === "string"
                 ? getDateAdjustedForTimezone(initialCompareFrom)
                 : initialCompareFrom,
-            to: getDataTo(initialCompareTo),
-          }
-        : undefined
+          to: getDataTo(initialCompareTo),
+        }
+        : undefined,
     );
   };
 
@@ -351,19 +351,19 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                             from: new Date(
                               range.from.getFullYear(),
                               range.from.getMonth(),
-                              range.from.getDate() - 365
+                              range.from.getDate() - 365,
                             ),
                             to: range.to
                               ? new Date(
-                                  range.to.getFullYear() - 1,
-                                  range.to.getMonth(),
-                                  range.to.getDate()
-                                )
+                                range.to.getFullYear() - 1,
+                                range.to.getMonth(),
+                                range.to.getDate(),
+                              )
                               : new Date(
-                                  range.from.getFullYear() - 1,
-                                  range.from.getMonth(),
-                                  range.from.getDate()
-                                ),
+                                range.from.getFullYear() - 1,
+                                range.from.getMonth(),
+                                range.from.getDate(),
+                              ),
                           });
                         } else {
                           setRangeCompare(undefined);

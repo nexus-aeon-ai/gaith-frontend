@@ -47,7 +47,7 @@ const TableSkeleton = ({ columns, rows = 7, className = "" }: TableSkeletonProps
                     className={cn(
                       column.width,
                       "h-8 w-full",
-                      column.header === "Actions" && "mx-auto w-16"
+                      column.header === "Actions" && "mx-auto w-16",
                     )}
                   />
                 </TableCell>

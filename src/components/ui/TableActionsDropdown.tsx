@@ -47,7 +47,7 @@ const TableActionsDropdown: React.FC<TableActionsDropdownProps> = ({ actions }) 
                 "flex cursor-pointer items-center rounded-md px-3 py-2 text-sm",
                 "text-muted-foreground hover:bg-muted focus:bg-muted focus:outline-none",
                 action.variant === "destructive" &&
-                  "font-semibold text-destructive hover:!text-destructive"
+                  "font-semibold text-destructive hover:!text-destructive",
               )}
             >
               {action.icon && <span className="mr-2">{action.icon}</span>}

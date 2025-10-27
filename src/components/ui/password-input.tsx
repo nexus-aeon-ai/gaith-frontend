@@ -24,7 +24,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
       enableGeneratePassword = true,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
     const [password, setPassword] = useState(props.value?.toString() || "");
@@ -93,7 +93,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
               <span
                 className={cn(
                   "font-medium",
-                  strength.score >= 3 ? "text-green-600" : "text-orange-600"
+                  strength.score >= 3 ? "text-green-600" : "text-orange-600",
                 )}
               >
                 {strength.label}
@@ -116,7 +116,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 PasswordInput.displayName = "PasswordInput";

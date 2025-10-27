@@ -11,7 +11,7 @@ interface FetchOptions extends RequestInit {
 
 export async function fetchInstance<T>(
   url: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<{ status: number; data: T | null }> {
   const headers = new Headers(options.headers);
 

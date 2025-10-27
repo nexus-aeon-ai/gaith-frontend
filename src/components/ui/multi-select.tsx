@@ -33,7 +33,7 @@ const multiSelectVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 interface MultiSelectProps
@@ -71,7 +71,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       refetchQuery,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [selectedValues, setSelectedValues] = React.useState<string[]>(defaultValue);
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
@@ -139,7 +139,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             onClick={handleTogglePopover}
             className={cn(
               "flex h-auto min-h-10 w-full items-center justify-between rounded-md border border-black-0 bg-background/15 p-1 hover:bg-background/15 focus:outline-none focus:ring-1 focus:ring-ring",
-              className
+              className,
             )}
           >
             {selectedValues.length > 0 ? (
@@ -155,7 +155,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                         color={option?.color || "#222"}
                         className={cn(
                           isAnimating ? "animate-bounce" : "",
-                          multiSelectVariants({ variant })
+                          multiSelectVariants({ variant }),
                         )}
                         style={{ animationDuration: `${animation}s` }}
                       >
@@ -172,7 +172,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                           className={cn(
                             "ml-1 flex items-center rounded-full border border-dashed border-foreground/30 bg-muted px-2 py-1 text-xs font-medium text-muted-foreground",
                             isAnimating ? "animate-bounce" : "",
-                            multiSelectVariants({ variant })
+                            multiSelectVariants({ variant }),
                           )}
                           style={{ animationDuration: `${animation}s` }}
                         >
@@ -218,7 +218,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                         "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
                         selectedValues.length === options.length
                           ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
+                          : "opacity-50 [&_svg]:invisible",
                       )}
                     >
                       <CheckIcon className="size-4" />
@@ -240,7 +240,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                           "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
                           isSelected
                             ? "bg-primary text-primary-foreground"
-                            : "opacity-50 [&_svg]:invisible"
+                            : "opacity-50 [&_svg]:invisible",
                         )}
                       >
                         <CheckIcon className="size-4" />
@@ -288,7 +288,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             <Sparkles
               className={cn(
                 "my-2 size-3 cursor-pointer bg-background text-foreground",
-                isAnimating ? "" : "text-muted-foreground"
+                isAnimating ? "" : "text-muted-foreground",
               )}
               onClick={() => setIsAnimating(!isAnimating)}
             />
@@ -296,7 +296,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 MultiSelect.displayName = "MultiSelect";

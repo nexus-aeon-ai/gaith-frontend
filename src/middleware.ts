@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
 
   // Check if the pathname starts with a locale
   const pathnameHasLocale = LOCALES.some(
-    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
   if (!pathnameHasLocale) {

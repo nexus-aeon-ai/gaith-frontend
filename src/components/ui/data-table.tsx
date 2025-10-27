@@ -10,10 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { TPagination } from "@/types/general";
 
 import PagePaginationFilters from "../shared/page-pagination-filters";
 
-import type { TPagination } from "@/types/general";
 
 interface DataTableProps {
   table: TTable<any>;

@@ -4,10 +4,10 @@ import { Globe, Mail, MapPin, Phone } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-
 import { Separator } from "@/components/ui/separator";
 import { MainInformationTabProps } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
 import { mockMainInformationData } from "../../data";
 
 const MainInformationTab = ({ client }: MainInformationTabProps) => {
@@ -29,7 +29,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
                 <span className="text-sm text-muted-foreground">To</span>
               </div>
               <div className="flex justify-between">
-              <span className="text-sm font-medium text-foreground">{clientDetails.agreementPeriod.from}</span>
+                <span className="text-sm font-medium text-foreground">{clientDetails.agreementPeriod.from}</span>
 
                 <span className="text-sm font-medium text-foreground">{clientDetails.agreementPeriod.to}</span>
               </div>

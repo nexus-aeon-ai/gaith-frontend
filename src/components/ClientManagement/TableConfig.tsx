@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,7 +18,7 @@ const useTableColumns = (
   onViewDetails?: (client: Client) => void,
   onEditClientToggle?: (arg: boolean) => void,
 ) => {
-  const columns: ColumnDef<Client>[] = [
+  const columns: ColumnDef<Client>[] = useMemo(() => [
     {
       id: "select",
       header: ({ table }) => (
@@ -74,8 +75,8 @@ const useTableColumns = (
               status === "Active"
                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                 : status === "Inactive"
-                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
             )}
           >
             {status}
@@ -148,7 +149,7 @@ const useTableColumns = (
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" type="button">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -185,7 +186,7 @@ const useTableColumns = (
       enableSorting: false,
       enableHiding: false,
     },
-  ];
+  ], [onViewDetails, onEditClientToggle]);
 
   return columns;
 };

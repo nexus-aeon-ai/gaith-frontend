@@ -7,7 +7,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
     <div className="scroll-enhanced relative w-full overflow-x-auto overflow-y-hidden">
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
-  )
+  ),
 );
 Table.displayName = "Table";
 
@@ -43,11 +43,11 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
       ref={ref}
       className={cn(
         "border-b border-gray-200 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 );
 TableRow.displayName = "TableRow";
 
@@ -59,7 +59,7 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       "h-12 whitespace-nowrap px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-      className
+      className,
     )}
     {...props}
   />
@@ -74,7 +74,7 @@ const TableCell = React.forwardRef<
     ref={ref}
     className={cn(
       "whitespace-nowrap px-4 py-3 align-middle [&:has([role=checkbox])]:pr-0",
-      className
+      className,
     )}
     {...props}
   />

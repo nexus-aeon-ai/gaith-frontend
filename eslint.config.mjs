@@ -69,7 +69,7 @@ const eslintConfig = [
       quotes: ["error", "double", { avoidEscape: true }],
       "object-curly-spacing": ["error", "always"],
       "array-bracket-spacing": ["error", "never"],
-      indent: ["error", 2, { SwitchCase: 1 }],
+      indent: "off", // Disable ESLint indent rule, use Prettier for formatting
       "max-len": [
         "warn",
         {

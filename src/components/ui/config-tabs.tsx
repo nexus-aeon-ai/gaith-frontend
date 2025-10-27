@@ -39,7 +39,7 @@ export function Tab({ value, children, selected, onSelect, icon }: TabProps) {
         "group flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors",
         selected
           ? "border-primary bg-muted/30 text-primary"
-          : "border-transparent text-muted-foreground hover:bg-muted/10 hover:text-primary"
+          : "border-transparent text-muted-foreground hover:bg-muted/10 hover:text-primary",
       )}
       onClick={onSelect}
     >
