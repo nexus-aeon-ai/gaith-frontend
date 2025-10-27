@@ -10,7 +10,7 @@ import { SuccessRateIcon } from "../ui/icons/analytics/successRate";
 
 import AlertsNotifications from "./AlertsNotifications";
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "./AnalyticsCard";
-import { ClientReports,LeadReports } from "./MarketingReports";
+import MarketingReports from "./MarketingReports";
 
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
@@ -58,28 +58,27 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
 const DashboardMain = () => (
   <div className="flex flex-col gap-6 w-full p-4">
     {/* Top analytics cards row */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {analyticsCards.map((card: AnalyticsSummaryCardProps, idx: number) => (
         <AnalyticsCard key={idx} {...card} />
       ))}
     </div>
     {/* Main dashboard grid */}
     {/* First row - TopClients and BudgetUtilization side by side */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.1fr] gap-4">
       <TopClients />
       <BudgetUtilization />
     </div>
-
+    
     {/* Second row - EngagementTrend and AlertsNotifications side by side */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.1fr] gap-4">
       <EngagementTrend />
       <AlertsNotifications />
     </div>
-
+    
     {/* Third row - MarketingReports standalone full width */}
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-      <ClientReports />
-      <LeadReports />
+    <div className="w-full">
+      <MarketingReports />
     </div>
   </div>
 );

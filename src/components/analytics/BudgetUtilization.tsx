@@ -144,33 +144,23 @@ const BudgetUtilization: React.FC = () => {
 
   const totalBudget = currentData.reduce((sum, item) => sum + item.value, 0);
 
-  const isXs = useMediaQuery("(max-width: 480px)");
-  const isSm = useMediaQuery("(max-width: 640px)");
-  const isMd = useMediaQuery("(max-width: 768px)");
-  const isLg = useMediaQuery("(max-width: 1024px)");
-  const isXl = useMediaQuery("(max-width: 1280px)");
+  const isSmall = useMediaQuery("(max-width: 640px)");
+  const isMedium = useMediaQuery("(max-width: 1024px)");
 
-  // Decide radii based on breakpoints
-  const innerRadius = isXs ? 60 : isSm ? 70 : isMd ? 80 : isLg ? 90 : isXl ? 100 : 100;
-
-  const outerRadius = isXs ? 85 : isSm ? 100 : isMd ? 110 : isLg ? 130 : isXl ? 130 : 150;
-
-  const overlaySize = Math.max(64, Math.min(240, Math.round(innerRadius * 1.6)));
+  const innerRadius = isSmall ? 90 : isMedium ? 110 : 120;
+  const outerRadius = isSmall ? 130 : isMedium ? 150 : 180;
+  const overlaySize = Math.max(64, Math.min(220, Math.round(innerRadius * 1.6)));
 
   const renderCustomizedLabel = (props: any) => {
     const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent } = props;
 
-    // Adjust factor per breakpoint
-    const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.3 : isLg ? 0.35 : isXl ? 0.3 : 0.35;
-
+    const factor = isSmall ? 0.2 : isMedium ? 0.4 : 0.4;
     const radius = ir + (orr - ir) * factor;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     const textAnchor = x > cx ? "start" : "end";
-
-    // Adjust font size per breakpoint
-    const fontSize = isXs ? 8 : isSm ? 10 : isMd ? 11 : isLg ? 12 : isXl ? 13 : 14;
+    const fontSize = isSmall ? 10 : 12;
 
     return (
       <text
@@ -181,7 +171,6 @@ const BudgetUtilization: React.FC = () => {
         dominantBaseline="central"
         fontSize={fontSize}
         fontWeight="bold"
-        pointerEvents={"none"}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
@@ -189,7 +178,7 @@ const BudgetUtilization: React.FC = () => {
   };
 
   return (
-    <Card className="w-full lg:col-span-1 col-span-1">
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between pt-4">
         <CardTitle className="font-semibold text-lg text-card-foreground">
           Budget Utilization
@@ -229,10 +218,10 @@ const BudgetUtilization: React.FC = () => {
                 boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <div className={`font-bold ${isSm ? "text-sm" : "text-xl"} text-foreground`}>
+              <div className={`font-bold ${isSmall ? "text-sm" : "text-xl"} text-foreground`}>
                 {totalBudget.toLocaleString()}K Đ
               </div>
-              <div className={`text-muted-foreground ${isSm ? "text-[10px]" : "text-xs"}`}>
+              <div className={`text-muted-foreground ${isSmall ? "text-[10px]" : "text-xs"}`}>
                 Total Budget ({selectedPeriod}M)
               </div>
             </div>
@@ -251,7 +240,7 @@ const BudgetUtilization: React.FC = () => {
                 cornerRadius={5}
                 labelLine={false}
                 label={renderCustomizedLabel}
-                isAnimationActive={false}
+                activeIndex={activeIndex !== undefined ? activeIndex : -1}
                 activeShape={renderActiveShape as ActiveShape<PieSectorDataItem>}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(undefined)}

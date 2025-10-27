@@ -17,6 +17,7 @@ import EyeIcon from "@/components/ui/icons/eye";
 import EyeOffIcon from "@/components/ui/icons/eye-off";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -28,33 +29,32 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   analyticsPerms,
   contentPerms,
-  createUserSchema,
+  createEmpSchema,
   defaultFormData,
   departments,
-  userPerms,
-  userRoles,
-  type CreateUserFormData,
-} from "@/lib/validations/user";
+  employementTypes,
+  empPerms,
+  empRoles,
+  type CreateEmpFormData,
+} from "@/lib/validations/employee";
 
 import { CheckboxSquare } from "../ui/checkbox-square";
 import { Switch } from "../ui/switch";
 
-interface UserFormProps {
-  initialData?: CreateUserFormData;
-  onSubmit: (data: CreateUserFormData) => void;
+interface EmloyeeFormProps {
+  initialData?: CreateEmpFormData;
+  onSubmit: (data: CreateEmpFormData) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
   mode?: "create" | "edit";
 }
 
-const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
+const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
   const { theme } = useTheme();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTempPassword, setShowTempPassword] = useState(false);
 
-  const form = useForm<CreateUserFormData>({
-    resolver: zodResolver(createUserSchema),
+  const form = useForm<CreateEmpFormData>({
+    resolver: zodResolver(createEmpSchema),
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
   });
@@ -76,7 +76,7 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
         {/* Basic Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
+            <CardTitle className="text-[16px] font-medium">Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -108,67 +108,6 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                 />
                 <FormField
                   control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter Phone"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="userRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>User Role</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select user role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {userRoles.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter Email"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="department"
                   render={({ field }) => (
                     <FormItem>
@@ -176,7 +115,7 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select user role" />
+                            <SelectValue placeholder="Select department" />
                           </SelectTrigger>
                           <SelectContent>
                             {departments.map(option => (
@@ -209,98 +148,67 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                   )}
                 />
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Security Information */}
-        <Card className="pt-3 rounded-[16px] shadow-none">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Security Information</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => {
-                  return (
+              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Input
-                            autoComplete="new-password"
-                            autoCorrect="off"
-                            spellCheck={false}
-                            type={showPassword ? "text" : "password"}
-                            className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-12"
-                            {...field}
-                          />
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setShowPassword(!showPassword)}
-                            onKeyDown={e => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                setShowPassword(!showPassword);
-                              }
-                            }}
-                            className="absolute cursor-pointer bg-transparent p-0 right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                          >
-                            {showPassword ? (
-                              <EyeIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                            ) : (
-                              <EyeOffIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                            )}
-                          </div>
-                        </div>
+                        <Input
+                          placeholder="Enter Email"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  );
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="empRole"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employee Role</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {empRoles.map(option => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="employeeID"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employee ID</FormLabel>
+                      <FormControl>
                         <Input
-                          autoComplete="new-password"
-                          autoCorrect="off"
-                          spellCheck={false}
-                          type={showConfirmPassword ? "text" : "password"}
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-12"
+                          placeholder="Employee ID"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          onKeyDown={e => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              setShowConfirmPassword(!showConfirmPassword);
-                            }
-                          }}
-                          className="absolute cursor-pointer bg-transparent p-0 right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                        >
-                          {showConfirmPassword ? (
-                            <EyeIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                          ) : (
-                            <EyeOffIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                          )}
-                        </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -308,11 +216,40 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
         {/* User Permissions */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">User Permissions</CardTitle>
+            <CardTitle className="text-[16px] font-medium">Permissions</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormField
+                  control={form.control}
+                  name="userManagement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Management</FormLabel>
+                      <div className="space-y-2 mt-4">
+                        {empPerms.map(perm => (
+                          <FormItem key={perm} className="flex items-center space-x-2">
+                            <FormControl>
+                              <CheckboxSquare
+                                checked={field.value?.includes(perm)}
+                                onCheckedChange={checked => {
+                                  if (checked) {
+                                    field.onChange([...field.value, perm]);
+                                  } else {
+                                    field.onChange(field.value.filter(v => v !== perm));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal -mt-2">{perm}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="contentManagement"
@@ -371,36 +308,200 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                     </FormItem>
                   )}
                 />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Primary Information */}
+        <Card className="pt-3 rounded-[16px] shadow-none">
+          <CardHeader className="px-3">
+            <CardTitle className="text-[16px] font-medium">Primary Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-4 lg:col-span-1 col-span-5">
                 <FormField
                   control={form.control}
-                  name="userManagement"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>User Management</FormLabel>
-                      <div className="space-y-2 mt-4">
-                        {userPerms.map(perm => (
-                          <FormItem key={perm} className="flex items-center space-x-2">
-                            <FormControl>
-                              <CheckboxSquare
-                                checked={field.value?.includes(perm)}
-                                onCheckedChange={checked => {
-                                  if (checked) {
-                                    field.onChange([...field.value, perm]);
-                                  } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal -mt-2">{perm}</FormLabel>
-                          </FormItem>
-                        ))}
-                      </div>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter Email"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="salary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Salary</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Salary"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
+              <div className="flex flex-col gap-4 lg:col-span-1 col-span-5">
+                <FormField
+                  control={form.control}
+                  name="primaryPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter Phone"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="employementType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employment Type</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select user role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {employementTypes.map(option => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Address"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* skills and competencies */}
+        <Card className="pt-3 rounded-[16px] shadow-none ">
+          <CardHeader className="px-3">
+            <CardTitle className="text-[16px] font-medium">Skills & Competencies</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="skills"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormControl>
+                      <Textarea
+                        placeholder="Skills & Competencies"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Employee status */}
+        <Card className="pt-3 rounded-[16px] shadow-none ">
+          <CardHeader className="px-3">
+            <CardTitle className="text-[16px] font-medium">Employee Status</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="employeeStatus"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Employee Status</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex flex-col mt-4 space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem
+                              value="active"
+                              className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">Active</FormLabel>
+                        </FormItem>
+
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem
+                              value="inactive"
+                              className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">Inactive</FormLabel>
+                        </FormItem>
+
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem
+                              value="onleave"
+                              className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">On Leave</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
@@ -408,7 +509,7 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
         {/* Company Profile */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Company Profile</CardTitle>
+            <CardTitle className="text-[16px] font-medium">Company Profile</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
@@ -588,7 +689,7 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Add any additional notes about this user..."
+                        placeholder="Add any additional notes about this employee..."
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -605,4 +706,4 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
   );
 };
 
-export default UserForm;
+export default EmloyeeForm;

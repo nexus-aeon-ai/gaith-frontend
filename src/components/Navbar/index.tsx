@@ -1,5 +1,4 @@
 "use client";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@radix-ui/react-navigation-menu";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun, UserRound } from "lucide-react";
 import Image from "next/image";
@@ -17,7 +16,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/store/authStore";
 import { IProfile } from "@/lib/types";
 
-
 // Spinner
 const Spinner = () => (
   <div className="flex items-center justify-center">
@@ -31,16 +29,10 @@ interface NavbarProps {
 
 const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore } = useAuthStore();
-  const { theme: themeNext, setTheme: setThemeNext, resolvedTheme } = useTheme();
+  const { theme: themeNext, setTheme: setThemeNext } = useTheme();
 
   const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
-  const [mounted, setMounted] = useState(false);
-
-  // Wait for component to mount (fixes hydration issues)
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (user) {
@@ -52,48 +44,16 @@ const Navbar = ({ user }: NavbarProps) => {
 
   const handleThemeChange = (theme: string) => {
     setThemeNext(theme as "light" | "dark");
-    setCookie("theme", theme, { maxAge: 60 * 60 * 24 * 365 }); // 1 year
+    setCookie("theme", theme);
   };
 
   const handleLanguageChange = (language: string) => {
     setLanguage(language as "EN" | "AR");
-    setCookie("language", language, { maxAge: 60 * 60 * 24 * 365 });
+    setCookie("language", language);
   };
-
-  // Use resolvedTheme for accurate theme detection (handles "system" theme)
-  const currentTheme = resolvedTheme || themeNext;
-
-  // Prevent hydration mismatch by not rendering theme buttons until mounted
-  if (!mounted) {
-    return (
-      <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
-        <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
-          <NavigationMenu className="min-w-full w-full mx-auto flex items-center justify-between px-6 py-4 bg-background rounded-none text-foreground shadow max-h-16">
-            <NavigationMenuList className="flex justify-between min-w-full !w-full items-center">
-              <NavigationMenuItem>
-                <SidebarTrigger />
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Image src="/images/logo.svg" alt="Logo" width={40} height={40} />
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <div className="flex items-center gap-4">
-                  {/* Placeholder to prevent layout shift */}
-                  <div className="h-10 w-24 bg-card rounded-full" />
-                  <div className="h-10 w-[60px] bg-card rounded-full" />
-                  <div className="h-10 w-[120px] bg-card rounded-full" />
-                </div>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-      </header>
-    );
-  }
-
   return (
-    <header className="flex sticky top-0 z-50 min-w-full items-center px-4 ">
-      <div className="flex h-[--header-height] min-w-full items-center gap-2 ">
+    <header className="flex sticky top-0 z-50 w-full items-center px-4">
+      <div className="flex h-[--header-height] w-full items-center gap-2 ">
         <div className="min-w-full flex items-center justify-between px-2 py-8 bg-background rounded-xl text-foreground shadow h-[85px]">
           <div className="flex flex-1 items-center justify-between w-full">
             {/* logo and collapse trigger */}
@@ -115,10 +75,8 @@ const Navbar = ({ user }: NavbarProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`rounded-full border-2 transition-all ${
-                      currentTheme === "light"
-                        ? "bg-[#FFD250] border-[#FFD250]"
-                        : "border-transparent"
+                    className={`rounded-full border-2 ${
+                      themeNext === "light" ? "bg-[#FFD250] border-[#FFD250]" : "border-transparent"
                     }`}
                     onClick={() => handleThemeChange("light")}
                     aria-label="Light Mode"
@@ -126,7 +84,7 @@ const Navbar = ({ user }: NavbarProps) => {
                     <Sun
                       className="h-6 w-6"
                       color="#A97A00"
-                      fill={currentTheme === "light" ? "#FFD250" : "none"}
+                      fill={themeNext === "light" ? "#FFD250" : "none"}
                     />
                   </Button>
                   <Button
@@ -141,7 +99,7 @@ const Navbar = ({ user }: NavbarProps) => {
                     <Moon
                       className="h-6 w-6"
                       color="#FFD250"
-                      fill={currentTheme === "dark" ? "#23272E" : "none"}
+                      fill={themeNext === "dark" ? "#23272E" : "none"}
                     />
                   </Button>
                 </div>

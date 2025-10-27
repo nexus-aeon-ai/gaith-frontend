@@ -37,7 +37,7 @@ const alerts = [
 ];
 
 const AlertsNotifications = () => (
-  <div className="bg-card rounded-lg shadow-md p-4 w-full  lg:col-span-1 col-span-1 text-card-foreground">
+  <div className="bg-card rounded-lg shadow-md p-4 w-full text-card-foreground">
     <div className="flex items-center justify-between mb-2">
       <h2 className="font-semibold text-lg text-card-foreground">Alerts & Notifications</h2>
       <div className="flex items-center">

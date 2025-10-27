@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -11,38 +12,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
+interface Assignee {
+  id: number;
+  name: string;
+  department?: string;
+}
+
 interface FilterState {
   dateFrom: string;
   dateTo: string;
-  assignees: string[];
+  assignees: Assignee[];
   statuses: string[];
   sources: string[];
   clients: string[];
 }
 
-const assigneeOptions = [
-  "Emily Johnson",
-  "Michael Smith",
-  "Sophia Brown",
-  "James Williams",
-  "Olivia Davis",
-  "Liam Garcia",
-  "Ava Martinez",
-  "Noah Robinson",
+const assigneeOptions: Assignee[] = [
+  { id: 1, name: "Sarah Anderson", department: "Marketing" },
+  { id: 2, name: "John Doe", department: "Engineering" },
+  { id: 3, name: "Jane Smith", department: "Sales" },
+  { id: 4, name: "Ali Khan", department: "Support" },
 ];
 
-const statusOptions = ["New", "Lost", "In Progress"];
+const priorityOptions = ["High Priority", "Medium Priority", "Low Priority"];
+const statusOptions = ["Not Start", "In Progress", "Completed", "Overdue"];
 
-const sourceOptions = ["Website", "Social Media", "Campaign", "Referral"];
-
-const clientOptions = [
-  "Fashion Brand",
-  "Sustainable Fashion",
-  "Streetwear Collection",
-  "Luxury Accessories",
-  "Activewear Line",
-  "Vintage Revival",
-];
+const departments = ["Marketing", "Engineering", "Data Management", "Sales"];
 
 export default function FilterSheet({
   open,
@@ -63,27 +58,64 @@ export default function FilterSheet({
   const { theme } = useTheme();
 
   const handleCheckboxChange = (
-    category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    value: string,
+    category: "assignees" | "statuses" | "sources" | "clients",
+    option: Assignee | string,
     checked: boolean,
   ) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: checked
-        ? [...prev[category], value]
-        : prev[category].filter(item => item !== value),
-    }));
+    if (category === "assignees") {
+      const assignee = option as Assignee;
+      setFilters(prev => {
+        const exists = prev.assignees.some(a => a.id === assignee.id);
+
+        return {
+          ...prev,
+          assignees: checked
+            ? exists
+              ? prev.assignees
+              : [...prev.assignees, assignee]
+            : prev.assignees.filter(a => a.id !== assignee.id),
+        };
+      });
+    } else {
+      const value = option as string;
+      setFilters(prev => {
+        const arr = (prev as any)[category] as string[];
+        const exists = arr.includes(value);
+
+        return {
+          ...prev,
+          [category]: checked ? (exists ? arr : [...arr, value]) : arr.filter(v => v !== value),
+        } as unknown as FilterState;
+      });
+    }
   };
 
   const handleSelectAll = (
-    category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    options: string[],
+    category: "assignees" | "statuses" | "sources" | "clients",
+    options: Assignee[] | string[],
   ) => {
-    const allSelected = options.every(option => filters[category].includes(option));
-    setFilters(prev => ({
-      ...prev,
-      [category]: allSelected ? [] : options,
-    }));
+    if (category === "assignees") {
+      const opts = options as Assignee[];
+      const allSelected =
+        opts.length > 0 && opts.every(opt => filters.assignees.some(a => a.id === opt.id));
+
+      setFilters(prev => ({
+        ...prev,
+        assignees: allSelected ? [] : opts,
+      }));
+    } else {
+      const opts = options as string[];
+      const cur = (filters as any)[category] as string[]; // narrow to string[] for runtime check
+      const allSelected = opts.length > 0 && opts.every(opt => cur.includes(opt));
+
+      setFilters(
+        prev =>
+          ({
+            ...prev,
+            [category]: allSelected ? [] : opts,
+          } as unknown as FilterState),
+      );
+    }
   };
 
   const clearFilters = () => {
@@ -116,19 +148,19 @@ export default function FilterSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} >
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="dark:bg-[#212945] bg-card w-[400px] sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
-        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 px-4">
           {/* Added Date Section */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Added Date</Label>
+            <Label className="text-sm font-medium">Due Date</Label>
             <div className="flex flex-row justify-between gap-2">
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Start date</Label>
+                <Label className="text-xs text-muted-foreground">From</Label>
                 <div className="relative w-full">
                   <Input
                     id="date-from"
@@ -156,7 +188,7 @@ export default function FilterSheet({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date-to" className="text-xs text-muted-foreground">
-                  End date
+                  To
                 </Label>
 
                 <div className="relative">
@@ -167,13 +199,12 @@ export default function FilterSheet({
                     onChange={e => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
                     className="
                     dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
-
-            pr-10
-            [&::-webkit-calendar-picker-indicator]:opacity-0 
-            [&::-webkit-calendar-picker-indicator]:absolute 
-            [&::-webkit-calendar-picker-indicator]:w-full 
-            [&::-webkit-calendar-picker-indicator]:h-full
-          "
+                      pr-10
+                      [&::-webkit-calendar-picker-indicator]:opacity-0 
+                      [&::-webkit-calendar-picker-indicator]:absolute 
+                      [&::-webkit-calendar-picker-indicator]:w-full 
+                      [&::-webkit-calendar-picker-indicator]:h-full
+                    "
                   />
 
                   <button
@@ -188,33 +219,33 @@ export default function FilterSheet({
             </div>
           </div>
 
-          {/* Assignee Section */}
+          {/* Priority Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Assignee</Label>
+              <Label className="text-sm font-medium">Priority</Label>
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
-                  id="select-all-assignees"
-                  checked={assigneeOptions.every(option => filters.assignees.includes(option))}
-                  onCheckedChange={() => handleSelectAll("assignees", assigneeOptions)}
+                  id="select-all-statuses"
+                  checked={priorityOptions.every(option => filters.statuses.includes(option))}
+                  onCheckedChange={() => handleSelectAll("statuses", priorityOptions)}
                 />
-                <Label htmlFor="select-all-assignees" className="text-sm text-muted-foreground">
+                <Label htmlFor="select-all-statuses" className="text-sm text-muted-foreground">
                   Select All
                 </Label>
               </div>
             </div>
             <div className="space-y-2">
-              {assigneeOptions.map(assignee => (
-                <div key={assignee} className="flex items-center space-x-2">
+              {priorityOptions.map(status => (
+                <div key={status} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`assignee-${assignee}`}
-                    checked={filters.assignees.includes(assignee)}
+                    id={`status-${status}`}
+                    checked={filters.statuses.includes(status)}
                     onCheckedChange={checked =>
-                      handleCheckboxChange("assignees", assignee, checked as boolean)
+                      handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`assignee-${assignee}`} className="text-sm">
-                    {assignee}
+                  <Label htmlFor={`status-${status}`} className="text-sm">
+                    {status}
                   </Label>
                 </div>
               ))}
@@ -254,15 +285,63 @@ export default function FilterSheet({
             </div>
           </div>
 
-          {/* Source Section */}
+          {/* Assignee Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Source</Label>
+              <p className="text-sm font-medium">Assignee</p>
+              <div className="flex items-center space-x-2">
+                <CheckboxSquare
+                  id="select-all-assignees"
+                  checked={
+                    assigneeOptions.length > 0 &&
+                    assigneeOptions.every(option => filters.assignees.some(a => a.id === option.id))
+                  }
+                  onCheckedChange={() => handleSelectAll("assignees", assigneeOptions)}
+                />
+                <label htmlFor="select-all-assignees" className="text-sm text-muted-foreground">
+                  Select All
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {assigneeOptions.map(assignee => (
+                <div key={assignee.id} className="flex items-center space-x-2">
+                  <CheckboxSquare
+                    id={`assignee-${assignee.id}`}
+                    checked={filters.assignees.some(a => a.id === assignee.id)}
+                    onCheckedChange={checked =>
+                      handleCheckboxChange("assignees", assignee, Boolean(checked))
+                    }
+                  />
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={"/images/girl-pfp.jpg"}
+                      alt={assignee.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full"
+                    />
+                  </div>
+
+                  <div className="flex flex-col items-start">
+                    <p className="font-medium">{assignee.name}</p>
+                    <p className="text-sm font-light">{assignee.department}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Department Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Departments</Label>
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-sources"
-                  checked={sourceOptions.every(option => filters.sources.includes(option))}
-                  onCheckedChange={() => handleSelectAll("sources", sourceOptions)}
+                  checked={departments.every(option => filters.sources.includes(option))}
+                  onCheckedChange={() => handleSelectAll("sources", departments)}
                 />
                 <Label htmlFor="select-all-sources" className="text-sm text-muted-foreground">
                   Select All
@@ -270,50 +349,17 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {sourceOptions.map(source => (
-                <div key={source} className="flex items-center space-x-2">
+              {departments.map(dept => (
+                <div key={dept} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`source-${source}`}
-                    checked={filters.sources.includes(source)}
+                    id={`source-${dept}`}
+                    checked={filters.sources.includes(dept)}
                     onCheckedChange={checked =>
-                      handleCheckboxChange("sources", source, checked as boolean)
+                      handleCheckboxChange("sources", dept, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`source-${source}`} className="text-sm">
-                    {source}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Client Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Client</Label>
-              <div className="flex items-center space-x-2">
-                <CheckboxSquare
-                  id="select-all-clients"
-                  checked={clientOptions.every(option => filters.clients.includes(option))}
-                  onCheckedChange={() => handleSelectAll("clients", clientOptions)}
-                />
-                <Label htmlFor="select-all-clients" className="text-sm text-muted-foreground">
-                  Select All
-                </Label>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {clientOptions.map(client => (
-                <div key={client} className="flex items-center space-x-2">
-                  <CheckboxSquare
-                    id={`client-${client}`}
-                    checked={filters.clients.includes(client)}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange("clients", client, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={`client-${client}`} className="text-sm">
-                    {client}
+                  <Label htmlFor={`source-${dept}`} className="text-sm">
+                    {dept}
                   </Label>
                 </div>
               ))}

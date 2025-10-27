@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  type SortingState,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import type { SortingState } from "@tanstack/react-table";
+import { getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
 
 import DataTable from "@/components/ui/data-table";
@@ -54,7 +50,7 @@ const data: TGenericPaginatedResponse<TMarketingReport> = {
   previous: null,
 };
 
-const LeadReports = () => {
+const MarketingReports = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const columns = useTableColumns();
   const table = useReactTable({
@@ -68,14 +64,11 @@ const LeadReports = () => {
   });
 
   return (
-    <div className="bg-card lg:col-span-2 col-span-1 rounded-lg shadow-md p-4 flex-1">
-      <h2 className="font-semibold text-lg mb-2">Lead Reports</h2>
-
-      <div className="w-full overflow-x-auto">
-        <DataTable table={table} colSpan={columns.length} dataPagination={data} />
-      </div>
+    <div className="bg-card rounded-lg shadow-md p-4 flex-1">
+      <h2 className="font-semibold text-lg mb-2">Marketing Reports</h2>
+      <DataTable table={table} colSpan={columns.length} dataPagination={data} />
     </div>
   );
 };
 
-export default LeadReports;
+export default MarketingReports;

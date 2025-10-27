@@ -1,9 +1,10 @@
 "use client";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
-import FilterSheet from "@/components/sheet/Filter";
+import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,50 +21,60 @@ import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
-import { mockLeads } from "@/lib/mockdata";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-import EditLead from "./EditLead";
-import NewLead from "./NewLead";
+import { mockEmployees } from "../../lib/mockdata/employees";
+import { Employee } from "../../lib/types";
 
-const LeadsPage = () => {
-  const leads = mockLeads;
+import AddNewEmployee from "./AddEmployee";
+import EditEmployee from "./EditEmployee";
+
+const EmployeeList = () => {
+  const employees = mockEmployees;
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [showNewLeadForm, setShowNewLeadForm] = useState(false);
-  const [showEditLeadForm, setShowEditLeadForm] = useState(false);
+  const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
+  const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedLeads(leads.map(client => client.id));
+      setSelectedEmployees(employees.map(employee => employee.id.toString()));
     } else {
-      setSelectedLeads([]);
+      setSelectedEmployees([]);
     }
   };
 
   const handleSelectLead = (clientId: string, checked: boolean) => {
     if (checked) {
-      setSelectedLeads(prev => [...prev, clientId]);
+      setSelectedEmployees(prev => [...prev, clientId]);
     } else {
-      setSelectedLeads(prev => prev.filter(id => id !== clientId));
+      setSelectedEmployees(prev => prev.filter(id => id !== clientId));
     }
   };
 
-  const filteredClients = leads.filter(
-    client =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredEmployees = employees.filter(
+    employee =>
+      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Pagination calculations
-  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentClients = filteredClients.slice(startIndex, endIndex);
+  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -95,12 +106,12 @@ const LeadsPage = () => {
     return pages;
   };
 
-  if (showNewLeadForm) {
-    return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)}/>;
+  if (showAddEmployeeForm) {
+    return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
   }
 
-  if (showEditLeadForm) {
-    return <EditLead closeEditLeadForm={() => setShowEditLeadForm(false)}/>;
+  if (showEditEmployeeForm) {
+    return <EditEmployee closeEmployeeForm={() => setshowEditEmployeeForm(false)} />;
   }
 
   return (
@@ -124,26 +135,26 @@ const LeadsPage = () => {
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
-            Leads Management
+            Employee Management
           </h1>
           <p className={cn("text-xs sm:text-sm", "text-gray-600 dark:text-gray-300")}>
-            Track and manage sales prospects through the conversion pipeline.
+            Manage employee profiles, roles, and performance tracking
           </p>
         </div>
 
         <Button
           className={cn(
             "flex items-center gap-1 sm:gap-2",
-            "bg-[#3072C0] rounded-[16px] w-full sm:w-auto",
+            "bg-[#3072C0] rounded-[16px] w-fit sm:w-auto",
             "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
             "hover:bg-blue-700 text-white",
             "text-xs sm:text-sm lg:text-base",
           )}
-          onClick={() => setShowNewLeadForm(true)}
+          onClick={() => setShowAddEmployeeForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Add New Lead</span>
-          <span className="sm:hidden">Add Lead</span>
+          <span className="hidden sm:inline">Add New Employee</span>
+          <span className="sm:hidden">Add Employee</span>
         </Button>
       </div>
 
@@ -153,14 +164,14 @@ const LeadsPage = () => {
       >
         <div
           className={cn(
-            "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
+            "flex flex-col sm:flex-row items-start sm:items-center justify-between",
             "gap-2 sm:gap-3 ",
           )}
         >
           <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
-              placeholder="Search leads"
+              placeholder="Search employees"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="border-none shadow-none focus:outline-none h-12 min-w-md"
@@ -178,7 +189,7 @@ const LeadsPage = () => {
                     "hover:bg-card hover:border-blue-500",
                   )}
                 >
-                  <MenuIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                  <MenuIcon style={{ color: "var(--icon-primary)" }} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -189,7 +200,7 @@ const LeadsPage = () => {
                     // TODO: Implement delete functionality
                   }}
                 >
-                  <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                  <DeleteIcon style={{ color: "var(--icon-primary)" }} />
                   <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -204,7 +215,7 @@ const LeadsPage = () => {
               )}
               onClick={() => setIsFilterSheetOpen(true)}
             >
-              <FilterIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+              <FilterIcon style={{ color: "var(--icon-primary)" }} />
               <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
             </Button>
 
@@ -238,123 +249,125 @@ const LeadsPage = () => {
 
       {/* Table Section */}
       <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left">
+        <div className="overflow-x-auto sm:w-full w-[520px] ">
+          <Table className="text-sm w-full">
+            <TableHeader className="bg-gray-50 dark:bg-gray-800">
+              <TableRow>
+                <TableHead className="px-4 py-3">
                   <Checkbox
                     className="!rounded-[8px]"
-                    checked={selectedLeads.length === leads.length}
+                    checked={selectedEmployees.length === employees.length}
                     onCheckedChange={handleSelectAll}
                   />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lead Name
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Source
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Services
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                </TableHead>
+                <TableHead className="px-4 py-3 text-left">Employee</TableHead>
+                <TableHead className="px-4 py-3 text-center">Department</TableHead>
+                <TableHead className="px-4 py-3 text-center">Role</TableHead>
+                <TableHead className="px-4 py-3 text-center hidden md:table-cell">
                   Contact Info
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assigned To
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentClients.map((lead, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
+                </TableHead>
+                <TableHead className="px-4 py-3 text-center">Status</TableHead>
+                <TableHead className="px-4 py-3 text-center">Performance</TableHead>
+                <TableHead className="px-4 py-3 text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentEmployees.map((employee: Employee) => (
+                <TableRow key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  {/* Checkbox */}
+                  <TableCell className="px-4 py-3">
                     <Checkbox
                       className="!rounded-[8px]"
-                      checked={selectedLeads.includes(lead.id)}
-                      onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
+                      checked={selectedEmployees.includes(employee.id.toString())}
+                      onCheckedChange={checked =>
+                        handleSelectLead(employee.id.toString(), checked as boolean)
+                      }
                     />
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+
+                  {/* Employee */}
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-blue-600">
-                            {lead.name
-                              .split(" ")
-                              .map(n => n[0])
-                              .join("")}
-                          </span>
-                        </div>
-                      </div>
+                      <Image
+                        src={"/images/default-avatar.jpg"}
+                        alt="avatar"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full"
+                      />
                       <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {lead.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {employee.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[140px]">
+                          {employee.contactInfo.email}
+                        </p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : lead.status === "Inactive"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-                      )}
-                    >
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.source === "Website"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                          : lead.source === "Social Media"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : lead.source === "Campaign"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-                      )}
-                    >
-                      {lead.source}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.services}
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.contactInfo}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex -space-x-3 justify-center">
-                      {lead.assignedTo.map((person, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
-                            person.color,
-                          )}
-                          title={person.name}
-                        >
-                          {person.initial}
-                        </div>
-                      ))}
+                  </TableCell>
+
+                  {/* Department */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <p className="text-sm font-medium">{employee.department.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {employee.department.team}
+                    </p>
+                  </TableCell>
+
+                  {/* Role */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <p className="text-sm font-medium">{employee.role.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {employee.role.level}
+                    </p>
+                  </TableCell>
+
+                  {/* Contact Info (hidden on small screens) */}
+                  <TableCell className="px-4 py-3 text-center hidden md:table-cell">
+                    <p className="text-sm font-medium">{employee.contactInfo.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {employee.contactInfo.number}
+                    </p>
+                  </TableCell>
+
+                  {/* Status with Badge */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <div className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          employee.status === "active"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                        )}
+                      >
+                        {employee.status}
+                      </span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  </TableCell>
+
+                  {/* Performance */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <div className="w-32 flex gap-2 items-center mx-auto">
+                      <span className="text-xs font-medium">{employee.performance}</span>
+                      <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
+                        <div
+                          className={cn(
+                            "h-2 rounded-full transition-all duration-300",
+                            parseInt(employee.performance) >= 80
+                              ? "bg-green-500"
+                              : parseInt(employee.performance) >= 60
+                                ? "bg-yellow-500"
+                                : "bg-red-500",
+                          )}
+                          style={{ width: employee.performance }}
+                        />
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="px-4 py-3 text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -362,36 +375,19 @@ const LeadsPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            // Handle view action
-                            // TODO: Implement view functionality
-                          }}
-                        >
+                        <DropdownMenuItem>
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             View
                           </span>
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setShowEditLeadForm(true);
-                          }}
-                        >
+                        <DropdownMenuItem onClick={() => setshowEditEmployeeForm(true)}>
                           <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             Edit
                           </span>
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => {
-                            // Handle delete action
-                            // TODO: Implement delete functionality
-                          }}
-                        >
+                        <DropdownMenuItem variant="destructive">
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             Delete
@@ -399,11 +395,11 @@ const LeadsPage = () => {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -412,7 +408,7 @@ const LeadsPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Left side - Page info */}
           <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Page {currentPage} of {totalPages} ({filteredClients.length} total leads)
+            Page {currentPage} of {totalPages} ({filteredEmployees.length} total leads)
           </div>
 
           {/* Right side - Pagination controls */}
@@ -435,9 +431,9 @@ const LeadsPage = () => {
 
             {/* Page numbers */}
             <div className="flex items-center gap-1">
-              {getVisiblePages().map((page, index) => (
+              {getVisiblePages().map(page => (
                 <Button
-                  key={index}
+                  key={page}
                   variant={currentPage === page ? "default" : "ghost"}
                   size="sm"
                   onClick={() => handlePageChange(page)}
@@ -485,4 +481,4 @@ const LeadsPage = () => {
   );
 };
 
-export default LeadsPage;
+export default EmployeeList;
