@@ -5,3 +5,4 @@ export * from "./profile";
 export * from "./chat";
 export * from "./lead";
 export * from "./quotation";
+export * from "./user-management";
