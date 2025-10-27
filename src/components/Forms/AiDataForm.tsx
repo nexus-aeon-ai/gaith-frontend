@@ -36,8 +36,6 @@ import {
 
 import {
   companySizeOptions,
-  CreateClientFormData,
-  industryOptions,
 } from "../../lib/validations/client";
 import { CheckboxSquare } from "../ui/checkbox-square";
 import Fb from "../ui/icons/socials/fb";
@@ -48,7 +46,7 @@ import Youtube from "../ui/icons/socials/youtube";
 
 interface AiDataFormProps {
   initialData?: CreateAiFormData;
-  onSubmit: (data: CreateClientFormData) => void;
+  onSubmit: (data: CreateAiFormData) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
   mode?: "create" | "edit";
@@ -73,9 +71,9 @@ export const defaultFormData: CreateAiFormData = {
   contractDuration: "",
 
   // Market and Target Audience
-  primaryRegion: "Other",
+  primaryRegion: "Asia",
   targetAudience: "B2B",
-  seondaryMarkets: "",
+  secondaryMarkets: "",
   languagesSupported: ["English"],
 
   // Company Profile
@@ -145,7 +143,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
   return (
     <Form {...form}>
       <form
-        id="lead-form"
+        id="aidata-form"
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full mx-auto space-y-4 font-inter"
       >
@@ -498,7 +496,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="internalNotes"
+                  name="secondaryMarkets"
                   render={({ field }) => (
                     <FormItem className="col-span-2">
                       <FormLabel>Secondary Markets</FormLabel>
@@ -829,13 +827,13 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           <FormField
                             key={option.id}
                             control={form.control}
-                            name={`additionalTeamMembers.${option.id}`}
+                            name={"additionalTeamMembers"}
                             render={({ field }) => (
                               <FormItem className="flex flex-row items-center space-x-2">
                                 <FormControl>
                                   <CheckboxSquare
                                     id={option.id}
-                                    checked={field.value}
+                                    checked={field.value?.includes(option.id)}
                                     onCheckedChange={field.onChange}
                                   />
                                 </FormControl>
@@ -852,13 +850,13 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           <FormField
                             key={option.id}
                             control={form.control}
-                            name={`additionalTeamMembers.${option.id}`}
+                            name={"additionalTeamMembers"}
                             render={({ field }) => (
                               <FormItem className="flex flex-row items-center space-x-2">
                                 <FormControl>
                                   <CheckboxSquare
                                     id={option.id}
-                                    checked={field.value}
+                                    checked={field.value?.includes(option.id)}
                                     onCheckedChange={field.onChange}
                                   />
                                 </FormControl>

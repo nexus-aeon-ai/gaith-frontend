@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import ClientForm from "@/components/Forms/ClientForm";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,21 +14,23 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
+import MagicStarIcon from "@/components/ui/icons/magic-star";
+import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
-import PopupModal from "../PopupModal/Modal";
 import AiDataForm from "../Forms/AiDataForm";
+import PopupModal from "../PopupModal/Modal";
+
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  const handleSave = async (data: CreateClientFormData) => {
+  const handleSave = async (data: CreateAiFormData) => {
     setIsSubmitting(true);
 
     try {
       // Validate form data
-      const result = createClientSchema.safeParse(data);
+      const result = createAiDataSchema.safeParse(data);
 
       if (!result.success) {
         // Extract validation errors
@@ -104,12 +105,22 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           </Button>
           <Button
             type="submit"
-            form="lead-form"
+            form="aidata-form"
             variant={"outline"}
             disabled={isSubmitting}
-            className="p-6 px-8 text-white dark:text-black text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-[#3072C0] hover:text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-transparent transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Adding..." : "Add Client"}
+            {isSubmitting ? "Saving..." : "Save Client"}
+          </Button>
+          <Button
+            type="submit"
+            form="aidata-form"
+            variant={"outline"}
+            disabled={isSubmitting}
+            className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <MagicStarIcon/>
+            {isSubmitting ? "Generating..." : "Generate"}
           </Button>
         </div>
       </div>
