@@ -5,3 +5,6 @@ export * from "./profile";
 export * from "./lead";
 export * from "./quotation";
 export * from "./user-management";
+export * from "./campaign";
+export * from "./step-props";
+

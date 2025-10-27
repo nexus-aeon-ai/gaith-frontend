@@ -1,14 +1,10 @@
-import React from "react";
+
+// import CampaignSubPage from "@/components/CampaignSubmitted/CampaignPage";
+import AnalyticsPage from "@/components/CampaignSubmitted/Analytics/AnalyticsPage";
 
 const SubmittedPage = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Submitted</h1>
-      <div className="bg-card rounded-lg shadow-md p-6">
-        <p className="text-card-foreground">Submitted content will be displayed here.</p>
-      </div>
-    </div>
-  );
+  // return <CampaignSubPage />;
+  return <AnalyticsPage />;
 };
 
-export default SubmittedPage; 
+export default SubmittedPage;

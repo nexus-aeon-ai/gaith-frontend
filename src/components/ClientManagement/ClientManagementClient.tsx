@@ -9,10 +9,9 @@ import {
 import { X } from "lucide-react";
 import { useState } from "react";
 
+import PopupModal from "@/components/PopupModal/Modal";
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-import PopupModal from "../PopupModal/Modal";
 
 import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { CampaignForm } from "@/components/ClientManagement/Campaign/Campaign";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -25,7 +26,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import PendingTasks from "./PendingTasks";
 import {
   CampaignTasksTab,
   HistoricalPerformanceTab,
@@ -40,10 +40,11 @@ interface ClientDetailsViewProps {
 
 const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
   const [activeTab, setActiveTab] = useState("main-info");
+  const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [showPendingTasks, setShowPendingTasks] = useState(false);
 
-  if (showPendingTasks) {
-    return <PendingTasks client={client} onBack={() => setShowPendingTasks(false)} />;
+  if (newCampaignOpen) {
+    return <CampaignForm client={client} setCampaignOpen={setNewCampaignOpen} />;
   }
 
   return (
@@ -135,6 +136,9 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
                 "hover:bg-blue-700 text-white",
                 "text-xs sm:text-sm lg:text-base",
               )}
+              onClick={() => {
+                setNewCampaignOpen(true);
+              }}
             >
               <CirclePlus className="h-4 w-4" />
               <span>New Campaign</span>
