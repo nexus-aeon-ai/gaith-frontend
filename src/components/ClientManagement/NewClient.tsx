@@ -18,6 +18,7 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
 import PopupModal from "../PopupModal/Modal";
+import AiDataForm from "../Forms/AiDataForm";
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +114,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         </div>
       </div>
 
-      <ClientForm
+      <AiDataForm
         mode="create"
         onSubmit={handleSave}
         onCancel={handleCancel}

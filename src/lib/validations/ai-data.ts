@@ -2,20 +2,38 @@
 
 import { z } from "zod";
 
-// Lead Source options validation
-const clientSourceSchema = z.enum([
-  "website",
-  "social-media",
-  "referral",
-  "campaign",
-  "cold-call",
-  "email",
-  "trade-show",
-  "other",
+export const primaryAccManagers = [
+  { value: "creative-director", label: "Creative Director" },
+  { value: "social-media-manager", label: "Social Media Manager" },
+  { value: "ux-researcher", label: "UX Researcher" },
+  { value: "web-developer", label: "Web Developer" },
+  { value: "content-writer", label: "Content Writer" },
+  { value: "graphic-designer", label: "Graphic Designer" },
+  { value: "seo-specialist", label: "SEO Specialist" },
+] as const;
+
+export const marketingStrategists = [
+  { value: "creative-director", label: "Creative Director" },
+  { value: "social-media-manager", label: "Social Media Manager" },
+  { value: "ux-researcher", label: "UX Researcher" },
+  { value: "web-developer", label: "Web Developer" },
+  { value: "content-writer", label: "Content Writer" },
+  { value: "graphic-designer", label: "Graphic Designer" },
+  { value: "seo-specialist", label: "SEO Specialist" },
+] as const;
+
+const primaryAccMgSchema = z.enum([
+  "creative-director",
+  "social-media-manager",
+  "ux-researcher",
+  "web-developer",
+  "content-writer",
+  "graphic-designer",
+  "seo-specialist",
 ]);
 
 // Assigned To options validation
-const assignedToSchema = z.enum([
+const marketingStrategistSchema = z.enum([
   "creative-director",
   "social-media-manager",
   "ux-researcher",
@@ -26,7 +44,7 @@ const assignedToSchema = z.enum([
 ]);
 
 // Products & Services validation for client
-const clientProductsServicesSchema = z.object({
+const aiDataProdsServicesList = z.object({
   socialMedia: z.boolean(),
   blogCreation: z.boolean(),
   marketingPlan: z.boolean(),
@@ -35,13 +53,33 @@ const clientProductsServicesSchema = z.object({
 });
 
 // languages for client market/target audience
-const languages = ["English", "Spanish", "French", "German", "Chinese"] as const;
+export const aiDataLanguages = [
+  "English",
+  "Chinese",
+  "Portuguese",
+  "German",
+  "Spanish",
+  "Japanese",
+  "Arabic",
+  "French",
+] as const;
+
+export const primaryRegions = [
+  "North America",
+  "Europe",
+  "Asia",
+  "South America",
+  "Africa",
+  "Oceania",
+] as const;
+
+export const targetAudience = ["B2B", "B2C", "Enterprise", "Startups", "Other"] as const;
 
 const optionalUrl = z.string().url().or(z.literal("")).optional();
 
-export const createClientSchema = z.object({
+export const createAiDataSchema = z.object({
   // Basic Information
-  fullName: z
+  clientName: z
     .string()
     .min(2, "Full name must be at least 2 characters")
     .max(100, "Full name must be less than 100 characters")
@@ -53,24 +91,17 @@ export const createClientSchema = z.object({
     .max(50, "Nationality must be less than 50 characters")
     .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
 
-  // Contact Information - Email is required
+  companySize: z
+    .string()
+    .min(1, "Company size is required")
+    .max(50, "Company size must be less than 50 characters"),
+
   businessOverview: z
     .string()
     .min(1, "Overview is required")
     .max(500, "Overview must be less than 500 characters"),
 
-  contactName: z
-    .string()
-    .min(2, "Contact name must be at least 2 characters")
-    .max(100, "Contact name must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Contact name can only contain letters and spaces"),
-
-  jobTitle: z
-    .string()
-    .min(2, "Job title must be at least 2 characters")
-    .max(100, "Job title must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Job title can only contain letters and spaces"),
-
+  // Contact Information - Email is required
   email: z
     .string()
     .min(2, "Country must be at least 2 characters")
@@ -83,13 +114,6 @@ export const createClientSchema = z.object({
     .regex(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
     .or(z.literal(""))
     .optional(),
-
-  linkedinProfile: optionalUrl,
-  department: z
-    .string()
-    .min(2, "Department must be at least 2 characters")
-    .max(100, "Department must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Department can only contain letters and spaces"),
 
   location: z
     .string()
@@ -110,12 +134,12 @@ export const createClientSchema = z.object({
     .max(50, "Contract duration must be less than 50 characters"),
 
   // Market and target audience
-  primaryRegion: z.enum(["North America", "Europe", "Asia", "Other"], {
+  primaryRegion: z.enum(primaryRegions, {
     required_error: "Primary region is required",
     invalid_type_error: "Invalid region selected",
   }),
 
-  targetAudience: z.enum(["B2B", "B2C", "Enterprise", "Startups"], {
+  targetAudience: z.enum(targetAudience, {
     required_error: "Target audience is required",
     invalid_type_error: "Invalid target audience selected",
   }),
@@ -125,7 +149,7 @@ export const createClientSchema = z.object({
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),
 
-  languagesSupported: z.array(z.enum(languages)).nonempty({
+  languagesSupported: z.array(z.enum(aiDataLanguages)).nonempty({
     message: "Select at least one language",
   }),
 
@@ -140,9 +164,9 @@ export const createClientSchema = z.object({
     .min(10, "Mission statement must be at least 10 characters")
     .max(1000, "Mission statement must be less than 1000 characters"),
 
-  clientProductsServicesSchema: clientProductsServicesSchema,
+  aiDataProdsServices: aiDataProdsServicesList,
 
-  // Social Media URLs - Optional but validated if provided
+  // Social Media Accounts
   linkedinUrl: optionalUrl,
   facebookUrl: optionalUrl,
   youtubeUrl: optionalUrl,
@@ -151,32 +175,38 @@ export const createClientSchema = z.object({
   websiteUrl: z.string().url("Invalid Website URL").optional(),
 
   // Team Assignment
-  leadSource: clientSourceSchema,
-  assignedTo: assignedToSchema,
+  primaryAccManager: primaryAccMgSchema,
+  marketingStrategist: marketingStrategistSchema,
+  priorityLevel: z
+    .enum(["High", "Medium", "Low"], {
+      required_error: "Priority level is required",
+      invalid_type_error: "Invalid priority level selected",
+    })
+    .optional(),
 
   // Additional Team Members
-  additionalTeamMembers: z.record(z.boolean().optional()),
+  additionalTeamMembers: z.array(z.string()).optional(),
 
   // Additional Notes
   additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
 });
 
 // Type inference from schema
-export type CreateClientFormData = z.infer<typeof createClientSchema>;
+export type CreateAiFormData = z.infer<typeof createAiDataSchema>;
 
 // Partial schema for updates (all fields optional)
-export const updateClientSchema = createClientSchema.partial();
+export const updateAiDataSchema = createAiDataSchema.partial();
 
 // Type for update operations
-export type UpdateClientFormData = z.infer<typeof updateClientSchema>;
+export type UpdateClientFormData = z.infer<typeof updateAiDataSchema>;
 
 // Validation helper functions
-export const validateClientForm = (data: unknown) => {
-  return createClientSchema.safeParse(data);
+export const validateAiDataForm = (data: unknown) => {
+  return createAiDataSchema.safeParse(data);
 };
 
-export const validateClientUpdate = (data: unknown) => {
-  return updateClientSchema.safeParse(data);
+export const validateAiDataUpdate = (data: unknown) => {
+  return updateAiDataSchema.safeParse(data);
 };
 
 // Field-specific validation helpers
