@@ -20,10 +20,12 @@ import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-
 import AiDataForm from "../Forms/AiDataForm";
 import PopupModal from "../PopupModal/Modal";
 
+import GenerateMarketingAssets from "./GenerateAssets/GenerateMarketingAssets";
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showMarketingAssets, setShowMarketingAssets] = useState(false);
 
   const handleSave = async (data: CreateAiFormData) => {
     setIsSubmitting(true);
@@ -55,6 +57,10 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
     // Handle cancel action
     closeNewClientForm();
   };
+
+  if (showMarketingAssets) {
+    return <GenerateMarketingAssets closePage={() => setShowMarketingAssets(false)} />;
+  }
 
   return (
     <div className="w-full mx-auto p-6">
@@ -113,13 +119,14 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
             {isSubmitting ? "Saving..." : "Save Client"}
           </Button>
           <Button
-            type="submit"
-            form="aidata-form"
+            // type="submit"
+            // form="aidata-form"
+            onClick={() => setShowMarketingAssets(true)}
             variant={"outline"}
             disabled={isSubmitting}
             className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <MagicStarIcon/>
+            <MagicStarIcon />
             {isSubmitting ? "Generating..." : "Generate"}
           </Button>
         </div>
@@ -139,7 +146,13 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           <X className="bg-red-200 rounded-full p-2" strokeWidth={3} size={40} color="#EA3B1F" />
         }
         description="Are you sure you want to cancel this Changes? This action cannot be undone.?"
-        cancelButton={{ label: "Yes, Cancel", onClick: () => {setShowCancelModal(false); closeNewClientForm();} }}
+        cancelButton={{
+          label: "Yes, Cancel",
+          onClick: () => {
+            setShowCancelModal(false);
+            closeNewClientForm();
+          },
+        }}
         confirmButton={{ label: "No, Keep", onClick: () => setShowCancelModal(false) }}
       />
     </div>
