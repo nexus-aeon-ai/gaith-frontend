@@ -17,6 +17,7 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import MagicStarIcon from "@/components/ui/icons/magic-star";
 
 import MediaBuyingPlanSheet from "../../sheet/BuyingPlanPreview";
+import GeneratedAssetsSheet from "../../sheet/GenerateSelected";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Textarea } from "../../ui/textarea";
 import { mockGeneratedAssets } from "../data/mockGeneratedAssets";
@@ -25,6 +26,7 @@ import AssetCard from "./AssetCard";
 
 const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
   const [showMediaBuyingSheet, setShowMediaBuyingSheet] = useState(false);
+  const [showGeneratedAssetsSheet, setShowGeneratedAssetsSheet] = useState(false);
 
   return (
     <div className="w-full mx-auto p-6">
@@ -77,6 +79,7 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
           <Button
             // type="submit"
             // form="aidata-form"
+            onClick={()=>setShowGeneratedAssetsSheet(true)}
             variant={"outline"}
             className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -127,6 +130,10 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
         </CardContent>
       </Card>
       <MediaBuyingPlanSheet onOpenChange={setShowMediaBuyingSheet} open={showMediaBuyingSheet} />
+      <GeneratedAssetsSheet
+        onOpenChange={setShowGeneratedAssetsSheet}
+        open={showGeneratedAssetsSheet}
+      />
     </div>
   );
 };
