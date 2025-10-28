@@ -3,11 +3,18 @@
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -22,7 +29,6 @@ export default function BlogAdvancedOptions({
 
   const [seoKeywords, setSeoKeywords] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
-  const [selectedAudiences, setSelectedAudiences] = useState<string[]>(["Entrepreneurs"]);
 
   const [writingStyles, setWritingStyles] = useState<Record<string, boolean>>({
     storytelling: false,
@@ -82,12 +88,6 @@ export default function BlogAdvancedOptions({
     { value: "custom", label: "Custom CTA" },
   ];
 
-  const toggleAudience = (audience: string) => {
-    setSelectedAudiences(prev =>
-      prev.includes(audience) ? prev.filter(a => a !== audience) : [...prev, audience],
-    );
-  };
-
   const toggleWritingStyle = (id: string) => {
     setWritingStyles(prev => ({
       ...prev,
@@ -102,18 +102,8 @@ export default function BlogAdvancedOptions({
     }));
   };
 
-  const handleApplySettings = () => {
-    console.log({
-      seoKeywords,
-      targetAudience,
-      selectedAudiences,
-      writingStyles,
-      contentPreferences,
-      selectedTemplate,
-      selectedCta,
-      customCta,
-    });
-    onOpenChange(false);
+  const toggleTemplate = (templateId: string) => {
+    setSelectedTemplate(prev => (prev === templateId ? "" : templateId));
   };
 
   return (
@@ -123,7 +113,7 @@ export default function BlogAdvancedOptions({
           <SheetTitle className="text-lg font-medium">Advanced Content Options</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 p-3">
           {/* SEO Keywords Section */}
           <div className="space-y-2">
             <p className="text-sm font-semibold">
@@ -150,17 +140,9 @@ export default function BlogAdvancedOptions({
             />
             <div className="flex flex-wrap gap-2">
               {audienceOptions.map(audience => (
-                <button
-                  key={audience}
-                  onClick={() => toggleAudience(audience)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    selectedAudiences.includes(audience)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
+                <Badge variant={"secondary"} className="p-1 px-2" key={audience}>
                   {audience}
-                </button>
+                </Badge>
               ))}
             </div>
           </div>
@@ -170,15 +152,16 @@ export default function BlogAdvancedOptions({
             <p className="text-sm font-semibold">Writing Style Variations</p>
             <div className="grid grid-cols-2 gap-3">
               {writingStyleOptions.map(style => (
-                <div key={style.id} className="flex items-center space-x-2">
+                <div
+                  key={style.id}
+                  className="flex items-center border p-2 rounded-[12px] space-x-2"
+                >
                   <CheckboxSquare
                     id={style.id}
                     checked={writingStyles[style.id]}
                     onCheckedChange={() => toggleWritingStyle(style.id)}
                   />
-                  <p
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
+                  <p className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
                     {style.label}
                   </p>
                 </div>
@@ -191,15 +174,16 @@ export default function BlogAdvancedOptions({
             <p className="text-sm font-semibold">Content Outline Preferences</p>
             <div className="grid grid-cols-2 gap-3">
               {contentPreferenceOptions.map(pref => (
-                <div key={pref.id} className="flex items-center space-x-2">
+                <div
+                  key={pref.id}
+                  className="flex items-center border p-2 rounded-[12px] space-x-2"
+                >
                   <CheckboxSquare
                     id={pref.id}
                     checked={contentPreferences[pref.id]}
                     onCheckedChange={() => toggleContentPreference(pref.id)}
                   />
-                  <p
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
+                  <p className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
                     {pref.label}
                   </p>
                 </div>
@@ -213,14 +197,30 @@ export default function BlogAdvancedOptions({
               {templateOptions.map(template => (
                 <div
                   key={template.id}
-                  className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleTemplate(template.id)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleTemplate(template.id);
+                    }
+                  }}
+                  className={`p-3 rounded-lg border-2 transition-colors flex items-start gap-3 cursor-pointer ${
                     selectedTemplate === template.id
                       ? "border-primary bg-primary/5"
                       : "border-muted bg-muted/30 hover:border-muted-foreground/50"
                   }`}
                 >
-                  <div className="font-medium text-sm">{template.label}</div>
-                  <div className="text-xs text-muted-foreground">{template.description}</div>
+                  <CheckboxSquare
+                    checked={selectedTemplate === template.id}
+                    onCheckedChange={() => toggleTemplate(template.id)}
+                  />
+
+                  <div>
+                    <div className="font-medium text-sm">{template.label}</div>
+                    <div className="text-xs text-muted-foreground">{template.description}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -247,14 +247,6 @@ export default function BlogAdvancedOptions({
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button onClick={handleApplySettings} className="flex-1 bg-blue-600 hover:bg-blue-700">
-              Apply Settings
-            </Button>
-          </div>
         </div>
 
         {/* Action Buttons */}

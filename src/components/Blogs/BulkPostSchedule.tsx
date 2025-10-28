@@ -42,7 +42,7 @@ const defaultFormData: CreateBlogFormData = {
   wordCount: "0-100",
 };
 
-const BlogsArticles = () => {
+const BulkPostSchedule = () => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   const form = useForm<CreateBlogFormData>({
@@ -65,7 +65,7 @@ const BlogsArticles = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Blogs & Articles</BreadcrumbPage>
+            <BreadcrumbPage>Bulk Post Scheduling</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -73,7 +73,7 @@ const BlogsArticles = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Blogs & Articles</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Bulk Post Scheduling</h1>
           <p className="text-muted-foreground">
             Upload and schedule multiple social media posts at once to save time and improve
             efficiency.
@@ -214,4 +214,4 @@ const BlogsArticles = () => {
   );
 };
 
-export default BlogsArticles;
+export default BulkPostSchedule;
