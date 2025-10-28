@@ -57,7 +57,7 @@ export const createEmpSchema = z.object({
   department: z.enum(departments, { required_error: "Department is required" }),
 
   // Accept dynamic roles from backend instead of fixed enum
-  empRole: z.string().min(1, "Employee role is required"),
+  // empRole: z.string().min(1, "Employee role is required"),
 
   jobTitle: z
     .string()
@@ -149,7 +149,7 @@ export const defaultFormData: CreateEmpFormData = {
   fullName: "",
   email: "",
   department: departments[0], // default first option
-  empRole: "",
+  // empRole: "",
   jobTitle: "",
   employeeID: "",
 

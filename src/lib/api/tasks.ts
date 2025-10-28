@@ -1,3 +1,4 @@
+
 import { fetchInstance } from "../clients";
 
 export interface CreateTaskDTO {
@@ -305,13 +306,20 @@ export async function getAllClients(): Promise<SimpleClient[]> {
 /**
  * Fetch all employees (assignees)
  */
-export async function getAllEmployees(): Promise<SimpleEmployee[]> {
-  const response = await fetchInstance<SimpleEmployee[]>("/employees", {
+
+export interface BackendEmployee {
+  id: string;
+  user: {
+    fullName: string;
+  };
+}
+export async function getAllEmployees(): Promise<BackendEmployee[]> {
+  const response = await fetchInstance<BackendEmployee[]>("/employees", {
     method: "GET",
   });
   if (response.status !== 200 || !response.data) {
     throw new Error("Failed to fetch employees");
   }
-  return response.data;
+  return (response.data as any).data;
 }
 

@@ -51,7 +51,6 @@ export default function EmployeeTasksClient() {
       />
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen} 
         value={filters} onApply={handleFiltersChange}
-        filters={filters as TasksCalendarFilters}
       />
     </>
   );
