@@ -110,10 +110,10 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex-1">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {task.taskTitle}
+            {task.title}
           </h1>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
-            {task.taskDescription}
+            {task.description}
           </p>
         </div>
         <Button className="bg-primary hover:bg-primary/90 text-white">

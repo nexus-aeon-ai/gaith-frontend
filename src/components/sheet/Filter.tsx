@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -10,6 +11,7 @@ import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { getAllClients, getAllEmployees } from "@/lib/api/tasks";
 
 interface FilterState {
   dateFrom: string;
@@ -20,36 +22,17 @@ interface FilterState {
   clients: string[];
 }
 
-const assigneeOptions = [
-  "Emily Johnson",
-  "Michael Smith",
-  "Sophia Brown",
-  "James Williams",
-  "Olivia Davis",
-  "Liam Garcia",
-  "Ava Martinez",
-  "Noah Robinson",
-];
-
 const statusOptions = ["New", "Lost", "In Progress"];
-
 const sourceOptions = ["Website", "Social Media", "Campaign", "Referral"];
-
-const clientOptions = [
-  "Fashion Brand",
-  "Sustainable Fashion",
-  "Streetwear Collection",
-  "Luxury Accessories",
-  "Activewear Line",
-  "Vintage Revival",
-];
 
 export default function FilterSheet({
   open,
   onOpenChange,
+  ..._rest // allow extra props like value/onApply without TS errors
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  [key: string]: any;
 }) {
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
@@ -61,6 +44,17 @@ export default function FilterSheet({
   });
 
   const { theme } = useTheme();
+  const { data: employees } = useQuery({ queryKey: ["employees"], queryFn: getAllEmployees });
+  const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
+
+  const assigneeOptions = useMemo(
+    () => (Array.isArray(employees) ? employees.map(e => e.fullName) : []),
+    [employees],
+  );
+  const clientOptions = useMemo(
+    () => (Array.isArray(clients) ? clients.map(c => c.fullName) : []),
+    [clients],
+  );
 
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateTask } from "@/hooks/use-tasks";
+import { getAllCategories, getAllClients, getAllUsers } from "@/lib/api/tasks";
 import { EmployeeTask } from "@/lib/types/employee-task";
 
 const taskFormSchema = z.object({
@@ -48,6 +50,10 @@ interface EditTaskFormProps {
 export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
   const router = useRouter();
   const updateMutation = useUpdateTask();
+
+  const { data: categories } = useQuery({ queryKey: ["task-categories"], queryFn: getAllCategories });
+  const { data: users } = useQuery({ queryKey: ["users"], queryFn: getAllUsers });
+  const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -190,9 +196,9 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="emp-001">Sarah Anderson</SelectItem>
-                        <SelectItem value="emp-002">John Doe</SelectItem>
-                        <SelectItem value="emp-003">Jane Smith</SelectItem>
+                        {users?.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>{u.fullName}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -214,9 +220,9 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="client-001">Tech Corp</SelectItem>
-                        <SelectItem value="client-002">Fashion Brand</SelectItem>
-                        <SelectItem value="client-003">Retail Plus</SelectItem>
+                        {clients?.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.fullName}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -307,10 +313,9 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="marketing">Marketing</SelectItem>
-                        <SelectItem value="development">Development</SelectItem>
-                        <SelectItem value="design">Design</SelectItem>
-                        <SelectItem value="content">Content Creation</SelectItem>
+                        {categories?.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

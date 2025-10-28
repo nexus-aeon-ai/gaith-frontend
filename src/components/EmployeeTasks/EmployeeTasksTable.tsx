@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { File, FileText, Filter, MoreVertical, Plus, Search } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TasksCalendarFilters } from "@/lib/api/tasks";
 import { EmployeeTask } from "@/lib/types/employee-task";
 import { cn } from "@/lib/utils";
 import { getStatusLabel } from "@/lib/utils/task-transformer";
@@ -31,6 +32,9 @@ import { getStatusLabel } from "@/lib/utils/task-transformer";
 interface EmployeeTasksTableProps {
   tasks: EmployeeTask[];
   isLoading?: boolean;
+  filters?: TasksCalendarFilters;
+  onFiltersChange?: (f: TasksCalendarFilters) => void;
+  onOpenFilters?: () => void;
   onDeleteTask?: (taskId: string) => void;
   onMarkComplete?: (taskId: string) => void;
 }
@@ -38,19 +42,26 @@ interface EmployeeTasksTableProps {
 export default function EmployeeTasksTable({ 
   tasks,
   isLoading,
+  filters,
+  onFiltersChange,
+  onOpenFilters,
   onDeleteTask,
   onMarkComplete,
 }: EmployeeTasksTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(filters?.q ?? "");
+  
+  // Debounce search -> backend filter
+  useEffect(() => {
+    const t = setTimeout(() => {
+      onFiltersChange?.({ ...(filters || {}), q: searchQuery || undefined });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery, filters, onFiltersChange]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Filter tasks based on search query
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.assignee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.description.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Backend-driven filtering: use server results; client search only updates filter `q`
+  const filteredTasks = tasks;
 
   // Pagination
   const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
@@ -154,7 +165,7 @@ export default function EmployeeTasksTable({
             </svg>
             {/* Calendar icon placeholder */}
           </Button>
-          <Button variant="outline" size="sm" className={cn(
+          <Button variant="outline" size="sm" onClick={() => onOpenFilters?.()} className={cn(
             "cursor-pointer",
             "flex items-center gap-1 sm:gap-2",
             "bg-card border-border text-xs h-8 sm:h-10",
