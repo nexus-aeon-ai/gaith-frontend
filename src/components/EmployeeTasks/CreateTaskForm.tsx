@@ -1,0 +1,344 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useCreateTask } from "@/hooks/use-tasks";
+
+const taskFormSchema = z.object({
+  title: z.string().min(1, "Task title is required"),
+  description: z.string().min(1, "Task description is required"),
+  assignedTo: z.string().min(1, "Please select an assignee"),
+  accountId: z.string().optional(),
+  dueDate: z.string().min(1, "Due date is required"),
+  priority: z.enum(["Urgent", "High", "Medium", "Low"]),
+  status: z.enum(["NotStarted", "InProgress", "AwaitingFeedback", "Completed"]),
+  populationStatus: z.enum(["Draft", "Review", "SentToClient", "ApprovedByClient"]),
+  category: z.string().min(1, "Please select a category"),
+  estimatedHours: z.string().optional(),
+  additionalComments: z.string().optional(),
+});
+
+type TaskFormValues = z.infer<typeof taskFormSchema>;
+
+interface CreateTaskFormProps {
+  onSubmit?: (data: TaskFormValues) => void;
+}
+
+export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
+  const router = useRouter();
+  const createMutation = useCreateTask();
+
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      assignedTo: "",
+      accountId: "",
+      dueDate: "",
+      priority: "Medium",
+      status: "NotStarted",
+      populationStatus: "Draft",
+      category: "",
+      estimatedHours: "",
+      additionalComments: "",
+    },
+  });
+
+  const handleSubmit = async (data: TaskFormValues) => {
+    try {
+      if (onSubmit) {
+        onSubmit(data);
+      }
+      
+      // Convert form data to API format
+      const taskData = {
+        title: data.title,
+        description: data.description,
+        dueDate: new Date(data.dueDate).toISOString(),
+        category: data.category,
+        status: data.status,
+        populationStatus: data.populationStatus,
+        priority: data.priority,
+        assignedTo: data.assignedTo,
+        accountId: data.accountId,
+        estimatedHours: data.estimatedHours ? parseInt(data.estimatedHours) : undefined,
+        additionalComments: data.additionalComments,
+      };
+
+      await createMutation.mutateAsync(taskData);
+      router.push("/en/employee-tasks");
+    } catch (error) {
+      console.error("Error creating task:", error);
+    }
+  };
+
+  return (
+    <div className="w-full space-y-6">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <svg
+          className="w-5 h-5 text-primary"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        <span>&gt;</span>
+        <Link href="/en/employee-tasks" className="text-primary hover:underline">
+          Employee Tasks Management
+        </Link>
+        <span>&gt;</span>
+        <span className="text-gray-900 dark:text-white">Create New Task</span>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            Create New Task
+          </h1>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
+            Create New Task
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="border-red-200 text-red-600 hover:bg-red-50 cursor-pointer hover:text-red-600"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={form.handleSubmit(handleSubmit)}
+            disabled={createMutation.isPending}
+            className="w-full bg-[#508CD3] text-white cursor-pointer hover:bg-[#508CD3]/90"
+          >
+            {createMutation.isPending ? "Creating..." : "Create Task"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="bg-card rounded-lg border border-border shadow-sm p-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Task Title */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Task Title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Task Description */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Task Description"
+                      className="min-h-[100px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Assignee */}
+              <FormField
+                control={form.control}
+                name="assignedTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assignee</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Assignee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="emp-001">Sarah Anderson</SelectItem>
+                        <SelectItem value="emp-002">John Doe</SelectItem>
+                        <SelectItem value="emp-003">Jane Smith</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Client */}
+              <FormField
+                control={form.control}
+                name="accountId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Client</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select client" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="client-001">Tech Corp</SelectItem>
+                        <SelectItem value="client-002">Fashion Brand</SelectItem>
+                        <SelectItem value="client-003">Retail Plus</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Priority Level */}
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority Level</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Priority" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Urgent">Urgent</SelectItem>
+                        <SelectItem value="High">High</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Due Date */}
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Due Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" placeholder="--/--/---" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Task Category */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Task Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Task Category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="marketing">Marketing</SelectItem>
+                        <SelectItem value="development">Development</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                        <SelectItem value="content">Content Creation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Estimated Hours */}
+              <FormField
+                control={form.control}
+                name="estimatedHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Hours</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="--/--" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Additional Comments */}
+            <FormField
+              control={form.control}
+              name="additionalComments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Enter Any Additional Instructions Or Requirements</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter any additional instructions or requirements"
+                      className="min-h-[100px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      </div>
+    </div>
+  );
+}
+
