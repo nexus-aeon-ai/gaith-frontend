@@ -1,18 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTasks, useTasksOverview } from "@/hooks/use-tasks";
 import { useCategoryModalStore, useTaskModalStore } from "@/lib/store/taskModalStore";
+import { transformTasksResponse } from "@/lib/utils/task-transformer";
 
 import { cn } from "../../lib/utils";
+
 
 import { AddCategoryModal, AddTaskButton, AddTaskModal } from "./add-modal";
 import TaskCalendar from "./components/TaskCalendar";
 import TaskCard from "./components/TaskCard";
 import TaskFilters from "./components/TaskFilters";
 import TaskSidebar from "./components/TaskSidebar";
-import { categories, Category, getNextTaskId, mockTasks, NewCategory, statuses, Task, updateCategoryCounts } from "./data/taskData";
+import { Category, NewCategory, Task, categories, getNextTaskId, statuses, updateCategoryCounts } from "./data/taskData";
 import { CancelConfirmModal, CanceledModal, SuccessModal } from "./pop-modal";
 
 const TaskTrackingClient = () => {
@@ -21,11 +24,111 @@ const TaskTrackingClient = () => {
   const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } = useCategoryModalStore();
   
   const [selectedCategory, setSelectedCategory] = useState("Social Media Calendar");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
   
   // State for tasks and categories
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>(categories);
+  const [completionRate, setCompletionRate] = useState<number>(0);
+  const [totals, setTotals] = useState<{ all: number; completed: number }>({ all: 0, completed: 0 });
+
+  // Fetch tasks from backend and map to TaskTracking shape
+  const { data: tasksData, isLoading } = useTasks(
+    selectedCategoryId ? { categoryId: selectedCategoryId } : undefined,
+  );
+  const { data: overviewData } = useTasksOverview();
+
+  const fetchedTasks: Task[] = useMemo(() => {
+    if (!tasksData) return [];
+    const employeeTasks = transformTasksResponse(tasksData);
+
+    const toDisplayStatus = (status: string) => {
+      switch (status) {
+        case "NotStarted":
+          return "Not Started";
+        case "InProgress":
+        case "AwaitingFeedback":
+          return "In Progress";
+        case "Completed":
+          return "Completed";
+        default:
+          return "Not Started";
+      }
+    };
+
+    const toDisplayPriority = (priority: string) => {
+      // Urgent is treated as High for this UI set
+      return priority === "Urgent" ? "High" : priority;
+    };
+
+    return employeeTasks.map((t, index) => ({
+      id: index + 1, // TaskTracking uses numeric ids
+      title: t.title,
+      description: t.description,
+      dueDate: t.dueDate,
+      assignee: t.assignee.name,
+      client: t.client?.name || "-",
+      status: toDisplayStatus(t.status),
+      priority: toDisplayPriority(t.priority),
+      progress: t.progress,
+      category: t.category.name,
+    }));
+  }, [tasksData]);
+
+  useEffect(() => {
+    // Sync tasks with backend result (even when empty)
+    setTasks(fetchedTasks);
+    setCategoriesList(prev => updateCategoryCounts(fetchedTasks, prev));
+  }, [fetchedTasks]);
+
+  // When a category is selected, recompute status counts from the filtered tasks
+  useEffect(() => {
+    if (!selectedCategoryId) return;
+    const byStatus: Record<string, number> = { NotStarted: 0, InProgress: 0, AwaitingFeedback: 0, Completed: 0 };
+    (tasksData || []).forEach((t) => {
+      byStatus[t.status] = (byStatus[t.status] || 0) + 1;
+    });
+    const notStarted = byStatus.NotStarted || 0;
+    const inProgress = (byStatus.InProgress || 0) + (byStatus.AwaitingFeedback || 0);
+    const completed = byStatus.Completed || 0;
+    statuses[0].count = notStarted;
+    statuses[1].count = inProgress;
+    statuses[2].count = completed;
+  }, [selectedCategoryId, tasksData]);
+
+  // Sync overview data into sidebar widgets (categories, status, completion)
+  useEffect(() => {
+    if (!overviewData) return;
+
+    // Map categories from API -> sidebar categories
+    const iconFallback = categories[0]?.icon;
+    const nameToIcon = new Map(categories.map(c => [c.name, c.icon] as const));
+    const mappedCategories: Category[] = overviewData.categories.map((cat) => ({
+      name: cat.name,
+      count: cat.count,
+      icon: nameToIcon.get(cat.name) || iconFallback,
+      // store raw hex; components will apply inline style to avoid purge issues
+      color: cat.color,
+    }));
+    setCategoriesList(mappedCategories);
+
+    // Status distribution
+    const byStatus = new Map(overviewData.statusBreakdown.map(s => [s.status, s.count] as const));
+    const notStarted = byStatus.get("NotStarted") || 0;
+    const inProgress = (byStatus.get("InProgress") || 0) + (byStatus.get("AwaitingFeedback") || 0);
+    const completed = byStatus.get("Completed") || 0;
+    statuses[0].count = notStarted;
+    statuses[1].count = inProgress;
+    statuses[2].count = completed;
+
+    // Completion rate and totals
+    const all = overviewData.totals?.all || 0;
+    const comp = overviewData.totals?.completed || 0;
+    const rate = all > 0 ? Math.round((comp / all) * 100) : 0;
+    setTotals({ all, completed: comp });
+    setCompletionRate(rate);
+  }, [overviewData]);
 
   // Modal states
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -171,7 +274,20 @@ const TaskTrackingClient = () => {
             categories={categoriesList}
             statuses={statuses}
             selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
+            onCategorySelect={(name) => {
+              setSelectedCategory(name);
+              // find matching id from overview by name
+              // We don't store id on Category, so derive via overview categories list name->id
+              // Use overviewData if available
+              if (overviewData) {
+                const match = overviewData.categories.find(c => c.name === name);
+                setSelectedCategoryId(match?.id);
+              } else {
+                setSelectedCategoryId(undefined);
+              }
+            }}
+            completionRate={completionRate}
+            totals={totals}
           />
         </div>
 
@@ -199,9 +315,15 @@ const TaskTrackingClient = () => {
               </div>
               <TabsContent value="list">
                 <div className="space-y-2 sm:space-y-3 lg:space-y-4 rounded-3xl p-4 pb-6 bg-card">
-                  {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
-                  ))}
+                  {isLoading ? (
+                    <div className="text-sm text-gray-500">Loading tasks...</div>
+                  ) : tasks.length === 0 ? (
+                    <div className="text-sm text-gray-500">No tasks found for the selected range.</div>
+                  ) : (
+                    tasks.map((task) => (
+                      <TaskCard key={task.id} task={task} />
+                    ))
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="calendar">

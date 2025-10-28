@@ -1,8 +1,8 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun, UserRound } from "lucide-react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -31,13 +31,11 @@ const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore } = useAuthStore();
   const { theme: themeNext, setTheme: setThemeNext } = useTheme();
 
-  const [avatar, setAvatar] = useState<string>(user?.profilePic || "/images/default-avatar.jpg");
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (user) {
       setUser(user);
-      setAvatar(user?.profilePic || "/images/default-avatar.jpg");
       setAvatarLoading(!!user?.profilePic);
     }
   }, [user, setUser]);
@@ -52,7 +50,7 @@ const Navbar = ({ user }: NavbarProps) => {
     setCookie("language", language);
   };
   return (
-    <header className="flex sticky top-0 z-[999] w-full items-center px-4">
+    <header className="flex sticky top-0 z-50 w-full items-center px-4">
       <div className="flex h-[--header-height] w-full items-center gap-2 ">
         <div className="min-w-full flex items-center justify-between px-2 py-8 bg-background rounded-xl text-foreground shadow h-[85px]">
           <div className="flex flex-1 items-center justify-between w-full">

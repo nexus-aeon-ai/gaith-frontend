@@ -79,19 +79,45 @@ export interface TasksCalendarFilters {
   q?: string;
 }
 
+export interface TasksOverviewCategory {
+  id: string;
+  name: string;
+  color: string; // hex color
+  count: number;
+  stages: Record<string, number>;
+}
+
+export interface TasksOverviewStatusBucket {
+  status: "NotStarted" | "InProgress" | "AwaitingFeedback" | "Completed";
+  count: number;
+}
+
 export interface TasksOverview {
-  total: number;
-  notStarted: number;
-  inProgress: number;
-  awaitingFeedback: number;
-  completed: number;
-  byPriority: {
-    low: number;
-    medium: number;
-    high: number;
-    urgent: number;
+  totals: {
+    all: number;
+    completed: number;
   };
-  overdueTasks: number;
+  completionRate: number;
+  categories: TasksOverviewCategory[];
+  statusBreakdown: TasksOverviewStatusBucket[];
+}
+
+// Shared minimal types for enrichment
+export interface SimpleCategory {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface SimpleEmployee {
+  id: string;
+  fullName: string;
+  email?: string;
+}
+
+export interface SimpleClient {
+  id: string;
+  fullName: string;
 }
 
 /**
@@ -209,5 +235,83 @@ export async function getTasksOverview(): Promise<TasksOverview> {
  */
 export async function markTaskAsComplete(id: string): Promise<TaskResponse> {
   return updateTask(id, { status: "Completed" });
+}
+
+/**
+ * Fetch categories list to enrich minimal task payloads
+ */
+export async function getAllCategories(): Promise<SimpleCategory[]> {
+  const response = await fetchInstance<SimpleCategory[]>("/utils/categories", {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch categories");
+  }
+  return response.data;
+}
+
+/**
+ * Fetch employee by id (used to enrich account info in minimal payloads)
+ */
+export async function getUserById(id: string): Promise<SimpleEmployee> {
+  const response = await fetchInstance<SimpleEmployee>(`/users/${id}`, {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch user");
+  }
+  return response.data;
+}
+
+/**
+ * Fetch client by id
+ */
+export async function getClientById(id: string): Promise<SimpleClient> {
+  const response = await fetchInstance<SimpleClient>(`/clients/${id}`, {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch client");
+  }
+  return response.data;
+}
+
+/**
+ * Fetch all users (for select options)
+ */
+export async function getAllUsers(): Promise<SimpleEmployee[]> {
+  const response = await fetchInstance<SimpleEmployee[]>("/users", {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch users");
+  }
+  return response.data;
+}
+
+/**
+ * Fetch all clients (for select options)
+ */
+export async function getAllClients(): Promise<SimpleClient[]> {
+  const response = await fetchInstance<SimpleClient[]>("/clients", {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch clients");
+  }
+  return response.data;
+}
+
+/**
+ * Fetch all employees (assignees)
+ */
+export async function getAllEmployees(): Promise<SimpleEmployee[]> {
+  const response = await fetchInstance<SimpleEmployee[]>("/employees", {
+    method: "GET",
+  });
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Failed to fetch employees");
+  }
+  return response.data;
 }
 

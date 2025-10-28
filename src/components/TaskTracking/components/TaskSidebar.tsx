@@ -23,10 +23,12 @@ interface TaskSidebarProps {
   statuses: Status[];
   selectedCategory: string;
   onCategorySelect: (category: string) => void;
+  completionRate?: number;
+  totals?: { all: number; completed: number };
 }
 
 const TaskSidebar:React.FC<TaskSidebarProps> = ({ 
-  categories, statuses, selectedCategory, onCategorySelect, 
+  categories, statuses, selectedCategory, onCategorySelect, completionRate = 0, totals = { all: 0, completed: 0 },
 }) => {
   return (
     <div className="w-full space-y-3 sm:space-y-4 lg:space-y-6">
@@ -67,10 +69,13 @@ const TaskSidebar:React.FC<TaskSidebarProps> = ({
                   <Badge 
                     variant="secondary" 
                     className={cn(
-                      "text-xs bg-[#3072C014] rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1",
+                      "text-xs rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1",
                       "w-6 h-5 sm:w-8 sm:h-6 flex items-center justify-center flex-shrink-0",
-                      category.color,
                     )}
+                    style={{
+                      backgroundColor: `${category.color}22`,
+                      color: category.color,
+                    }}
                   >
                     {category.count}
                   </Badge>
@@ -157,13 +162,13 @@ const TaskSidebar:React.FC<TaskSidebarProps> = ({
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Completion Rate</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">25%</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{completionRate}%</span>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              5 of 40 tasks
+                {totals.completed} of {totals.all} tasks
               </p>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div className="bg-[#3072C0] h-full rounded-full" style={{ width: "25%" }} />
+              <div className="bg-[#3072C0] h-full rounded-full" style={{ width: `${completionRate}%` }} />
             </div>
           </div>
         </CardContent>
