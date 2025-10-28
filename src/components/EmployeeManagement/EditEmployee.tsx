@@ -1,7 +1,10 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import EmployeeForm from "@/components/Forms/EmployeeForm";
 import {
@@ -14,10 +17,108 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { getEmployeeById, updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
-const EditEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) => {
+const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; closeEmployeeForm?: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialData, setInitialData] = useState<CreateEmpFormData | undefined>(undefined);
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const onClose = () => {
+    if (closeEmployeeForm) return closeEmployeeForm();
+    router.back();
+  };
+
+  const mapToApi = (data: CreateEmpFormData) => {
+    const status =
+      data.employeeStatus === "active"
+        ? "Active"
+        : data.employeeStatus === "inactive"
+          ? "Inactive"
+          : "On Leave";
+    const employmentTypeMap: Record<string, "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERN"> = {
+      "Full-time": "FULL_TIME",
+      "Part-time": "PART_TIME",
+      Contract: "CONTRACT",
+      Internship: "INTERN",
+      Temporary: "CONTRACT",
+      Volunteer: "CONTRACT",
+      Other: "CONTRACT",
+    };
+    return {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.primaryPhone || "",
+      jobTitle: data.jobTitle,
+      employeeId: data.employeeID,
+      status,
+      employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
+      salary: data.salary ?? 0,
+      notes: data.notes,
+      address: data.address,
+    };
+  };
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ["employees", "update"],
+    mutationFn: async (payload: { id: string; body: EmployeeFormData }) => {
+      const res = await updateEmployee(payload.id, payload.body);
+      if (!res.data) throw new Error("Update failed");
+      return res.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Employee updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update employee");
+    },
+  });
+
+  const { data: employeeData } = useQuery({
+    queryKey: ["employees", employeeId],
+    queryFn: async () => {
+      const res = await getEmployeeById(employeeId);
+      return res.data;
+    },
+    enabled: !!employeeId,
+  });
+
+
+  useEffect(() => {
+    if (employeeData) {
+      console.log(employeeData);
+      const initialData = employeeData
+        ? ({
+          fullName: employeeData.fullName,
+          email: employeeData.email,
+          department: "Other",
+          empRole: "Employee",
+          jobTitle: employeeData.jobTitle || "",
+          employeeID: employeeData.employeeId,
+          userManagement: [],
+          contentManagement: [],
+          analyticsAndReports: [],
+          primaryEmail: employeeData.email,
+          primaryPhone: employeeData.phone,
+          salary: employeeData.salary,
+          employementType: "Full-time",
+          address: employeeData.address || "",
+          skills: employeeData.skills?.join(", ") || "",
+          employeeStatus: employeeData.status === "Active" ? "active" : employeeData.status === "Inactive" ? "inactive" : "onleave",
+          accountActive: true,
+          emailVerification: false,
+          forcePassChange: false,
+          accExpiryDate: undefined,
+          tempPassword: undefined,
+          notes: employeeData.notes || "",
+        } as CreateEmpFormData)
+        : undefined;
+  
+      setInitialData(initialData);
+    }
+  }, [employeeData]);
 
   const handleSave = async (data: CreateEmpFormData) => {
     setIsSubmitting(true);
@@ -36,10 +137,12 @@ const EditEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) 
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with update employee api
+      await mutateAsync({ id: employeeId, body: mapToApi(result.data) as EmployeeFormData });
+      onClose();
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
+      toast.error("An error occurred while updating the employee. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -47,7 +150,7 @@ const EditEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) 
 
   const handleCancel = () => {
     // Handle cancel action
-    closeEmployeeForm();
+    onClose();
   };
 
   return (
@@ -108,10 +211,11 @@ const EditEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) 
       </div>
 
       <EmployeeForm
-        mode="create"
+        mode="edit"
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
+        initialData={initialData}
       />
     </div>
   );

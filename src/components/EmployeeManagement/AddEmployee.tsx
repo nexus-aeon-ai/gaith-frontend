@@ -1,7 +1,9 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import EmployeeForm from "@/components/Forms/EmployeeForm";
 import {
@@ -14,10 +16,76 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createEmployee, type Employee as ApiEmployee, type EmployeeFormData } from "@/lib/api/employee";
+import { RoleCode, getRoles, type BackendRole } from "@/lib/api/roles";
+import { generateStrongPassword } from "@/lib/functions/generate-password";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
 const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: rolesData } = useQuery({
+    queryKey: ["roles"],
+    queryFn: async () => {
+      const res = await getRoles();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  const mapToApi = (data: CreateEmpFormData) => {
+    const status: EmployeeFormData["status"] =
+      data.employeeStatus === "active"
+        ? "Active"
+        : data.employeeStatus === "inactive"
+          ? "Inactive"
+          : "On Leave";
+    const employmentTypeMap: Record<string, "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERN"> = {
+      "Full-time": "FULL_TIME",
+      "Part-time": "PART_TIME",
+      Contract: "CONTRACT",
+      Internship: "INTERN",
+      Temporary: "CONTRACT",
+      Volunteer: "CONTRACT",
+      Other: "CONTRACT",
+    };
+    // Normalize known role labels to backend codes using enum
+    const normalizedRoleCode = data.empRole
+      .toLowerCase()
+      .replace(" ", "_") as RoleCode;
+    const selectedRole = (rolesData as BackendRole[]).find(r => r.code === normalizedRoleCode);
+    return {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.primaryPhone || "",
+      jobTitle: data.jobTitle,
+      employeeId: data.employeeID,
+      status,
+      employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
+      salary: data.salary ?? 0,
+      password: data.tempPassword && data.tempPassword.length >= 6 ? data.tempPassword : generateStrongPassword(),
+      accountRoleId: selectedRole?.id || "",
+      languagePreference: "EN",
+    };
+  };
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ["employees", "create"],
+    mutationFn: async (payload: EmployeeFormData) => {
+      const res = await createEmployee(payload);
+      if (!res.data) throw new Error("Create failed");
+      if (res.status !== 201) throw new Error(JSON.stringify(res.data) || "Create failed");
+      return res.data as ApiEmployee;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Employee created successfully");
+    },
+    onError: (error) => {
+      console.error("Error creating employee:", error);
+      toast.error(error.message || "Failed to create employee");
+    },
+  });
 
   const handleSave = async (data: CreateEmpFormData) => {
     setIsSubmitting(true);
@@ -36,10 +104,11 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with create employee api
+      await mutateAsync(mapToApi(result.data));
+      closeEmployeeForm();
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

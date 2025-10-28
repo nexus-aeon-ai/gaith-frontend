@@ -11,7 +11,7 @@ export const departments = [
   "Other",
 ] as const;
 
-export const empRoles = ["Admin", "Manager", "Employee", "Viewer"] as const;
+export const empRoles = ["Admin", "Manager", "Employee", "Viewer"] as const; // legacy defaults
 export const empPerms = ["Create Users", "Edit Users", "Delete Users", "Manage Roles"] as const;
 export const contentPerms = [
   "Create Content",
@@ -56,7 +56,8 @@ export const createEmpSchema = z.object({
 
   department: z.enum(departments, { required_error: "Department is required" }),
 
-  empRole: z.enum(empRoles, { required_error: "Employee role is required" }),
+  // Accept dynamic roles from backend instead of fixed enum
+  empRole: z.string().min(1, "Employee role is required"),
 
   jobTitle: z
     .string()
@@ -73,10 +74,10 @@ export const createEmpSchema = z.object({
       "Employee ID can only contain letters, numbers, dashes, or underscores",
     ),
 
-  // Employee Permissions
-  userManagement: z.array(z.enum(empPerms)).min(1, "Select at least one option"),
-  contentManagement: z.array(z.enum(contentPerms)).min(1, "Select at least one option"),
-  analyticsAndReports: z.array(z.enum(analyticsPerms)).min(1, "Select at least one option"),
+  // Employee Permissions (optional)
+  userManagement: z.array(z.enum(empPerms)).optional().default([]),
+  contentManagement: z.array(z.enum(contentPerms)).optional().default([]),
+  analyticsAndReports: z.array(z.enum(analyticsPerms)).optional().default([]),
 
   //primary contact information
   primaryEmail: z.string().email().optional(),
@@ -84,7 +85,7 @@ export const createEmpSchema = z.object({
     .string()
     .regex(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
     .optional(),
-  salary: z.number().optional(),
+  salary: z.coerce.number().optional(),
   employementType: z.enum(employementTypes, {
     required_error: "Employment type is required",
   }),
@@ -148,7 +149,7 @@ export const defaultFormData: CreateEmpFormData = {
   fullName: "",
   email: "",
   department: departments[0], // default first option
-  empRole: empRoles[0], // default first option
+  empRole: "",
   jobTitle: "",
   employeeID: "",
 

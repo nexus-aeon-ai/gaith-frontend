@@ -1,7 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+// import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,15 +27,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+// import { getRoles } from "@/lib/api/roles";
 import {
   analyticsPerms,
   contentPerms,
   createEmpSchema,
   defaultFormData,
   departments,
-  employementTypes,
   empPerms,
-  empRoles,
+  employementTypes,
   type CreateEmpFormData,
 } from "@/lib/validations/employee";
 
@@ -51,13 +52,28 @@ interface EmloyeeFormProps {
 
 const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
   const { theme } = useTheme();
+  // const { data: rolesData } = useQuery({
+  //   queryKey: ["roles"],
+  //   queryFn: async () => {
+  //     const res = await getRoles();
+  //     return res.data ?? [];
+  //   },
+  //   initialData: [],
+  // });
   const [showTempPassword, setShowTempPassword] = useState(false);
 
-  const form = useForm<CreateEmpFormData>({
+  const form = useForm<CreateEmpFormData, any, CreateEmpFormData>({
     resolver: zodResolver(createEmpSchema),
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
   });
+
+  // Ensure form values update when initialData arrives/changes (e.g., on edit fetch)
+  useEffect(() => {
+    if (initialData) {
+      form.reset(initialData);
+    }
+  }, [initialData, form]);
 
   const handleExpiryDate = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -66,11 +82,15 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
     input?.showPicker?.();
   };
 
+  const handleError = (error: unknown) => {
+    console.error(error);
+  };
+
   return (
     <Form {...form}>
       <form
         id="user-form"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, handleError)}
         className="w-full mx-auto space-y-4"
       >
         {/* Basic Information */}
@@ -130,29 +150,14 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="jobTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Job Title"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
               </div>
 
               <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
+                {/*
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="primaryEmail"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
@@ -179,11 +184,17 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                           <SelectContent>
-                            {empRoles.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
+                            {(rolesData as BackendRole[]).map(role => {
+                              const label =
+                                role.code === RoleCode.SUPER_ADMIN
+                                  ? "Super Admin"
+                                  : role.code.charAt(0).toUpperCase() + role.code.slice(1).replace("_", " ");
+                              return (
+                                <SelectItem key={role.id} value={role.code}>
+                                  {label}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -191,6 +202,7 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
+                */}
                 <FormField
                   control={form.control}
                   name="employeeID"
@@ -200,6 +212,23 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                       <FormControl>
                         <Input
                           placeholder="Employee ID"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="jobTitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Job Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Job Title"
                           className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />

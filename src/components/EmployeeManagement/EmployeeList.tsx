@@ -1,8 +1,10 @@
 "use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
@@ -29,24 +31,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { deleteEmployee, getEmployees, type Employee as ApiEmployee } from "@/lib/api/employee";
+import type { Employee as UiEmployee } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-import { mockEmployees } from "../../lib/mockdata/employees";
-import { Employee } from "../../lib/types";
 
 import AddNewEmployee from "./AddEmployee";
 import EditEmployee from "./EditEmployee";
 
 const EmployeeList = () => {
-  const employees = mockEmployees;
+  const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
   const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const { data } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await getEmployees();
+      return res.data?.results ?? [];
+    },
+    initialData: [],
+  });
+
+  useMemo(() => {
+    setApiEmployees(data as ApiEmployee[]);
+  }, [data]);
+
+  const employees: UiEmployee[] = useMemo(() => {
+    return apiEmployees.map((emp: ApiEmployee): UiEmployee => ({
+      id: emp.id,
+      fullName: emp.fullName,
+      email: emp.email,
+      // UI expects these fields differently
+      role: emp.role.title,
+      status: emp.status === "Active" ? "active" : "inactive",
+      department: { name: emp.department.name, team: emp.department.subTeam || "" },
+      contactInfo: { email: emp.email, number: emp.phone },
+      performance: `${emp.performance}%`,
+      permissions: { view: true, edit: true, approve: false, delete: false },
+    }));
+  }, [apiEmployees]);
+
+  const { mutate: deleteEmployeeMutate } = useMutation({
+    mutationKey: ["employees", "delete"],
+    mutationFn: async (id: string) => {
+      const res = await deleteEmployee(id);
+      return res.status;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -66,7 +110,7 @@ const EmployeeList = () => {
 
   const filteredEmployees = employees.filter(
     employee =>
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -110,8 +154,16 @@ const EmployeeList = () => {
     return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
   }
 
-  if (showEditEmployeeForm) {
-    return <EditEmployee closeEmployeeForm={() => setshowEditEmployeeForm(false)} />;
+  if (showEditEmployeeForm && selectedEmployeeId) {
+    return (
+      <EditEmployee
+        employeeId={selectedEmployeeId}
+        closeEmployeeForm={() => {
+          setshowEditEmployeeForm(false);
+          setSelectedEmployeeId(null);
+        }}
+      />
+    );
   }
 
   return (
@@ -256,7 +308,7 @@ const EmployeeList = () => {
                 <TableHead className="px-4 py-3">
                   <Checkbox
                     className="!rounded-[8px]"
-                    checked={selectedEmployees.length === employees.length}
+                    checked={employees.length > 0 && selectedEmployees.length === employees.length}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
@@ -272,7 +324,7 @@ const EmployeeList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentEmployees.map((employee: Employee) => (
+              {currentEmployees.map((employee: UiEmployee) => (
                 <TableRow key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   {/* Checkbox */}
                   <TableCell className="px-4 py-3">
@@ -297,7 +349,7 @@ const EmployeeList = () => {
                       />
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {employee.name}
+                          {employee.fullName}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[140px]">
                           {employee.contactInfo.email}
@@ -316,9 +368,9 @@ const EmployeeList = () => {
 
                   {/* Role */}
                   <TableCell className="px-4 py-3 text-center">
-                    <p className="text-sm font-medium">{employee.role.name}</p>
+                    <p className="text-sm font-medium">{employee.role}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {employee.role.level}
+                      {/* No explicit level in UI Employee mapping */}
                     </p>
                   </TableCell>
 
@@ -381,13 +433,25 @@ const EmployeeList = () => {
                             View
                           </span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setshowEditEmployeeForm(true)}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // Navigate to server-rendered edit page preserving locale and segment
+                            const base = pathname?.split("/employees")[0] || "";
+                            router.push(`${base}/employees/${employee.id}`);
+                          }}
+                        >
                           <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             Edit
                           </span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive">
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => {
+                            const confirmed = window.confirm("Are you sure you want to delete this employee?");
+                            if (confirmed) deleteEmployeeMutate(employee.id);
+                          }}
+                        >
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             Delete
@@ -408,7 +472,7 @@ const EmployeeList = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Left side - Page info */}
           <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Page {currentPage} of {totalPages} ({filteredEmployees.length} total leads)
+            Page {currentPage} of {totalPages} ({filteredEmployees.length} total employees)
           </div>
 
           {/* Right side - Pagination controls */}
