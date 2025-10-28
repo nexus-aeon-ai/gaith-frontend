@@ -210,7 +210,7 @@ export default function Chatbot() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed lg:relative inset-y-0 left-0 z-[100] w-full sm:w-80 lg:w-80 h-full transform transition-transform duration-300 ease-in-out",
+          "fixed lg:relative inset-y-0 left-0 z-[40] w-full sm:w-80 lg:w-80 h-full transform transition-transform duration-300 ease-in-out",
           {
             "translate-x-0": isSidebarOpen,
             "-translate-x-full lg:translate-x-0": !isSidebarOpen,
