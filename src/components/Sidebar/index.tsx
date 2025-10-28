@@ -99,7 +99,7 @@ const aiToolsItems = [
   {
     label: "Blog & Articles",
     icon: <BlogArticlesIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/blog-articles",
+    href: "/blog-articles",
   },
   {
     label: "AI Chatbot",

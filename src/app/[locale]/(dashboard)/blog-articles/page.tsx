@@ -1,14 +1,9 @@
 import React from "react";
 
+import BlogsArticles from "@/components/Blogs/BlogsArticles";
+
 const BlogArticlesPage = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Blog & Articles</h1>
-      <div className="bg-card rounded-lg shadow-md p-6">
-        <p className="text-card-foreground">Blog & Articles content will be displayed here.</p>
-      </div>
-    </div>
-  );
+  return <BlogsArticles />;
 };
 
-export default BlogArticlesPage; 
+export default BlogArticlesPage;
