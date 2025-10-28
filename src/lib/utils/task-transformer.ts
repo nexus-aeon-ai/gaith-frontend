@@ -1,10 +1,13 @@
-import { TaskResponse } from "@/lib/api/tasks";
+import { SimpleCategory, SimpleEmployee, TaskResponse } from "@/lib/api/tasks";
 import { EmployeeTask } from "@/lib/types/employee-task";
 
 /**
  * Transform TaskResponse from API to EmployeeTask
  */
-export function transformTaskResponse(task: TaskResponse): EmployeeTask {
+export function transformTaskResponse(task: TaskResponse, options?: {
+  categoriesById?: Record<string, SimpleCategory>;
+  employeesById?: Record<string, SimpleEmployee>;
+}): EmployeeTask {
   // Calculate progress based on status
   let progress = 0;
   switch (task.status) {
@@ -37,21 +40,29 @@ export function transformTaskResponse(task: TaskResponse): EmployeeTask {
     High: "High",
     Urgent: "Urgent",
   };
+  console.log(options);
+  console.log(task);
 
   return {
     id: task.id,
     title: task.title,
     description: task.description,
     assignee: {
-      id: task.assignee.id,
-      name: task.assignee.fullName,
-      email: task.assignee.email,
+      id: task.assignee?.id || task.assignedTo || "",
+      name:
+        task.assignee?.fullName ||
+        (options?.employeesById && task.assignedTo ? 
+          options.employeesById[task.assignedTo]?.fullName : undefined) ||
+        "Unknown",
+      email:
+        task.assignee?.email ||
+        (options?.employeesById && task.assignedTo ? options.employeesById[task.assignedTo]?.email || "" : ""),
     },
-    client: task.account
+    client: task.accountId
       ? {
-          id: task.accountId!,
-          name: task.account.fullName,
-        }
+        id: task.accountId,
+        name: task.account?.fullName || "",
+      }
       : undefined,
     dueDate: task.dueDate,
     createdDate: task.createdAt,
@@ -61,7 +72,10 @@ export function transformTaskResponse(task: TaskResponse): EmployeeTask {
     progress,
     category: {
       id: task.categoryId,
-      name: task.category.name,
+      name:
+        task.category?.name ||
+        (options?.categoriesById ? options.categoriesById[task.categoryId]?.name : undefined) ||
+        "Uncategorized",
     },
     estimatedHours: task.estimatedHours || undefined,
     additionalComments: task.additionalComments || undefined,
@@ -71,8 +85,11 @@ export function transformTaskResponse(task: TaskResponse): EmployeeTask {
 /**
  * Transform multiple TaskResponse to EmployeeTask array
  */
-export function transformTasksResponse(tasks: TaskResponse[]): EmployeeTask[] {
-  return tasks.map(transformTaskResponse);
+export function transformTasksResponse(tasks: TaskResponse[], options?: {
+  categoriesById?: Record<string, SimpleCategory>;
+  employeesById?: Record<string, SimpleEmployee>;
+}): EmployeeTask[] {
+  return tasks.map((task) => transformTaskResponse(task, options));
 }
 
 /**
