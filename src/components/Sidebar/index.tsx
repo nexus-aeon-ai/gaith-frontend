@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
@@ -119,53 +120,74 @@ const settingsItems = [
     href: "/logout",
   },
 ];
-const SidebarUI  = () => (
-  <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none">
-    <SidebarContent className="h-full bg-background md:shadow-md rounded-2xl scrollbar-hide overflow-y-auto">
-      <SidebarGroup>
-        <SidebarMenu>
-          {mainItems.map(item => (
-            <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton asChild>
-                <Link href={item.href}>
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-        <SidebarSeparator />
-        <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
-        <SidebarMenu>
-          {aiToolsItems.map(item => (
-            <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton asChild>
-                <Link href={item.href}>
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-        <SidebarSeparator />
-        <SidebarMenu>
-          {settingsItems.map(item => (
-            <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton asChild>
-                <Link href={item.href}>
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroup>
-    </SidebarContent>
-    <SidebarFooter>{/* Optional: Add footer content here */}</SidebarFooter>
-  </Sidebar>
-);
+const SidebarUI  = () => {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.includes(href) || pathname.includes(`/${href}?`);
+  };
+
+  const activeClasses = "bg-muted text-foreground";
+
+  return (
+    <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none">
+      <SidebarContent className="h-full bg-background md:shadow-md rounded-2xl scrollbar-hide overflow-y-auto">
+        <SidebarGroup>
+          <SidebarMenu>
+            {mainItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive(item.href) ? activeClasses : undefined}
+                >
+                  <Link href={item.href}>
+                    <span className="text-lg">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
+          <SidebarMenu>
+            {aiToolsItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive(item.href) ? activeClasses : undefined}
+                >
+                  <Link href={item.href}>
+                    <span className="text-lg">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarMenu>
+            {settingsItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive(item.href) ? activeClasses : undefined}
+                >
+                  <Link href={item.href}>
+                    <span className="text-lg">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>{/* Optional: Add footer content here */}</SidebarFooter>
+    </Sidebar>
+  );
+};
 
 export default SidebarUI;
