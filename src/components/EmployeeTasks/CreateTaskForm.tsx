@@ -137,14 +137,14 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
           <Button
             variant="outline"
             onClick={() => router.back()}
-            className="border-red-200 text-red-600 hover:bg-red-50 cursor-pointer hover:text-red-600"
+            className="cursor-pointer p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
             Cancel
           </Button>
           <Button
             onClick={form.handleSubmit(handleSubmit)}
             disabled={createMutation.isPending}
-            className="w-full bg-[#508CD3] text-white cursor-pointer hover:bg-[#508CD3]/90"
+            className="cursor-pointer p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-[#3072C0]  bg-[#3072C0] text-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {createMutation.isPending ? "Creating..." : "Create Task"}
           </Button>
