@@ -64,6 +64,26 @@ export default function MediaBuyingPlanSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  // const [filters, setFilters] = useState<FilterState>({
+  //   dateFrom: "",
+  //   dateTo: "",
+  //   assignees: [],
+  //   statuses: [],
+  //   sources: [],
+  //   clients: [],
+  // });
+
+  // const clearFilters = () => {
+  //   setFilters({
+  //     dateFrom: "",
+  //     dateTo: "",
+  //     assignees: [],
+  //     statuses: [],
+  //     sources: [],
+  //     clients: [],
+  //   });
+  // };
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -257,8 +277,8 @@ export default function MediaBuyingPlanSheet({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 p-4 border-t">
-          <div className="flex gap-3 justify-end">
+        <div className="sticky w-full flex bottom-0 gap-3 p-4 border-t bg-card">
+          <div className="flex w-full gap-3 justify-end">
             <Button
               variant="outline"
               onClick={()=>onOpenChange(false)}
