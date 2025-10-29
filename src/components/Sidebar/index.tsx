@@ -94,7 +94,7 @@ const aiToolsItems = [
   {
     label: "Social Media Calendar",
     icon: <SocialMediaCalenderIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/social-media-calendar",
+    href: "/social-media-calendar",
   },
   {
     label: "Blog & Articles",

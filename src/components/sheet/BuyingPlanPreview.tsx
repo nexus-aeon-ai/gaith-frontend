@@ -1,7 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
-
 import { Button } from "@/components/ui/button";
 import PDFIcon from "@/components/ui/icons/options/pdf-icon";
 import Fb from "@/components/ui/icons/social/fb";
@@ -66,31 +64,6 @@ export default function MediaBuyingPlanSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  // const [filters, setFilters] = useState<FilterState>({
-  //   dateFrom: "",
-  //   dateTo: "",
-  //   assignees: [],
-  //   statuses: [],
-  //   sources: [],
-  //   clients: [],
-  // });
-
-  const { theme } = useTheme();
-
-  // const clearFilters = () => {
-  //   setFilters({
-  //     dateFrom: "",
-  //     dateTo: "",
-  //     assignees: [],
-  //     statuses: [],
-  //     sources: [],
-  //     clients: [],
-  //   });
-  // };
-
-  const applyFilters = () => {
-    onOpenChange(false);
-  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
