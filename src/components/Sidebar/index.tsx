@@ -89,7 +89,7 @@ const aiToolsItems = [
   {
     label: "Generate Pricing",
     icon: <PricingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/pricing",
+    href: "/generate-pricing",
   },
   {
     label: "Social Media Calendar",
