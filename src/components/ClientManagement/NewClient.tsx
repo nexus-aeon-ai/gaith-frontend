@@ -18,7 +18,7 @@ import MagicStarIcon from "@/components/ui/icons/magic-star";
 import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
 import AiDataForm from "../Forms/AiDataForm";
-import PopupModal from "../PopupModal/Modal";
+import PopupModal from "../PopupModal/PopupModal";
 
 import GenerateMarketingAssets from "./GenerateAssets/GenerateMarketingAssets";
 
@@ -43,11 +43,9 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         });
         return;
       }
-
       // If validation passes, proceed with create lead api
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

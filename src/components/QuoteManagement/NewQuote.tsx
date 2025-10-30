@@ -43,7 +43,6 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       // If validation passes, proceed with create lead api
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

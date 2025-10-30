@@ -48,10 +48,8 @@ const EditQuote = ({
         return;
       }
       // Show success message or redirect
-      alert("Lead created successfully!");
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

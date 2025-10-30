@@ -131,7 +131,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     const num = Number(value);
     if (!isNaN(num)) {
       if (num < 0 || num > 100) {
-        alert("Tax percentage must be between 0 and 100");
+        console.warn("Tax percentage must be between 0 and 100");
         return;
       }
       onChange(num);
