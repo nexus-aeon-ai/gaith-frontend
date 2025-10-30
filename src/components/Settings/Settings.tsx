@@ -67,14 +67,14 @@ const Settings = () => {
       <SettingsTabs ref={settingsRef} />
 
       <div className="flex justify-end gap-2 mt-4">
-        <Button className="border border-[#687192] text-[#687192] p-4 px-6 h-16 text-md font-[400] bg-transparent dark:hover:bg-[#687192]/20 hover:bg-[#687192]/10 rounded-[16px]">
+        <Button className="border border-[#687192] text-[#687192] p-4 h-14 text-md font-[400] bg-transparent dark:hover:bg-[#687192]/20 hover:bg-[#687192]/10 rounded-[16px]">
           Reset To Defaults
         </Button>
 
         <Button
           onClick={handleSaveAll}
           disabled={isSaving}
-          className="border-none text-white p-4 px-6 h-16 text-md font-[400] bg-[#3072C0] hover:bg-[#3072C0]/80 disabled:opacity-50 disabled:cursor-not-allowed rounded-[16px]"
+          className="border-none text-white p-4 h-14 text-md font-[400] bg-[#3072C0] hover:bg-[#3072C0]/80 disabled:opacity-50 disabled:cursor-not-allowed rounded-[16px]"
         >
           {isSaving ? "Saving..." : "Save All Changes"}
           {!isSaving && <ChevronRight />}
