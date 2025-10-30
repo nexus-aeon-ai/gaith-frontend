@@ -27,7 +27,10 @@ const getIconComponent = (iconName: string, color: string) => {
   }
 };
 
-const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps) => {
+const CampaignTasksTab = ({
+  setShowPendingTasks,
+  setShowCampaignOverview,
+}: CampaignTasksTabProps) => {
   const campaigns = mockCampaigns;
   const tasks = mockTasks;
 
@@ -97,7 +100,12 @@ const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps
                   key={campaign.id}
                   className="p-4 w-full border border-border bg-background rounded-lg hover:bg-muted/50 transition-colors"
                   // role="button"
-                  // onClick={() => setShowPendingTasks(true)}
+                  onClick={() => setShowCampaignOverview(true)}
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ") setShowCampaignOverview(true);
+                  }}
+                  role="button"
                   // tabIndex={0}
                   // onKeyDown={e => {
                   //   if (e.key === "Enter" || e.key === " ") setShowPendingTasks(true);
@@ -116,7 +124,7 @@ const CampaignTasksTab = ({ client, setShowPendingTasks }: CampaignTasksTabProps
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-foreground">{campaign.budget}</div>
+                      <div className="text-sm font-medium text-foreground">{campaign.budget.totalBudget}</div>
                       <div className="text-sm font-medium text-green-600">{campaign.roi}</div>
                     </div>
                   </div>

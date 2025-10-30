@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 
 import { CampaignForm } from "@/components/ClientManagement/Campaign/Campaign";
+import ClientCampaignOverview from "@/components/ClientManagement/CampaignOverview/CampaignOverview";
+import PendingTasks from "@/components/ClientManagement/PendingLastMeeting";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,9 +44,18 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
   const [activeTab, setActiveTab] = useState("main-info");
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [showPendingTasks, setShowPendingTasks] = useState(false);
+  const [showCampaignOverview, setShowCampaignOverview] = useState(false);
 
   if (newCampaignOpen) {
     return <CampaignForm client={client} setCampaignOpen={setNewCampaignOpen} />;
+  }
+
+  if (showPendingTasks) {
+    return <PendingTasks client={client} onBack={onBack} />;
+  }
+
+  if (showCampaignOverview) {
+    return <ClientCampaignOverview onBack={onBack} />;
   }
 
   return (
@@ -237,7 +248,10 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
         </TabsContent>
 
         <TabsContent value="campaign-tasks" className="mt-0">
-          <CampaignTasksTab client={client} setShowPendingTasks={setShowPendingTasks} />
+          <CampaignTasksTab
+            setShowPendingTasks={setShowPendingTasks}
+            setShowCampaignOverview={setShowCampaignOverview}
+          />
         </TabsContent>
 
         <TabsContent value="historical-performance" className="mt-0">

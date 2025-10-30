@@ -1,21 +1,22 @@
 "use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  SortingState,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import PopupModal from "@/components/PopupModal/Modal";
+import { deleteClient, getClients, type ApiClient } from "@/lib/api/client";
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
-import { mockClients } from "./data/mockClients";
 import EditClient from "./EditClient";
 import HeaderSection from "./HeaderSection";
 import NewClient from "./NewClient";
@@ -31,11 +32,69 @@ const ClientManagementClient = () => {
   const columns = useTableColumns(setSelectedClient, setEditClientToggle);
   const [deleteClientToggle, setDeleteClientToggle] = useState<boolean>(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const queryClient = useQueryClient();
 
-  // Mock paginated data
+  // Fetch clients from API
+  const { data: apiClientsData } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  // Delete client mutation
+  const { mutate: deleteClientMutate } = useMutation({
+    mutationKey: ["clients", "delete"],
+    mutationFn: async (id: string) => {
+      const res = await deleteClient(id);
+      return res;
+    },
+    onSuccess: async (data) => {
+      console.log("Delete successful:", data);
+      await queryClient.invalidateQueries({ queryKey: ["clients"] });
+    },
+    onError: (error: Error) => {
+      console.error("Delete error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+    },
+  });
+
+  // Transform API data to UI Client format
+  const clients: Client[] = useMemo(() => {
+    return apiClientsData.map((apiClient: ApiClient): Client => ({
+      id: apiClient.id,
+      name: apiClient.fullName || apiClient.companyName,
+      email: apiClient.emailAddress || "",
+      status: apiClient.isActive ? "Active" : "Inactive",
+      agreementPeriod: {
+        start: apiClient.agreementStartDate
+          ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+          : "N/A",
+        end: apiClient.agreementEndDate
+          ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+          : "N/A",
+      },
+      marketRegion: apiClient.country || "N/A",
+      services: apiClient.industry || "N/A",
+      contactInfo: apiClient.phoneNumber || "N/A",
+      assignedTo: [],
+    }));
+  }, [apiClientsData]);
+
+  // Paginated data structure
   const data: TGenericPaginatedResponse<Client> = {
-    results: mockClients,
-    count: mockClients.length,
+    results: clients,
+    count: clients.length,
     next: null,
     previous: null,
     page_count: 1,
@@ -64,10 +123,15 @@ const ClientManagementClient = () => {
 
   const confirmDeleteClient = () => {
     if (!clientToDelete) return;
-    console.log("Deleting client:", clientToDelete);
-    // TODO: call API for deletion
-    setDeleteClientToggle(false);
-    setClientToDelete(null);
+    deleteClientMutate(clientToDelete.id, {
+      onSuccess: () => {
+        setDeleteClientToggle(false);
+        setClientToDelete(null);
+      },
+      onError: () => {
+        // Keep modal open on error so user can see the error
+      },
+    });
   };
 
   // If a client is selected, show the details view
