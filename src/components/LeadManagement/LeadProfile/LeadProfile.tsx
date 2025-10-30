@@ -1,4 +1,3 @@
-import { getLeadById, LeadByIdResponse } from "@/lib/api/leads";
 import { useQuery } from "@tanstack/react-query";
 import { Globe, Mail, Phone } from "lucide-react";
 import Image from "next/image";
@@ -6,12 +5,12 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
@@ -21,6 +20,7 @@ import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
 import Linkedin from "@/components/ui/icons/social/linkedin";
 import Twitterx from "@/components/ui/icons/social/twitterx";
+import { LeadByIdResponse, getLeadById } from "@/lib/api/leads";
 
 interface LeadProfileProps {
   leadId: string;
@@ -134,16 +134,44 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
             <div className="flex items-center gap-3">
               {lead.linkedinUrl && (
-                <a href={lead.linkedinUrl} target="_blank" rel="noopener noreferrer" className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"><Linkedin /></a>
+                <a
+                  href={lead.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                >
+                  <Linkedin />
+                </a>
               )}
               {lead.twitterUrl && (
-                <a href={lead.twitterUrl} target="_blank" rel="noopener noreferrer" className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"><Twitterx /></a>
+                <a
+                  href={lead.twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                >
+                  <Twitterx />
+                </a>
               )}
               {lead.instagramUrl && (
-                <a href={lead.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"><Instagram /></a>
+                <a
+                  href={lead.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                >
+                  <Instagram />
+                </a>
               )}
               {lead.facebookUrl && (
-                <a href={lead.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"><Facebook /></a>
+                <a
+                  href={lead.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                >
+                  <Facebook />
+                </a>
               )}
             </div>
           </div>
@@ -167,7 +195,9 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                       .map((n: string) => n[0])
                       .join("")}
                   </div>
-                ) : "-"}
+                ) : (
+                  "-"
+                )}
               </div>
             </div>
           </div>
@@ -202,16 +232,20 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             />
             <div className="text-sm text-muted-foreground space-y-1">
               <p className="flex justify-between gap-2">
-                <span className="font-medium ">Primary Region: </span>{lead.country?.name || "-"}
+                <span className="font-medium ">Primary Region: </span>
+                {lead.country?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Secondary Regions: </span>{lead.region?.name || "-"}
+                <span className="font-medium ">Secondary Regions: </span>
+                {lead.region?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Area: </span>{lead.area?.name || "-"}
+                <span className="font-medium ">Area: </span>
+                {lead.area?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Address: </span>{lead.fullAddress || "-"}
+                <span className="font-medium ">Address: </span>
+                {lead.fullAddress || "-"}
               </p>
             </div>
           </div>
