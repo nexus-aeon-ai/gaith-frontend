@@ -1,27 +1,10 @@
 import { z } from "zod";
 
 // Lead Source options validation
-const leadSourceSchema = z.enum([
-  "website",
-  "social-media",
-  "referral",
-  "campaign",
-  "cold-call",
-  "email",
-  "trade-show",
-  "other",
-]);
+const leadSourceSchema = z.string().optional();
 
 // Assigned To options validation
-const assignedToSchema = z.enum([
-  "creative-director",
-  "social-media-manager",
-  "ux-researcher",
-  "web-developer",
-  "content-writer",
-  "graphic-designer",
-  "seo-specialist",
-]);
+const assignedToSchema = z.string().optional();
 
 // Products & Services validation for lead
 const productsServicesSchema = z.object({
@@ -45,7 +28,7 @@ const clientProductsServicesSchema = z.object({
 // languages for client market/target audience
 const languages = ["English", "Spanish", "French", "German", "Chinese"] as const;
 
-const optionalUrl = z.string().url().or(z.literal("")).optional();
+const validURL = z.string().url("Invalid URL");
 
 // Main Lead Form Validation Schema
 export const createLeadSchema = z.object({
@@ -84,12 +67,12 @@ export const createLeadSchema = z.object({
   region: z
     .string()
     .min(2, "Region must be at least 2 characters")
-    .max(50, "Region must be less than 50 characters"),
+    .max(50, "Region must be less than 50 characters").optional(),
 
   area: z
     .string()
     .min(2, "Area must be at least 2 characters")
-    .max(50, "Area must be less than 50 characters"),
+    .max(50, "Area must be less than 50 characters").optional(),
 
   fullAddress: z
     .string()
@@ -98,7 +81,7 @@ export const createLeadSchema = z.object({
 
   // Team Assignment
   leadSource: leadSourceSchema,
-  assignedTo: assignedToSchema,
+  assignedTo: z.string().optional(),
 
   // Company Profile
   visionStatement: z
@@ -112,21 +95,20 @@ export const createLeadSchema = z.object({
     .max(1000, "Mission statement must be less than 1000 characters"),
 
   // Social Media URLs - Optional but validated if provided
-  linkedinUrl: optionalUrl,
-  facebookUrl: optionalUrl,
-  youtubeUrl: optionalUrl,
-  twitterUrl: optionalUrl,
-  instagramUrl: optionalUrl,
-  websiteUrl: z.string().url("Invalid Website URL").optional(),
+  linkedinUrl: validURL,
+  facebookUrl: validURL,
+  youtubeUrl: validURL,
+  twitterUrl: validURL,
+  instagramUrl: validURL,
+  websiteUrl: validURL,
 
   // Additional Notes
   additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
 
   // Products & Services
-  productsServices: productsServicesSchema,
-
-  // Additional Team Members
-  additionalTeamMembers: z.record(z.boolean().optional()),
+  productServiceIds: z.array(z.string()).default([]),
+  // Team Roles/Additional Team Members
+  teamRoleIds: z.array(z.string()).default([]),
 
   //company logo
   companyLogo: z
@@ -219,12 +201,12 @@ export const createClientSchema = z.object({
   clientProductsServicesSchema: clientProductsServicesSchema,
 
   // Social Media URLs - Optional but validated if provided
-  linkedinUrl: optionalUrl,
-  facebookUrl: optionalUrl,
-  youtubeUrl: optionalUrl,
-  twitterUrl: optionalUrl,
-  instagramUrl: optionalUrl,
-  websiteUrl: z.string().url("Invalid Website URL").optional(),
+  linkedinUrl: validURL,
+  facebookUrl: validURL,
+  youtubeUrl: validURL,
+  twitterUrl: validURL,
+  instagramUrl: validURL,
+  websiteUrl: validURL  ,
 
   // Products & Services
   productsServices: productsServicesSchema,

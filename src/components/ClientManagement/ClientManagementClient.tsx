@@ -9,7 +9,7 @@ import {
 import { X } from "lucide-react";
 import { useState } from "react";
 
-import PopupModal from "@/components/PopupModal/Modal";
+import PopupModal from "@/components/PopupModal/PopupModal";
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 

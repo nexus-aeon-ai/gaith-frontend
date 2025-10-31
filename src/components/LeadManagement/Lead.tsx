@@ -1,8 +1,10 @@
 "use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import LeadProfile from "@/components/LeadManagement/LeadProfile/LeadProfile";
 import FilterSheet from "@/components/sheet/Filter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,26 +22,86 @@ import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
-import { mockLeads } from "@/lib/mockdata";
+import { deleteLead, getLeads } from "@/lib/api/leads";
+import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
+import { CreateLeadFormData } from "@/lib/validations/lead";
+
 
 import EditLead from "./EditLead";
 import NewLead from "./NewLead";
 
+function leadToFormData(lead: Lead): CreateLeadFormData {
+  return {
+    fullName: lead.name || "",
+    nationality: "", // not available in table Lead, set to blank
+    email: lead.email || "",
+    phoneNumber: lead.contactInfo || "",
+    country: "", // not available, fallback
+    region: "",
+    area: "",
+    fullAddress: "", // not available
+    leadSource: lead.source || "",
+    assignedTo: (lead.assignedTo && lead.assignedTo[0]?.name) || "",
+    visionStatement: "",
+    missionStatement: "",
+    linkedinUrl: "",
+    facebookUrl: "",
+    youtubeUrl: "",
+    twitterUrl: "",
+    instagramUrl: "",
+    websiteUrl: "",
+    additionalNotes: "",
+    productServiceIds: [], // Not in table view
+    teamRoleIds: [], // Not in table view
+    companyLogo: undefined,
+  };
+}
+
 const LeadsPage = () => {
-  const leads = mockLeads;
+  // Fetch leads from API
+  const { data } = useQuery<{ status: number; data: { results: Lead[]; count: number } }, Error>({
+    queryKey: ["leads"],
+    queryFn: getLeads,
+    initialData: { status: 200, data: { results: [], count: 0 } },
+  });
+
+  const leads: Lead[] = data?.data.results || [];
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewLeadForm] = useState(false);
   const [showEditLeadForm, setShowEditLeadForm] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<(CreateLeadFormData & { id: string }) | null>(
+    null,
+  );
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
+  const [showLeadProfile, setShowLeadProfile] = useState(false);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLead(id),
+    onSuccess: () => {
+      setDeletingLeadId(null);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      console.log("Lead deleted successfully!");
+    },
+    onError: error => {
+      setDeletingLeadId(null);
+      console.error("Failed to delete lead. See console for details.");
+      console.error(error);
+    },
+  });
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedLeads(leads.map(client => client.id));
+      setSelectedLeads(leads.map((client: Lead) => client.id));
     } else {
       setSelectedLeads([]);
     }
@@ -54,7 +116,7 @@ const LeadsPage = () => {
   };
 
   const filteredClients = leads.filter(
-    client =>
+    (client: Lead) =>
       client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -70,9 +132,8 @@ const LeadsPage = () => {
   };
 
   const getVisiblePages = () => {
-    const pages = [];
+    const pages: number[] = [];
     const maxVisiblePages = 5;
-
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -80,33 +141,46 @@ const LeadsPage = () => {
     } else {
       let startPage = Math.max(1, currentPage - 2);
       let endPage = Math.min(totalPages, currentPage + 2);
-
       if (currentPage <= 3) {
         endPage = maxVisiblePages;
       } else if (currentPage >= totalPages - 2) {
         startPage = totalPages - maxVisiblePages + 1;
       }
-
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-
     return pages;
   };
 
   if (showNewLeadForm) {
-    return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)}/>;
+    return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)} />;
   }
 
-  if (showEditLeadForm) {
-    return <EditLead closeEditLeadForm={() => setShowEditLeadForm(false)}/>;
+  if (showEditLeadForm && selectedLead) {
+    return (
+      <EditLead
+        initialData={selectedLead}
+        leadId={currentClients.find(l => l.email === selectedLead.email)?.id || ""}
+        closeEditLeadForm={() => setShowEditLeadForm(false)}
+      />
+    );
   }
 
+  if (showLeadProfile && selectedLeadId) {
+    return <LeadProfile leadId={selectedLeadId} closeLeadProfile={() => setShowLeadProfile(false)} />;
+  }
+
+  const confirmDeleteLead = (id: string) => {
+    if (!id) return;
+    console.log("Deleting lead:", id);
+    deleteMutation.mutate(id);
+    setDeletingLeadId(null);
+  };
   return (
     <div
       className={cn(
-        "min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
+        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
         "bg-background overflow-x-hidden",
       )}
     >
@@ -273,8 +347,8 @@ const LeadsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentClients.map((lead, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              {currentClients.map((lead: Lead) => (
+                <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-4 py-3">
                     <Checkbox
                       className="!rounded-[8px]"
@@ -340,9 +414,9 @@ const LeadsPage = () => {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex -space-x-3 justify-center">
-                      {lead.assignedTo.map((person, index) => (
+                      {lead.assignedTo.map(person => (
                         <div
-                          key={index}
+                          key={`${lead.id}-assigned-to-${person.name}`}
                           className={cn(
                             "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
                             person.color,
@@ -364,8 +438,8 @@ const LeadsPage = () => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => {
-                            // Handle view action
-                            // TODO: Implement view functionality
+                            setSelectedLeadId(lead.id);
+                            setShowLeadProfile(true);
                           }}
                         >
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -373,9 +447,10 @@ const LeadsPage = () => {
                             View
                           </span>
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem
                           onClick={() => {
+                            setSelectedLead(leadToFormData(lead));
                             setShowEditLeadForm(true);
                           }}
                         >
@@ -384,12 +459,11 @@ const LeadsPage = () => {
                             Edit
                           </span>
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => {
-                            // Handle delete action
-                            // TODO: Implement delete functionality
+                            confirmDeleteLead(lead.id);
                           }}
                         >
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -435,9 +509,9 @@ const LeadsPage = () => {
 
             {/* Page numbers */}
             <div className="flex items-center gap-1">
-              {getVisiblePages().map((page, index) => (
+              {getVisiblePages().map(page => (
                 <Button
-                  key={index}
+                  key={page}
                   variant={currentPage === page ? "default" : "ghost"}
                   size="sm"
                   onClick={() => handlePageChange(page)}
@@ -479,7 +553,38 @@ const LeadsPage = () => {
           </div>
         </div>
       </div>
-
+      {/* <PopupModal
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        closeOnAction
+        title="Delete Lead?"
+        iconComponent={
+          <DeleteIcon
+            style={{
+              background: "#FDEEEE",
+              borderRadius: 999,
+              padding: 8,
+              width: 40,
+              height: 40,
+            }}
+          />
+        }
+        description="Are you sure you want to delete this lead? This action cannot be undone."
+        cancelButton={{
+          label: "Delete",
+          disabled: deleteMutation.isPending,
+          onClick: () => {
+            setShowDeleteDialog(false);
+            if (deletingLeadId) {
+              deleteMutation.mutate(deletingLeadId);
+            }
+          },
+        }}
+        confirmButton={{
+          label: "Cancel",
+          onClick: () => setShowDeleteDialog(false),
+        }}
+      /> */}
       <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
     </div>
   );

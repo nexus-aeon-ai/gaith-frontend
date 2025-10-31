@@ -46,10 +46,8 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         return;
       }
       // Show success message or redirect
-      alert("Client created successfully!");
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the client. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
