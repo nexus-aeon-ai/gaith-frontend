@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { useState } from "react";
 
 import InvoiceSheet from "@/components/sheet/Quotation/InvoiceSheet";
@@ -38,7 +38,7 @@ import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
-import { ConfirmDialog } from "../Popups/PopupModal";
+import { ConfirmDialog } from "../Popups/PopupModal1";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";

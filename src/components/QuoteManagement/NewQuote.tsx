@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createQuoteSchema, type CreateQuotationFormData } from "@/lib/validations/quotation";
 
-import { ConfirmDialog } from "../Popups/PopupModal";
+import { ConfirmDialog } from "../Popups/PopupModal1";
 
 const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
