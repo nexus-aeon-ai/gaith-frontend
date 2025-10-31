@@ -38,7 +38,7 @@ import { mockQuotations } from "@/lib/mockdata/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
-import { ConfirmDialog } from "../Popups/PopupModal1";
+import { ConfirmDialog } from "../Popups/PopupModal";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
