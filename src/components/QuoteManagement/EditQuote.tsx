@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import QuotationForm from "@/components/Forms/QuotationForm";
 import {
@@ -15,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
 import { CreateQuotationFormData, createQuoteSchema } from "@/lib/validations/quotation";
+import { updateQuotation } from "@/lib/api/quotations";
 
 import { Quotation } from "../../lib/types";
 
@@ -26,6 +28,20 @@ const EditQuote = ({
   quotation: Quotation | null;
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (payload: { id: string; data: CreateQuotationFormData }) => {
+      return updateQuotation(payload.id, payload.data);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["quotations"] });
+      closeEditQuoteForm();
+    },
+    onError: err => {
+      console.error("Failed to update quotation.", err);
+    },
+  });
 
   const handleCancel = () => {
     closeEditQuoteForm();
@@ -47,7 +63,8 @@ const EditQuote = ({
         });
         return;
       }
-      // Show success message or redirect
+      if (!quotation) return;
+      mutation.mutate({ id: quotation.quotationId, data });
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
@@ -102,7 +119,7 @@ const EditQuote = ({
           </Button>
           <Button
             type="submit"
-            form="lead-form"
+            form="quotation-form"
             variant={"outline"}
             disabled={isSubmitting}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-none bg-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"

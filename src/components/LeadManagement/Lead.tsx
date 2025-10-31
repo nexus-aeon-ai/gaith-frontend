@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import FolderIcon from "@/components/ui/icons/folder";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
@@ -347,135 +348,146 @@ const LeadsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentClients.map((lead: Lead) => (
-                <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
-                    <Checkbox
-                      className="!rounded-[8px]"
-                      checked={selectedLeads.includes(lead.id)}
-                      onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-blue-600">
-                            {lead.name
-                              .split(" ")
-                              .map(n => n[0])
-                              .join("")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {lead.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
-                      </div>
+              {currentClients.length === 0 ? (
+                <tr className="pointer-events-none">
+                  <td colSpan={8} className="p-0">
+                    <div className="min-h-[300px] flex flex-col items-center justify-center">
+                      <FolderIcon />
+                      <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : lead.status === "Inactive"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-                      )}
-                    >
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.source === "Website"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                          : lead.source === "Social Media"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : lead.source === "Campaign"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-                      )}
-                    >
-                      {lead.source}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.services}
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.contactInfo}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex -space-x-3 justify-center">
-                      {lead.assignedTo.map(person => (
-                        <div
-                          key={`${lead.id}-assigned-to-${person.name}`}
-                          className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
-                            person.color,
-                          )}
-                          title={person.name}
-                        >
-                          {person.initial}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <EllipsisVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedLeadId(lead.id);
-                            setShowLeadProfile(true);
-                          }}
-                        >
-                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            View
-                          </span>
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedLead(leadToFormData(lead));
-                            setShowEditLeadForm(true);
-                          }}
-                        >
-                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Edit
-                          </span>
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => {
-                            confirmDeleteLead(lead.id);
-                          }}
-                        >
-                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Delete
-                          </span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                currentClients.map((lead: Lead) => (
+                  <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">
+                      <Checkbox
+                        className="!rounded-[8px]"
+                        checked={selectedLeads.includes(lead.id)}
+                        onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-blue-600">
+                              {lead.name
+                                .split(" ")
+                                .map(n => n[0])
+                                .join("")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {lead.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          lead.status === "Active"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : lead.status === "Inactive"
+                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                        )}
+                      >
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          lead.source === "Website"
+                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                            : lead.source === "Social Media"
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                              : lead.source === "Campaign"
+                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+                        )}
+                      >
+                        {lead.source}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
+                      {lead.services}
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
+                      {lead.contactInfo}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex -space-x-3 justify-center">
+                        {lead.assignedTo.map(person => (
+                          <div
+                            key={`${lead.id}-assigned-to-${person.name}`}
+                            className={cn(
+                              "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
+                              person.color,
+                            )}
+                            title={person.name}
+                          >
+                            {person.initial}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <EllipsisVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedLeadId(lead.id);
+                              setShowLeadProfile(true);
+                            }}
+                          >
+                            <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            View
+                            </span>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedLead(leadToFormData(lead));
+                              setShowEditLeadForm(true);
+                            }}
+                          >
+                            <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Edit
+                            </span>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                              confirmDeleteLead(lead.id);
+                            }}
+                          >
+                            <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Delete
+                            </span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

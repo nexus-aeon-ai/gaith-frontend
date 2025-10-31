@@ -1,4 +1,5 @@
 "use client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createQuotation } from "@/lib/api/quotations";
 import { createQuoteSchema, type CreateQuotationFormData } from "@/lib/validations/quotation";
 
 import { ConfirmDialog } from "../Popups/PopupModal";
@@ -22,6 +24,18 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createQuotation,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["quotations"] });
+      closeNewQuoteForm();
+    },
+    onError: err => {
+      console.error("Failed to create quotation.", err);
+    },
+  });
 
   const handleSave = async (data: CreateQuotationFormData) => {
     setIsSubmitting(true);
@@ -40,7 +54,8 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with create quotation api
+      mutation.mutate(data);
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
@@ -95,7 +110,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
           </Button>
           <Button
             type="submit"
-            // form="quotation-form"
+            form="quotation-form"
             variant={"outline"}
             onClick={() => setShowConfirmModal(true)}
             disabled={isSubmitting}
