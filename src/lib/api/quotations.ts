@@ -4,6 +4,15 @@ import type { CreateQuotationFormData } from "../validations/quotation";
 
 const quotationsEndpoint = "/quotations";
 
+interface BackendCurrencyItem {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+}
+
+const currenciesEndpoint = `${quotationsEndpoint}/currencies`;
+
 // Backend types based on provided API response
 interface BackendPricingItem {
   serviceDescription: string;
@@ -12,7 +21,7 @@ interface BackendPricingItem {
   quantity: number;
 }
 
-interface BackendQuotationItem {
+export interface BackendQuotationItem {
   id: string;
   quotationNumber: string;
   accountId: string;
@@ -61,6 +70,7 @@ function transformQuotation(item: BackendQuotationItem): Quotation {
   // We don't have explicit customer fields in API; use placeholders.
   // Title will be shown as the customer name to provide meaningful context in table.
   return {
+    id: item.id,
     quotationId: item.quotationNumber || item.id,
     customer: {
       avatar: "/images/girl-avatar.jpg",
@@ -106,11 +116,12 @@ export const getQuotations = async () => {
 };
 
 export const createQuotation = async (
-  form: CreateQuotationFormData,
+  form: CreateQuotationFormData & { currencyId?: string },
 ): Promise<{ status: number; data: Quotation | null }> => {
   // Hardcoded IDs per requirement
   const accountId = "689e1ef8-8c22-4e64-acbc-b34ad7e887c5";
-  const currencyId = "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
+  // allow currencyId to come from form; fall back to hardcoded id
+  const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
   const pricingItems = (form.serviceInstance || []).map(item => ({
     serviceDescription: item.description,
@@ -177,10 +188,10 @@ export const createQuotation = async (
 
 export const updateQuotation = async (
   id: string,
-  form: CreateQuotationFormData,
+  form: CreateQuotationFormData & { currencyId?: string },
 ): Promise<{ status: number; data: Quotation | null }> => {
   const accountId = "689e1ef8-8c22-4e64-acbc-b34ad7e887c5";
-  const currencyId = "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
+  const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
   const pricingItems = (form.serviceInstance || []).map(item => ({
     serviceDescription: item.description,
@@ -259,5 +270,40 @@ export const deleteQuotation = async (id: string): Promise<{ status: number }> =
   } catch (error) {
     console.error("[deleteQuotation] Exception:", error);
     return { status: 500 };
+  }
+};
+
+export const getQuotationCurrencies = async (): Promise<{
+  status: number;
+  data: BackendCurrencyItem[] | null;
+}> => {
+  try {
+    const response = await fetchInstance<BackendCurrencyItem[]>(currenciesEndpoint);
+    if (response.status >= 200 && response.status < 300) {
+      console.log("[getQuotationCurrencies] Success:", { status: response.status });
+    } else {
+      console.error("[getQuotationCurrencies] Failure:", { status: response.status, data: response.data });
+    }
+    return { status: response.status, data: (response.data as BackendCurrencyItem[]) || null };
+  } catch (error) {
+    console.error("[getQuotationCurrencies] Exception:", error);
+    return { status: 500, data: null };
+  }
+};
+
+export const getQuotationById = async (
+  id: string,
+): Promise<{ status: number; data: BackendQuotationItem | null }> => {
+  try {
+    const response = await fetchInstance<BackendQuotationItem>(`${quotationsEndpoint}/${id}`);
+    if (response.status >= 200 && response.status < 300) {
+      console.log("[getQuotationById] Success:", { status: response.status });
+    } else {
+      console.error("[getQuotationById] Failure:", { status: response.status, data: response.data });
+    }
+    return { status: response.status, data: (response.data as BackendQuotationItem) || null };
+  } catch (error) {
+    console.error("[getQuotationById] Exception:", error);
+    return { status: 500, data: null };
   }
 };

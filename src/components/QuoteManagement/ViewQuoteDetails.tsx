@@ -25,6 +25,8 @@ import { Send, SquarePen } from "lucide-react";
 type ServiceItem = {
   name: string;
   price: number;
+  quantity?: number;
+  taxPercentage?: number;
 };
 
 type CustomerInfo = {
@@ -76,8 +78,12 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
     currencyCode = "USD",
   } = data;
 
-  const subtotal = services.reduce((sum, s) => sum + s.price, 0);
-  const total = subtotal + (setupFee || 0);
+  const subtotal = services.reduce((sum, s) => sum + (s.price || 0) * (s.quantity || 1), 0);
+  const totalTax = services.reduce(
+    (sum, s) => sum + (s.price || 0) * (s.quantity || 1) * ((s.taxPercentage || 0) / 100),
+    0,
+  );
+  const total = subtotal + totalTax + (setupFee || 0);
 
   const handleCancel = () => {
     closeViewDetails();
@@ -211,20 +217,27 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             </h3>
 
             <div className="mt-3 divide-y">
-              {services.map((s, idx) => (
-                <div
-                  key={`${s.name}-${idx}`}
-                  className={cn(
-                    "flex items-start justify-between gap-4 py-2 text-sm",
-                    idx === 0 ? "pt-0" : undefined,
-                  )}
-                >
-                  <span className="text-foreground">{s.name}</span>
-                  <span className="tabular-nums text-foreground">
-                    {formatMoney(s.price, currencyCode)}
-                  </span>
-                </div>
-              ))}
+              {services.map((s) => {
+                const lineSubtotal = (s.price || 0) * (s.quantity || 1);
+                const lineTax = lineSubtotal * ((s.taxPercentage || 0) / 100);
+                const lineTotal = lineSubtotal + lineTax;
+                const key = `${s.name}-${s.price}-${s.quantity}`;
+                return (
+                  <div
+                    key={key}
+                    className={cn("flex items-start justify-between gap-4 py-2 text-sm")}
+                  >
+                    <div>
+                      <div className="text-foreground">{s.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {s.quantity ?? 1} x {formatMoney(s.price, currencyCode)}
+                        {s.taxPercentage ? ` • Tax ${s.taxPercentage}%` : ""}
+                      </div>
+                    </div>
+                    <span className="tabular-nums text-foreground">{formatMoney(lineTotal, currencyCode)}</span>
+                  </div>
+                );
+              })}
             </div>
 
             <Separator className="my-3" />

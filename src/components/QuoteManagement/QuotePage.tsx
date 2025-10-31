@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteQuotation, getQuotations } from "@/lib/api/quotations";
+import { deleteQuotation, getQuotations, getQuotationById, type BackendQuotationItem } from "@/lib/api/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
@@ -122,6 +122,7 @@ const QuotesPage = () => {
   const quotations: Quotation[] = quotationsResponse?.data.results || [];
   const [quoteToEdit, setQuoteToEdit] = useState<Quotation | null>(null);
   const [selectedQuotations, setSelectedQuotations] = useState<string[]>([]);
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewQuoteForm] = useState(false);
@@ -130,6 +131,17 @@ const QuotesPage = () => {
   const [showSendToClientSheet, setShowSendToClientSheet] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
+
+  // fetch single quotation when user opens view details
+  const { data: fetchedQuotationResp } = useQuery<BackendQuotationItem | null>({
+    queryKey: ["quotation", selectedQuoteId],
+    queryFn: async () => {
+      if (!selectedQuoteId) return null;
+      const resp = await getQuotationById(selectedQuoteId);
+      return resp.data;
+    },
+    enabled: !!selectedQuoteId && showQuoteDetails,
+  });
 
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
@@ -241,7 +253,61 @@ const QuotesPage = () => {
     );
   }
   if (showQuoteDetails) {
-    return <ViewQuoteDetails data={data} closeViewDetails={() => setShowQuoteDetails(false)} />;
+    
+    // transform backend item into the shape expected by ViewQuoteDetails
+    const transformToViewData = (item: BackendQuotationItem) => {
+      const services = (item.pricingItems || []).map(p => {
+        return {
+          name: p.serviceDescription,
+          price: p.servicePrice,
+          quantity: p.quantity,
+          taxPercentage: p.taxPercentage,
+        };
+      });
+
+      const terms = item.termsAndConditions
+        ? item.termsAndConditions.split(/\.\s*/).filter((t: string) => t.trim().length > 0)
+        : [];
+
+      const details = {
+        number: item.quotationNumber || item.id,
+        createdDate: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "",
+        currency: item.currencyId || "",
+        createdBy: item.createdBy || "",
+      };
+
+      return {
+        title: item.title || "",
+        description: item.description || "",
+        status: item.isDeleted ? "rejected" : item.isActive ? "pending" : "draft",
+        services,
+        setupFee: 0,
+        customer: {
+          name: item.title || "",
+          subtitle: "",
+          avatarUrl: "/images/girl-avatar.jpg",
+          email: "-",
+          phone: "",
+          address: "",
+        },
+        details,
+        terms,
+        notes: item.notes || "",
+        currencyCode: item.currencyId || "USD",
+      };
+    };
+
+    const viewData = fetchedQuotationResp ? transformToViewData(fetchedQuotationResp) : data;
+
+    return (
+      <ViewQuoteDetails
+        data={viewData}
+        closeViewDetails={() => {
+          setShowQuoteDetails(false);
+          setSelectedQuoteId(null);
+        }}
+      />
+    );
   }
 
   return (
@@ -499,6 +565,9 @@ const QuotesPage = () => {
                       <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem
                           onClick={() => {
+                            // prefer backend id when available
+                            // otherwise fall back to the table's quotationId
+                            setSelectedQuoteId(quote.id ?? quote.quotationId);
                             setShowQuoteDetails(true);
                           }}
                         >

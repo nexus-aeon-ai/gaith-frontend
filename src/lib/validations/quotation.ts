@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const currencyOptions = ["USD", "EUR", "AED"] as const;
-
 export const statusOptions = ["pending", "approved", "rejected"] as const;
 
 export interface ServiceInstance {
@@ -29,10 +27,8 @@ export const createQuoteSchema = z.object({
 
   validUntil: z.date().optional(),
 
-  currency: z.enum(currencyOptions, {
-    required_error: "Currency is required",
-    invalid_type_error: "Currency must be a string",
-  }),
+  // store selected currency id (from /quotations/currencies) to send to backend
+  currencyId: z.string({ required_error: "Currency is required" }).min(1, "Currency is required"),
 
   quotationTitle: z
     .string()

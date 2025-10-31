@@ -1,11 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch, type FieldArrayWithId } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,13 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  createQuoteSchema,
-  currencyOptions,
-  ServiceInstance,
-  statusOptions,
-  type CreateQuotationFormData,
-} from "@/lib/validations/quotation";
+import { getQuotationCurrencies } from "@/lib/api/quotations";
+import { createQuoteSchema, ServiceInstance, statusOptions, type CreateQuotationFormData } from "@/lib/validations/quotation";
 
 import { Quotation } from "../../lib/types";
 import { Badge } from "../ui/badge";
@@ -52,7 +48,7 @@ const defaultFormData: CreateQuotationFormData = {
   customerName: "",
   quoteNumber: "",
   validUntil: new Date(),
-  currency: currencyOptions[0],
+  currencyId: "",
   quotationTitle: "",
   description: "",
   serviceInstance: [{ description: "", quantity: 0, servicePrice: 0, tax: 0, total: 0 }],
@@ -62,6 +58,8 @@ const defaultFormData: CreateQuotationFormData = {
 
 const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: QuoteFormProps) => {
   const { theme } = useTheme();
+
+  type CurrencyItem = { id: string; code: string; name: string; symbol?: string };
 
   const form = useForm<CreateQuotationFormData>({
     resolver: zodResolver(createQuoteSchema),
@@ -77,6 +75,21 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     control,
     name: "serviceInstance",
   });
+
+  // Fetch currencies list
+  const { data: currenciesResp } = useQuery({
+    queryKey: ["quotationCurrencies"],
+    queryFn: async () => {
+      const res = await getQuotationCurrencies();
+      return res.data || [];
+    },
+  });
+  const currencies = (currenciesResp || []) as CurrencyItem[];
+
+  // watch selected currencyId to display symbol in price labels
+  const selectedCurrencyId = useWatch({ control, name: "currencyId" }) as string | undefined;
+  const selectedCurrency = currencies.find(c => c.id === selectedCurrencyId);
+  const currencySymbol = selectedCurrency?.symbol || "$";
 
   useEffect(() => {
     if (!serviceInstances) return;
@@ -278,19 +291,19 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 />
                 <FormField
                   control={form.control}
-                  name="currency"
+                  name="currencyId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Currency</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select value={field.value} onValueChange={val => field.onChange(val)}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                             <SelectValue placeholder="Select Currency" />
                           </SelectTrigger>
                           <SelectContent>
-                            {currencyOptions.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
+                            {currencies.map((option: any) => (
+                              <SelectItem key={option.id} value={option.id}>
+                                {`${option.code} — ${option.name} ${option.symbol || ""}`}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -452,19 +465,22 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 />
                 <FormField
                   control={form.control}
-                  name="currency"
+                  name="currencyId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Currency</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          value={field.value as string}
+                          onValueChange={val => field.onChange(val)}
+                        >
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                             <SelectValue placeholder="Select Currency" />
                           </SelectTrigger>
                           <SelectContent>
-                            {currencyOptions.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
+                            {currencies.map((option: CurrencyItem) => (
+                              <SelectItem key={option.id} value={option.id}>
+                                {`${option.code} — ${option.name} ${option.symbol || ""}`}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -542,7 +558,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
           <CardContent className="p-4 flex flex-col gap-6">
             {/* Service Fields */}
             <div className="flex flex-col gap-3">
-              {fields.map((field: any, index: number) => (
+              {fields.map((field: FieldArrayWithId<CreateQuotationFormData, "serviceInstance", "id">, index: number) => (
                 <div
                   key={field.id}
                   className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#1E293B] border-[#E4E7EC]"
@@ -594,7 +610,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.servicePrice`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Service Price ($)</FormLabel>
+                        <FormLabel>Service Price ({currencySymbol})</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -645,7 +661,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                         <FormLabel>Total</FormLabel>
                         <FormControl>
                           <div className="py-3 px-3 rounded-[12px] text-gray-700 dark:text-gray-300 border border-transparent">
-                            <p className="text-[16px] font-[700]">${field.value ?? 0}</p>
+                            <p className="text-[16px] font-[700]">{currencySymbol}{field.value ?? 0}</p>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -675,7 +691,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Subtotal:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.subtotal.toFixed(2)}
+                  {currencySymbol}{totals?.subtotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center">
@@ -683,13 +699,13 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Total Tax:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.totalTax.toFixed(2)}
+                  {currencySymbol}{totals?.totalTax.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center text-sm font-medium ">
                 <span className="text-gray-800 dark:text-gray-100">Grand Total:</span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.grandTotal.toFixed(2)}
+                  {currencySymbol}{totals?.grandTotal.toFixed(2)}
                 </span>
               </div>
             </div>

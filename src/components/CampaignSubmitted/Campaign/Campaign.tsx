@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { ConfirmDialog } from "@/components/Popups/PopupModal1";
+import { ConfirmDialog } from "@/components/Popups/PopupModal";
 import { Stepper } from "@/components/Stepper/Stepper";
 import {
   Breadcrumb,
