@@ -1,26 +1,25 @@
 "use client";
 
+import { Send, SquarePen } from "lucide-react";
 import Link from "next/link";
 
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 
 import { cn } from "../../lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
-import EditIcon from "@/components/ui/icons/options/edit-icon";
-import PdfIcon from "@/components/ui/icons/options/pdf-icon";
-import { Send, SquarePen } from "lucide-react";
 
 type ServiceItem = {
   name: string;
