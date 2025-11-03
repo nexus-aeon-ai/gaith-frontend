@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Globe, Mail, Phone } from "lucide-react";
+import { Flag, Globe, Mail, Phone, SquarePen, UserRound, UserRoundCheckIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,11 +17,13 @@ import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import FileText from "@/components/ui/icons/file";
 import Calendar from "@/components/ui/icons/options/calendar-icon";
+import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
 import Linkedin from "@/components/ui/icons/social/linkedin";
 import Twitterx from "@/components/ui/icons/social/twitterx";
 import { LeadByIdResponse, getLeadById } from "@/lib/api/leads";
+import { cn } from "@/lib/utils";
 
 interface LeadProfileProps {
   leadId: string;
@@ -33,6 +36,8 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
     queryFn: () => getLeadById(leadId),
     enabled: !!leadId,
   });
+
+  const { theme } = useTheme();
 
   if (isLoading || !lead) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
@@ -84,14 +89,28 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
           <div className="flex md:flex-row flex-col gap-2">
             <Button
               variant="outline"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2 w-fit p-6 px-8 text-[16px] font-[400]",
+                "bg-white dark:bg-card border-border rounded-[16px]",
+                "hover:bg-card hover:border-blue-500",
+              )}
+            >
+              <ExcelIcon />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
+              <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+            </Button>
+            <Button
+              variant="outline"
               className="w-fit p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#EA3B1F] rounded-[16px] bg-transparent"
             >
+              <Flag />
               Mark as Lost
             </Button>
             <Button
               variant="outline"
-              className="w-fit p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
+              className="w-fit p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#687192] text-[#687192] rounded-[16px] bg-transparent"
             >
+              <SquarePen />
               Edit Profile
             </Button>
           </div>
@@ -102,14 +121,15 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
               variant={"outline"}
               className="w-fit p-6 px-8 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              <UserRoundCheckIcon />
               Convert to Client
             </Button>
           </div>
         </div>
       </div>
-      <div className="grid gap-4 bg-card rounded-2xl p-5 border">
+      <div className="grid bg-card gap-4  rounded-2xl p-5 border">
         {/* Top Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1  lg:grid-cols-3 gap-4">
           {/* Contact Information */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
             <h2 className="font-semibold text-lg mb-3">Contact Information</h2>
@@ -122,9 +142,9 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                 <Phone size={16} className="text-blue-600" />
                 {lead.phoneNumber || "-"}
               </div>
-              <div className="flex items-center gap-2">
-                <Globe size={16} className="text-blue-600" />
-                {lead.websiteUrl || "-"}
+              <div className="flex items-center gap-2 md:max-w-xs ">
+                <Globe size={16} className="text-blue-600 shrink-0" />
+                <span className="truncate block">{lead.websiteUrl || "-"}</span>
               </div>
             </div>
           </div>
@@ -138,7 +158,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                   href={lead.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                  className="bg-card p-2 rounded-xl cursor-pointer"
                 >
                   <Linkedin />
                 </a>
@@ -148,7 +168,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                   href={lead.twitterUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                  className="bg-card p-2 rounded-xl cursor-pointer"
                 >
                   <Twitterx />
                 </a>
@@ -158,7 +178,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                   href={lead.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                  className="bg-card p-2 rounded-xl cursor-pointer"
                 >
                   <Instagram />
                 </a>
@@ -168,7 +188,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                   href={lead.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                  className="bg-card p-2 rounded-xl cursor-pointer"
                 >
                   <Facebook />
                 </a>
@@ -185,26 +205,24 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                 {lead.leadSource?.name || "-"}
               </span>
             </div>
-            <div>
+            <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm">Assigned To</span>
-              <div className="flex mt-2 gap-2 items-center">
-                {lead.assignedToUser?.fullName ? (
-                  <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-blue-900 font-bold">
-                    {lead.assignedToUser.fullName
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </div>
-                ) : (
-                  "-"
-                )}
+              <div className="flex gap-2 items-center">
+                <div
+                  key={`${lead.id}-assigned-to-${lead.assignedToUser.id}`}
+                  className={cn(
+                    "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800 bg-orange-400",
+                  )}
+                >
+                  {lead.assignedToUser?.fullName?.charAt(0).toUpperCase() || <UserRound />}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Middle Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Vision & Mission */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
             <h2 className="font-semibold text-lg mb-3">Vision & Mission</h2>
@@ -230,7 +248,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
               alt="Map"
               className="rounded-lg mb-3"
             />
-            <div className="text-sm text-muted-foreground space-y-1">
+            <div className="text-sm text-muted-foreground space-y-1 overflow-clip">
               <p className="flex justify-between gap-2">
                 <span className="font-medium ">Primary Region: </span>
                 {lead.country?.name || "-"}
@@ -243,7 +261,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                 <span className="font-medium ">Area: </span>
                 {lead.area?.name || "-"}
               </p>
-              <p className="flex justify-between">
+              <p className="flex justify-between gap-2  overflow-x-clip">
                 <span className="font-medium ">Address: </span>
                 {lead.fullAddress || "-"}
               </p>
@@ -255,21 +273,25 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             <h2 className="font-semibold text-lg mb-3">Recent Activity</h2>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <FileText />
+                <FileText width={20} height={20} color={theme === "dark" ? "#C99DDD" : "#853AA6"} />
                 <div className="flex flex-col">
                   <p>Downloaded Product Brochure</p>
                   <p className="text-gray-500">2 days ago</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar />
+                <Calendar
+                  width={20}
+                  height={20}
+                  color={theme === "dark" ? "#E02215" : "#A81A10 "}
+                />
                 <div className="flex flex-col">
                   <p>Scheduled Demo Call</p>
                   <p className="text-gray-500">5 days ago</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <FileText />
+                <FileText width={20} height={20} color={theme === "dark" ? "#68DAB3" : "#175E46"} />
                 <div className="flex flex-col">
                   <p>Downloaded Product Brochure</p>
                   <p className="text-gray-500">2 days ago</p>

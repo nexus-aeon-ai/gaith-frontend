@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import LeadProfile from "@/components/LeadManagement/LeadProfile/LeadProfile";
+import PopupModal from "@/components/PopupModal/PopupModal";
 import FilterSheet from "@/components/sheet/Filter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,9 +28,9 @@ import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
 import { CreateLeadFormData } from "@/lib/validations/lead";
 
-
 import EditLead from "./EditLead";
 import NewLead from "./NewLead";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function leadToFormData(lead: Lead): CreateLeadFormData {
   return {
@@ -168,7 +169,9 @@ const LeadsPage = () => {
   }
 
   if (showLeadProfile && selectedLeadId) {
-    return <LeadProfile leadId={selectedLeadId} closeLeadProfile={() => setShowLeadProfile(false)} />;
+    return (
+      <LeadProfile leadId={selectedLeadId} closeLeadProfile={() => setShowLeadProfile(false)} />
+    );
   }
 
   const confirmDeleteLead = (id: string) => {
@@ -310,53 +313,38 @@ const LeadsPage = () => {
         </div>
       </div>
 
-      {/* Table Section */}
       <div className="bg-card rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
                   <Checkbox
                     className="!rounded-[8px]"
                     checked={selectedLeads.length === leads.length}
                     onCheckedChange={handleSelectAll}
                   />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lead Name
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Source
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Services
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact Info
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assigned To
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
+                </TableHead>
+                <TableHead>Lead Name</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">Source</TableHead>
+                <TableHead className="text-center">Services</TableHead>
+                <TableHead className="text-center">Contact Info</TableHead>
+                <TableHead className="text-center">Assigned To</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {currentClients.map((lead: Lead) => (
-                <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
+                <TableRow key={lead.id}>
+                  <TableCell>
                     <Checkbox
                       className="!rounded-[8px]"
                       checked={selectedLeads.includes(lead.id)}
                       onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
                     />
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -375,8 +363,8 @@ const LeadsPage = () => {
                         <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <span
                       className={cn(
                         "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
@@ -389,8 +377,8 @@ const LeadsPage = () => {
                     >
                       {lead.status}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <span
                       className={cn(
                         "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
@@ -405,14 +393,14 @@ const LeadsPage = () => {
                     >
                       {lead.source}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
+                  </TableCell>
+                  <TableCell className="text-center text-sm">
                     {lead.services}
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
+                  </TableCell>
+                  <TableCell className="text-center text-sm">
                     {lead.contactInfo}
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <div className="flex -space-x-3 justify-center">
                       {lead.assignedTo.map(person => (
                         <div
@@ -427,8 +415,8 @@ const LeadsPage = () => {
                         </div>
                       ))}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -463,7 +451,8 @@ const LeadsPage = () => {
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => {
-                            confirmDeleteLead(lead.id);
+                            setDeletingLeadId(lead.id);
+                            setShowDeleteDialog(true);
                           }}
                         >
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -473,11 +462,11 @@ const LeadsPage = () => {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -553,7 +542,7 @@ const LeadsPage = () => {
           </div>
         </div>
       </div>
-      {/* <PopupModal
+      <PopupModal
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         closeOnAction
@@ -575,16 +564,14 @@ const LeadsPage = () => {
           disabled: deleteMutation.isPending,
           onClick: () => {
             setShowDeleteDialog(false);
-            if (deletingLeadId) {
-              deleteMutation.mutate(deletingLeadId);
-            }
+            confirmDeleteLead(deletingLeadId as string);
           },
         }}
         confirmButton={{
           label: "Cancel",
           onClick: () => setShowDeleteDialog(false),
         }}
-      /> */}
+      />
       <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
     </div>
   );

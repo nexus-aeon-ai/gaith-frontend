@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import {
   Form,
   FormControl,
@@ -16,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Gallery from "@/components/ui/icons/options/gallery";
+import Instagram from "@/components/ui/icons/social/instagram";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -379,7 +381,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                       <FormLabel>Vision Statement</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
+                          placeholder="What is the client's long-term vision and aspirations?"
                           className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
@@ -396,7 +398,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                       <FormLabel>Mission Statement</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
+                          placeholder="Client's core purpose and how they serve their customers"
                           className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
@@ -580,7 +582,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
                               {/* Reuse Facebook SVG for demo */}
-                              <Fb />
+                              <Instagram />
                             </div>
                             <Input
                               placeholder="https://instagram.com/company"
@@ -642,15 +644,14 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
               name="productServiceIds"
               render={() => (
                 <FormItem>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="grid md:grid-cols-2 grid-cols-1 max-w-md gap-1">
                     {productServices.map(ps => (
                       <label key={ps.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
+                        <CheckboxSquare
                           disabled={loadingProductServices}
                           checked={selectedProductServiceIds.includes(ps.id)}
-                          onChange={e => {
-                            if (e.target.checked) {
+                          onCheckedChange={checked => {
+                            if (checked) {
                               form.setValue("productServiceIds", [
                                 ...selectedProductServiceIds,
                                 ps.id,
@@ -673,17 +674,18 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           </CardContent>
         </Card>
 
-        {/* Lead Source Select */}
+        {/* Additional Team Members field, now with teamRoles as source */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Lead Source</CardTitle>
+            <CardTitle className="text-lg font-medium">Team Assignment</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
+          <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="leadSource"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Lead Source</FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -707,15 +709,6 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
-
-        {/* Assigned To role select using /utils/roles */}
-        <Card className="pt-3 rounded-[16px] shadow-none">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Assigned To (Role)</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
             <FormField
               control={form.control}
               name="assignedTo"
@@ -744,29 +737,21 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
 
-        {/* Additional Team Members field, now with teamRoles as source */}
-        <Card className="pt-3 rounded-[16px] shadow-none">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Additional Team Members</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
             <FormField
               control={form.control}
               name="teamRoleIds"
               render={() => (
                 <FormItem>
-                  <div className="flex flex-wrap gap-4">
+                  <FormLabel>Additional Team Members</FormLabel>
+                  <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                     {teamRoles.map(role => (
                       <label key={role.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
+                        <CheckboxSquare
                           disabled={loadingTeamRoles}
                           checked={selectedTeamRoleIds.includes(role.id)}
-                          onChange={e => {
-                            if (e.target.checked) {
+                          onCheckedChange={checked => {
+                            if (checked) {
                               form.setValue("teamRoleIds", [...selectedTeamRoleIds, role.id]);
                             } else {
                               form.setValue(
