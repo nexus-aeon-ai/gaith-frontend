@@ -1,12 +1,6 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CirclePlus,
-  EllipsisVertical,
-  Search,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useState } from "react";
@@ -42,16 +36,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteQuotation, getQuotationById, getQuotations, type BackendQuotationItem } from "@/lib/api/quotations";
+import {
+  deleteQuotation,
+  getQuotationById,
+  getQuotations,
+  type BackendQuotationItem,
+} from "@/lib/api/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
-import { ConfirmDialog } from "../Popups/PopupModal";
+// import { ConfirmDialog } from "../Popups/PopupModal";
+import PopupModal from "@/components/PopupModal/PopupModal";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
 import NewQuote from "./NewQuote";
 import ViewQuoteDetails from "./ViewQuoteDetails";
+import { set } from "date-fns";
 
 const data = {
   title: "Enterprise Software Solution",
@@ -131,6 +132,8 @@ const QuotesPage = () => {
   const [showSendToClientSheet, setShowSendToClientSheet] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  // const [showSendInvoicePopup, setShowSendInvoicePopup] = useState(false);
 
   // fetch single quotation when user opens view details
   const { data: fetchedQuotationResp } = useQuery<BackendQuotationItem | null>({
@@ -253,7 +256,6 @@ const QuotesPage = () => {
     );
   }
   if (showQuoteDetails) {
-    
     // transform backend item into the shape expected by ViewQuoteDetails
     const transformToViewData = (item: BackendQuotationItem) => {
       const services = (item.pricingItems || []).map(p => {
@@ -470,15 +472,15 @@ const QuotesPage = () => {
               <TableRow className="pointer-events-none">
                 <TableCell colSpan={8} className="p-0">
                   <div className="min-h-[300px] flex flex-col items-center justify-center">
-                    <FolderIcon/>
+                    <FolderIcon />
                     <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              currentQuotations.map((quote, index) => (
+              currentQuotations.map(quote => (
                 <TableRow
-                  key={index}
+                  key={quote.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   {/* Checkbox */}
@@ -531,10 +533,10 @@ const QuotesPage = () => {
                         quote.status === "completed"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : quote.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : quote.status === "draft"
-                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : quote.status === "draft"
+                          ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
                       )}
                     >
                       {quote.status}
@@ -567,7 +569,7 @@ const QuotesPage = () => {
                           onClick={() => {
                             // prefer backend id when available
                             // otherwise fall back to the table's quotationId
-                            setSelectedQuoteId(quote.id ?? quote.quotationId);
+                            setSelectedQuoteId(quote.id as string);
                             setShowQuoteDetails(true);
                           }}
                         >
@@ -609,7 +611,13 @@ const QuotesPage = () => {
                           <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="ml-2 text-sm dark:text-white text-gray-900">Copy</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => deleteQuotationMutate(quote.quotationId)}>
+                        <DropdownMenuItem
+                          //  onClick={() => deleteQuotationMutate(quote.id)}
+                          onClick={() => {
+                            setSelectedQuoteId(quote.id as string);
+                            setShowDeletePopup(true);
+                          }}
+                        >
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="ml-2 text-sm dark:text-white text-gray-900">Delete</span>
                         </DropdownMenuItem>
@@ -660,15 +668,15 @@ const QuotesPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}
@@ -697,17 +705,42 @@ const QuotesPage = () => {
       <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
       <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
       <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} />
-
-      {/* Delete Popup */}
-      <ConfirmDialog
-        open={showDeleteAllPopup}
-        onOpenChange={setShowDeleteAllPopup}
-        title="Delete Quotations?"
-        description="Are you sure you want to Delete Quotations? This action cannot be undone."
+      {/* Delete Single Quotation Popup */}
+      <PopupModal
+        open={showDeletePopup}
+        onOpenChange={setShowDeletePopup}
+        title="Delete Quotation"
+        iconComponent={<DeleteIconFilled width={70} height={70} />}
+        description="Are you sure you want to Delete this Quotation? This action cannot be undone."
+        cancelButton={{
+          label: "Yes, Delete",
+          onClick: () => {
+            setShowDeletePopup(false);
+            deleteQuotationMutate(selectedQuoteId as string);
+          },
+        }}
+        confirmButton={{ label: "No, Keep", onClick: () => setShowDeletePopup(false) }}
+      />
+      {/* <ConfirmDialog
+        open={showDeletePopup}
+        onOpenChange={setShowDeletePopup}
+        title="Delete Quotation"
+        description="Are you sure you want to Delete this Quotation? This action cannot be undone."
+        confirmText="No, Keep"
+        onCancel={()=>deleteQuotationMutate(selectedQuoteId as string)}
+        cancelText="Yes, Delete"
+        icon={<DeleteIconFilled width={70} height={70} />}
+      /> */}
+      {/* Delete all Quotations Popup */}
+      {/* <ConfirmDialog
+        open={showDeleteQuotePopup}
+        onOpenChange={setShowDeleteQuotePopup}
+        title="Delete Quotations"
+        description="Are you sure you want to Delete ? This action cannot be undone."
         confirmText="No, Keep"
         cancelText="Yes, Cancel"
         icon={<DeleteIconFilled width={70} height={70} />}
-      />
+      /> */}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
-import { useFieldArray, useForm, useWatch, type FieldArrayWithId } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -29,7 +29,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getQuotationCurrencies } from "@/lib/api/quotations";
-import { createQuoteSchema, ServiceInstance, statusOptions, type CreateQuotationFormData } from "@/lib/validations/quotation";
+import {
+  createQuoteSchema,
+  ServiceInstance,
+  statusOptions,
+  udpateQuoteSchema,
+  type CreateQuotationFormData,
+} from "@/lib/validations/quotation";
 
 import { Quotation } from "../../lib/types";
 import { Badge } from "../ui/badge";
@@ -61,11 +67,23 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
 
   type CurrencyItem = { id: string; code: string; name: string; symbol?: string };
 
-  const form = useForm<CreateQuotationFormData>({
-    resolver: zodResolver(createQuoteSchema),
-    defaultValues: initialData || defaultFormData,
+  const initialDefaultValues =
+    mode === "edit" ? initialData ?? undefined : initialData ?? defaultFormData;
+
+  const form = useForm<any>({
+    // use the partial update schema as resolver in edit mode so missing fields don't block submit
+    resolver: zodResolver(mode === "edit" ? udpateQuoteSchema : createQuoteSchema),
+    defaultValues: initialDefaultValues,
     mode: "onChange",
   });
+
+  // when initialData loads for edit mode, reset the form values so fields get populated
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      form.reset(initialData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
   const { control, setValue } = form;
   const { fields, append, remove } = useFieldArray({
     control,
@@ -164,7 +182,27 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     <Form {...form}>
       <form
         id="quotation-form"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(e: React.BaseSyntheticEvent) => {
+          // debug: log submit event and then delegate to react-hook-form with both
+          // success and error handlers so we can see why submission may be blocked
+          console.log("QuotationForm onSubmit event", { mode });
+
+          const submit = form.handleSubmit(
+            (data: any) => {
+              console.log("QuotationForm handleSubmit success", data);
+              try {
+                onSubmit(data);
+              } catch (err) {
+                console.error("Parent onSubmit threw:", err);
+              }
+            },
+            errors => {
+              console.log("QuotationForm handleSubmit errors", errors);
+            },
+          );
+
+          return submit(e);
+        }}
         className="w-full mx-auto space-y-4"
       >
         {mode === "edit" && quotation && (
@@ -558,7 +596,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
           <CardContent className="p-4 flex flex-col gap-6">
             {/* Service Fields */}
             <div className="flex flex-col gap-3">
-              {fields.map((field: FieldArrayWithId<CreateQuotationFormData, "serviceInstance", "id">, index: number) => (
+              {fields.map((field, index) => (
                 <div
                   key={field.id}
                   className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#1E293B] border-[#E4E7EC]"
@@ -661,7 +699,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                         <FormLabel>Total</FormLabel>
                         <FormControl>
                           <div className="py-3 px-3 rounded-[12px] text-gray-700 dark:text-gray-300 border border-transparent">
-                            <p className="text-[16px] font-[700]">{currencySymbol}{field.value ?? 0}</p>
+                            <p className="text-[16px] font-[700]">
+                              {currencySymbol}
+                              {field.value ?? 0}
+                            </p>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -691,7 +732,8 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Subtotal:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  {currencySymbol}{totals?.subtotal.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.subtotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center">
@@ -699,13 +741,15 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Total Tax:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  {currencySymbol}{totals?.totalTax.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.totalTax.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center text-sm font-medium ">
                 <span className="text-gray-800 dark:text-gray-100">Grand Total:</span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  {currencySymbol}{totals?.grandTotal.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.grandTotal.toFixed(2)}
                 </span>
               </div>
             </div>

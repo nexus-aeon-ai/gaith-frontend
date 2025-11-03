@@ -116,10 +116,11 @@ export const getQuotations = async () => {
 };
 
 export const createQuotation = async (
-  form: CreateQuotationFormData & { currencyId?: string },
+  form: CreateQuotationFormData & { currencyId?: string ,accountId: string },
 ): Promise<{ status: number; data: Quotation | null }> => {
-  // Hardcoded IDs per requirement
-  const accountId = "689e1ef8-8c22-4e64-acbc-b34ad7e887c5";
+
+  const accountId = "8ffcae0e-52b7-4fba-81db-74570e11fe02";
+  console.log("account id:", accountId);
   // allow currencyId to come from form; fall back to hardcoded id
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
@@ -192,7 +193,7 @@ export const updateQuotation = async (
 ): Promise<{ status: number; data: Quotation | null }> => {
   const accountId = "689e1ef8-8c22-4e64-acbc-b34ad7e887c5";
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
-
+  console.log
   const pricingItems = (form.serviceInstance || []).map(item => ({
     serviceDescription: item.description,
     servicePrice: Number(item.servicePrice) || 0,
