@@ -49,11 +49,8 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
       // If validation passes, proceed with create client api
       console.log("Creating new client with data:", data);
       
-      // Extract city and country from location string
-      const [city = "", country = ""] = data.location ? data.location.split(",").map(s => s.trim()) : ["", ""];
-
       const response = await createClient({
-        type: "ActiveClient",
+        // Required fields only as per API spec
         clientName: data.clientName,
         emailAddress: data.email,
         phoneNumber: data.phoneNumber || "",
@@ -64,31 +61,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         contractDurationMonths: parseInt(data.contractDuration) || 0,
         primaryMarketRegionId: data.primaryRegion,
         targetAudienceId: data.targetAudience,
-        secondaryMarketIds: [], // Currently empty as per form
-        languagesSupported: data.languagesSupported || [],
-        visionStatement: data.visionStatement || "",
-        missionStatement: data.missionStatement || "",
-        serviceOfferingIds: data.aiDataProdsServices,
-        linkedinUrl: data.linkedinUrl || "",
-        twitterUrl: data.twitterUrl || "",
-        instagramUrl: data.instagramUrl || "",
-        youtubeUrl: data.youtubeUrl || "",
-        websiteUrl: data.websiteUrl || "",
-        locationCity: city,
-        locationCountry: country,
-        fullAddress: data.fullAddress,
-        accountManagerId: data.primaryAccManager as string,
-        marketingStrategistId: data.marketingStrategist as string,
-        assignedUserIds: [assignedUserID],
-        teamRoleIds: [],  // Will be populated when team roles are implemented
-        fullName: data.clientName,
-        companyName: data.clientName,
-        industry: data.industry,
-        country: country,
-        city: city,
-        branchLocations: {},
-        languagePreferences: data.languagesSupported?.[0] || "EN",
-        businessMaturity: "Startup",
+        secondaryMarketIds: [data.primaryRegion],
       });
 
       console.log("Client created successfully:", response);

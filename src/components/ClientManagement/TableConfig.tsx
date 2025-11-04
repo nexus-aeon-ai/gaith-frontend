@@ -47,10 +47,12 @@ const useTableColumns = (
             <div className="flex-shrink-0">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-blue-600">
-                  {client.name
-                    .split(" ")
-                    .map(n => n[0])
-                    .join("")}
+                  {client?.name
+                    ? client.name
+                        .split(" ")
+                        .map(n => n[0])
+                        .join("")
+                    : ""}
                 </span>
               </div>
             </div>

@@ -51,6 +51,7 @@ interface ResponseT {
 }
 
 export interface CreateClientRequest {
+  // Required fields per API spec
   clientName: string;
   emailAddress: string;
   phoneNumber: string;
@@ -62,31 +63,33 @@ export interface CreateClientRequest {
   primaryMarketRegionId: string;
   targetAudienceId: string;
   secondaryMarketIds: string[];
-  languagesSupported: string[];
-  visionStatement: string;
-  missionStatement: string;
-  serviceOfferingIds: string[];
-  linkedinUrl: string;
-  twitterUrl: string;
-  instagramUrl: string;
-  youtubeUrl: string;
-  websiteUrl: string;
-  locationCity: string;
-  locationCountry: string;
-  fullAddress: string;
-  accountManagerId: string;
-  marketingStrategistId: string;
-  assignedUserIds: string[];
-  teamRoleIds: string[];
-  type: string;
-  fullName: string;
-  companyName: string;
-  industry: string;
-  country: string;
-  city: string;
-  branchLocations: Record<string, unknown>;
-  languagePreferences: string;
-  businessMaturity: string;
+  
+  // Optional fields
+  languagesSupported?: string[];
+  visionStatement?: string;
+  missionStatement?: string;
+  serviceOfferingIds?: string[];
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  locationCity?: string;
+  locationCountry?: string;
+  fullAddress?: string;
+  accountManagerId?: string;
+  marketingStrategistId?: string;
+  assignedUserIds?: string[];
+  teamRoleIds?: string[];
+  type?: string;
+  fullName?: string;
+  companyName?: string;
+  industry?: string;
+  country?: string;
+  city?: string;
+  branchLocations?: Record<string, unknown>;
+  languagePreferences?: string;
+  businessMaturity?: string;
 }
 
 export const createClient = async (
