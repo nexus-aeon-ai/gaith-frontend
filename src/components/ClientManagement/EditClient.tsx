@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { deleteClient, updateClient } from "@/lib/api/client/client";
 import { Client } from "@/lib/types";
 import { CreateClientFormData, createClientSchema } from "@/lib/validations/client";
 
@@ -45,11 +46,90 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         });
         return;
       }
-      // Show success message or redirect
-      alert("Client created successfully!");
+      if (!client?.id) {
+        throw new Error("Missing client id");
+      }
+
+      // Map form data to API request shape
+      const [city = "", country = ""] = data.location
+        ? data.location.split(",").map(s => s.trim())
+        : ["", ""];
+
+      const payload = {
+        clientName: data.fullName,
+        emailAddress: data.email,
+        phoneNumber: data.phoneNumber || "",
+        industrySectorId: data.industry,
+        businessOverview: data.businessOverview,
+        agreementStartDate: data.agreementStartDate.toISOString(),
+        agreementEndDate: data.agreementEndDate.toISOString(),
+        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        primaryMarketRegionId: "",
+        targetAudienceId: "",
+        secondaryMarketIds: [],
+        languagesSupported: [],
+        visionStatement: "",
+        missionStatement: "",
+        serviceOfferingIds: [],
+        linkedinUrl: data.linkedinProfile || "",
+        twitterUrl: "",
+        instagramUrl: "",
+        youtubeUrl: "",
+        websiteUrl: data.websiteUrl || "",
+        locationCity: city,
+        locationCountry: country,
+        fullAddress: data.fullAddress,
+        accountManagerId: data.accountManager || "",
+        marketingStrategistId: "",
+        assignedUserIds: [],
+        teamRoleIds: [],
+        type: "Client",
+        fullName: data.fullName,
+        companyName: data.fullName,
+        industry: data.industry,
+        country: country,
+        city: city,
+        branchLocations: {},
+        languagePreferences: "",
+        businessMaturity: "",
+      };
+
+      const response = await updateClient(client.id, payload);
+
+      if (response.status >= 200 && response.status < 300) {
+        alert("Client updated successfully!");
+        closeEditClientForm();
+      } else {
+        console.error("Update failed", response);
+        throw new Error("Failed to update client");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
       alert("An error occurred while creating the client. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!client?.id) return;
+
+    const confirmed = confirm("Are you sure you want to delete this client? This action cannot be undone.");
+    if (!confirmed) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await deleteClient(client.id);
+      if (response.status >= 200 && response.status < 300) {
+        alert("Client deleted successfully");
+        closeEditClientForm();
+      } else {
+        console.error("Delete failed:", response);
+        throw new Error("Failed to delete client");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("An error occurred while deleting the client. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +188,14 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         </div>
         <div className="flex gap-3">
           <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+            className="p-6 px-8 bg-red-600 hover:bg-red-700 text-white rounded-[16px]"
+          >
+            {isSubmitting ? "Deleting..." : "Delete"}
+          </Button>
+          <Button
             variant="outline"
             onClick={handleCancel}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
@@ -116,7 +204,7 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
           </Button>
           <Button
             type="submit"
-            form="client-form"
+            form="lead-form"
             variant={"outline"}
             disabled={isSubmitting}
             className="p-6 px-8 text-white dark:text-black text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"

@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import MagicStarIcon from "@/components/ui/icons/magic-star";
+import { createClient } from "@/lib/api/client/client";
 import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
 import AiDataForm from "../Forms/AiDataForm";
@@ -26,7 +27,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showMarketingAssets, setShowMarketingAssets] = useState(false);
-
+  const assignedUserID = "188b267a-d063-4a76-9163-78ff55febb24";
   const handleSave = async (data: CreateAiFormData) => {
     setIsSubmitting(true);
 
@@ -41,13 +42,67 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           const field = issue.path.join(".");
           errors[field] = issue.message;
         });
+        console.error("Validation errors:", errors);
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with create client api
+      console.log("Creating new client with data:", data);
+      
+      // Extract city and country from location string
+      const [city = "", country = ""] = data.location ? data.location.split(",").map(s => s.trim()) : ["", ""];
+
+      const response = await createClient({
+        type: "ActiveClient",
+        clientName: data.clientName,
+        emailAddress: data.email,
+        phoneNumber: data.phoneNumber || "",
+        industrySectorId: data.industry,
+        businessOverview: data.businessOverview,
+        agreementStartDate: data.agreementStartDate.toISOString(),
+        agreementEndDate: data.agreementEndDate.toISOString(),
+        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        primaryMarketRegionId: data.primaryRegion,
+        targetAudienceId: data.targetAudience,
+        secondaryMarketIds: [], // Currently empty as per form
+        languagesSupported: data.languagesSupported || [],
+        visionStatement: data.visionStatement || "",
+        missionStatement: data.missionStatement || "",
+        serviceOfferingIds: data.aiDataProdsServices,
+        linkedinUrl: data.linkedinUrl || "",
+        twitterUrl: data.twitterUrl || "",
+        instagramUrl: data.instagramUrl || "",
+        youtubeUrl: data.youtubeUrl || "",
+        websiteUrl: data.websiteUrl || "",
+        locationCity: city,
+        locationCountry: country,
+        fullAddress: data.fullAddress,
+        accountManagerId: data.primaryAccManager as string,
+        marketingStrategistId: data.marketingStrategist as string,
+        assignedUserIds: [assignedUserID],
+        teamRoleIds: [],  // Will be populated when team roles are implemented
+        fullName: data.clientName,
+        companyName: data.clientName,
+        industry: data.industry,
+        country: country,
+        city: city,
+        branchLocations: {},
+        languagePreferences: data.languagesSupported?.[0] || "EN",
+        businessMaturity: "Startup",
+      });
+
+      console.log("Client created successfully:", response);
+
+      // Close the form on success
+      if (response.status >= 200 && response.status < 300) {
+        alert("Client created successfully!");
+        closeNewClientForm();
+      } else {
+        throw new Error("Failed to create client");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
+      alert("An error occurred while creating the client. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -114,13 +169,13 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
             form="aidata-form"
             variant={"outline"}
             disabled={isSubmitting}
-            className="p-6 px-8 text-[#3072C0] hover:text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-transparent transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-[#3072C0] hover:text-white transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Saving..." : "Save Client"}
           </Button>
           <Button
-            // type="submit"
-            // form="aidata-form"
+            type="submit"
+            form="aidata-form"
             onClick={() => setShowMarketingAssets(true)}
             variant={"outline"}
             disabled={isSubmitting}
