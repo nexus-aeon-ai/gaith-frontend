@@ -1,54 +1,52 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
 import LeadForm from "@/components/Forms/LeadForm";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
+  BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { editLead } from "@/lib/api/leads";
 import { CreateLeadFormData, createLeadSchema } from "@/lib/validations/lead";
 
-const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
+interface EditLeadProps {
+  initialData: CreateLeadFormData;
+  leadId: string;
+  closeEditLeadForm: () => void;
+}
 
+const EditLead = ({ initialData, leadId, closeEditLeadForm }: EditLeadProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleCancel = () => {
-    closeEditLeadForm();
-  };
+  const mutation = useMutation({
+    mutationFn: (data: CreateLeadFormData) => editLead(leadId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      closeEditLeadForm();
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
 
-  const handleSave = async (data: CreateLeadFormData) => {
+  const handleSave = (data: CreateLeadFormData) => {
     setIsSubmitting(true);
-
-    try {
-      // Validate form data
-      const result = createLeadSchema.safeParse(data);
-
-      if (!result.success) {
-        // Extract validation errors
-        const errors: Record<string, string> = {};
-        result.error.issues.forEach(issue => {
-          const field = issue.path.join(".");
-          errors[field] = issue.message;
-        });
-        return;
-      }
-      // Show success message or redirect
-      alert("Lead created successfully!");
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
-    } finally {
+    const result = createLeadSchema.safeParse(data);
+    if (!result.success) {
       setIsSubmitting(false);
+      return;
     }
+    mutation.mutate(data);
+    setIsSubmitting(false);
   };
+
+  if (!initialData || !leadId) return <div className="p-6">No lead found to edit.</div>;
 
   return (
     <div className="w-full mx-auto p-6">
@@ -57,17 +55,13 @@ const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">
-                <DashboardListIcon className="dark:text-[#E6EFF9]" />
-              </Link>
+              <Link href="/dashboard"><DashboardListIcon className="dark:text-[#E6EFF9]" /></Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeEditLeadForm}>
-                Leads
-              </Link>
+              <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeEditLeadForm}>Leads</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -76,7 +70,6 @@ const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
@@ -88,7 +81,7 @@ const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={handleCancel}
+            onClick={closeEditLeadForm}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
             Cancel
@@ -106,8 +99,9 @@ const EditLead = ({ closeEditLeadForm }: { closeEditLeadForm: () => void }) => {
       </div>
 
       <LeadForm
+        initialData={initialData}
         onSubmit={handleSave}
-        onCancel={handleCancel}
+        onCancel={closeEditLeadForm}
         isSubmitting={isSubmitting}
         mode="edit"
       />

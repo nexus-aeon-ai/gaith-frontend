@@ -1,4 +1,5 @@
 "use client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,6 +15,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createQuotation } from "@/lib/api/quotations";
+import { useAuthStore } from "@/lib/store/authStore";
 import { createQuoteSchema, type CreateQuotationFormData } from "@/lib/validations/quotation";
 
 import { ConfirmDialog } from "../Popups/PopupModal";
@@ -22,6 +25,20 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const user = useAuthStore(state => state.user);
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createQuotation,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["quotations"] });
+      setShowConfirmModal(true);
+    },
+    onError: err => {
+      console.error("Failed to create quotation.", err);
+    },
+  });
 
   const handleSave = async (data: CreateQuotationFormData) => {
     setIsSubmitting(true);
@@ -39,13 +56,22 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         });
         return;
       }
+      const accountId = user?.id.toString();
 
-      // If validation passes, proceed with create lead api
+      if (!accountId) {
+        console.error("Missing account ID from user state!");
+        return;
+      }
+
+      mutation.mutate({
+        ...data,
+        accountId,
+      });
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setShowConfirmModal(false);
     }
   };
 
@@ -96,7 +122,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
           </Button>
           <Button
             type="submit"
-            // form="quotation-form"
+            form="quotation-form"
             variant={"outline"}
             onClick={() => setShowConfirmModal(true)}
             disabled={isSubmitting}
@@ -120,7 +146,8 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         title="Changes saved Successfully"
         description="Your changes has been saved and is now available in Quotations List."
         singleButton
-        confirmText="View Profile"
+        onConfirm={closeNewQuoteForm}
+        confirmText="View Table"
         icon={
           <div>
             <Check
@@ -136,6 +163,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       <ConfirmDialog
         open={showCancelModal}
         onOpenChange={setShowCancelModal}
+        onCancel={closeNewQuoteForm}
         title="Cancel Changes?"
         description="Are you sure you want to cancel these changes? This action cannot be undone."
         confirmText="No, Keep"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -14,7 +15,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
-import { CreateQuotationFormData, createQuoteSchema } from "@/lib/validations/quotation";
+import { BackendQuotationItem, getQuotationById, updateQuotation } from "@/lib/api/quotations";
+import { CreateQuotationFormData, udpateQuoteSchema } from "@/lib/validations/quotation";
 
 import { Quotation } from "../../lib/types";
 
@@ -26,6 +28,20 @@ const EditQuote = ({
   quotation: Quotation | null;
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (payload: { id: string; data: CreateQuotationFormData }) => {
+      return updateQuotation(payload.id, payload.data);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["quotations"] });
+      closeEditQuoteForm();
+    },
+    onError: err => {
+      console.error("Failed to update quotation.", err);
+    },
+  });
 
   const handleCancel = () => {
     closeEditQuoteForm();
@@ -35,11 +51,11 @@ const EditQuote = ({
     setIsSubmitting(true);
 
     try {
-      // Validate form data
-      const result = createQuoteSchema.safeParse(data);
-
+      console.log("EditQuote.handleSave invoked", { data, quotation });
+      // Validate form data using partial (update) schema so optional fields are allowed
+      const result = udpateQuoteSchema.safeParse(data);
       if (!result.success) {
-        // Extract validation errors
+        // Extract validation errors (optional: surface to UI later)
         const errors: Record<string, string> = {};
         result.error.issues.forEach(issue => {
           const field = issue.path.join(".");
@@ -47,15 +63,61 @@ const EditQuote = ({
         });
         return;
       }
-      // Show success message or redirect
-      alert("Lead created successfully!");
+      		if (!quotation) return;
+      		// prefer backend id (uuid) if available
+      		const backendId = quotation.id ?? quotation.quotationId;
+      		mutation.mutate({ id: backendId, data });
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // if we have a backend id for this quotation, fetch full details to prefill the edit form
+  const backendId = quotation?.id ?? quotation?.quotationId;
+  const { data: backendResp } = useQuery<BackendQuotationItem | null>({
+    queryKey: ["quotation-edit", backendId],
+    queryFn: async () => {
+      if (!backendId) return null;
+      const resp = await getQuotationById(backendId);
+      return resp.data;
+    },
+    enabled: !!backendId,
+  });
+
+  const mapToInitialData = (
+    item: BackendQuotationItem | null,
+  ): CreateQuotationFormData | undefined => {
+    if (!item) return undefined;
+    const serviceInstance = (item.pricingItems || []).map(p => {
+      const quantity = Number(p.quantity) || 1;
+      const servicePrice = Number(p.servicePrice) || 0;
+      const tax = Number(p.taxPercentage) || 0;
+      const total = parseFloat((quantity * servicePrice * (1 + tax / 100)).toFixed(2));
+      return {
+        description: p.serviceDescription || "",
+        quantity,
+        servicePrice,
+        tax,
+        total,
+      };
+    });
+
+    return {
+      customerName: quotation?.customer?.name || "",
+      quoteNumber: item.quotationNumber || quotation?.quotationId || "",
+      validUntil: item.validUntil ? new Date(item.validUntil) : new Date(),
+      currencyId: item.currencyId || "",
+      quotationTitle: item.title || "",
+      description: item.description || "",
+      serviceInstance: serviceInstance.length ? serviceInstance : [{ description: "", quantity: 1, servicePrice: 0, tax: 0, total: 0 }],
+      notes: item.notes || "",
+      status: item.isDeleted ? "rejected" : item.isActive ? "pending" : "pending",
+    };
+  };
+
+  const initialData: CreateQuotationFormData | undefined = mapToInitialData(backendResp || null);
 
   return (
     <div className="w-full mx-auto p-6">
@@ -92,7 +154,9 @@ const EditQuote = ({
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Quotation</h1>
-          <p className="text-muted-foreground">{quotation?.quotationId} - {quotation?.customer.name}</p>
+          <p className="text-muted-foreground">
+            {quotation?.quotationId} - {quotation?.customer.name}
+          </p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -104,9 +168,10 @@ const EditQuote = ({
           </Button>
           <Button
             type="submit"
-            form="lead-form"
+            form="quotation-form"
             variant={"outline"}
             disabled={isSubmitting}
+            onClick={() => console.log("EditQuote Save button clicked")}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-none bg-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
@@ -120,6 +185,7 @@ const EditQuote = ({
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
         quotation={quotation}
+        initialData={initialData}
       />
     </div>
   );
