@@ -38,10 +38,18 @@ import {
 } from "@/lib/validations/settings";
 
 // Function to transform API response to Employee format with mock data for missing fields
-const transformTeamMembersToEmployees = (teamMembers: TeamMemberApiResponse[]): Employee[] => {
-  const mockRoles = ["Software Engineer", "Product Manager", "Designer", "Marketing Manager", "Sales Representative"];
+const transformTeamMembersToEmployees = (
+  teamMembers: TeamMemberApiResponse[],
+): Partial<Employee>[] => {
+  const mockRoles = [
+    "Software Engineer",
+    "Product Manager",
+    "Designer",
+    "Marketing Manager",
+    "Sales Representative",
+  ];
   const mockStatuses: ("active" | "inactive")[] = ["active", "active", "active", "inactive"];
-  
+
   return teamMembers.map((member, index) => ({
     id: member.id,
     fullName: member.fullName,
@@ -59,7 +67,7 @@ const transformTeamMembersToEmployees = (teamMembers: TeamMemberApiResponse[]): 
 };
 
 // Fallback mock employees (used when API fails)
-const mockEmployees: Employee[] = [
+const mockEmployees: Partial<Employee>[] = [
   {
     id: "1",
     fullName: "John Smith",
@@ -122,14 +130,14 @@ export type UserManagementFormRef = {
 
 interface UserManagementFormProps {
   onSubmit: (data: CreateSettingsFormData) => void;
+  setShowAddUserForm: (show: boolean) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
 }
 
-// ----------- Component -----------
 const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormProps>(
-  ({ onSubmit, isSubmitting: _isSubmitting }, ref) => {
-    const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
+  ({ onSubmit, isSubmitting: _isSubmitting ,setShowAddUserForm}, ref) => {
+    const [employees, setEmployees] = useState<Partial<Employee>[]>(mockEmployees);
     const [rolePermissions, setRolePermissions] = useState<PermissionItem[]>([]);
     const queryClient = useQueryClient();
 
@@ -179,7 +187,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         toast.success("Role permissions updated successfully!");
         queryClient.invalidateQueries({ queryKey: ["role-permissions"] });
       },
-      onError: (error) => {
+      onError: error => {
         console.error("Error updating role permissions:", error);
         toast.error("Failed to update role permissions. Please try again.");
       },
@@ -214,7 +222,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
       submitForm: async (): Promise<boolean> => {
         const isValid = await form.trigger();
         if (!isValid) return false;
-        
+
         try {
           await handleSubmit(onSubmit)();
           return true;
@@ -235,8 +243,8 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
       hasPermission: boolean,
     ) => {
       // Update local state immediately for UI responsiveness
-      setRolePermissions(prev => 
-        prev.map(permission => 
+      setRolePermissions(prev =>
+        prev.map(permission =>
           permission.permissionCode === permissionCode
             ? {
               ...permission,
@@ -255,7 +263,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         permissionCode,
         hasPermission,
       };
-      
+
       updateRolePermissionsMutation.mutate([update]);
     };
 
@@ -296,6 +304,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                   "rounded-2xl px-4 h-10 border-none",
                   "bg-[#3072C0] hover:bg-[#3072c0]/80 text-white",
                 )}
+                onClick={() => setShowAddUserForm(true)}
               >
                 <CirclePlus className="w-4 h-4" />
                 Add User
@@ -317,8 +326,8 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoadingTeamMembers ? (
-                        // Loading skeleton rows
+                      {isLoadingTeamMembers
+                        ? // Loading skeleton rows
                         Array.from({ length: 3 }).map((_, index) => (
                           <TableRow key={`loading-${index}`}>
                             <TableCell>
@@ -336,7 +345,10 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             <TableCell>
                               <div className="flex gap-2">
                                 {Array.from({ length: 4 }).map((_, i) => (
-                                  <div key={i} className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+                                  <div
+                                    key={i}
+                                    className="h-4 w-4 bg-gray-200 rounded animate-pulse"
+                                  />
                                 ))}
                               </div>
                             </TableCell>
@@ -348,8 +360,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             </TableCell>
                           </TableRow>
                         ))
-                      ) : (
-                        employees.map(emp => (
+                        : employees.map(emp => (
                           <TableRow key={emp.id}>
                             <TableCell>{emp.fullName}</TableCell>
                             <TableCell className="text-gray-600">{emp.email}</TableCell>
@@ -357,8 +368,8 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                               <Badge
                                 className={cn(
                                   "p-2 rounded-sm font-[400]",
-                                  roleStyles[emp.role]?.bg,
-                                  roleStyles[emp.role]?.text,
+                                  roleStyles[emp.role as string].bg,
+                                  roleStyles[emp.role as string].text,
                                 )}
                               >
                                 {emp.role}
@@ -375,7 +386,9 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                                   <div key={key} className="flex items-center gap-2">
                                     <Checkbox
                                       checked={emp.permissions[key]}
-                                      onCheckedChange={() => handleEmpPermissionChange(emp.id, key)}
+                                      onCheckedChange={() =>
+                                        handleEmpPermissionChange(emp.id as string, key)
+                                      }
                                       className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
                                     />
                                     <label className="text-sm cursor-pointer">{key}</label>
@@ -386,13 +399,13 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             <TableCell>
                               <div className="flex items-center justify-center gap-2">
                                 <button
-                                  onClick={() => handleEdit(emp.id)}
+                                  onClick={() => handleEdit(emp.id as string)}
                                   className="p-2 hover:bg-gray-100 rounded-md"
                                 >
                                   <EditIcon />
                                 </button>
                                 <button
-                                  onClick={() => handleDelete(emp.id)}
+                                  onClick={() => handleDelete(emp.id as string)}
                                   className="p-2 hover:bg-gray-100 rounded-md"
                                 >
                                   <DeleteIcon />
@@ -400,8 +413,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
+                        ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -427,8 +439,8 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoadingRolePermissions ? (
-                        // Loading skeleton rows
+                      {isLoadingRolePermissions
+                        ? // Loading skeleton rows
                         Array.from({ length: 5 }).map((_, index) => (
                           <TableRow key={`loading-${index}`}>
                             <TableCell>
@@ -445,8 +457,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             </TableCell>
                           </TableRow>
                         ))
-                      ) : (
-                        rolePermissions.map(permission => (
+                        : rolePermissions.map(permission => (
                           <TableRow key={permission.permissionCode}>
                             <TableCell className="font-medium capitalize">
                               {permission.permissionName}
@@ -454,7 +465,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             <TableCell className="text-center">
                               <Checkbox
                                 checked={permission.roles.super_admin || false}
-                                onCheckedChange={(checked) =>
+                                onCheckedChange={checked =>
                                   handlePermissionChange(
                                     permission.permissionCode,
                                     "super_admin",
@@ -467,7 +478,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             <TableCell className="text-center">
                               <Checkbox
                                 checked={permission.roles.admin || false}
-                                onCheckedChange={(checked) =>
+                                onCheckedChange={checked =>
                                   handlePermissionChange(
                                     permission.permissionCode,
                                     "admin",
@@ -480,7 +491,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                             <TableCell className="text-center">
                               <Checkbox
                                 checked={permission.roles.employee || false}
-                                onCheckedChange={(checked) =>
+                                onCheckedChange={checked =>
                                   handlePermissionChange(
                                     permission.permissionCode,
                                     "employee",
@@ -491,8 +502,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                               />
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
+                        ))}
                     </TableBody>
                   </Table>
                 </div>

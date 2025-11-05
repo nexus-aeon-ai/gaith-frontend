@@ -2,6 +2,7 @@
 
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 
+import AddNewUser from "@/components/Settings/UserManagement/AddUser";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -16,14 +17,15 @@ export type SettingsTabsRef = {
   submitModifiedForms: () => Promise<{ savedForms: string[]; skippedForms: string[] }>;
 };
 
-export const  SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
+export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
   const [activeTab, setActiveTab] = useState("general");
-  
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
+
   const generalRef = useRef<GeneralTabFormRef>(null);
   const userRef = useRef<UserManagementFormRef>(null);
   const notificationRef = useRef<NotificationFormRef>(null);
   const securityRef = useRef<SecurityFormRef>(null);
-  
+
   // Smart submission function that only submits modified/filled forms
   const submitModifiedForms = async (): Promise<{
     savedForms: string[];
@@ -44,7 +46,7 @@ export const  SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
       if (formRef) {
         const isDirty = formRef.isDirty();
         const hasData = formRef.hasData();
-        
+
         // Only submit if form is dirty (modified) OR has meaningful data AND has API integration
         if ((isDirty || hasData) && form.hasApi) {
           try {
@@ -67,7 +69,6 @@ export const  SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
         skippedForms.push(`${form.name} (not loaded)`);
       }
     }
-
     return { savedForms, skippedForms };
   };
 
@@ -87,21 +88,35 @@ export const  SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
     },
     submitModifiedForms,
   }));
-  
+
+  if (showAddUserForm) {
+    return <AddNewUser closeNewUserForm={() => setShowAddUserForm(false)} />;
+  }
+
   return (
     <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className={cn("w-full grid grid-cols-4 gap-0 h-auto rounded-t-xl border bg-card mt-3")}>
-        <TabsTrigger value="general" className="whitespace-nowrap">General</TabsTrigger>
-        <TabsTrigger value="users" className="whitespace-nowrap">User Management</TabsTrigger>
-        <TabsTrigger value="notifications" className="whitespace-nowrap">Notifications</TabsTrigger>
-        <TabsTrigger value="security" className="whitespace-nowrap">Security</TabsTrigger>
+      <TabsList
+        className={cn("w-full grid grid-cols-4 gap-0 h-auto rounded-t-xl border bg-card mt-3")}
+      >
+        <TabsTrigger value="general" className="whitespace-nowrap">
+          General
+        </TabsTrigger>
+        <TabsTrigger value="users" className="whitespace-nowrap">
+          User Management
+        </TabsTrigger>
+        <TabsTrigger value="notifications" className="whitespace-nowrap">
+          Notifications
+        </TabsTrigger>
+        <TabsTrigger value="security" className="whitespace-nowrap">
+          Security
+        </TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="general">
         <GeneralTabForm ref={generalRef} />
       </TabsContent>
       <TabsContent value="users">
-        <UserManagementForm ref={userRef} onSubmit={d => console.log("Users:", d)} />
+        <UserManagementForm ref={userRef} onSubmit={d => console.log("Users:", d)}  setShowAddUserForm={setShowAddUserForm}/>
       </TabsContent>
       <TabsContent value="notifications">
         <NotificationForm ref={notificationRef} onSubmit={d => console.log("Notifications:", d)} />
