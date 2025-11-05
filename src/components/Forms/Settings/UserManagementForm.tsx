@@ -136,7 +136,7 @@ interface UserManagementFormProps {
 }
 
 const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormProps>(
-  ({ onSubmit, isSubmitting: _isSubmitting ,setShowAddUserForm}, ref) => {
+  ({ onSubmit, isSubmitting: _isSubmitting, setShowAddUserForm }, ref) => {
     const [employees, setEmployees] = useState<Partial<Employee>[]>(mockEmployees);
     const [rolePermissions, setRolePermissions] = useState<PermissionItem[]>([]);
     const queryClient = useQueryClient();
@@ -247,12 +247,12 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         prev.map(permission =>
           permission.permissionCode === permissionCode
             ? {
-              ...permission,
-              roles: {
-                ...permission.roles,
-                [roleCode]: hasPermission,
-              },
-            }
+                ...permission,
+                roles: {
+                  ...permission.roles,
+                  [roleCode]: hasPermission,
+                },
+              }
             : permission,
         ),
       );
@@ -272,9 +272,9 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         prev.map(emp =>
           emp.id === id
             ? {
-              ...emp,
-              permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
-            }
+                ...emp,
+                permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
+              }
             : emp,
         ),
       );
@@ -298,16 +298,15 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
               <CardTitle className="text-md font-bold">Team Members</CardTitle>
               <Button
                 variant="outline"
-                size="sm"
                 className={cn(
                   "flex items-center gap-2",
-                  "rounded-2xl px-4 h-10 border-none",
+                  "rounded-[16px] px-6 py-6 border-none",
                   "bg-[#3072C0] hover:bg-[#3072c0]/80 text-white",
                 )}
                 onClick={() => setShowAddUserForm(true)}
               >
-                <CirclePlus className="w-4 h-4" />
-                Add User
+                <CirclePlus />
+                <p>Add User</p>
               </Button>
             </CardHeader>
 
@@ -328,92 +327,92 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                     <TableBody>
                       {isLoadingTeamMembers
                         ? // Loading skeleton rows
-                        Array.from({ length: 3 }).map((_, index) => (
-                          <TableRow key={`loading-${index}`}>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-6 bg-gray-200 rounded animate-pulse w-16" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                {Array.from({ length: 4 }).map((_, i) => (
-                                  <div
-                                    key={i}
-                                    className="h-4 w-4 bg-gray-200 rounded animate-pulse"
-                                  />
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2 justify-center">
-                                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-                                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                        : employees.map(emp => (
-                          <TableRow key={emp.id}>
-                            <TableCell>{emp.fullName}</TableCell>
-                            <TableCell className="text-gray-600">{emp.email}</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={cn(
-                                  "p-2 rounded-sm font-[400]",
-                                  roleStyles[emp.role as string].bg,
-                                  roleStyles[emp.role as string].text,
-                                )}
-                              >
-                                {emp.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className="bg-[#2BAE8214] font-[400] p-2 rounded-sm capitalize hover:bg-[#2BAE8214] dark:text-[#68DAB3] text-[#175E46]">
-                                {emp.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex md:flex-row flex-col gap-3">
-                                {(["delete", "approve", "edit", "view"] as const).map(key => (
-                                  <div key={key} className="flex items-center gap-2">
-                                    <Checkbox
-                                      checked={emp.permissions[key]}
-                                      onCheckedChange={() =>
-                                        handleEmpPermissionChange(emp.id as string, key)
-                                      }
-                                      className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                          Array.from({ length: 3 }).map((_, index) => (
+                            <TableRow key={`loading-${index}`}>
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-6 bg-gray-200 rounded animate-pulse w-16" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  {Array.from({ length: 4 }).map((_, i) => (
+                                    <div
+                                      key={i}
+                                      className="h-4 w-4 bg-gray-200 rounded animate-pulse"
                                     />
-                                    <label className="text-sm cursor-pointer">{key}</label>
-                                  </div>
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() => handleEdit(emp.id as string)}
-                                  className="p-2 hover:bg-gray-100 rounded-md"
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2 justify-center">
+                                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        : employees.map(emp => (
+                            <TableRow key={emp.id}>
+                              <TableCell>{emp.fullName}</TableCell>
+                              <TableCell className="text-gray-600">{emp.email}</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={cn(
+                                    "p-2 rounded-sm font-[400]",
+                                    roleStyles[emp.role as string].bg,
+                                    roleStyles[emp.role as string].text,
+                                  )}
                                 >
-                                  <EditIcon />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(emp.id as string)}
-                                  className="p-2 hover:bg-gray-100 rounded-md"
-                                >
-                                  <DeleteIcon />
-                                </button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                  {emp.role}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className="bg-[#2BAE8214] font-[400] p-2 rounded-sm capitalize hover:bg-[#2BAE8214] dark:text-[#68DAB3] text-[#175E46]">
+                                  {emp.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex md:flex-row flex-col gap-3">
+                                  {(["delete", "approve", "edit", "view"] as const).map(key => (
+                                    <div key={key} className="flex items-center gap-2">
+                                      <Checkbox
+                                        checked={emp.permissions[key]}
+                                        onCheckedChange={() =>
+                                          handleEmpPermissionChange(emp.id as string, key)
+                                        }
+                                        className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                      />
+                                      <label className="text-sm cursor-pointer">{key}</label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => handleEdit(emp.id as string)}
+                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                  >
+                                    <EditIcon />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(emp.id as string)}
+                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                  >
+                                    <DeleteIcon />
+                                  </button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -441,68 +440,68 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                     <TableBody>
                       {isLoadingRolePermissions
                         ? // Loading skeleton rows
-                        Array.from({ length: 5 }).map((_, index) => (
-                          <TableRow key={`loading-${index}`}>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                          </TableRow>
-                        ))
+                          Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={`loading-${index}`}>
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                            </TableRow>
+                          ))
                         : rolePermissions.map(permission => (
-                          <TableRow key={permission.permissionCode}>
-                            <TableCell className="font-medium capitalize">
-                              {permission.permissionName}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.super_admin || false}
-                                onCheckedChange={checked =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "super_admin",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.admin || false}
-                                onCheckedChange={checked =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "admin",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.employee || false}
-                                onCheckedChange={checked =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "employee",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                            <TableRow key={permission.permissionCode}>
+                              <TableCell className="font-medium capitalize">
+                                {permission.permissionName}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.super_admin || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "super_admin",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.admin || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "admin",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.employee || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "employee",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
