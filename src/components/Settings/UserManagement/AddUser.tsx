@@ -1,7 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+// import { toast } from "sonner";
 
 import UserForm from "@/components/Forms/UserForm";
 import {
@@ -14,10 +16,47 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createUser } from "@/lib/api/user";
 import { createUserSchema, type CreateUserFormData } from "@/lib/validations/user";
 
 const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (formData: CreateUserFormData) => {
+      const userData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        role: formData.userRole,
+        jobTitle: formData.jobTitle,
+        accountRoleId: "db2f7d80-a02a-42c8-b180-005967111a5c", // Fixed value as specified
+        languagePreference: "EN", // Fixed value as specified
+        isActive: formData.accountActive,
+        emailVerificationRequired: formData.emailVerification,
+        forcePasswordChange: formData.forcePassChange,
+        accountExpirationDate: formData.accExpiryDate?.toISOString(),
+        notes: formData.notes || "",
+        // Add required fields from IUser interface
+        username: formData.email, // Using email as username
+        status: formData.accountActive ? "Active" : "Inactive",
+      };
+      return createUser(userData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
+      // toast.success("User created successfully!");
+      closeNewUserForm();
+    },
+    onError: (error) => {
+      console.error("Failed to create user:", error);
+      // toast.error("Failed to create user. Please try again.");
+    },
+  });
 
   const handleSave = async (data: CreateUserFormData) => {
     setIsSubmitting(true);
@@ -33,12 +72,15 @@ const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
           const field = issue.path.join(".");
           errors[field] = issue.message;
         });
+        // toast.error("Please fix form validation errors");
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with create user api
+      await createUserMutation.mutate(data);
     } catch (error) {
       console.error("Form submission error:", error);
+      // toast.error("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +137,7 @@ const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
           <Button
             type="submit"
             form="user-form"
+            
             variant={"outline"}
             disabled={isSubmitting}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"

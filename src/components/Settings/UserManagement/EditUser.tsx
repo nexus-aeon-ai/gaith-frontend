@@ -1,7 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import UserForm from "@/components/Forms/UserForm";
 import {
@@ -14,29 +16,53 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { updateUser, type IUser } from "@/lib/api/user";
 import { createUserSchema, type CreateUserFormData } from "@/lib/validations/user";
 
-const EditUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
+const EditUser = ({ closeNewUserForm, user }: { closeNewUserForm: () => void; user: IUser }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (payload: Partial<IUser>) => {
+      return updateUser(user.id, payload as any);
+    },
+    onSuccess: () => {
+      toast.success("User updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      closeNewUserForm();
+    },
+    onError: err => {
+      console.error("Failed to update user:", err);
+      toast.error("Failed to update user. Please try again.");
+    },
+  });
 
   const handleSave = async (data: CreateUserFormData) => {
     setIsSubmitting(true);
-
     try {
-      // Validate form data
       const result = createUserSchema.safeParse(data);
-
       if (!result.success) {
-        // Extract validation errors
-        const errors: Record<string, string> = {};
-        result.error.issues.forEach(issue => {
-          const field = issue.path.join(".");
-          errors[field] = issue.message;
-        });
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      const payload: Partial<IUser> = {
+        fullName: data.fullName,
+        email: data.email,
+        ...(data.password ? { password: data.password } : {}),
+        phoneNumber: data.phoneNumber,
+        role: data.userRole as string,
+        jobTitle: data.jobTitle,
+        accountRoleId: user.accountRoleId,
+        languagePreference: user.languagePreference,
+        isActive: data.accountActive,
+        emailVerificationRequired: data.emailVerification,
+        forcePasswordChange: data.forcePassChange,
+        accountExpirationDate: data.accExpiryDate ? data.accExpiryDate.toISOString() : null,
+        notes: data.notes || "",
+      };
+
+      mutation.mutate(payload);
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {

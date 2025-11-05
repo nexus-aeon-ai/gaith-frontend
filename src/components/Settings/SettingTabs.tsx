@@ -3,6 +3,7 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 
 import AddNewUser from "@/components/Settings/UserManagement/AddUser";
+import EditUser from "@/components/Settings/UserManagement/EditUser";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,8 @@ export type SettingsTabsRef = {
 export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
   const [activeTab, setActiveTab] = useState("general");
   const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [showEditUserForm, setShowEditUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
 
   const generalRef = useRef<GeneralTabFormRef>(null);
   const userRef = useRef<UserManagementFormRef>(null);
@@ -93,6 +96,10 @@ export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
     return <AddNewUser closeNewUserForm={() => setShowAddUserForm(false)} />;
   }
 
+  if (showEditUserForm && editingUser) {
+    return <EditUser closeNewUserForm={() => setShowEditUserForm(false)} user={editingUser} />;
+  }
+
   return (
     <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
       <TabsList
@@ -116,7 +123,15 @@ export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
         <GeneralTabForm ref={generalRef} />
       </TabsContent>
       <TabsContent value="users">
-        <UserManagementForm ref={userRef} onSubmit={d => console.log("Users:", d)}  setShowAddUserForm={setShowAddUserForm}/>
+        <UserManagementForm
+          ref={userRef}
+          onSubmit={d => console.log("Users:", d)}
+          setShowAddUserForm={setShowAddUserForm}
+          setEditUser={(user: any) => {
+            setEditingUser(user);
+            setShowEditUserForm(true);
+          }}
+        />
       </TabsContent>
       <TabsContent value="notifications">
         <NotificationForm ref={notificationRef} onSubmit={d => console.log("Notifications:", d)} />
