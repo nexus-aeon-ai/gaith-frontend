@@ -33,7 +33,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
     mutationFn: createQuotation,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["quotations"] });
-      closeNewQuoteForm();
+      setShowConfirmModal(true);
     },
     onError: err => {
       console.error("Failed to create quotation.", err);
@@ -71,6 +71,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       console.error("Form submission error:", error);
     } finally {
       setIsSubmitting(false);
+      setShowConfirmModal(false);
     }
   };
 
@@ -145,7 +146,8 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         title="Changes saved Successfully"
         description="Your changes has been saved and is now available in Quotations List."
         singleButton
-        confirmText="View Profile"
+        onConfirm={closeNewQuoteForm}
+        confirmText="View Table"
         icon={
           <div>
             <Check
@@ -161,6 +163,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       <ConfirmDialog
         open={showCancelModal}
         onOpenChange={setShowCancelModal}
+        onCancel={closeNewQuoteForm}
         title="Cancel Changes?"
         description="Are you sure you want to cancel these changes? This action cannot be undone."
         confirmText="No, Keep"
