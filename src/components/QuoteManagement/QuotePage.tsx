@@ -1,10 +1,11 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import PopupModal from "@/components/PopupModal/PopupModal";
 import InvoiceSheet from "@/components/sheet/Quotation/InvoiceSheet";
 import QuotationFilterSheet from "@/components/sheet/Quotation/QuotationFilter";
 import { Button } from "@/components/ui/button";
@@ -46,13 +47,12 @@ import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
 // import { ConfirmDialog } from "../Popups/PopupModal";
-import PopupModal from "@/components/PopupModal/PopupModal";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
 import NewQuote from "./NewQuote";
 import ViewQuoteDetails from "./ViewQuoteDetails";
-import { set } from "date-fns";
+
 
 const data = {
   title: "Enterprise Software Solution",
@@ -92,11 +92,6 @@ const data = {
   },
   terms: [
     "Payment terms: 50% upfront, 50% upon completion",
-    "Project timeline: 3-4 months",
-    "Includes 6 months of technical support",
-    "Additional changes may incur extra charges",
-    "All work will be completed according to agreed specifications",
-    "Client approval required for major changes",
   ],
   notes:
     "This quotation includes comprehensive software development with modern technologies and best practices. Regular progress updates will be provided throughout the project. The solution will be scalable and maintainable for future enhancements.",
@@ -446,7 +441,7 @@ const QuotesPage = () => {
       <div className="w-full overflow-auto border border-gray-200 rounded-lg shadow dark:border-gray-800">
         <Table className="bg-card">
           <TableHeader>
-            <TableRow className="text-[#303444] dark:text-[#CCCFDB]">
+            <TableRow>
               <TableHead className="w-12 text-left">
                 <Checkbox
                   className="!rounded-[8px]"
@@ -457,13 +452,13 @@ const QuotesPage = () => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold">Quotation ID</TableHead>
-              <TableHead className="text-xs font-semibold">Customer</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Amount</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Status</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Created Date</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Valid Until</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Actions</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">Quotation ID</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">Customer</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Amount</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Status</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Created Date</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Valid Until</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -533,10 +528,10 @@ const QuotesPage = () => {
                         quote.status === "completed"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : quote.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : quote.status === "draft"
-                          ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : quote.status === "draft"
+                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
                       )}
                     >
                       {quote.status}
@@ -551,9 +546,7 @@ const QuotesPage = () => {
                   {/* Valid Until */}
                   <TableCell className="text-center text-sm text-gray-900 dark:text-white">
                     <div>{quote.validUntil.date}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {quote.validUntil.text}
-                    </div>
+                    <div className="text-xs text-[#2BAE82] ">{quote.validUntil.text}</div>
                   </TableCell>
 
                   {/* Actions */}

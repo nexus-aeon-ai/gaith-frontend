@@ -4,12 +4,12 @@ import { Send, SquarePen } from "lucide-react";
 import Link from "next/link";
 
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
@@ -135,40 +135,43 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
+      <div className="flex flex-col xl:flex-row xl:gap-12 gap-4 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">
+          <h1 className="text-2xl whitespace-nowrap font-semibold text-foreground mb-2">
             Quotation Details - QUO-2024-001
           </h1>
           <p className="text-muted-foreground">
             Track quotation details, customer info, and updates.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex sm:flex-row flex-col gap-3">
           <Button
             variant="outline"
             onClick={handleCancel}
-            className="p-6 px-8 text-[16px] font-[400] border-none bg-card rounded-[16px] shadow=none border hover:bg-gray-200 dark:hover:bg-card/80 hover:text-dark"
+            className="p-6 px-4 text-[16px] font-[400] border-none bg-card rounded-[16px] shadow=none border hover:bg-gray-200 dark:hover:bg-card/80 hover:text-dark"
           >
             <PdfIcon />
-            Export PDF
+            <span className="hidden md:block">Export PDF</span>
+            <span className="block md:hidden">PDF</span>
           </Button>
           <Button
             variant="outline"
             onClick={handleCancel}
-            className="p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
+            className="p-6 px-4 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
           >
             <SquarePen />
-            Edit Quotations
+            <span className="hidden md:block">Edit Quotations</span>
+            <span className="block md:hidden">Edit</span>
           </Button>
           <Button
             type="submit"
             form="lead-form"
             variant={"outline"}
-            className="p-6 px-8 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-5 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send />
-            Send To Client
+            <span className="hidden md:block">Send to Client</span>
+            <span className="block md:hidden">Send</span>
           </Button>
         </div>
       </div>
@@ -216,7 +219,7 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             </h3>
 
             <div className="mt-3 divide-y">
-              {services.map((s) => {
+              {services.map(s => {
                 const lineSubtotal = (s.price || 0) * (s.quantity || 1);
                 const lineTax = lineSubtotal * ((s.taxPercentage || 0) / 100);
                 const lineTotal = lineSubtotal + lineTax;
@@ -233,7 +236,9 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
                         {s.taxPercentage ? ` • Tax ${s.taxPercentage}%` : ""}
                       </div>
                     </div>
-                    <span className="tabular-nums text-foreground">{formatMoney(lineTotal, currencyCode)}</span>
+                    <span className="tabular-nums text-foreground">
+                      {formatMoney(lineTotal, currencyCode)}
+                    </span>
                   </div>
                 );
               })}
@@ -337,23 +342,25 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
                 <div role="list" className="flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                     <span className="text-muted-foreground">Quotation Number</span>
-                    <span className="font-medium text-foreground text-right">{details.number}</span>
+                    <span className="font-medium text-[#303444] dark:text-[#CCCFDB] text-right">
+                      {details.number}
+                    </span>
                   </div>
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                     <span className="text-muted-foreground">Created Date</span>
-                    <span className="font-medium text-foreground text-right">
+                    <span className="font-medium text-[#303444] dark:text-[#CCCFDB] text-right">
                       {details.createdDate}
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                     <span className="text-muted-foreground">Currency</span>
-                    <span className="font-medium text-foreground text-right">
+                    <span className="font-medium text-[#303444] dark:text-[#CCCFDB] text-right">
                       {details.currency}
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                     <span className="text-muted-foreground">Created By</span>
-                    <span className="font-medium text-foreground text-right">
+                    <span className="font-medium text-[#303444] dark:text-[#CCCFDB] text-right">
                       {details.createdBy}
                     </span>
                   </div>

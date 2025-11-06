@@ -124,11 +124,10 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
             type="submit"
             form="quotation-form"
             variant={"outline"}
-            onClick={() => setShowConfirmModal(true)}
             disabled={isSubmitting}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Save Quotation"}
+            {isSubmitting ? "Saving..." : "Create Quotation"}
           </Button>
         </div>
       </div>

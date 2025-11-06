@@ -1,3 +1,5 @@
+import {toast} from "react-toastify";
+
 import { fetchInstance } from "../clients";
 import type { Quotation } from "../types";
 import type { CreateQuotationFormData } from "../validations/quotation";
@@ -116,12 +118,9 @@ export const getQuotations = async () => {
 };
 
 export const createQuotation = async (
-  form: CreateQuotationFormData & { currencyId?: string ,accountId: string },
+  form: CreateQuotationFormData & { currencyId?: string; accountId: string },
 ): Promise<{ status: number; data: Quotation | null }> => {
-
   const accountId = "176c429f-89f7-4389-9e12-19be5d9ddada";
-  console.log("account id:", accountId);
-  // allow currencyId to come from form; fall back to hardcoded id
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
   const pricingItems = (form.serviceInstance || []).map(item => ({
@@ -159,33 +158,42 @@ export const createQuotation = async (
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (response.status >= 200 && response.status < 300) {
-      console.log("[createQuotation] Success:", {
-        status: response.status,
-        data: response.data,
-      });
-    } else {
-      console.error("[createQuotation] Failure:", {
-        status: response.status,
-        data: response.data,
-      });
+
+    // ✅ Throw if not successful
+    if (response.status < 200 || response.status >= 300) {
+      toast.error("Failed to create quotation: " + response.data.message);
+      console.error("[createQuotation] Failure:", response.data);
+      throw new Error(
+        response.data?.message || `Failed to create quotation (status ${response.status})`,
+      );
     }
-    const respData = response.data as unknown as
+
+    console.log("[createQuotation] Success:", {
+      status: response.status,
+      data: response.data,
+    });
+
+    const respData = response.data as
       | { quotations?: BackendQuotationItem[] }
       | BackendQuotationItem
       | null;
-    const created = (respData && (respData as { quotations?: BackendQuotationItem[] }).quotations
-      ? (respData as { quotations: BackendQuotationItem[] }).quotations?.[0]
-      : (respData as BackendQuotationItem | null)) as BackendQuotationItem | null;
+
+    const created =
+      respData && "quotations" in respData
+        ? respData.quotations?.[0]
+        : (respData as BackendQuotationItem | null);
+
     return {
       status: response.status,
-      data: created ? transformQuotation(created as BackendQuotationItem) : null,
+      data: created ? transformQuotation(created) : null,
     };
   } catch (error) {
     console.error("[createQuotation] Exception:", error);
-    return { status: 500, data: null };
+    // ✅ Throw so React Query knows it failed
+    throw error;
   }
 };
+
 
 export const updateQuotation = async (
   id: string,

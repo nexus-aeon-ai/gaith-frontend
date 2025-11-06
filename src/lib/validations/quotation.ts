@@ -21,9 +21,12 @@ export const createQuoteSchema = z.object({
 
   quoteNumber: z
     .string()
-    .min(2, "Nationality must be at least 2 characters")
-    .max(50, "Nationality must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
+    .min(2, "Quotation number must be at least 2 characters")
+    .max(50, "Quotation number must be less than 50 characters")
+    .regex(
+      /^[A-Za-z0-9_-]+$/,
+      "Quotation number can only contain letters, numbers, dashes, or underscores",
+    ),
 
   validUntil: z.date().optional(),
 
@@ -43,10 +46,10 @@ export const createQuoteSchema = z.object({
   // Service & pricing details
   serviceInstance: z.array(
     z.object({
-      description: z.string(),
-      quantity: z.number(),
+      description: z.string().min(2, "Description must be at least 2 characters"),
+      quantity: z.number().min(1, "Quantity must be at least 1"),
       servicePrice: z.number(),
-      tax: z.number(),
+      tax: z.number().optional().nullable(),
       total: z.number(),
     }),
   ),

@@ -203,7 +203,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
 
           return submit(e);
         }}
-        className="w-full mx-auto space-y-4"
+        className="w-full mx-auto space-y-4 font-inter"
       >
         {mode === "edit" && quotation && (
           <Card className="shadow-none dark:bg-[#0F1B29] bg-[#F3F5F7]">
@@ -630,10 +630,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                         <FormControl>
                           <Input
                             type="number"
-                            min={1}
+                            placeholder="0"
                             className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
                             {...field}
-                            value={field.value ?? ""}
+                            value={field.value === 0 ? "" : field.value ?? ""}
                             onChange={e => field.onChange(Number(e.target.value))}
                           />
                         </FormControl>
@@ -648,11 +648,14 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.servicePrice`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Service Price ({currencySymbol})</FormLabel>
+                        <FormLabel className="whitespace-nowrap">
+                          Service Price ({currencySymbol})
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             inputMode="decimal"
+                            placeholder="0"
                             className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
                             value={field.value === 0 ? "" : field.value ?? ""}
                             onChange={e => {
@@ -679,6 +682,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                             type="number"
                             min={0}
                             max={100}
+                            placeholder="0"
                             inputMode="decimal"
                             className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
                             value={field.value === 0 ? "" : field.value ?? ""}
