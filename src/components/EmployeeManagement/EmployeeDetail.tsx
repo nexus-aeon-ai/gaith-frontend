@@ -4,8 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import RejectCampaignSheet from "@/components/sheet/Campaign/RejectCampaignSheet";
-import RequestChangesSheet from "@/components/sheet/Campaign/RequestChangesSheet";
+import EmployeeReviewSheet from "@/components/sheet/EmployeeReview";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,8 +30,7 @@ export type EmployeeDetailsProps = {
 };
 
 const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsProps) => {
-  const [showRequestChangesSheet, setShowRequestChangesSheet] = useState(false);
-  const [showRejectCampaignSheet, setShowRejectCampaignSheet] = useState(false);
+  const [showEmployeeReviewSheet, setShowEmployeeReviewSheet] = useState(false);
 
   const skills = [
     {
@@ -126,7 +124,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
             <Button
               variant="outline"
               className="w-fit p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
-              onClick={() => setShowRequestChangesSheet(true)}
+              onClick={() => setShowEmployeeReviewSheet(true)}
             >
               <CalendarDays />
               Schedule Review
@@ -136,7 +134,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
             <Button
               variant="outline"
               className="w-fit p-6 px-8 hover:bg-[#687192]/30 text-[16px] font-[400] border-[#687192] text-[#687192] hover:text-[#687192] rounded-[16px] bg-transparent"
-              onClick={() => setShowRequestChangesSheet(true)}
+              onClick={() => setShowEmployeeReviewSheet(true)}
             >
               <SquarePen color="#687192" />
               Edit Profile
@@ -400,13 +398,10 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           </section>
         </div>
       </Card>
-      <RequestChangesSheet
-        open={showRequestChangesSheet}
-        onOpenChange={setShowRequestChangesSheet}
-      />
-      <RejectCampaignSheet
-        open={showRejectCampaignSheet}
-        onOpenChange={setShowRejectCampaignSheet}
+      <EmployeeReviewSheet
+        open={showEmployeeReviewSheet}
+        onOpenChange={setShowEmployeeReviewSheet}
+        employeeId={employeeId}
       />
     </div>
   );

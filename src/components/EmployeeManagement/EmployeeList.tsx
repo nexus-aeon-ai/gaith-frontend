@@ -1,9 +1,9 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 
 import EmployeeDetail from "@/components/EmployeeManagement/EmployeeDetail";
@@ -435,7 +435,7 @@ const EmployeeList = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setShowEmpDetailPage(true)}>
+                        <DropdownMenuItem onClick={() => { setSelectedEmployeeId(employee.id); setShowEmpDetailPage(true); }}>
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             View
