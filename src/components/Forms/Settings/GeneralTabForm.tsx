@@ -442,16 +442,6 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
                     { "hover:border-blue-500": theme === "light" },
                     { "border-2 border-blue-500": theme === "light" },
                   )}
-                  role="button"
-                  onClick={() => {
-                    setTheme("light");
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      setTheme("light");
-                    }
-                  }}
-                  tabIndex={0}
                 >
                   <p className="text-sm font-light">Light Theme Preview</p>
                   <div className="flex flex-col gap-1 items-center p-2 justify-center bg-[#F3F5F7] rounded-[12px]">
@@ -467,16 +457,6 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
                       "border-2 border-blue-500": theme === "dark",
                     },
                   )}
-                  role="button"
-                  onClick={() => {
-                    setTheme("dark");
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      setTheme("dark");
-                    }
-                  }}
-                  tabIndex={0}
                 >
                   <p className="text-sm font-light">Dark Theme Preview</p>
                   <div className="flex flex-col gap-1 items-center p-2 justify-center bg-[#0F1B29] rounded-[12px]">
