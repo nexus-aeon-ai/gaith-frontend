@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PlusCircle, Target } from "lucide-react";
 import { useTheme } from "next-themes";
 import React, { useState } from "react";
 import {
@@ -44,7 +44,11 @@ import {
 import DashboardListIcon from "@/components/ui/icons/analytics/chevronUp";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
+import FbIcon from "@/components/ui/icons/socials/fb";
+import InstaIcon from "@/components/ui/icons/socials/instagram";
+import TwitterX from "@/components/ui/icons/socials/twitterx";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface KPIEntry {
@@ -262,10 +266,34 @@ const kpiEntries: (KPIEntry & { id: string })[] = [
 ];
 
 const timelineEvents = [
-  { id: "launch", date: "July 1, 2025", event: "Campaign Launch", status: "completed" },
-  { id: "milestone", date: "July 10, 2025", event: "First Milestone Reached", status: "completed" },
-  { id: "review", date: "July 20, 2025", event: "Mid-Campaign Review", status: "completed" },
-  { id: "end", date: "July 31, 2025", event: "Campaign Ends", status: "upcoming" },
+  {
+    id: "launch",
+    date: "July 1, 2025",
+    event: "Campaign Launch",
+    description: "Initial content published across all platforms",
+    status: "completed",
+  },
+  {
+    id: "milestone",
+    date: "July 10, 2025",
+    event: "First Milestone Reached",
+    description: "Performance analysis and strategy adjustment",
+    status: "completed",
+  },
+  {
+    id: "review",
+    date: "July 20, 2025",
+    event: "Mid-Campaign Review",
+    status: "completed",
+    description: "Increased ad spend and promotional content",
+  },
+  {
+    id: "end",
+    date: "July 31, 2025",
+    event: "Campaign Ends",
+    status: "upcoming",
+    description: "Final reporting and analysis",
+  },
 ];
 
 const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => {
@@ -344,7 +372,7 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
   };
 
   return (
-    <div className="w-full p-4 md:p-6 space-y-6">
+    <div className="w-full p-4 md:p-6 space-y-6 font-inter">
       {/* Breadcrumbs */}
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
@@ -436,7 +464,7 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
           {/* Performance Analytics Chart */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pt-4 pb-2">
-              <CardTitle className="text-lg font-medium">Performance Analytics</CardTitle>
+              <CardTitle className="text-md font-semibold">Performance Analytics</CardTitle>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -455,6 +483,7 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
               </DropdownMenu>
             </CardHeader>
             <CardContent>
+              <Separator />
               <ChartContainer config={performanceChartConfig} className="h-[400px] w-full">
                 <ComposedChart
                   data={performanceData}
@@ -528,7 +557,10 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
           {/* Campaign Objectives & KPIs */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-medium my-2">Campaign Objectives & KPIs</CardTitle>
+              <CardTitle className="text-md font-semibold my-2">
+                Campaign Objectives & KPIs
+              </CardTitle>
+              <Separator className="mb-2" />
             </CardHeader>
             <CardContent className="space-y-4">
               {kpiEntries.map(kpi => (
@@ -545,6 +577,70 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
               ))}
             </CardContent>
           </Card>
+
+          {/* Task Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="my-2 text-md flex justify-between items-center">
+                <h4 className=" font-semibold">Task Management</h4>
+                <p className="text-xs text-muted-foreground">
+                  Progress: <span className="text-[#3072c0]">75%</span>
+                </p>
+              </CardTitle>
+              <Progress
+                value={70}
+                className="h-2 [&>div]:bg-[linear-gradient(270.06deg,_#2BAE82_49.95%,_#266297_90.48%)]"
+              />
+            </CardHeader>
+            <CardContent className="space-y-2 mt-4">
+              <div className="flex justify-between items-start p-2 mt-2 bg-[#F3F5F7] dark:bg-[#0F1B29] rounded-[10px] border-l-destructive border-l-2">
+                <div className="h-full">
+                  <p className="text-sm font-semibold">Task 1</p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                  <p className="text-xs text-muted-foreground mt-2">Description of task 1</p>
+                </div>
+                <div className="flex flex-col items-end h-[100%] gap-6 justify-between">
+                  <p className="text-xs text-[#3072c0] p-1 px-2 font-semibold rounded-sm bg-[#3072c0]/10">
+                    Low
+                  </p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-start p-2 mt-1 bg-[#F3F5F7] dark:bg-[#0F1B29] rounded-[10px] border-l-destructive border-l-2">
+                <div className="h-full">
+                  <p className="text-sm font-semibold">Task 1</p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                  <p className="text-xs text-muted-foreground mt-2">Description of task 1</p>
+                </div>
+                <div className="flex flex-col items-end h-[100%] gap-6 justify-between">
+                  <p className="text-xs text-[#3072c0] p-1 px-2 font-semibold rounded-sm bg-[#3072c0]/10">
+                    Low
+                  </p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-start p-2 mt-1 bg-[#F3F5F7] dark:bg-[#0F1B29] rounded-[10px] border-l-destructive border-l-2">
+                <div className="h-full">
+                  <p className="text-sm font-semibold">Task 1</p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                  <p className="text-xs text-muted-foreground mt-2">Description of task 1</p>
+                </div>
+                <div className="flex flex-col items-end h-[100%] gap-6 justify-between">
+                  <p className="text-xs text-[#3072c0] p-1 px-2 font-semibold rounded-sm bg-[#3072c0]/10">
+                    Low
+                  </p>
+                  <p className="text-xs text-muted-foreground">Description of task 1</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full h-auto !py-3 bg-transparent rounded-[16px] border-[#3072C0] hover:bg-[#3072C0]/80 mt-2 text-[#3072C0]"
+              >
+                <PlusCircle />
+                Add New Task
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Column 2 */}
@@ -552,25 +648,26 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
           {/* Campaign Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-medium my-2">Campaign Timeline</CardTitle>
+              <CardTitle className="text-md font-semibold my-2">Campaign Timeline</CardTitle>
+              <Separator className="mb-2" />
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {timelineEvents.map((event, index) => (
                   <div key={event.id} className="flex items-start gap-3">
                     <div className="flex flex-col items-center">
-                      <div
-                        className={cn(
-                          "w-3 h-3 rounded-full",
-                          event.status === "completed" ? "bg-green-500" : "bg-gray-300",
-                        )}
-                      />
+                      <Target size={16} color="#3072C0" className="mt-1" />
                       {index < timelineEvents.length - 1 && (
-                        <div className="w-0.5 h-12 bg-gray-300 mt-1" />
+                        <div className="border border-dashed border-gray-300 h-12 mt-1" />
                       )}
                     </div>
-                    <div className="flex-1 pb-4">
-                      <p className="text-sm font-medium">{event.event}</p>
+                    <div className="flex-1 flex items-center justify-between pb-4">
+                      <div>
+                        <p className="text-sm font-medium">{event.event}</p>
+                        <p className="text-sm text-[#303444] dark:text-[#DCE0E4]">
+                          {event.description}
+                        </p>
+                      </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{event.date}</p>
                     </div>
                   </div>
@@ -582,7 +679,7 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
           {/* Budget Breakdown */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pt-4">
-              <CardTitle className="font-semibold text-lg text-card-foreground">
+              <CardTitle className="font-semibold text-md text-card-foreground">
                 Budget Breakdown
               </CardTitle>
               <DropdownMenu>
@@ -648,8 +745,102 @@ const ClientCampaignOverview = ({ onBack: _onBack }: { onBack: () => void }) => 
                       onMouseEnter={(_, index) => setActiveIndex(index)}
                       onMouseLeave={() => setActiveIndex(undefined)}
                     />
+                    <ChartLegend content={<ChartLegendContent />} />
                   </PieChart>
                 </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Team Members */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="my-2 text-md flex justify-between items-center">
+                <h4 className=" font-semibold">Team Members</h4>
+              </CardTitle>
+              <Separator />
+            </CardHeader>
+            <CardContent className="space-y-2 mt-4">
+              {[1, 2, 3, 4, 5].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between border rounded-[12px] py-2 px-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex bg-[#3072C0]/10 p-2 items-center justify-center rounded-full ">
+                      <p className="text-sm font-medium text-[#3072C0]">MA</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Michael Anderson</h3>
+                      <p className="text-sm text-muted-foreground">Account Manager</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="col-span-2">
+          {/* Content Calendar */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="my-2 text-md flex justify-between items-center">
+                <h4 className=" font-semibold">Content Calendar</h4>
+              </CardTitle>
+              <Separator />
+            </CardHeader>
+            <CardContent className="space-y-2 mt-4">
+              <div className="flex justify-between items-center p-4 rounded-[8px] border border-l-[3px] border-l-[#3072C0] transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#3072C014] flex items-center justify-center  rounded-lg shadow-sm">
+                    <FbIcon />
+                  </div>
+                  <div>
+                    <p className="font-semibold ">Facebook Post - Customer Testimonials</p>
+                    <p className="text-sm text-muted-foreground">
+                      Showcase satisfied customers and reviews
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-end gap-3 font-bold flex-col">
+                  <span className="text-sm ">Jul 30, 2025</span>
+                  <span className="text-sm text-[#2BAE82]">Scheduled</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center p-4 rounded-[8px] border border-l-[3px] border-l-[#2BAE82] transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#3072C014] flex items-center justify-center  rounded-lg shadow-sm">
+                    <InstaIcon />
+                  </div>
+                  <div>
+                    <p className="font-semibold ">Instagram Story - Flash Sale Alert</p>
+                    <p className="text-sm text-muted-foreground">
+                      Final 48-hour countdown promotion
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-end gap-3 font-bold flex-col">
+                  <span className="text-sm ">Jul 30, 2025</span>
+                  <span className="text-sm text-[#2BAE82]">Ready</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center p-4 rounded-[8px] border-l-[3px] border-l-[#ECA338] border transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#3072C014] flex items-center justify-center  rounded-lg shadow-sm">
+                    <TwitterX />
+                  </div>
+                  <div>
+                    <p className="font-semibold ">X Thread - Sale Highlights</p>
+                    <p className="text-sm text-muted-foreground">
+                      Last chance messaging and top deals
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-end gap-3 font-bold flex-col">
+                  <span className="text-sm ">Jul 30, 2025</span>
+                  <span className="text-sm text-[#D29A09]">In Review</span>
+                </div>
               </div>
             </CardContent>
           </Card>
