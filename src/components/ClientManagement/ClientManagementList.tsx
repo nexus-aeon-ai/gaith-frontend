@@ -23,6 +23,8 @@ import NewClient from "./NewClient";
 import SearchAndActionsSection from "./SearchAndActionsSection";
 import useTableColumns from "./TableConfig";
 
+import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
+
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -35,10 +37,11 @@ const ClientManagementClient = () => {
   const queryClient = useQueryClient();
 
   // Fetch clients from API
-  const { data: apiClientsData } = useQuery({
+  const { data: apiClientsData, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
       const res = await getClients();
+      console.log("📥 Received clients from API:", res.data);
       return res.data ?? [];
     },
     initialData: [],
@@ -51,7 +54,7 @@ const ClientManagementClient = () => {
       const res = await deleteClient(id);
       return res;
     },
-    onSuccess: async (data) => {
+    onSuccess: async data => {
       console.log("Delete successful:", data);
       await queryClient.invalidateQueries({ queryKey: ["clients"] });
     },
@@ -63,32 +66,34 @@ const ClientManagementClient = () => {
 
   // Transform API data to UI Client format
   const clients: Client[] = useMemo(() => {
-    return apiClientsData.map((apiClient: ApiClient): Client => ({
-      id: apiClient.id,
-      name: apiClient.fullName || apiClient.companyName,
-      email: apiClient.emailAddress || "",
-      status: apiClient.isActive ? "Active" : "Inactive",
-      agreementPeriod: {
-        start: apiClient.agreementStartDate
-          ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-          : "N/A",
-        end: apiClient.agreementEndDate
-          ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-          : "N/A",
-      },
-      marketRegion: apiClient.country || "N/A",
-      services: apiClient.industry || "N/A",
-      contactInfo: apiClient.phoneNumber || "N/A",
-      assignedTo: [],
-    }));
+    return apiClientsData.map(
+      (apiClient: ApiClient): Client => ({
+        id: apiClient.id,
+        name: apiClient.fullName || apiClient.companyName,
+        email: apiClient.emailAddress || "",
+        status: apiClient.isActive ? "Active" : "Inactive",
+        agreementPeriod: {
+          start: apiClient.agreementStartDate
+            ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+            : "N/A",
+          end: apiClient.agreementEndDate
+            ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+            : "N/A",
+        },
+        marketRegion: apiClient.country || "N/A",
+        services: apiClient.industry || "N/A",
+        contactInfo: apiClient.phoneNumber || "N/A",
+        assignedTo: [],
+      }),
+    );
   }, [apiClientsData]);
 
   // Paginated data structure
@@ -167,7 +172,7 @@ const ClientManagementClient = () => {
         onOpenChange={setDeleteClientToggle}
         title="Delete Client?"
         iconComponent={
-          <X className="bg-red-200 rounded-full p-2" strokeWidth={3} size={40} color="#EA3B1F" />
+          <DeleteIcon  width={70} height={70} color="#EA3B1F" />
         }
         description="Are you sure you want to Delete Client? This action cannot be undone."
         cancelButton={{

@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { CirclePlus } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
@@ -25,33 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  getClientBusinessMaturity,
-  getClientIndustries,
-  getClientLanguages,
-  getClientMartketRegions,
-  getClientServiceOffers,
-  getClientTargetAudiences,
-  getClientTeamRoles,
-} from "@/lib/api/client/client";
-import {
-  aiDataLanguages,
-  createAiDataSchema,
-  marketingStrategists,
-  primaryAccManagers,
-  primaryRegions,
-  targetAudience,
-  type CreateAiFormData,
-} from "@/lib/validations/ai-data";
+import { useClientLookups } from "@/lib/api/client/client-lookups";
+import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
 import { companySizeOptions } from "../../lib/validations/client";
 import { CheckboxSquare } from "../ui/checkbox-square";
+import LocationIcon from "../ui/icons/location";
 import Fb from "../ui/icons/socials/fb";
 import Linkedin from "../ui/icons/socials/linkedin";
 import Twitterx from "../ui/icons/socials/twitterx";
 import Website from "../ui/icons/socials/website";
 import Youtube from "../ui/icons/socials/youtube";
-import { useClientLookups } from "@/lib/api/client/client-lookups";
+import Instagram from "../ui/icons/social/instagram";
 
 interface AiDataFormProps {
   initialData?: CreateAiFormData;
@@ -80,8 +64,8 @@ export const defaultFormData: CreateAiFormData = {
   contractDuration: "",
 
   // Market and Target Audience
-  primaryRegion: "Asia",
-  targetAudience: "B2B",
+  primaryRegion: undefined,
+  targetAudience: undefined,
   secondaryMarkets: "",
   languagesSupported: [],
 
@@ -99,8 +83,8 @@ export const defaultFormData: CreateAiFormData = {
   websiteUrl: "",
 
   // Team Assignment
-  primaryAccManager: "creative-director",
-  marketingStrategist: "creative-director",
+  primaryAccManager: undefined,
+  marketingStrategist: undefined,
   priorityLevel: "Medium",
 
   // Additional Team Members
@@ -109,7 +93,6 @@ export const defaultFormData: CreateAiFormData = {
   // Additional Notes
   additionalNotes: "",
 };
-
 
 const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
   const { theme } = useTheme();
@@ -126,10 +109,9 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
     clientMarketRegions,
     clientServiceOffers,
     clientTargetAudiences,
-    clientBusinessMaturity,
     clientTeamRoles,
-    isLoading,
   } = useClientLookups();
+
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -297,11 +279,17 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   <FormItem>
                     <FormLabel>Location</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="City, Country"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
+                      <div className="relative flex items-center">
+                        <Input
+                          placeholder="City, Country"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-10" // added right padding
+                          {...field}
+                        />
+                        <LocationIcon
+                          className="absolute right-4 text-gray-900 dark:text-gray-300 pointer-events-none"
+                          color="currentColor"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -396,8 +384,8 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           min={
                             form.getValues().agreementStartDate
                               ? new Date(form.getValues().agreementStartDate)
-                                  .toISOString()
-                                  .split("T")[0]
+                                .toISOString()
+                                .split("T")[0]
                               : undefined
                           }
                           {...field}
@@ -461,9 +449,9 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                     <FormItem>
                       <FormLabel>Primary Market Region</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select value={field.value || undefined} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select primary region" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
                             {clientMarketRegions.map(option => (
@@ -537,7 +525,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="space-y-1 grid lg:grid-cols-4 grid-cols-2 w-full mt-1">
                             {clientLanguages.map(option => {
-                              const isChecked = selected.includes(option.id);
+                              const isChecked = selected.includes(option.id as string);
 
                               return (
                                 <label
@@ -588,9 +576,10 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <FormLabel>Vision Statement</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
-                          className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                          placeholder="What is the client's long-term vision and aspirations?"
+                          className="resize-none dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
+                          rows={4}
                         />
                       </FormControl>
                       <FormMessage />
@@ -605,9 +594,10 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <FormLabel>Mission Statement</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
-                          className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                          placeholder="client's core purpose and how they serve their customers"
+                          className="resize-none dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
+                          rows={4}
                         />
                       </FormControl>
                       <FormMessage />
@@ -783,7 +773,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
                               {/* Reuse Facebook SVG for demo */}
-                              <Fb />
+                              <Instagram />
                             </div>
                             <Input
                               placeholder="https://instagram.com/company"
@@ -842,7 +832,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Lead Source */}
+                {/* Primary Account Manager */}
                 <FormField
                   control={form.control}
                   name="primaryAccManager"
@@ -852,7 +842,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Lead Source" />
+                            <SelectValue placeholder="Select Account Manager" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -868,7 +858,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   )}
                 />
 
-                {/* Assigned To */}
+                {/* Marketing strategist */}
                 <FormField
                   control={form.control}
                   name="marketingStrategist"
@@ -878,7 +868,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Assigned To" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>

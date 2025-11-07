@@ -27,7 +27,6 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showMarketingAssets, setShowMarketingAssets] = useState(false);
-  const assignedUserID = "188b267a-d063-4a76-9163-78ff55febb24";
   const handleSave = async (data: CreateAiFormData) => {
     setIsSubmitting(true);
 
@@ -59,9 +58,9 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
         contractDurationMonths: parseInt(data.contractDuration) || 0,
-        primaryMarketRegionId: data.primaryRegion,
-        targetAudienceId: data.targetAudience,
-        secondaryMarketIds: [data.primaryRegion],
+        primaryMarketRegionId: data.primaryRegion as string,
+        targetAudienceId: data.targetAudience as string,
+        secondaryMarketIds: [data.primaryRegion as string],
       });
 
       console.log("Client created successfully:", response);

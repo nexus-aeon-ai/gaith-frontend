@@ -22,27 +22,6 @@ export const marketingStrategists = [
   { value: "seo-specialist", label: "SEO Specialist" },
 ] as const;
 
-const primaryAccMgSchema = z.enum([
-  "creative-director",
-  "social-media-manager",
-  "ux-researcher",
-  "web-developer",
-  "content-writer",
-  "graphic-designer",
-  "seo-specialist",
-]);
-
-// Assigned To options validation
-const marketingStrategistSchema = z.enum([
-  "creative-director",
-  "social-media-manager",
-  "ux-researcher",
-  "web-developer",
-  "content-writer",
-  "graphic-designer",
-  "seo-specialist",
-]);
-
 // languages for client market/target au
 export const primaryRegions = [
   "North America",
@@ -55,7 +34,7 @@ export const primaryRegions = [
 
 export const targetAudience = ["B2B", "B2C", "Enterprise", "Startups", "Other"] as const;
 
-const optionalUrl = z.string().url().or(z.literal("")).optional();
+// const optionalUrl = z.string().url().or(z.literal("")).optional();
 
 export const createAiDataSchema = z.object({
   // Basic Information
@@ -114,8 +93,8 @@ export const createAiDataSchema = z.object({
 
   // Market primary region and target audience, the array will
   // contain item ids instead of names for api request body
-  primaryRegion: z.string().uuid("Each region must be a valid ID"),
-  targetAudience: z.string().uuid("Please select a valid target audience"),
+  primaryRegion: z.string().uuid("Each region must be a valid ID").optional(),
+  targetAudience: z.string().uuid("Please select a valid target audience").optional(),
 
   secondaryMarkets: z
     .string()

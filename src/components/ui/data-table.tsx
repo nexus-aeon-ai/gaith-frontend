@@ -31,7 +31,7 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-[#303444] dark:text-[#CCCFDB]">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -64,7 +64,7 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
           </TableBody>
         </Table>
       </div>
-      <PagePaginationFilters totalPages={Number(dataPagination.page_count)} />
+      <PagePaginationFilters totalPages={2} />
     </div>
   );
 };

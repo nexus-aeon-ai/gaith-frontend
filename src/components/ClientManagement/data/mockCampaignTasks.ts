@@ -70,7 +70,7 @@ export const mockTasks: Task[] = [
     due: "Due Today",
     priority: "Low",
     time: "4:00 PM",
-    icon: "file-text",
+    icon: "file-text2",
     iconColor: "text-green-500",
   },
 ];
