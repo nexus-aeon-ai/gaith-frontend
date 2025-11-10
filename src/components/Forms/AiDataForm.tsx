@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
+import Gallery from "@/components/ui/icons/options/gallery";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -30,12 +31,12 @@ import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-
 import { companySizeOptions } from "../../lib/validations/client";
 import { CheckboxSquare } from "../ui/checkbox-square";
 import LocationIcon from "../ui/icons/location";
+import Instagram from "../ui/icons/social/instagram";
 import Fb from "../ui/icons/socials/fb";
 import Linkedin from "../ui/icons/socials/linkedin";
 import Twitterx from "../ui/icons/socials/twitterx";
 import Website from "../ui/icons/socials/website";
 import Youtube from "../ui/icons/socials/youtube";
-import Instagram from "../ui/icons/social/instagram";
 
 interface AiDataFormProps {
   initialData?: CreateAiFormData;
@@ -92,6 +93,8 @@ export const defaultFormData: CreateAiFormData = {
 
   // Additional Notes
   additionalNotes: "",
+
+  companyLogo: undefined,
 };
 
 const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
@@ -111,7 +114,6 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
     clientTargetAudiences,
     clientTeamRoles,
   } = useClientLookups();
-
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -384,8 +386,8 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           min={
                             form.getValues().agreementStartDate
                               ? new Date(form.getValues().agreementStartDate)
-                                .toISOString()
-                                .split("T")[0]
+                                  .toISOString()
+                                  .split("T")[0]
                               : undefined
                           }
                           {...field}
@@ -605,6 +607,52 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="companyLogo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#CCCFDB] text-[#303444]">
+                      Upload Company Logo (Max size 5 Mb)
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="fileUpload"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file); // push file into RHF
+                            }
+                          }}
+                        />
+                        <div className="dark:bg-[#0F1B29] py-4 bg-[#F3F5F7] rounded-[12px] text-center hover:border-muted-foreground/50 transition-colors">
+                          <div className="flex flex-col items-center space-y-2">
+                            <Gallery
+                              className="h-8 w-8 text-muted-foreground"
+                              color={theme === "dark" ? "#CCCFDB" : "#303444"}
+                            />
+                            <div className="space-y-0">
+                              <p className="text-lg font-[400] dark:text-[#CCCFDB] text-[#303444]">
+                                Upload company Logo
+                              </p>
+                              <p className="text-muted-foreground">or drag and drop here</p>
+                            </div>
+                            {field.value && (
+                              <p className="text-sm text-green-600 font-medium">
+                                Selected: {(field.value as File).name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="aiDataProdsServices"
@@ -838,11 +886,11 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   name="primaryAccManager"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Primary Account Manager</FormLabel>
+                      <FormLabel>Project Manager</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Account Manager" />
+                            <SelectValue placeholder="Select Project Manager" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -916,76 +964,40 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                 control={form.control}
                 name="additionalTeamMembers"
                 render={() => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Additional Team Members</FormLabel>
-                    <div className="flex flex-col md:flex-row gap-4">
-                      {/* First column */}
-                      <div className="space-y-3">
-                        {clientTeamRoles.slice(0, 4).map(option => (
-                          <FormField
-                            key={option.id}
-                            control={form.control}
-                            name="additionalTeamMembers"
-                            render={({ field }) => {
-                              const checked = field.value?.includes(option.id as string);
+                  <FormItem className="col-span-2">
+                    <FormLabel className="text-sm font-medium">Assign To Team Members</FormLabel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 space-y-1">
+                      {clientTeamRoles.map(option => (
+                        <FormField
+                          key={option.id}
+                          control={form.control}
+                          name="additionalTeamMembers"
+                          render={({ field }) => {
+                            const checked = field.value?.includes(option.id as string);
 
-                              return (
-                                <FormItem className="flex flex-row items-center space-x-2">
-                                  <FormControl>
-                                    <CheckboxSquare
-                                      id={option.id}
-                                      checked={checked}
-                                      onCheckedChange={checkedNow => {
-                                        const newValue = checkedNow
-                                          ? [...(field.value || []), option.id]
-                                          : field.value?.filter((val: string) => val !== option.id);
-                                        field.onChange(newValue);
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel htmlFor={option.id} className="text-sm">
-                                    {option.name}
-                                  </FormLabel>
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Second column */}
-                      <div className="space-y-3">
-                        {clientTeamRoles.slice(4, 7).map(option => (
-                          <FormField
-                            key={option.id}
-                            control={form.control}
-                            name="additionalTeamMembers"
-                            render={({ field }) => {
-                              const checked = field.value?.includes(option.id as string);
-
-                              return (
-                                <FormItem className="flex flex-row items-center space-x-2">
-                                  <FormControl>
-                                    <CheckboxSquare
-                                      id={option.id}
-                                      checked={checked}
-                                      onCheckedChange={checkedNow => {
-                                        const newValue = checkedNow
-                                          ? [...(field.value || []), option.id]
-                                          : field.value?.filter((val: string) => val !== option.id);
-                                        field.onChange(newValue);
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel htmlFor={option.id} className="text-sm">
-                                    {option.name}
-                                  </FormLabel>
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}
-                      </div>
+                            return (
+                              <FormItem className="flex flex-row items-center space-x-2">
+                                <FormControl>
+                                  <CheckboxSquare
+                                    className="data-[state=checked]:text-[#3072C0] data-[state=checked]:bg-[#3072C0]/50 data-[state=checked]:border-none mt-1"
+                                    id={option.id}
+                                    checked={checked}
+                                    onCheckedChange={checkedNow => {
+                                      const newValue = checkedNow
+                                        ? [...(field.value || []), option.id]
+                                        : field.value?.filter((val: string) => val !== option.id);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel htmlFor={option.id} className="text-sm">
+                                  {option.name}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
                     </div>
                   </FormItem>
                 )}

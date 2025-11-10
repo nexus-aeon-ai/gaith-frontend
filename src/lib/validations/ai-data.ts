@@ -101,9 +101,7 @@ export const createAiDataSchema = z.object({
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),
 
-  languagesSupported: z
-    .array(z.string())
-    .min(1, "Select at least one language").optional(),
+  languagesSupported: z.array(z.string()).min(1, "Select at least one language").optional(),
 
   // Company profile
   visionStatement: z
@@ -115,6 +113,15 @@ export const createAiDataSchema = z.object({
     .string()
     .min(10, "Mission statement must be at least 10 characters")
     .max(1000, "Mission statement must be less than 1000 characters"),
+
+  companyLogo: z
+    .instanceof(File)
+    .refine(file => file.size <= 5 * 1024 * 1024, "File size must be less than 5MB")
+    .refine(
+      file => ["image/png", "image/jpeg", "image/jpg", "image/webp"].includes(file.type),
+      "Only .jpg, .jpeg, .png, .webp formats are supported",
+    )
+    .optional(),
 
   aiDataProdsServices: z
     .array(z.string().uuid("Each service offering must be a valid ID"))
@@ -130,7 +137,7 @@ export const createAiDataSchema = z.object({
 
   // Team Assignment
   primaryAccManager: z.string().optional(),
-  marketingStrategist: z.string().optional() ,
+  marketingStrategist: z.string().optional(),
   priorityLevel: z
     .enum(["High", "Medium", "Low"], {
       required_error: "Priority level is required",
