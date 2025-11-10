@@ -16,9 +16,7 @@ export async function fetchInstance<T>(
   const headers = new Headers(options.headers);
 
   const token = await getAuthToken();
-  console.log(token);
   if (token) {
-    console.log("token");
     headers.set("Authorization", `Bearer ${token}`);
   }
 

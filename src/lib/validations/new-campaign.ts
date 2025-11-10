@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Choice constants
 export const campaignTypes = ["email", "social", "search", "display"] as const;
 export const targetAudiences = ["existingCustomers", "newProspects", "lookalike"] as const;
 export const genderOptions = ["all", "male", "female"] as const;
@@ -22,7 +23,7 @@ const dateFromInput = z.preprocess(val => {
   return val;
 }, z.date());
 
-export const FormSchema = z.object({
+const baseCampaignSchema = z.object({
   campaignName: z.string().min(1, "Campaign name is required"),
   campaignType: z.string().min(1, "Campaign type is required"),
   startDate: dateFromInput,
@@ -50,3 +51,50 @@ export const FormSchema = z.object({
   platforms: z.array(z.string()).default([]),
   launchOptions: z.enum([...launchOptions] as const).default("immediate"),
 });
+
+export const createCampaignSchema = baseCampaignSchema.superRefine((data, ctx) => {
+  // startDate must be <= endDate
+  if (data.startDate && data.endDate) {
+    if (data.startDate.getTime() > data.endDate.getTime()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Start date must be before or equal to end date",
+        path: ["startDate"],
+      });
+    }
+  }
+
+  // publish dates must be valid
+  if (data.publishStartDate && data.publishEndDate) {
+    if (data.publishStartDate.getTime() > data.publishEndDate.getTime()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Publish start must be before or equal to publish end",
+        path: ["publishStartDate"],
+      });
+    }
+  }
+
+  // budgetDistribution percentages should sum to <= 100
+  if (Array.isArray(data.budgetDistribution) && data.budgetDistribution.length > 0) {
+    const sum = data.budgetDistribution.reduce((s, b) => s + (b.percent || 0), 0);
+    if (sum > 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Budget distribution percentages must not exceed 100% total",
+        path: ["budgetDistribution"],
+      });
+    }
+  }
+});
+
+export type CampaignFormValues = z.infer<typeof baseCampaignSchema>;
+
+export const updateCampaignSchema = baseCampaignSchema.partial();
+export type CampaignUpdateValues = z.infer<typeof updateCampaignSchema>;
+
+// Validation helpers
+export const validateCampaignForm = (data: unknown) => createCampaignSchema.safeParse(data);
+export const validateCampaignUpdate = (data: unknown) => updateCampaignSchema.safeParse(data);
+
+export default createCampaignSchema;

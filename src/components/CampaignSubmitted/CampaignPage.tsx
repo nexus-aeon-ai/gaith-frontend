@@ -1,4 +1,5 @@
 "use client";
+import { format } from "date-fns";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,9 +9,10 @@ import {
   CircleX,
   EllipsisVertical,
   Search,
+  Trash2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CampaignSubmittedForm } from "@/components/CampaignSubmitted/Campaign/Campaign";
 import CampaignFilterSheet from "@/components/sheet/Campaign/CampaignFilter";
@@ -42,7 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { mockCampaigns } from "@/lib/mockdata";
+import { ApiCampaign, deleteCampaign, getCampaigns } from "@/lib/api/campaign/campaign";
 import { cn } from "@/lib/utils";
 
 import ViewCampaignDetails from "./ViewCampaignDetails";
@@ -54,11 +56,32 @@ const CampaignSubPage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewCampaignForm, setShowNewCampaignForm] = useState(false);
   const [showEditCampaignForm, setShowEditCampaignForm] = useState(false);
-
   const [showCampaignDetails, setShowCampaignDetails] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const [campaigns, setCampaigns] = useState<ApiCampaign[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const response = await getCampaigns(currentPage, itemsPerPage);
+        if (response.data) {
+          setCampaigns(response.data.items);
+          setTotalItems(response.data.total);
+          setTotalPages(response.data.totalPages);
+        }
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+      } finally {
+      }
+    };
+
+    fetchCampaigns();
+  }, [currentPage]);
 
   const handleSelectCampaign = (campaignId: string, checked: boolean) => {
     setSelectedCampaigns(prev =>
@@ -66,29 +89,49 @@ const CampaignSubPage = () => {
     );
   };
 
-  // Handle select all
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      // Select all campaign IDs from current page
-      setSelectedCampaigns(currentCampaigns.map(c => c.id));
+      setSelectedCampaigns(campaigns.map(c => c.id));
     } else {
-      // Clear all selections
       setSelectedCampaigns([]);
     }
   };
 
-  const filteredCampaigns = mockCampaigns.filter(c =>
-    c.campaign.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentCampaigns = filteredCampaigns.slice(startIndex, endIndex);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleDeleteCampaign = async (id: string) => {
+    if (!id) return;
+
+    try {
+      const resp = await deleteCampaign(id);
+      if (resp && resp.status >= 200 && resp.status < 300) {
+        // refetch current page to keep pagination consistent
+        try {
+          const listResp = await getCampaigns(currentPage, itemsPerPage);
+          if (listResp.data) {
+            setCampaigns(listResp.data.items);
+            setTotalItems(listResp.data.total);
+            setTotalPages(listResp.data.totalPages);
+          }
+        } catch (err) {
+          console.error("Error refetching campaigns after delete:", err);
+          // fallback: remove locally
+          setCampaigns(prev => prev.filter(c => c.id !== id));
+          setTotalItems(prev => Math.max(0, prev - 1));
+        }
+
+        // cleanup selection state
+        setSelectedCampaigns(prev => prev.filter(cid => cid !== id));
+      } else {
+        console.error("Failed to delete campaign", resp);
+        alert("Failed to delete campaign. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting campaign:", error);
+      alert("Error deleting campaign. Please try again.");
+    }
   };
 
   const getVisiblePages = () => {
@@ -117,10 +160,6 @@ const CampaignSubPage = () => {
     return pages;
   };
 
-  if (showCampaignDetails) {
-    return <ViewCampaignDetails closeViewDetails={() => setShowCampaignDetails(false)} />;
-  }
-
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case "facebook":
@@ -138,11 +177,44 @@ const CampaignSubPage = () => {
     }
   };
 
+  const calculateDuration = (startAt: string, endAt: string) => {
+    const start = new Date(startAt);
+    const end = new Date(endAt);
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return {
+      mainDuration: format(start, "MMM d") + " - " + format(end, "MMM d, yyyy"),
+      noOfDays: `${days} days`,
+    };
+  };
+
+  const getAudienceInfo = (campaign: ApiCampaign) => {
+    return {
+      group: campaign.genderType.name,
+      location: campaign.countries.map(c => c.countryType.name).join(", "),
+    };
+  };
+
+  if (showCampaignDetails) {
+    return (
+      <ViewCampaignDetails
+        campaignId={selectedCampaignId as string}
+        closeViewDetails={() => setShowCampaignDetails(false)}
+      />
+    );
+  }
+
   if (showNewCampaignForm) {
     return <CampaignSubmittedForm mode="create" setCampaignOpen={setShowNewCampaignForm} />;
   }
+
   if (showEditCampaignForm) {
-    return <CampaignSubmittedForm mode="edit" setCampaignOpen={setShowEditCampaignForm} />;
+    return (
+      <CampaignSubmittedForm
+        mode="edit"
+        setCampaignOpen={setShowEditCampaignForm}
+        campaignId={selectedCampaignId as string}
+      />
+    );
   }
 
   return (
@@ -183,12 +255,14 @@ const CampaignSubPage = () => {
             "text-xs sm:text-sm lg:text-base",
           )}
           onClick={() => setShowNewCampaignForm(true)}
+          disabled
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Create New Campaign</span>
           <span className="sm:hidden">Create Campaign</span>
         </Button>
       </div>
+
       {/* Search and Actions Section */}
       <div
         className={cn(" items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm")}
@@ -294,10 +368,7 @@ const CampaignSubPage = () => {
               <TableHead className="w-12 text-left">
                 <Checkbox
                   className="!rounded-[8px]"
-                  checked={
-                    selectedCampaigns.length === currentCampaigns.length &&
-                    currentCampaigns.length > 0
-                  }
+                  checked={selectedCampaigns.length === campaigns.length && campaigns.length > 0}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
@@ -313,137 +384,146 @@ const CampaignSubPage = () => {
           </TableHeader>
 
           <TableBody>
-            {currentCampaigns.map((campaign, index) => (
-              <TableRow
-                key={index}
-                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                {/* Checkbox */}
-                <TableCell className="px-4 py-3">
-                  <Checkbox
-                    className="!rounded-[8px]"
-                    checked={selectedCampaigns.includes(campaign.id)}
-                    onCheckedChange={checked =>
-                      handleSelectCampaign(campaign.id, checked as boolean)
-                    }
-                  />
-                </TableCell>
-                {/* Campaign Name */}
-                <TableCell className="min-w-[200px]">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {campaign.campaign.name}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {campaign.campaign.submittedDate}
-                    </div>
-                  </div>
-                </TableCell>
-
-                {/* Type */}
-                <TableCell className="text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                  {campaign.type}
-                </TableCell>
-
-                {/* Target Audience */}
-                <TableCell className="min-w-[180px]">
-                  <div>
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {campaign.targetAudience.group}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {campaign.targetAudience.location}
-                    </div>
-                  </div>
-                </TableCell>
-
-                {/* Budget */}
-                <TableCell className="text-center">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {campaign.budget.totalBudget}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {campaign.budget.perDayBudget}/day
-                  </div>
-                </TableCell>
-
-                {/* Duration */}
-                <TableCell className="text-center">
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    {campaign.duration.mainDuration}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {campaign.duration.noOfDays}
-                  </div>
-                </TableCell>
-
-                {/* Platforms */}
-                <TableCell className="text-center">
-                  <div className="flex justify-center items-center gap-2 flex-wrap">
-                    {campaign.platforms.map((platform, idx) => (
-                      <div key={idx} className="transition-colors" title={platform}>
-                        {getPlatformIcon(platform)}
+            {campaigns.map(campaign => {
+              const duration = calculateDuration(campaign.startAt, campaign.endAt);
+              const audience = getAudienceInfo(campaign);
+              return (
+                <TableRow
+                  key={campaign.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {/* Checkbox */}
+                  <TableCell className="px-4 py-3">
+                    <Checkbox
+                      className="!rounded-[8px]"
+                      checked={selectedCampaigns.includes(campaign.id)}
+                      onCheckedChange={checked =>
+                        handleSelectCampaign(campaign.id, checked as boolean)
+                      }
+                    />
+                  </TableCell>
+                  {/* Campaign Name */}
+                  <TableCell className="min-w-[200px]">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {campaign.name}
                       </div>
-                    ))}
-                  </div>
-                </TableCell>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {format(new Date(campaign.createdAt), "MMM d, yyyy")}
+                      </div>
+                    </div>
+                  </TableCell>
 
-                {/* Status */}
-                <TableCell className="text-center">
-                  <span
-                    className={cn(
-                      "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
-                      campaign.status === "completed"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
-                        : campaign.status === "active"
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
-                          : campaign.status === "approved"
-                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200"
-                            : campaign.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-                    )}
-                  >
-                    {campaign.status}
-                  </span>
-                </TableCell>
+                  {/* Type */}
+                  <TableCell className="text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                    {campaign.campaignType.name}
+                  </TableCell>
 
-                {/* Actions */}
-                <TableCell className="text-center whitespace-nowrap">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <EllipsisVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowCampaignDetails(true);
-                        }}
-                      >
-                        <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">
-                          View Details
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowEditCampaignForm(true);
-                        }}
-                      >
-                        <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
-                        <CirclePlay color="#853AA6" />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">Launch</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                  {/* Target Audience */}
+                  <TableCell className="min-w-[180px]">
+                    <div>
+                      <div className="text-sm text-gray-900 dark:text-white">{audience.group}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {audience.location}
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Budget */}
+                  <TableCell className="text-center">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      ${campaign.totalBudget}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      ${campaign.dailySpendLimit}/day
+                    </div>
+                  </TableCell>
+
+                  {/* Duration */}
+                  <TableCell className="text-center">
+                    <div className="text-sm text-gray-900 dark:text-white">
+                      {duration.mainDuration}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {duration.noOfDays}
+                    </div>
+                  </TableCell>
+
+                  {/* Platforms */}
+                  <TableCell className="text-center">
+                    <div className="flex justify-center items-center gap-2 flex-wrap">
+                      {campaign.platforms.map((platform, idx) => (
+                        <div
+                          key={idx}
+                          className="transition-colors"
+                          title={platform.platformType.name}
+                        >
+                          {getPlatformIcon(platform.platformType.name)}
+                        </div>
+                      ))}
+                    </div>
+                  </TableCell>
+
+                  {/* Status */}
+                  <TableCell className="text-center">
+                    <span
+                      className={cn(
+                        "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
+                        !campaign.isLaunched
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
+                          : "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
+                      )}
+                    >
+                      {!campaign.isLaunched ? "Draft" : "Launched"}
+                    </span>
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="text-center whitespace-nowrap">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedCampaignId(campaign.id);
+                            setShowCampaignDetails(true);
+                          }}
+                        >
+                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">
+                            View Details
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedCampaignId(campaign.id);
+                            setShowEditCampaignForm(true);
+                          }}
+                        >
+                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {}}>
+                          <CirclePlay color="#853AA6" />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">Launch</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => handleDeleteCampaign(campaign.id)}
+                        >
+                          <Trash2 color="#EA3B1F" />
+                          <span className="ml-2 text-sm text-[#EA3B1F]">Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -453,7 +533,7 @@ const CampaignSubPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Left side - Page info */}
           <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Page {currentPage} of {totalPages} ({filteredCampaigns.length} total quotations)
+            Page {currentPage} of {totalPages} ({totalItems} total campaigns)
           </div>
 
           {/* Right side - Pagination controls */}
@@ -521,6 +601,7 @@ const CampaignSubPage = () => {
         </div>
       </div>
       <CampaignFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+              
     </div>
   );
 };

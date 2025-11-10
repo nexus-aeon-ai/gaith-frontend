@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -20,6 +20,12 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
 import { Separator } from "@/components/ui/separator";
+import {
+  createNewCampaign,
+  getCampaignById,
+  NewCampaignRequest,
+  updateCampaign,
+} from "@/lib/api/campaign/campaign";
 import { FormSchema } from "@/lib/schemas/new-campaign";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +34,7 @@ import StepAddress from "./Step2";
 import StepPreferences from "./Step3";
 import StepAccount from "./Step4";
 import StepOverview from "./Step5";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type FormValues = z.infer<typeof FormSchema>;
 
@@ -78,9 +85,15 @@ const STEP_FIELDS: Record<number, (keyof FormValues)[]> = {
 interface CampaignFormProps {
   setCampaignOpen: (open: boolean) => void;
   mode: "create" | "edit";
+  campaignId?: string;
 }
-export function CampaignSubmittedForm({ setCampaignOpen, mode = "create" }: CampaignFormProps) {
+export function CampaignSubmittedForm({
+  setCampaignOpen,
+  mode = "create",
+  campaignId,
+}: CampaignFormProps) {
   const [step, setStep] = useState(1);
+  const queryClient = useQueryClient();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const totalSteps = 5;
   const isLast = step === totalSteps;
@@ -122,9 +135,114 @@ export function CampaignSubmittedForm({ setCampaignOpen, mode = "create" }: Camp
   }
 
   async function onSubmit(values: FormValues) {
-    // TODO: Implement final submission
-    console.warn("Form submitted:", values);
+    try {
+      // Build payload that matches the update API contract
+      const payload: NewCampaignRequest = {
+        name: values.campaignName,
+        description: values.description || "",
+        primaryHeadline: values.headline || "",
+        campaignTypeId: values.campaignType,
+        targetAudienceTypeId: values.targetAudience,
+        ageRangeTypeId: values.ageRange,
+        genderTypeId: values.gender,
+        countryTypeIds: values.country ? [values.country] : [],
+        regionTypeIds: values.stateRegion ? [values.stateRegion] : [],
+        callToActionTypeId: values.callToAction,
+        totalBudget: values.totalBudget,
+        dailySpendLimit: Number(values.dailySpendLimit) || 0,
+        biddingStrategyTypeId: values.biddingStrategy,
+        manualCpc: 0.25,
+        startAt: values.startDate ? values.startDate.toISOString() : undefined,
+        endAt: values.endDate ? values.endDate.toISOString() : undefined,
+        scheduledAt: values.publishStartDate ? values.publishStartDate.toISOString() : undefined,
+        launchOption:
+          values.launchOptions === "immediate" ? "SAVE_AS_DRAFT_FOR_REVIEW" : "SCHEDULED_LAUNCH",
+        isTermsAgreed: false,
+        objectiveTypeIds: values.objectives || [],
+        interestTypeIds: values.interests || [],
+        platformTypeIds: values.platforms || [],
+        budgetAllocations: (values.budgetDistribution || []).map(b => ({
+          channelTypeId: (b as any).channel,
+          percentage: (b as any).percent ?? (b as any).percentage ?? 0,
+          amount: Math.round(
+            ((values.totalBudget || 0) * ((b as any).percent ?? (b as any).percentage ?? 0)) / 100,
+          ),
+        })),
+      };
+
+      if (mode === "create") {
+        // create new campaign
+        const resp = await createNewCampaign(payload);
+        console.log("Create campaign response:", resp);
+        if (resp?.status && resp.status >= 200 && resp.status < 300) {
+          setCampaignOpen(false);
+        }
+      } else {
+        // edit/update campaign
+        if (!campaignId) {
+          console.error("No campaignId provided for edit");
+          return;
+        }
+        console.log("Update campaign payload:", payload);
+        const resp = await updateCampaign(campaignId, payload);
+        console.log("Update campaign response:", resp);
+        await queryClient.invalidateQueries({ queryKey: ["campaign"] });
+        if (resp?.status && resp.status >= 200 && resp.status < 300) {
+          setCampaignOpen(false);
+        }
+      }
+    } catch (err) {
+      console.error("Error submitting campaign:", err);
+    }
   }
+
+  // Prefill form when editing
+  useEffect(() => {
+    const loadCampaign = async () => {
+      if (mode !== "edit" || !campaignId) return;
+      try {
+        const resp = await getCampaignById(campaignId);
+        if (resp?.data) {
+          const data = resp.data;
+          // Map API fields to form fields as best-effort
+          form.reset({
+            ...DEFAULTS,
+            campaignName: data.name ?? DEFAULTS.campaignName,
+            description: data.description ?? DEFAULTS.description,
+            headline: data.primaryHeadline ?? DEFAULTS.headline,
+            totalBudget: data.totalBudget ?? DEFAULTS.totalBudget,
+            dailySpendLimit: String(data.dailySpendLimit ?? DEFAULTS.dailySpendLimit),
+            startDate: data.startAt ? new Date(data.startAt) : DEFAULTS.startDate,
+            endDate: data.endAt ? new Date(data.endAt) : DEFAULTS.endDate,
+            publishStartDate: data.scheduledAt
+              ? new Date(data.scheduledAt)
+              : DEFAULTS.publishStartDate,
+            platforms:
+              data.platforms?.map((p: any) => p.platformType?.id ?? p.platformType?.name) ??
+              DEFAULTS.platforms,
+            objectives:
+              data.objectives?.map((o: any) => o.objectiveType?.id ?? o.objectiveType?.name) ??
+              DEFAULTS.objectives,
+            interests:
+              data.interests?.map((i: any) => i.interestType?.id ?? i.interestType?.name) ??
+              DEFAULTS.interests,
+            country: (data.countryTypeIds && data.countryTypeIds[0]) ?? DEFAULTS.country,
+            stateRegion: (data.regionTypeIds && data.regionTypeIds[0]) ?? DEFAULTS.stateRegion,
+            budgetDistribution:
+              data.budgetAllocations?.map((b: any) => ({
+                channel: b.channelTypeId,
+                percent: b.percentage,
+              })) ?? DEFAULTS.budgetDistribution,
+          });
+        }
+      } catch (err) {
+        console.error("Error loading campaign for edit:", err);
+      }
+    };
+
+    loadCampaign();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, campaignId]);
 
   return (
     <div className="mx-auto w-full p-4 md:p-6 lg:p-8">
@@ -239,6 +357,7 @@ export function CampaignSubmittedForm({ setCampaignOpen, mode = "create" }: Camp
                     "hover:bg-blue-700  text-white",
                     "text-xs sm:text-sm lg:text-base",
                   )}
+                  type="button"
                   onClick={handleNext}
                 >
                   {isLast ? (mode === "create" ? "Launch Campaign" : "Update Changes") : "Next"}

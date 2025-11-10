@@ -1,4 +1,5 @@
 import { useTheme } from "next-themes";
+import { JSX } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -19,86 +20,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
 
 function StepContent({ form }: StepFormProps) {
   const { control } = form;
   const { theme } = useTheme();
+  const { ctaTypes, platformTypes } = useCampaignLookups();
 
-  const interests = [
-    {
-      value: "linkedin",
-      label: "Linkedin",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Linkedin />
-        </div>
-      ),
-    },
-    {
-      value: "twitter",
-      label: "Twitter",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Twitter />
-        </div>
-      ),
-    },
-    {
-      value: "instagram",
-      label: "Instagram",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Instagram />
-        </div>
-      ),
-    },
-    {
-      value: "instagram",
-      label: "Instagram",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Instagram />
-        </div>
-      ),
-    },
-    {
-      value: "facebook",
-      label: "Facebook",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Facebook />
-        </div>
-      ),
-    },
-    {
-      value: "email",
-      label: "Email",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Email />
-        </div>
-      ),
-    },
-    {
-      value: "facebook",
-      label: "Facebook",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Facebook />
-        </div>
-      ),
-    },
-    {
-      value: "instagram",
-      label: "Instagram",
-      icon: (
-        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
-          <Linkedin />
-        </div>
-      ),
-    },
-  ];
+  const platformIconMap: Record<string, JSX.Element> = {
+    Facebook: <Facebook />,
+    Instagram: <Instagram />,
+    LinkedIn: <Linkedin />,
+    Twitter: <Twitter />,
+    Email: <Email />,
+  };
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -277,13 +213,11 @@ function StepContent({ form }: StepFormProps) {
                     <SelectValue placeholder="Select Call to Action" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="learn_more">Learn More</SelectItem>
-                    <SelectItem value="sign_up">Sign Up</SelectItem>
-                    <SelectItem value="shop_now">Shop Now</SelectItem>
-                    <SelectItem value="contact_us">Contact Us</SelectItem>
-                    <SelectItem value="download">Download</SelectItem>
-                    <SelectItem value="book_now">Book Now</SelectItem>
-                    <SelectItem value="subscribe">Subscribe</SelectItem>
+                    {ctaTypes.map(cta => (
+                      <SelectItem key={cta.id} value={cta.id}>
+                        {cta.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -320,7 +254,7 @@ function StepContent({ form }: StepFormProps) {
                       min={new Date().toISOString().split("T")[0]}
                       {...field}
                       className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] rounded-[12px] bg-[#F3F5F7] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -371,7 +305,7 @@ function StepContent({ form }: StepFormProps) {
                       }
                       {...field}
                       className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] rounded-[12px] bg-[#F3F5F7] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -404,33 +338,33 @@ function StepContent({ form }: StepFormProps) {
             <FormItem>
               <FormLabel className="mb-3">Platform Selection</FormLabel>
               <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
-                {interests.map(interest => (
+                {platformTypes.map(platform => (
                   <FormField
-                    key={interest.value}
+                    key={platform.id}
                     control={control}
                     name="platforms"
                     render={({ field: { value, onChange } }) => {
                       const values = (value as string[]) || [];
                       return (
                         <FormItem
-                          key={interest.value}
+                          key={platform.id}
                           className="flex flex-row items-center space-x-3 space-y-0"
                         >
                           <FormControl>
                             <Checkbox
                               className="rounded-md"
-                              checked={values.includes(interest.value)}
+                              checked={values.includes(platform.id)}
                               onCheckedChange={checked => {
                                 if (checked) {
-                                  onChange([...values, interest.value]);
+                                  onChange([...values, platform.id]);
                                 } else {
-                                  onChange(values.filter(val => val !== interest.value));
+                                  onChange(values.filter(val => val !== platform.id));
                                 }
                               }}
                             />
                           </FormControl>
-                          {interest.icon}
-                          <FormLabel className="font-normal">{interest.label}</FormLabel>
+                          {platformIconMap[platform.name]}
+                          <FormLabel className="font-normal">{platform.name}</FormLabel>
                         </FormItem>
                       );
                     }}
