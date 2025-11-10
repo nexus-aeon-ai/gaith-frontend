@@ -1,0 +1,548 @@
+"use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+
+import FilterSheet from "@/components/sheet/EmployeeFilter";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import DeleteIcon from "@/components/ui/icons/options/delete-icon";
+import EditIcon from "@/components/ui/icons/options/edit-icon";
+import ExcelIcon from "@/components/ui/icons/options/excel-icon";
+import FilterIcon from "@/components/ui/icons/options/filter-icon";
+import MenuIcon from "@/components/ui/icons/options/menu-icon";
+import PdfIcon from "@/components/ui/icons/options/pdf-icon";
+import ViewIcon from "@/components/ui/icons/options/view-icon";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { deleteEmployee, getEmployees, type Employee as ApiEmployee } from "@/lib/api/employee";
+import type { Employee as UiEmployee } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+import AddNewEmployee from "./AddEmployee";
+import EditEmployee from "./EditEmployee";
+
+const EmployeeList = () => {
+  const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
+  const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const itemsPerPage = 5;
+  const { theme: themNext } = useTheme();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const { data } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await getEmployees();
+      return res.data?.results ?? [];
+    },
+    initialData: [],
+  });
+
+  useMemo(() => {
+    setApiEmployees(data as ApiEmployee[]);
+  }, [data]);
+
+  const employees: UiEmployee[] = useMemo(() => {
+    return apiEmployees.map((emp: ApiEmployee): UiEmployee => ({
+      id: emp.id,
+      fullName: emp.fullName,
+      email: emp.email,
+      // UI expects these fields differently
+      role: emp.role.title,
+      status: emp.status === "Active" ? "active" : "inactive",
+      department: { name: emp.department.name, team: emp.department.subTeam || "" },
+      contactInfo: { email: emp.email, number: emp.phone },
+      performance: `${emp.performance}%`,
+      permissions: { view: true, edit: true, approve: false, delete: false },
+    }));
+  }, [apiEmployees]);
+
+  const { mutate: deleteEmployeeMutate } = useMutation({
+    mutationKey: ["employees", "delete"],
+    mutationFn: async (id: string) => {
+      const res = await deleteEmployee(id);
+      return res.status;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEmployees(employees.map(employee => employee.id.toString()));
+    } else {
+      setSelectedEmployees([]);
+    }
+  };
+
+  const handleSelectLead = (clientId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedEmployees(prev => [...prev, clientId]);
+    } else {
+      setSelectedEmployees(prev => prev.filter(id => id !== clientId));
+    }
+  };
+
+  const filteredEmployees = employees.filter(
+    employee =>
+      (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const getVisiblePages = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, currentPage + 2);
+
+      if (currentPage <= 3) {
+        endPage = maxVisiblePages;
+      } else if (currentPage >= totalPages - 2) {
+        startPage = totalPages - maxVisiblePages + 1;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
+  };
+
+  if (showAddEmployeeForm) {
+    return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
+  }
+
+  if (showEditEmployeeForm && selectedEmployeeId) {
+    return (
+      <EditEmployee
+        employeeId={selectedEmployeeId}
+        closeEmployeeForm={() => {
+          setshowEditEmployeeForm(false);
+          setSelectedEmployeeId(null);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
+        "bg-background overflow-x-hidden",
+      )}
+    >
+      {/* Header Section */}
+      <div
+        className={cn(
+          "flex flex-col sm:flex-row justify-between items-start",
+          "gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6",
+        )}
+      >
+        <div className="flex-1 min-w-0">
+          <h1
+            className={cn(
+              "text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold",
+              "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
+            )}
+          >
+            Employee Management
+          </h1>
+          <p className={cn("text-xs sm:text-sm", "text-gray-600 dark:text-gray-300")}>
+            Manage employee profiles, roles, and performance tracking
+          </p>
+        </div>
+
+        <Button
+          className={cn(
+            "flex items-center gap-1 sm:gap-2",
+            "bg-[#3072C0] rounded-[16px] w-fit sm:w-auto",
+            "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
+            "hover:bg-blue-700 text-white",
+            "text-xs sm:text-sm lg:text-base",
+          )}
+          onClick={() => setShowAddEmployeeForm(true)}
+        >
+          <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Add New Employee</span>
+          <span className="sm:hidden">Add Employee</span>
+        </Button>
+      </div>
+
+      {/* Search and Actions Section */}
+      <div
+        className={cn(" items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm")}
+      >
+        <div
+          className={cn(
+            "flex flex-col sm:flex-row items-start sm:items-center justify-between",
+            "gap-2 sm:gap-3 ",
+          )}
+        >
+          <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
+            <Search />
+            <Input
+              placeholder="Search employees"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="border-none shadow-none focus:outline-none h-12 min-w-md"
+            />
+          </div>
+          <div className="flex gap-1 sm:gap-2 md:gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex items-center gap-1 sm:gap-2",
+                    "bg-card border-border text-xs h-8 sm:h-10",
+                    "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
+                    "hover:bg-card hover:border-blue-500",
+                  )}
+                >
+                  <MenuIcon style={{ color: "var(--icon-primary)" }} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => {
+                    // Handle delete action here
+                    // TODO: Implement delete functionality
+                  }}
+                >
+                  <DeleteIcon style={{ color: "var(--icon-primary)" }} />
+                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-card border-border text-xs h-8 sm:h-10",
+                "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
+                "hover:bg-card hover:border-blue-500",
+              )}
+              onClick={() => setIsFilterSheetOpen(true)}
+            >
+              <FilterIcon style={{ color: "var(--icon-primary)" }} />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-card border-border text-xs h-8 sm:h-10",
+                "hover:bg-card hover:border-blue-500",
+              )}
+            >
+              <ExcelIcon />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
+              <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+            </Button>
+            <Button
+              variant="outline"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-card border-border text-xs h-8 sm:h-10",
+                "hover:bg-card hover:border-blue-500",
+              )}
+            >
+              <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+              <span className="hidden sm:inline dark:text-white text-gray-900">Export PDF</span>
+              <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto sm:w-full w-[520px] ">
+          <Table className="text-sm w-full">
+            <TableHeader className="bg-gray-50 dark:bg-gray-800">
+              <TableRow>
+                <TableHead className="px-4 py-3">
+                  <Checkbox
+                    className="!rounded-[8px]"
+                    checked={employees.length > 0 && selectedEmployees.length === employees.length}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
+                <TableHead className="px-4 py-3 text-left">Employee</TableHead>
+                <TableHead className="px-4 py-3 text-center">Department</TableHead>
+                <TableHead className="px-4 py-3 text-center">Role</TableHead>
+                <TableHead className="px-4 py-3 text-center hidden md:table-cell">
+                  Contact Info
+                </TableHead>
+                <TableHead className="px-4 py-3 text-center">Status</TableHead>
+                <TableHead className="px-4 py-3 text-center">Performance</TableHead>
+                <TableHead className="px-4 py-3 text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentEmployees.map((employee: UiEmployee) => (
+                <TableRow key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  {/* Checkbox */}
+                  <TableCell className="px-4 py-3">
+                    <Checkbox
+                      className="!rounded-[8px]"
+                      checked={selectedEmployees.includes(employee.id.toString())}
+                      onCheckedChange={checked =>
+                        handleSelectLead(employee.id.toString(), checked as boolean)
+                      }
+                    />
+                  </TableCell>
+
+                  {/* Employee */}
+                  <TableCell className="px-4 py-3">
+                    <div className="flex items-center">
+                      <Image
+                        src={"/images/default-avatar.jpg"}
+                        alt="avatar"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {employee.fullName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[140px]">
+                          {employee.contactInfo.email}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Department */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <p className="text-sm font-medium">{employee.department.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {employee.department.team}
+                    </p>
+                  </TableCell>
+
+                  {/* Role */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <p className="text-sm font-medium">{employee.role}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {/* No explicit level in UI Employee mapping */}
+                    </p>
+                  </TableCell>
+
+                  {/* Contact Info (hidden on small screens) */}
+                  <TableCell className="px-4 py-3 text-center hidden md:table-cell">
+                    <p className="text-sm font-medium">{employee.contactInfo.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {employee.contactInfo.number}
+                    </p>
+                  </TableCell>
+
+                  {/* Status with Badge */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <div className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          employee.status === "active"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                        )}
+                      >
+                        {employee.status}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* Performance */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <div className="w-32 flex gap-2 items-center mx-auto">
+                      <span className="text-xs font-medium">{employee.performance}</span>
+                      <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
+                        <div
+                          className={cn(
+                            "h-2 rounded-full transition-all duration-300",
+                            parseInt(employee.performance) >= 80
+                              ? "bg-green-500"
+                              : parseInt(employee.performance) >= 60
+                                ? "bg-yellow-500"
+                                : "bg-red-500",
+                          )}
+                          style={{ width: employee.performance }}
+                        />
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="px-4 py-3 text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            View
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // Navigate to server-rendered edit page preserving locale and segment
+                            const base = pathname?.split("/employees")[0] || "";
+                            router.push(`${base}/employees/${employee.id}`);
+                          }}
+                        >
+                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Edit
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => {
+                            const confirmed = window.confirm("Are you sure you want to delete this employee?");
+                            if (confirmed) deleteEmployeeMutate(employee.id);
+                          }}
+                        >
+                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Delete
+                          </span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Pagination Section */}
+      <div className="p-4 mt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Left side - Page info */}
+          <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            Page {currentPage} of {totalPages} ({filteredEmployees.length} total employees)
+          </div>
+
+          {/* Right side - Pagination controls */}
+          <div className="flex items-center gap-2">
+            {/* Previous button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={cn(
+                "h-8 w-8 p-0",
+                "text-gray-500 dark:text-gray-400",
+                "hover:text-gray-700 dark:hover:text-gray-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+              )}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Page numbers */}
+            <div className="flex items-center gap-1">
+              {getVisiblePages().map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className={cn(
+                    "h-8 w-8 p-0 transition-all duration-200",
+                    currentPage === page
+                      ? cn(
+                        "bg-[#3072C0] text-white border border-[#3072C0]",
+                        "hover:bg-blue-700 hover:border-blue-700",
+                        "dark:bg-blue-600 dark:border-blue-600",
+                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                      )
+                      : cn(
+                        "text-gray-500 dark:text-gray-400",
+                        "hover:text-gray-700 dark:hover:text-gray-200",
+                      ),
+                  )}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+
+            {/* Next button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={cn(
+                "h-8 w-8 p-0",
+                "text-gray-500 dark:text-gray-400",
+                "hover:text-gray-700 dark:hover:text-gray-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+              )}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+    </div>
+  );
+};
+
+export default EmployeeList;

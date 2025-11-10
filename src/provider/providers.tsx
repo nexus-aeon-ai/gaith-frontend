@@ -1,0 +1,30 @@
+"use client";
+import type { FC } from "react";
+import { ToastContainer } from "react-toastify";
+
+import ReactQueryProvider from "./react-query-provider";
+import { ThemeProvider } from "./theme-provider";
+
+import "react-toastify/dist/ReactToastify.css";
+import { getCookie } from "cookies-next";
+
+interface ProvidersProps {
+  children: React.ReactNode;
+}
+
+const Providers: FC<ProvidersProps> = ({ children }) => {
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      enableColorScheme
+    >
+      <ReactQueryProvider>{children}</ReactQueryProvider>
+      <ToastContainer />
+    </ThemeProvider>
+  );
+};
+
+export default Providers;
