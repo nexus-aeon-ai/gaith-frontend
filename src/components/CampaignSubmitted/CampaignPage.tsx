@@ -273,7 +273,7 @@ const CampaignSubPage = () => {
             "gap-2 md:gap-3 ",
           )}
         >
-          <div className="bg-[#F3F5F7] py-2 w-full lg:max-w-md rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
+          <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
               placeholder="Search campaigns"
@@ -288,10 +288,10 @@ const CampaignSubPage = () => {
                 <Button
                   variant="outline"
                   className={cn(
-                    "flex items-center gap-1 sm:gap-2",
-                    "bg-card border-border text-xs h-8 sm:h-10",
+                    "flex items-center gap-1 sm:gap-2 ",
+                    "bg-card border-border text-xs h-auto",
                     "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
-                    "hover:bg-card hover:border-blue-500",
+                    "hover:bg-card hover:border-blue-500 rounded-[16px]",
                   )}
                 >
                   <MenuIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -321,10 +321,10 @@ const CampaignSubPage = () => {
             <Button
               variant="outline"
               className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
+                "flex items-center gap-1 sm:gap-2 ",
+                "bg-card border-border text-xs h-auto",
                 "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
-                "hover:bg-card hover:border-blue-500",
+                "hover:bg-card hover:border-blue-500 rounded-[16px] ",
               )}
               onClick={() => setIsFilterSheetOpen(true)}
             >
@@ -335,9 +335,9 @@ const CampaignSubPage = () => {
             <Button
               variant="outline"
               className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
-                "hover:bg-card hover:border-blue-500",
+                "flex items-center gap-1 sm:gap-2 ",
+                "bg-card border-border text-xs h-auto",
+                "hover:bg-card hover:border-blue-500 rounded-[16px] py-[16px]",
               )}
             >
               <ExcelIcon />
@@ -347,9 +347,9 @@ const CampaignSubPage = () => {
             <Button
               variant="outline"
               className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card border-border text-xs h-8 sm:h-10",
-                "hover:bg-card hover:border-blue-500",
+                "flex items-center gap-1 sm:gap-2 ",
+                "bg-card border-border text-xs h-auto",
+                "hover:bg-card hover:border-blue-500 rounded-[16px]",
               )}
             >
               <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -601,7 +601,6 @@ const CampaignSubPage = () => {
         </div>
       </div>
       <CampaignFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
-              
     </div>
   );
 };
