@@ -168,7 +168,7 @@ export const getEmployeeById = async (id: string): Promise<{
 // Transform frontend form data to backend API format
 export interface EmployeeFormData {
   fullName: string;
-  email: string;
+  primaryEmail: string;
   phone: string;
   jobTitle?: string;
   employeeId: string;
@@ -185,7 +185,7 @@ export interface EmployeeFormData {
 const transformFormDataToBackend = (formData: EmployeeFormData) => {
   return {
     fullName: formData.fullName,
-    email: formData.email,
+    email: formData.primaryEmail,
     phoneNumber: formData.phone,
     jobTitle: formData.jobTitle,
     employeeId: formData.employeeId,
@@ -214,6 +214,8 @@ export const createEmployee = async (formData: EmployeeFormData): Promise<{
   data: Employee | null;
 }> => {
   const backendData = transformFormDataToBackend(formData);
+
+  console.log("👤 Creating employee:", backendData);
 
   const response = await fetchInstance<BackendEmployee>(employeesEndpoint, {
     method: "POST",

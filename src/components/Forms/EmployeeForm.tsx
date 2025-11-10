@@ -1,8 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import EyeIcon from "@/components/ui/icons/eye";
-import EyeOffIcon from "@/components/ui/icons/eye-off";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -27,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-// import { getRoles } from "@/lib/api/roles";
+import { getRoles } from "@/lib/api/roles";
 import {
   analyticsPerms,
   contentPerms,
@@ -40,7 +38,6 @@ import {
 } from "@/lib/validations/employee";
 
 import { CheckboxSquare } from "../ui/checkbox-square";
-import { Switch } from "../ui/switch";
 
 interface EmloyeeFormProps {
   initialData?: CreateEmpFormData;
@@ -52,17 +49,16 @@ interface EmloyeeFormProps {
 
 const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
   const { theme } = useTheme();
-  // const { data: rolesData } = useQuery({
-  //   queryKey: ["roles"],
-  //   queryFn: async () => {
-  //     const res = await getRoles();
-  //     return res.data ?? [];
-  //   },
-  //   initialData: [],
-  // });
-  const [showTempPassword, setShowTempPassword] = useState(false);
 
-  const form = useForm<CreateEmpFormData, any, CreateEmpFormData>({
+  const { data: rolesData } = useQuery({
+    queryKey: ["roles"],
+    queryFn: async () => {
+      const res = await getRoles();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+  const form = useForm<CreateEmpFormData, unknown, CreateEmpFormData>({
     resolver: zodResolver(createEmpSchema),
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
@@ -75,7 +71,7 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
     }
   }, [initialData, form]);
 
-  const handleExpiryDate = () => {
+  const handleStartDate = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
       showPicker?: () => void;
     };
@@ -150,51 +146,23 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
-                
-              </div>
-
-              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
-                {/*
                 <FormField
                   control={form.control}
-                  name="primaryEmail"
+                  name="userRole"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter Email"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="empRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Employee Role</FormLabel>
+                      <FormLabel>User Role</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select role" />
+                            <SelectValue placeholder="Select Role" />
                           </SelectTrigger>
                           <SelectContent>
-                            {(rolesData as BackendRole[]).map(role => {
-                              const label =
-                                role.code === RoleCode.SUPER_ADMIN
-                                  ? "Super Admin"
-                                  : role.code.charAt(0).toUpperCase() + role.code.slice(1).replace("_", " ");
-                              return (
-                                <SelectItem key={role.id} value={role.code}>
-                                  {label}
-                                </SelectItem>
-                              );
-                            })}
+                            {rolesData.map(option => (
+                              <SelectItem className="capitalize" key={option.id} value={option.id}>
+                                {option.code.replace("_", " ")}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -202,7 +170,9 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
-                */}
+              </div>
+
+              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
                 <FormField
                   control={form.control}
                   name="employeeID"
@@ -352,7 +322,7 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
               <div className="flex flex-col gap-4 lg:col-span-1 col-span-5">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="primaryEmail"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
@@ -538,95 +508,17 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
         {/* Company Profile */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-[16px] font-medium">Company Profile</CardTitle>
+            <CardTitle className="text-[16px] font-medium">Employee Profile</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 grid-cols-1 font-medium text-md">
-                  <div className="col-span-3 flex items-center justify-between border rounded-[12px] p-4">
-                    <div className="flex flex-col ">
-                      <p className="text-md font-[600] ">Account Active</p>
-                      <p className="text-sm font-[400]">User can login and access the platform</p>
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="accountActive"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 grid-cols-1 font-medium text-md">
-                  <div className="col-span-3 flex items-center justify-between border rounded-[12px] p-4">
-                    <div className="flex flex-col ">
-                      <p className="text-md font-[600] ">Email Verification Required</p>
-                      <p className="text-sm font-[400]">
-                        User must verify email before first login
-                      </p>
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="emailVerification"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 grid-cols-1 font-medium text-md">
-                  <div className="col-span-3 flex items-center justify-between border rounded-[12px] p-4">
-                    <div className="flex flex-col ">
-                      <p className="text-md font-[600] ">Force Password Change</p>
-                      <p className="text-sm font-[400]">User must change password on first login</p>
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="forcePassChange"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
               <div className="grid md:grid-cols-2 grid-cols-1 gap-4 lg:col-span-2 col-span-5">
                 <FormField
                   control={form.control}
-                  name="accExpiryDate"
+                  name="accStartDate"
                   render={({ field: { value, onChange } }) => (
                     <FormItem>
-                      <FormLabel>Account Expiry Date</FormLabel>
+                      <FormLabel>Account Start Date</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
                           <Input
@@ -655,7 +547,7 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
 
                           <button
                             type="button"
-                            onClick={handleExpiryDate}
+                            onClick={handleStartDate}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                           >
                             <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
@@ -666,67 +558,7 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="tempPassword"
-                  render={({ field }) => {
-                    return (
-                      <FormItem>
-                        <FormLabel>Temporary Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              autoComplete="temp-password"
-                              autoCorrect="off"
-                              spellCheck={false}
-                              type={showTempPassword ? "text" : "password"}
-                              className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-12"
-                              {...field}
-                            />
-                            <div
-                              role="button"
-                              tabIndex={0}
-                              onClick={() => setShowTempPassword(!showTempPassword)}
-                              onKeyDown={e => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  setShowTempPassword(!showTempPassword);
-                                }
-                              }}
-                              className="absolute cursor-pointer bg-transparent p-0 right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                            >
-                              {showTempPassword ? (
-                                <EyeIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                              ) : (
-                                <EyeOffIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                              )}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
               </div>
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Add any additional notes about this employee..."
-                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
           </CardContent>
         </Card>
