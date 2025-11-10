@@ -682,6 +682,34 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
+              name="assignedTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Manager</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={loadingAssignedRoles}
+                  >
+                    <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                      <SelectValue
+                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Manager"}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {assignedRoles.map(role => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="leadSource"
               render={({ field }) => (
                 <FormItem>
@@ -709,46 +737,19 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="assignedTo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assigned To</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={loadingAssignedRoles}
-                  >
-                    <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                      <SelectValue
-                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Role"}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {assignedRoles.map(role => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
               name="teamRoleIds"
               render={() => (
-                <FormItem>
+                <FormItem className="col-span-2">
                   <FormLabel>Additional Team Members</FormLabel>
-                  <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+                  <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
                     {teamRoles.map(role => (
                       <label key={role.id} className="flex items-center gap-2">
                         <CheckboxSquare
                           disabled={loadingTeamRoles}
+                              className="data-[state=checked]:bg-[#3072C0]/50 data-[state=checked]:border-[#3072C0]/20 data-[state=checked]:text-[#3072C0]"
                           checked={selectedTeamRoleIds.includes(role.id)}
                           onCheckedChange={checked => {
                             if (checked) {
