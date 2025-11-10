@@ -83,6 +83,8 @@ export default function PopupModal({
           )}
           onClick={() => onOpenChange(false)}
           role="button"
+          tabIndex={0}
+          onKeyDown={e => e.key === "Enter" && onOpenChange(false)}
         >
           <X className="size-4" />
         </div>
