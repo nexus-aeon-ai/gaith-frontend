@@ -15,12 +15,11 @@ import {
 import { Button } from "@/components/ui/button";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { cn } from "@/lib/utils";
 import {
   CreateCampaignPricingFormData,
   createCampaignPricingSchema,
 } from "@/lib/validations/campaign-pricing";
-
-import { cn } from "@/lib/utils";
 
 const AiGeneratePricing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

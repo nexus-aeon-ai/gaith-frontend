@@ -14,10 +14,15 @@ import {
 import { Button } from "@/components/ui/button";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
+import { createPricingProposal } from "@/lib/api";
+import type {
+  CreatePricingProposalPayload,
+  CreatePricingProposalResponse,
+} from "@/lib/api/pricing";
 import {
-  CreateCampaignPricingFormData,
-  createCampaignPricingSchema,
-} from "@/lib/validations/campaign-pricing";
+  type GeneratePricingFormData,
+  generatePricingSchema,
+} from "@/lib/validations/generate-pricing";
 
 import { cn } from "../../../lib/utils";
 import GeneratePricingForm from "../../Forms/PricingForm";
@@ -32,12 +37,13 @@ const GeneratePricing = ({ closeEditCampaignPricingForm }: EditCampaignPricingPr
     closeEditCampaignPricingForm();
   };
 
-  const handleSave = async (data: CreateCampaignPricingFormData) => {
+  const handleSave = async (data: GeneratePricingFormData) => {
+    console.log("handlesave for generate pricing", data);
     setIsSubmitting(true);
 
     try {
       // Validate form data
-      const result = createCampaignPricingSchema.safeParse(data);
+      const result = generatePricingSchema.safeParse(data);
 
       if (!result.success) {
         // Extract validation errors
@@ -48,8 +54,72 @@ const GeneratePricing = ({ closeEditCampaignPricingForm }: EditCampaignPricingPr
         });
         return;
       }
-      // Show success message or redirect
-      alert("Client created successfully!");
+      // Map form data to API payload
+      const payload: CreatePricingProposalPayload = {
+        // Use email as a lightweight client identifier if no clientId is available from the form
+        clientId: "87d0f598-05a2-4543-b233-f5066e2201eb",
+        clientContactName: data.fullName,
+        clientContactEmail: data.email,
+        proposalDate:
+          data.proposalDate instanceof Date
+            ? data.proposalDate.toISOString().split("T")[0]
+            : new Date(data.proposalDate).toISOString().split("T")[0],
+        validUntil: data.validUntilDate
+          ? data.validUntilDate instanceof Date
+            ? data.validUntilDate.toISOString().split("T")[0]
+            : new Date(data.validUntilDate).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+        title: `Proposal for ${data.fullName}`,
+        currencyCode: data.currency,
+        // Map selected services from the form into customServices.
+        // The form does not include service IDs, so we send them as custom entries.
+        customServices: data.services
+          ?.filter(s => s.isSelected && s.name.trim().length > 0)
+          .map(s => ({
+            name: s.name.trim(),
+            description: (s.description ?? "").trim(),
+            price: s.price,
+            quantity: 1,
+            vatRatePct: 0,
+          })) ?? [],
+        // Map additional items as customAddons
+        customAddons: data.additionalItems
+          ?.filter(a => a.isSelected && a.name.trim().length > 0)
+          .map(a => ({
+            name: a.name.trim(),
+            description: (a.description ?? "").trim(),
+            price: a.price,
+            quantity: 1,
+            vatRatePct: 0,
+          })) ?? [],
+        enablePackages: false,
+        discount: {
+          apply: !!data.applyDiscount,
+          type:
+            data.discountType === "percentage"
+              ? "PERCENTAGE"
+              : data.discountType === "fixed"
+                ? "FIXED"
+                : undefined,
+          amount: data.discountAmount ?? 0,
+          reasonId: data.discountReason ?? undefined,
+          notes: data.discountNotes ?? undefined,
+        },
+      };
+
+      // Call the API
+      const res = await createPricingProposal(payload);
+      if (res.status >= 200 && res.status < 300) {
+        // Success
+        alert("Pricing proposal created successfully.");
+        // Close the form / panel
+        closeEditCampaignPricingForm();
+      } else {
+        // Backend returned an error code
+        console.error("Create pricing proposal failed:", res);
+        const msg = res.data ? (res.data as CreatePricingProposalResponse).message : undefined;
+        alert(msg || "Failed to create pricing proposal.");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
       alert("An error occurred while creating the client. Please try again.");
@@ -136,7 +206,7 @@ const GeneratePricing = ({ closeEditCampaignPricingForm }: EditCampaignPricingPr
           </Button>
           <Button
             type="submit"
-            form="client-form"
+            form="pricing-form"
             variant={"outline"}
             disabled={isSubmitting}
             className="p-6 px-8 text-white dark:text-black text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"

@@ -7,10 +7,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import PopupModal from "@/components/PopupModal/Modal";
+import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
 import { deleteClient, getClients, type ApiClient } from "@/lib/api/client/client";
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,6 @@ import NewClient from "./NewClient";
 import SearchAndActionsSection from "./SearchAndActionsSection";
 import useTableColumns from "./TableConfig";
 
-import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
 
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -41,11 +40,11 @@ const ClientManagementClient = () => {
     queryKey: ["clients"],
     queryFn: async () => {
       const res = await getClients();
-      console.log("📥 Received clients from API:", res.data);
       return res.data ?? [];
     },
     initialData: [],
   });
+
 
   // Delete client mutation
   const { mutate: deleteClientMutate } = useMutation({
@@ -138,6 +137,9 @@ const ClientManagementClient = () => {
       },
     });
   };
+
+  if(isLoading) return <div>Loading...</div>;
+
 
   // If a client is selected, show the details view
   if (selectedClient && !editClientToggle) {
