@@ -1,8 +1,6 @@
 "use client";
 import { format } from "date-fns";
 import {
-  ChevronLeft,
-  ChevronRight,
   CircleCheck,
   CirclePlay,
   CirclePlus,
@@ -10,6 +8,8 @@ import {
   EllipsisVertical,
   Search,
   Trash2,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -35,6 +35,9 @@ import GoogleIcon from "@/components/ui/icons/social/google";
 import IgIcon from "@/components/ui/icons/social/instagram";
 import LkIcon from "@/components/ui/icons/social/linkedin";
 import TwIcon from "@/components/ui/icons/social/twitterx";
+import LeftArrow from "@/components/ui/icons/left-arrow";
+import RightArrow from "@/components/ui/icons/right-arrow";
+
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -45,6 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ApiCampaign, deleteCampaign, getCampaigns } from "@/lib/api/campaign/campaign";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { cn } from "@/lib/utils";
 
 import ViewCampaignDetails from "./ViewCampaignDetails";
@@ -62,6 +66,25 @@ const CampaignSubPage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
+  const { ageRangeTypes, isLoading } = useCampaignLookups();
+
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortedCampaigns, setSortedCampaigns] = useState(campaigns);
+
+  const handleSortByName = () => {
+    const newOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newOrder);
+
+    const sorted = [...sortedCampaigns].sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      if (newOrder === "asc") return nameA.localeCompare(nameB);
+      else return nameB.localeCompare(nameA);
+    });
+
+    setSortedCampaigns(sorted);
+  };
+
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
 
@@ -71,6 +94,7 @@ const CampaignSubPage = () => {
         const response = await getCampaigns(currentPage, itemsPerPage);
         if (response.data) {
           setCampaigns(response.data.items);
+          setSortedCampaigns(response.data.items);
           setTotalItems(response.data.total);
           setTotalPages(response.data.totalPages);
         }
@@ -188,9 +212,14 @@ const CampaignSubPage = () => {
   };
 
   const getAudienceInfo = (campaign: ApiCampaign) => {
+    const campaignAgeRanges = campaign.ageRanges;
+    const campaignAgeRangeTypeIds = campaignAgeRanges.map(ar => ar.ageRangeTypeId);
+    const matchingAgeRanges = ageRangeTypes.filter(art => campaignAgeRangeTypeIds.includes(art.id));
+
     return {
       group: campaign.genderType.name,
       location: campaign.countries.map(c => c.countryType.name).join(", "),
+      ageGroups: matchingAgeRanges.map(ar => ar.displayName),
     };
   };
 
@@ -202,6 +231,7 @@ const CampaignSubPage = () => {
       />
     );
   }
+  if (isLoading) return <div>Loading...</div>;
 
   if (showNewCampaignForm) {
     return <CampaignSubmittedForm mode="create" setCampaignOpen={setShowNewCampaignForm} />;
@@ -269,17 +299,17 @@ const CampaignSubPage = () => {
       >
         <div
           className={cn(
-            "flex flex-col md:flex-row items-start md:items-center justify-between ",
-            "gap-2 md:gap-3 ",
+            "flex flex-col lg:flex-row items-start lg:items-center justify-between ",
+            "gap-2 sm:gap-3 ",
           )}
         >
-          <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
+          <div className="bg-[#F3F5F7] border border-[#DCE0E4] dark:border-[#404663] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
               placeholder="Search campaigns"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="border-none shadow-none focus:outline-none h-12 lg:max-w-md w-full"
+              className="border-none shadow-none focus:outline-none h-12 xl:min-w-[350px] md:min-w-[250px] min-w-[100px]"
             />
           </div>
           <div className="flex gap-1 sm:gap-2 md:gap-3">
@@ -364,7 +394,7 @@ const CampaignSubPage = () => {
       <div className="w-full overflow-auto border border-gray-200 rounded-lg shadow dark:border-gray-800">
         <Table className="bg-card">
           <TableHeader>
-            <TableRow className="text-[#303444] dark:text-[#CCCFDB]">
+            <TableRow>
               <TableHead className="w-12 text-left">
                 <Checkbox
                   className="!rounded-[8px]"
@@ -372,21 +402,48 @@ const CampaignSubPage = () => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold">Campaign Name</TableHead>
-              <TableHead className="text-xs font-semibold">Type</TableHead>
-              <TableHead className="text-xs font-semibold">Target Audience</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Budget</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Duration</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Platforms</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Status</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Actions</TableHead>
+              <TableHead
+                className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB] cursor-pointer select-none"
+                onClick={handleSortByName}
+              >
+                <div className="flex items-center gap-1">
+                  Campaign Name
+                  {sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )}
+                </div>
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Type
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Target Audience
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Budget
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Duration
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Platforms
+              </TableHead>
+              <TableHead className="text-sm font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Status
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {campaigns.map(campaign => {
+            {sortedCampaigns.map(campaign => {
               const duration = calculateDuration(campaign.startAt, campaign.endAt);
               const audience = getAudienceInfo(campaign);
+              console.log("audience:", audience);
               return (
                 <TableRow
                   key={campaign.id}
@@ -409,7 +466,7 @@ const CampaignSubPage = () => {
                         {campaign.name}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {format(new Date(campaign.createdAt), "MMM d, yyyy")}
+                        Submitted {format(new Date(campaign.createdAt), "MMM d, yyyy")}
                       </div>
                     </div>
                   </TableCell>
@@ -422,9 +479,16 @@ const CampaignSubPage = () => {
                   {/* Target Audience */}
                   <TableCell className="min-w-[180px]">
                     <div>
-                      <div className="text-sm text-gray-900 dark:text-white">{audience.group}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {audience.location}
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {audience.ageGroups[0] ? "Adults " + audience.ageGroups[0] : "Nil"}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="text-xs text-[#687192]  dark:text-[#CACCD6]">
+                          {audience.location}
+                        </div>
+                        <div className="text-xs text-[#687192]  dark:text-[#CACCD6]">
+                          • {audience.group}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
@@ -440,7 +504,7 @@ const CampaignSubPage = () => {
                   </TableCell>
 
                   {/* Duration */}
-                  <TableCell className="text-center">
+                  <TableCell className="text-start">
                     <div className="text-sm text-gray-900 dark:text-white">
                       {duration.mainDuration}
                     </div>
@@ -450,8 +514,8 @@ const CampaignSubPage = () => {
                   </TableCell>
 
                   {/* Platforms */}
-                  <TableCell className="text-center">
-                    <div className="flex justify-center items-center gap-2 flex-wrap">
+                  <TableCell className="text-center shrink-0">
+                    <div className="flex justify-center items-center gap-2">
                       {campaign.platforms.map((platform, idx) => (
                         <div
                           key={idx}
@@ -468,7 +532,7 @@ const CampaignSubPage = () => {
                   <TableCell className="text-center">
                     <span
                       className={cn(
-                        "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
+                        "inline-flex capitalize px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
                         !campaign.isLaunched
                           ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
                           : "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
@@ -551,7 +615,7 @@ const CampaignSubPage = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <LeftArrow size={28} color={currentPage === 1 ? "gray" : "#3072C0"} />
             </Button>
 
             {/* Page numbers */}
@@ -566,15 +630,15 @@ const CampaignSubPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}
@@ -595,7 +659,7 @@ const CampaignSubPage = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <ChevronRight className="h-4 w-4" />
+              <RightArrow size={32} color={currentPage === totalPages ? "gray" : "#3072C0"} />
             </Button>
           </div>
         </div>

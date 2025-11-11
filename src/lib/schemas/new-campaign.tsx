@@ -9,7 +9,7 @@ export const biddingStrategies = [
   "target_roas",
 ] as const;
 export const callToActionOptions = ["learn_more", "buy_now", "sign_up", "contact_us"] as const;
-export const launchOptions = ["immediate", "scheduled"] as const;
+export const launchOptions = ["immediate", "scheduled", "draft"] as const;
 export const dailySpendOptions = ["0-50", "51-100", "101-200", "200+"] as const;
 
 // Date preprocessor: accepts Date instances or ISO/date strings

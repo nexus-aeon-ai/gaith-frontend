@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { PageSizeFilter } from "./page-size-selector";
 import PaginationControls from "./pagination-controls";
 
 type PaginationProps = {

@@ -9,7 +9,7 @@ export interface NewCampaignRequest {
   primaryHeadline: string;
   campaignTypeId: string;
   targetAudienceTypeId: string;
-  ageRangeTypeId: string;
+  ageRangeTypeIds: string[];
   genderTypeId: string;
   countryTypeIds: string[];
   regionTypeIds: string[];

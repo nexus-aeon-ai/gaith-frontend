@@ -1,5 +1,4 @@
-import { flexRender } from "@tanstack/react-table";
-import type { Table as TTable } from "@tanstack/react-table";
+import { type Table as TTable , flexRender } from "@tanstack/react-table";
 import React from "react";
 
 import {
@@ -64,7 +63,7 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
           </TableBody>
         </Table>
       </div>
-      <PagePaginationFilters totalPages={2} />
+      <PagePaginationFilters totalPages={dataPagination.page_count} />
     </div>
   );
 };

@@ -82,7 +82,6 @@ interface CampaignFormProps {
   client: Client;
 }
 export function CampaignForm({ setCampaignOpen, client }: CampaignFormProps) {
-
   const [step, setStep] = useState(1);
   const totalSteps = 5;
   const isLast = step === totalSteps;
@@ -131,7 +130,7 @@ export function CampaignForm({ setCampaignOpen, client }: CampaignFormProps) {
       primaryHeadline: values.headline || "",
       campaignTypeId: values.campaignType, // expects ID, update if needed
       targetAudienceTypeId: values.targetAudience, // expects ID, update if needed
-      ageRangeTypeId: values.ageRange, // expects ID, update if needed
+      ageRangeTypeIds: [values.ageRange], // expects ID, update if needed
       genderTypeId: values.gender, // expects ID, update if needed
       countryTypeIds: values.country ? [values.country] : [],
       regionTypeIds: values.stateRegion ? [values.stateRegion] : [],
@@ -144,7 +143,11 @@ export function CampaignForm({ setCampaignOpen, client }: CampaignFormProps) {
       endAt: values.endDate ? values.endDate.toISOString() : "",
       scheduledAt: values.publishStartDate ? values.publishStartDate.toISOString() : "",
       launchOption:
-        values.launchOptions === "immediate" ? "SAVE_AS_DRAFT_FOR_REVIEW" : "SCHEDULED_LAUNCH", // map to API value
+        values.launchOptions === "immediate"
+          ? "LAUNCH_IMMEDIATELY_AFTER_APPROVAL"
+          : values.launchOptions === "scheduled"
+            ? "SCHEDULE_FOR_LATER_LAUNCH"
+            : "SAVE_AS_DRAFT_FOR_REVIEW",
       isTermsAgreed: false, // hardcoded for now
       objectiveTypeIds: values.objectives || [],
       interestTypeIds: values.interests || [],

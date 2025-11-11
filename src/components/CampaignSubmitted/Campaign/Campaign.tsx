@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -34,7 +35,6 @@ import StepAddress from "./Step2";
 import StepPreferences from "./Step3";
 import StepAccount from "./Step4";
 import StepOverview from "./Step5";
-import { useQueryClient } from "@tanstack/react-query";
 
 export type FormValues = z.infer<typeof FormSchema>;
 
@@ -143,7 +143,7 @@ export function CampaignSubmittedForm({
         primaryHeadline: values.headline || "",
         campaignTypeId: values.campaignType,
         targetAudienceTypeId: values.targetAudience,
-        ageRangeTypeId: values.ageRange,
+        ageRangeTypeIds: [values.ageRange],
         genderTypeId: values.gender,
         countryTypeIds: values.country ? [values.country] : [],
         regionTypeIds: values.stateRegion ? [values.stateRegion] : [],
@@ -152,11 +152,11 @@ export function CampaignSubmittedForm({
         dailySpendLimit: Number(values.dailySpendLimit) || 0,
         biddingStrategyTypeId: values.biddingStrategy,
         manualCpc: 0.25,
-        startAt: values.startDate ? values.startDate.toISOString() : undefined,
-        endAt: values.endDate ? values.endDate.toISOString() : undefined,
-        scheduledAt: values.publishStartDate ? values.publishStartDate.toISOString() : undefined,
+        startAt: values.startDate ? values.startDate.toISOString() : "",
+        endAt: values.endDate ? values.endDate.toISOString() : "",
+        scheduledAt: values.publishStartDate ? values.publishStartDate.toISOString() : "",
         launchOption:
-          values.launchOptions === "immediate" ? "SAVE_AS_DRAFT_FOR_REVIEW" : "SCHEDULED_LAUNCH",
+          values.launchOptions === "immediate" ? "LAUNCH_IMMEDIATELY_AFTER_APPROVAL" : values.launchOptions === "scheduled" ? "SCHEDULE_FOR_LATER_LAUNCH" : "SAVE_AS_DRAFT_FOR_REVIEW",
         isTermsAgreed: false,
         objectiveTypeIds: values.objectives || [],
         interestTypeIds: values.interests || [],

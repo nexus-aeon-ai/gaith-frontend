@@ -25,6 +25,7 @@ import TwIcon from "@/components/ui/icons/social/twitterx";
 import { Separator } from "@/components/ui/separator";
 import { ApiCampaign, getCampaignById } from "@/lib/api/campaign/campaign";
 import { cn } from "@/lib/utils";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 
 export type ViewCampaignDetailsProps = {
   className?: string;
@@ -39,6 +40,8 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
   const [error, setError] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<ApiCampaign | null>(null);
 
+  const { ageRangeTypes } = useCampaignLookups();
+
   useEffect(() => {
     const fetchCampaignDetails = async () => {
       if (!campaignId) {
@@ -52,6 +55,7 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
         const response = await getCampaignById(campaignId);
         if (response.data) {
           setCampaign(response.data);
+          console.log("Campaign details:", response.data);
         } else {
           setError("Failed to load campaign details");
         }
@@ -65,6 +69,27 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
 
     fetchCampaignDetails();
   }, [campaignId]);
+
+  const getAgeRange = (campaign: ApiCampaign) => {
+    // Add safety checks
+    if (!campaign?.ageRanges || !Array.isArray(campaign.ageRanges)) {
+      return "N/A";
+    }
+
+    const campaignAgeRangeTypeIds = campaign.ageRanges.map(ar => ar.ageRangeTypeId);
+
+    // Make sure ageRangeTypes is defined
+    if (!ageRangeTypes || !Array.isArray(ageRangeTypes)) {
+      return "N/A";
+    }
+
+    const matchingAgeRanges = ageRangeTypes.filter(art => campaignAgeRangeTypeIds.includes(art.id));
+
+    const ageGroups = matchingAgeRanges.map(ar => ar.displayName);
+
+    // No need for .toString() after .join()
+    return ageGroups.join(", ") || "N/A";
+  };
 
   if (loading) {
     return (
@@ -94,7 +119,7 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
   }
 
   return (
-    <div className="w-full mx-auto p-6">
+    <div className="w-full mx-auto p-6 font-inter">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
@@ -135,8 +160,8 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
               {campaign?.isLaunched ? "Launched" : "Draft"}
             </Badge>
           </div>
-          <p className="text-muted-foreground">
-            {campaign?.createdAt ? new Date(campaign.createdAt).toLocaleDateString() : ""}
+          <p className="text-muted-foreground text-sm">
+            Submitted {campaign?.createdAt ? new Date(campaign.createdAt).toLocaleDateString() : ""}
           </p>
         </div>
         <div className="flex md:flex-row flex-col gap-2">
@@ -195,25 +220,32 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
 
               <div className="flex flex-col gap-2 mt-2" role="list">
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Campaign Type</span>
-                  <span className="text-foreground">{campaign?.campaignType.name}</span>
+                  <span className="text-muted-foreground font-medium">Campaign Name</span>
+                  <span className="text-foreground font-medium">{campaign?.name}</span>
                 </div>
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Call to Action</span>
-                  <span className="text-foreground">{campaign?.callToActionType.name}</span>
+                  <span className="text-muted-foreground font-medium">Campaign Type</span>
+                  <span className="text-foreground font-medium">{campaign?.campaignType.name}</span>
                 </div>
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Campaign Status</span>
-                  <span className="text-foreground">
-                    {campaign?.isLaunched ? "Active" : "Draft"}
+                  <span className="text-muted-foreground font-medium">Call to Action</span>
+                  <span className="text-foreground font-medium">
+                    {campaign?.callToActionType.name}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
+                  <span className="text-muted-foreground font-medium">Campaign Duration</span>
+                  <span className="text-foreground font-medium">
+                    {new Date(campaign?.startAt).toLocaleDateString()} -{" "}
+                    {new Date(campaign?.endAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
 
               <Separator className="my-2" />
 
-              <div className="flex items-start flex-col gap-1">
-                <span className="text-muted-foreground">Campaign Objectives</span>
+              <div className="flex items-start flex-col gap-1 text-sm">
+                <span className="text-muted-foreground font-medium">Campaign Objectives</span>
                 <span className="text-foreground">
                   {campaign?.objectives.map(obj => obj.objectiveType.name).join(", ")}
                 </span>
@@ -247,11 +279,21 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
 
               <div className="flex flex-col gap-2 mt-2" role="list">
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
+                  <span className="text-muted-foreground">Target Audience</span>
+                  <span className="text-foreground">
+                    {campaign?.targetAudiences.map(a => a.name).join(", ") || "Nil"}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
+                  <span className="text-muted-foreground">Age Range</span>
+                  <span className="text-foreground">{getAgeRange(campaign)}</span>
+                </div>
+                <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground">Gender</span>
                   <span className="text-foreground">{campaign?.genderType.name}</span>
                 </div>
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Location</span>
+                  <span className="text-muted-foreground">Geographic Targeting</span>
                   <span className="text-foreground">
                     {campaign?.countries.map(c => c.countryType.name).join(", ")}
                   </span>
