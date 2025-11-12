@@ -563,7 +563,7 @@ const CampaignSubPage = () => {
                           </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                        disabled
+                          disabled
                           onClick={() => {
                             setSelectedCampaignId(campaign.id);
                             setShowEditCampaignForm(true);
