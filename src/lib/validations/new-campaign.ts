@@ -24,6 +24,7 @@ const dateFromInput = z.preprocess(val => {
 }, z.date());
 
 const baseCampaignSchema = z.object({
+  clientId: z.string(),
   campaignName: z.string().min(1, "Campaign name is required"),
   campaignType: z.string().min(1, "Campaign type is required"),
   startDate: dateFromInput,
@@ -43,8 +44,8 @@ const baseCampaignSchema = z.object({
   biddingStrategy: z.string().min(1, "Bidding strategy is required"),
   primaryImage: z.any().nullable().optional(),
   secondaryImages: z.array(z.any()).default([]),
-  headline: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
+  headline: z.string().optional(),
+  description: z.string().optional(),
   callToAction: z.string().min(1, "Call to action is required"),
   publishStartDate: dateFromInput,
   publishEndDate: dateFromInput,

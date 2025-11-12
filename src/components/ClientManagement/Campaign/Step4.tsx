@@ -1,5 +1,6 @@
 import { useTheme } from "next-themes";
-import { JSX } from "react";
+import Image from "next/image";
+import { JSX, useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -27,6 +28,7 @@ function StepContent({ form }: StepFormProps) {
   const { control } = form;
   const { theme } = useTheme();
   const { ctaTypes, platformTypes } = useCampaignLookups();
+  const [primaryPreview, setPrimaryPreview] = useState<string | null>(null);
 
   const platformIconMap: Record<string, JSX.Element> = {
     Facebook: <Facebook />,
@@ -66,14 +68,16 @@ function StepContent({ form }: StepFormProps) {
                   <div className="relative">
                     <input
                       type="file"
-                      accept="image/*,video/mp4"
+                      accept="image/*"
                       id="primaryImageUpload"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={e => {
-                        const file = e.target.files?.[0];
-                        if (file && file.size <= 10 * 1024 * 1024) {
-                          field.onChange(file);
-                        }
+                        if (!e.target.files?.[0]) return;
+                        const file = e.target.files[0];
+                        // Set the file in the form field
+                        field.onChange(file);
+                        // Preview
+                        setPrimaryPreview(URL.createObjectURL(file));
                       }}
                     />
                     <div className="dark:bg-[#0F1B29] flex justify-center py-4 min-h-[120px] bg-[#F3F5F7] rounded-[12px] text-center hover:border-muted-foreground/50 transition-colors">
@@ -95,6 +99,15 @@ function StepContent({ form }: StepFormProps) {
                         )}
                       </div>
                     </div>
+                    {primaryPreview && (
+                      <Image
+                        src={primaryPreview}
+                        alt="Primary preview"
+                        width={80}
+                        height={80}
+                        className="mt-2 rounded-md"
+                      />
+                    )}
                   </div>
                 </FormControl>
                 <FormMessage />

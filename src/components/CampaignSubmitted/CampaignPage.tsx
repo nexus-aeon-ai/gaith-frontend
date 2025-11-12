@@ -24,20 +24,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LeftArrow from "@/components/ui/icons/left-arrow";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import FilterIcon from "@/components/ui/icons/options/filter-icon";
 import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
+import RightArrow from "@/components/ui/icons/right-arrow";
 import FbIcon from "@/components/ui/icons/social/fb";
 import GoogleIcon from "@/components/ui/icons/social/google";
 import IgIcon from "@/components/ui/icons/social/instagram";
 import LkIcon from "@/components/ui/icons/social/linkedin";
 import TwIcon from "@/components/ui/icons/social/twitterx";
-import LeftArrow from "@/components/ui/icons/left-arrow";
-import RightArrow from "@/components/ui/icons/right-arrow";
-
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -76,8 +75,8 @@ const CampaignSubPage = () => {
     setSortOrder(newOrder);
 
     const sorted = [...sortedCampaigns].sort((a, b) => {
-      const nameA = a.name.toLowerCase();
-      const nameB = b.name.toLowerCase();
+      const nameA = a?.name.toLowerCase();
+      const nameB = b?.name.toLowerCase();
       if (newOrder === "asc") return nameA.localeCompare(nameB);
       else return nameB.localeCompare(nameA);
     });
@@ -93,6 +92,7 @@ const CampaignSubPage = () => {
       try {
         const response = await getCampaigns(currentPage, itemsPerPage);
         if (response.data) {
+          console.log("campaigns list:",campaigns)
           setCampaigns(response.data.items);
           setSortedCampaigns(response.data.items);
           setTotalItems(response.data.total);
@@ -217,8 +217,8 @@ const CampaignSubPage = () => {
     const matchingAgeRanges = ageRangeTypes.filter(art => campaignAgeRangeTypeIds.includes(art.id));
 
     return {
-      group: campaign.genderType.name,
-      location: campaign.countries.map(c => c.countryType.name).join(", "),
+      group: campaign.genderType?.name,
+      location: campaign.countries.map(c => c.countryType?.name).join(", "),
       ageGroups: matchingAgeRanges.map(ar => ar.displayName),
     };
   };
@@ -463,7 +463,7 @@ const CampaignSubPage = () => {
                   <TableCell className="min-w-[200px]">
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {campaign.name}
+                        {campaign?.name}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         Submitted {format(new Date(campaign.createdAt), "MMM d, yyyy")}
@@ -473,7 +473,7 @@ const CampaignSubPage = () => {
 
                   {/* Type */}
                   <TableCell className="text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                    {campaign.campaignType.name}
+                    {campaign.campaignType?.name}
                   </TableCell>
 
                   {/* Target Audience */}
@@ -520,9 +520,9 @@ const CampaignSubPage = () => {
                         <div
                           key={idx}
                           className="transition-colors"
-                          title={platform.platformType.name}
+                          title={platform.platformType?.name}
                         >
-                          {getPlatformIcon(platform.platformType.name)}
+                          {getPlatformIcon(platform.platformType?.name)}
                         </div>
                       ))}
                     </div>
@@ -630,15 +630,15 @@ const CampaignSubPage = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                          "bg-[#3072C0] text-white border border-[#3072C0]",
-                          "hover:bg-blue-700 hover:border-blue-700",
-                          "dark:bg-blue-600 dark:border-blue-600",
-                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                        )
+                        "bg-[#3072C0] text-white border border-[#3072C0]",
+                        "hover:bg-blue-700 hover:border-blue-700",
+                        "dark:bg-blue-600 dark:border-blue-600",
+                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                      )
                       : cn(
-                          "text-gray-500 dark:text-gray-400",
-                          "hover:text-gray-700 dark:hover:text-gray-200",
-                        ),
+                        "text-gray-500 dark:text-gray-400",
+                        "hover:text-gray-700 dark:hover:text-gray-200",
+                      ),
                   )}
                 >
                   {page}

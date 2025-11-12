@@ -3,7 +3,7 @@ import { fetchInstance } from "../../clients";
 const campaignEndpoint = "/campaign";
 // New campaign creation API matching provided spec
 export interface NewCampaignRequest {
-  clientId: string;
+  clientId?: string;
   name: string;
   description: string;
   primaryHeadline: string;
@@ -63,6 +63,7 @@ export interface ApiCampaign {
   totalBudget: number;
   dailySpendLimit: number;
   currencyId: string | null;
+  currency: string | null;
   biddingStrategyTypeId: string;
   manualCpc: number;
   startAt: string;

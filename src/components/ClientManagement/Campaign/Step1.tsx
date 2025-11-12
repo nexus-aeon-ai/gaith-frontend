@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,12 +12,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getClients } from "@/lib/api";
 import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
 
 /* Step 1: Campaign Basics */
 function StepPersonal({ form }: StepFormProps) {
+
   const { types, objectiveTypes, isLoading } = useCampaignLookups();
+
+  const { data: apiClientsData, isLoading : isLoadingClients } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  console.log("🚀 ~ apiClientsData:", apiClientsData);
 
   const { control } = form;
 
@@ -34,12 +48,12 @@ function StepPersonal({ form }: StepFormProps) {
     input?.showPicker?.();
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || isLoadingClients) return <div>Loading...</div>;
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="sm:col-span-3 font-medium text-md">
-        <p className="pb-2 font-[700]">Campaign Basics</p>
+      <p className="pb-2 font-[700]">Campaign Basics</p>
+      <div className="sm:col-span-3 gap-3 font-medium text-md grid grid-cols-2">
         <FormField
           control={control}
           name="campaignName"
@@ -52,6 +66,30 @@ function StepPersonal({ form }: StepFormProps) {
                   {...field}
                   className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="clientId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Select Client</FormLabel>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                    <SelectValue placeholder="Select client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apiClientsData?.map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.fullName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
