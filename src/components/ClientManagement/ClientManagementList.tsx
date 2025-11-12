@@ -63,6 +63,7 @@ const ClientManagementClient = () => {
     },
   });
 
+
   // Transform API data to UI Client format
   const clients: Client[] = useMemo(() => {
     return apiClientsData.map(
@@ -70,6 +71,7 @@ const ClientManagementClient = () => {
         id: apiClient.id,
         name: apiClient.fullName || apiClient.companyName,
         email: apiClient.emailAddress || "",
+        clientName: apiClient.clientName || "",
         status: apiClient.isActive ? "Active" : "Inactive",
         agreementPeriod: {
           start: apiClient.agreementStartDate

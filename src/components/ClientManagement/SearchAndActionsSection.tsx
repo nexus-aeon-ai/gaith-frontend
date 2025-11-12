@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 import ClientFilterSheet from "../sheet/ClientFilter";
 
 interface SearchAndActionsSectionProps {
-  globalFilter: string;
-  setGlobalFilter: (value: string) => void;
+  globalFilter?: string;
+  setGlobalFilter?: (value: string) => void;
 }
 
 const SearchAndActionsSection = ({

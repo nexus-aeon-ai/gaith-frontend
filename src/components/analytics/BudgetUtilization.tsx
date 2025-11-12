@@ -178,7 +178,7 @@ const BudgetUtilization: React.FC = () => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full lg:col-span-4 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between pt-4">
         <CardTitle className="font-semibold text-lg text-card-foreground">
           Budget Utilization

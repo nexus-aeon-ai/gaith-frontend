@@ -1,6 +1,7 @@
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { JSX, useState } from "react";
+import { toast } from "react-toastify";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -29,6 +30,7 @@ function StepContent({ form }: StepFormProps) {
   const { theme } = useTheme();
   const { ctaTypes, platformTypes } = useCampaignLookups();
   const [primaryPreview, setPrimaryPreview] = useState<string | null>(null);
+  const [secondaryPreview, setSecondaryPreview] = useState<string[] | null>(null);
 
   const platformIconMap: Record<string, JSX.Element> = {
     Facebook: <Facebook />,
@@ -74,10 +76,14 @@ function StepContent({ form }: StepFormProps) {
                       onChange={e => {
                         if (!e.target.files?.[0]) return;
                         const file = e.target.files[0];
-                        // Set the file in the form field
-                        field.onChange(file);
-                        // Preview
-                        setPrimaryPreview(URL.createObjectURL(file));
+                        console.log("file size is :", file.size);
+                        console.log("allowed size is :", 10 * 1024 * 1024);
+                        if (file && file.size <= 10 * 1024 * 1024) {
+                          field.onChange(file);
+                          setPrimaryPreview(URL.createObjectURL(file));
+                        } else {
+                          toast.error("File size should be less than 10MB");
+                        }
                       }}
                     />
                     <div className="dark:bg-[#0F1B29] flex justify-center py-4 min-h-[120px] bg-[#F3F5F7] rounded-[12px] text-center hover:border-muted-foreground/50 transition-colors">
@@ -134,7 +140,11 @@ function StepContent({ form }: StepFormProps) {
                       onChange={e => {
                         const files = Array.from(e.target.files || []);
                         const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024);
+                        const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+                        if (invalidFiles.length > 0)
+                          toast.error("Files with size greater than 10MB are filtered.");
                         if (validFiles.length > 0) {
+                          setSecondaryPreview(validFiles.map(file => URL.createObjectURL(file)));
                           const currentFiles = field.value || [];
                           const newFiles = [...currentFiles, ...validFiles].slice(0, 5);
                           field.onChange(newFiles);
@@ -160,6 +170,20 @@ function StepContent({ form }: StepFormProps) {
                         )}
                       </div>
                     </div>
+                    {secondaryPreview && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {secondaryPreview.map((preview, idx) => (
+                          <Image
+                            key={idx}
+                            src={preview}
+                            alt={`Secondary preview ${idx}`}
+                            width={80}
+                            height={80}
+                            className="mt-2 object-contain aspect-square bg-transparent rounded-md"
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </FormControl>
                 <FormMessage />

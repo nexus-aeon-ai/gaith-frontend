@@ -85,7 +85,7 @@ function StepPersonal({ form }: StepFormProps) {
                   <SelectContent>
                     {apiClientsData?.map(client => (
                       <SelectItem key={client.id} value={client.id}>
-                        {client.fullName}
+                        {client.clientName}
                       </SelectItem>
                     ))}
                   </SelectContent>

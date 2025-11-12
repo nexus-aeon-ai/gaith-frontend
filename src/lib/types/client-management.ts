@@ -4,6 +4,7 @@ export interface Client {
   id: string;
   name: string;
   email: string;
+  clientName: string;
   status: "Active" | "Inactive" | "Pending";
   agreementPeriod: {
     start: string;

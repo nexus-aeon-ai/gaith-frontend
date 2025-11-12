@@ -154,6 +154,7 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
               Edit Profile
             </Button>
             <Button
+              disabled
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
                 "bg-[#3072C0] rounded-2xl w-full sm:w-auto",

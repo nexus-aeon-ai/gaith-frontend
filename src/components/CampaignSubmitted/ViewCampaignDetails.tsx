@@ -370,13 +370,13 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                       {campaign?.assets.map(
                         (asset, index) =>
                           asset?.assetType?.name === "PrimaryMedia" && (
-                            <div key={index} className="w-[80] h-[80] rounded-md overflow-hidden">
+                            <div key={index} className="w-[80] h-[80] aspect-square rounded-md overflow-hidden">
                               <Image
                                 src={asset?.url}
                                 width={80}
                                 height={80}
                                 alt="placeholder"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full "
                               />
                             </div>
                           ),
@@ -402,13 +402,13 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                       {campaign?.assets.map(
                         (asset, index) =>
                           asset?.assetType?.name === "SecondaryImage" && (
-                            <div key={index} className="w-[80] h-[80] rounded-md overflow-hidden">
+                            <div key={index} className="w-[80] h-[80] aspect-square rounded-md overflow-hidden">
                               <Image
                                 src={asset?.url}
                                 width={80}
                                 height={80}
                                 alt="placeholder"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full"
                               />
                             </div>
                           ),

@@ -47,17 +47,19 @@ const useTableColumns = (
             <div className="flex-shrink-0">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-blue-600">
-                  {client?.name
-                    ? client.name
-                        .split(" ")
-                        .map(n => n[0])
-                        .join("")
+                  {client?.clientName
+                    ? client.clientName
+                      .split(" ")
+                      .map(n => n[0])
+                      .join("")
                     : ""}
                 </span>
               </div>
             </div>
             <div className="ml-3">
-              <div className="text-sm font-medium text-gray-900 dark:text-white">{client.name}</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                {client.clientName}
+              </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">{client.email}</div>
             </div>
           </div>
@@ -151,7 +153,7 @@ const useTableColumns = (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <MoreVertical className="h-4 w-4" color="#687192"/>
+                <MoreVertical className="h-4 w-4" color="#687192" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
