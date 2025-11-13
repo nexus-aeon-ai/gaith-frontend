@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 
-import { SupportTicket, SubmitTicketForm as SubmitTicketFormType } from "@/lib/types";
+import { SubmitTicketForm as SubmitTicketFormType, SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import FilterSheet from "./FilterSheet";

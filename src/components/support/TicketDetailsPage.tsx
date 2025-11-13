@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Calendar, Clock, Paperclip, Send, User } from "lucide-react";
-import { useRef, useState } from "react";
+import { ArrowLeft, Calendar, Clock, MessageSquare, Paperclip, Send, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -19,10 +19,13 @@ interface TicketReply {
   attachments?: string[];
 }
 
+type TicketViewMode = "view" | "reply";
+
 interface TicketDetailsPageProps {
   ticket: SupportTicket;
   onBack: () => void;
   onClose?: (ticket: SupportTicket) => void;
+  mode?: TicketViewMode;
 }
 
 const replySchema = z.object({
@@ -58,10 +61,11 @@ const mockReplies: TicketReply[] = [
   },
 ];
 
-const TicketDetailsPage = ({ ticket, onBack, onClose }: TicketDetailsPageProps) => {
+const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDetailsPageProps) => {
   const [replies] = useState<TicketReply[]>(mockReplies);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const messageAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const form = useForm<z.infer<typeof replySchema>>({
     resolver: zodResolver(replySchema),
@@ -72,6 +76,19 @@ const TicketDetailsPage = ({ ticket, onBack, onClose }: TicketDetailsPageProps) 
   });
 
   const { handleSubmit, reset, control } = form;
+
+  useEffect(() => {
+    if (mode === "reply") {
+      const timeout = setTimeout(() => {
+        messageAreaRef.current?.focus();
+        messageAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 120);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return undefined;
+  }, [mode]);
 
   const handleSendReply = handleSubmit(
     async data => {
@@ -164,6 +181,18 @@ const TicketDetailsPage = ({ ticket, onBack, onClose }: TicketDetailsPageProps) 
           </div>
 
           <div className="flex gap-2">
+            {mode === "view" && (
+              <div className="inline-flex items-center gap-2 rounded-[16px] bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-200">
+                <MessageSquare className="h-4 w-4" />
+                Viewing ticket
+              </div>
+            )}
+            {mode === "reply" && (
+              <div className="inline-flex items-center gap-2 rounded-[16px] bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-950 dark:text-green-200">
+                <MessageSquare className="h-4 w-4" />
+                Replying to ticket
+              </div>
+            )}
             {ticket.status !== "Closed" && (
               <Button
                 variant="outline"
@@ -279,6 +308,12 @@ const TicketDetailsPage = ({ ticket, onBack, onClose }: TicketDetailsPageProps) 
                       placeholder="Type your message here..."
                       className="min-h-[150px] resize-none"
                       aria-invalid={fieldState.invalid}
+                      ref={value => {
+                        field.ref(value);
+                        if (value) {
+                          messageAreaRef.current = value;
+                        }
+                      }}
                     />
                     {fieldState.invalid && fieldState.error?.message ? (
                       <p className="text-sm text-red-500">{fieldState.error.message}</p>
