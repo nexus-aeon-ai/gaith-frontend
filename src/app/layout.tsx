@@ -23,6 +23,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Gait - Dashboard",
   description: "Gait - Dashboard",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
