@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -28,7 +29,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateTask } from "@/hooks/use-tasks";
 import { getAllCategories, getAllClients, getAllUsers } from "@/lib/api/tasks";
-import { useTheme } from "next-themes";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Task title is required"),
@@ -110,6 +110,14 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
     }
   };
 
+  const handleDueDateClick = () => {
+    const input = document.getElementById("date-due") as HTMLInputElement & {
+      showPicker?: () => void;
+    };
+    input?.showPicker?.();
+  };
+
+
   return (
     <div className="w-full space-y-6">
       {/* Breadcrumb */}
@@ -132,7 +140,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Create New Task</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-300">Create New Task</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Add information to create a new task</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -304,7 +312,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
 
                         <button
                           type="button"
-                          // onClick={handleDueDateClick}
+                          onClick={handleDueDateClick}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                           aria-label="Select from date"
                         >

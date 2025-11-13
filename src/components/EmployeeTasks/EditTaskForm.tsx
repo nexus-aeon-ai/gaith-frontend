@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -16,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -38,6 +40,8 @@ const taskFormSchema = z.object({
   priority: z.enum(["Urgent", "High", "Medium", "Low"]),
   status: z.enum(["NotStarted", "InProgress", "AwaitingFeedback", "Completed"]),
   category: z.string().min(1, "Please select a category"),
+  additionalComments: z.string().optional(),
+  estimatedHours: z.number().optional(),
 });
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
@@ -51,9 +55,16 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
   const router = useRouter();
   const updateMutation = useUpdateTask();
 
-  const { data: categories } = useQuery({ queryKey: ["task-categories"], queryFn: getAllCategories });
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data: categories } = useQuery({
+    queryKey: ["task-categories"],
+    queryFn: getAllCategories,
+  });
   const { data: users } = useQuery({ queryKey: ["users"], queryFn: getAllUsers });
   const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
+
+  const { theme } = useTheme();
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -84,6 +95,8 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
         priority: data.priority,
         assignedTo: data.assignedTo,
         accountId: data.accountId,
+        additionalComments: data.additionalComments,
+        estimatedHours: data.estimatedHours,
       };
 
       await updateMutation.mutateAsync({ id: task.id, data: updateData });
@@ -93,15 +106,19 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
     }
   };
 
+  
+  const handleDueDateClick = () => {
+    const input = document.getElementById("date-due") as HTMLInputElement & {
+      showPicker?: () => void;
+    };
+    input?.showPicker?.();
+  };
+
   return (
     <div className="w-full space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-        <svg
-          className="w-5 h-5 text-primary"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7" rx="1" />
           <rect x="14" y="3" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -118,11 +135,9 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            Edit Employee Task
-          </h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
-            Update employee details and information
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Edit Task</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Add information to create a new task
           </p>
         </div>
         <div className="flex gap-2">
@@ -130,16 +145,14 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
             variant="outline"
             onClick={() => router.back()}
             className="cursor-pointer p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
-
           >
             Cancel
           </Button>
           <Button
             onClick={form.handleSubmit(handleSubmit)}
-            disabled={updateMutation.isPending}
             className="cursor-pointer p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-[#3072C0]  bg-[#3072C0] text-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            {"Edit Task"}
           </Button>
         </div>
       </div>
@@ -156,7 +169,11 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                 <FormItem>
                   <FormLabel>Task Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Task Title" {...field} />
+                    <Input
+                      className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                      placeholder="Task Title"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,7 +190,7 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   <FormControl>
                     <Textarea
                       placeholder="Task Description"
-                      className="min-h-[100px] resize-none"
+                      className="min-h-[100px] resize-none dark:bg-[#0F1B29] pb-6 bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />
                   </FormControl>
@@ -191,14 +208,16 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   <FormItem>
                     <FormLabel>Assignee</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select Assignee" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users?.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>{u.fullName}</SelectItem>
+                        {users?.map(u => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.fullName}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -215,14 +234,16 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   <FormItem>
                     <FormLabel>Client</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select client" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {clients?.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>{c.fullName}</SelectItem>
+                        {clients?.map(c => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.clientName}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -233,21 +254,6 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Due Date */}
-              <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" placeholder="--/--/---" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Priority Level */}
               <FormField
                 control={form.control}
@@ -256,7 +262,7 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   <FormItem>
                     <FormLabel>Priority Level</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select Priority" />
                         </SelectTrigger>
@@ -272,50 +278,70 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Status */}
+              {/* Due Date */}
               <FormField
                 control={form.control}
-                name="status"
+                name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NotStarted">Not Started</SelectItem>
-                        <SelectItem value="InProgress">In Progress</SelectItem>
-                        <SelectItem value="AwaitingFeedback">Awaiting Feedback</SelectItem>
-                        <SelectItem value="Completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Due Date</FormLabel>
+                    <FormControl>
+                      {/* <Input
+                      className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                      type="date"
+                      placeholder="--/--/---"
+                      {...field}
+                      min={today}
+                    /> */}
+                      <div className="relative w-full">
+                        <Input
+                          id="date-due"
+                          type="date"
+                          {...field}
+                          min={today}
+                          className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-6 pr-10
+                        [&::-webkit-calendar-picker-indicator]:opacity-0 
+                        [&::-webkit-calendar-picker-indicator]:absolute 
+                        [&::-webkit-calendar-picker-indicator]:w-full 
+                        [&::-webkit-calendar-picker-indicator]:h-full"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={handleDueDateClick}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          aria-label="Select from date"
+                        >
+                          <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                        </button>
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
 
-              {/* Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Task Category */}
               <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Task Category</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Category" />
+                          <SelectValue placeholder="Select Task Category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories?.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        {categories?.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -323,11 +349,51 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
                   </FormItem>
                 )}
               />
+
+              {/* Estimated Hours */}
+              <FormField
+                control={form.control}
+                name="estimatedHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Hours</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        type="number"
+                        placeholder="--/--"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+
+            {/* Additional Comments */}
+            <FormField
+              control={form.control}
+              name="additionalComments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="mb-3">
+                    Enter Any Additional Instructions Or Requirements
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter any additional instructions or requirements"
+                      className="min-h-[100px] resize-none dark:bg-[#0F1B29]  bg-[#F3F5F7] rounded-[12px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
       </div>
     </div>
   );
 }
-

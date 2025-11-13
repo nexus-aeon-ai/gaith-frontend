@@ -180,8 +180,8 @@ export default function EmployeeTasksTable({
           <Button
             className={cn(
               "flex items-center gap-1 sm:gap-2",
-              "bg-[#508CD3] rounded-2xl w-full sm:w-auto",
-              "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-14  lg:w-60",
+              "bg-[#3072C0] rounded-2xl w-full sm:w-auto",
+              "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12  lg:w-42",
               "hover:bg-blue-700 text-white",
               "text-xs sm:text-sm lg:text-base",
             )}
@@ -209,7 +209,7 @@ export default function EmployeeTasksTable({
               placeholder="Search employee tasks"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="border-none shadow-none focus:outline-none h-12 xl:min-w-md md:min-w-[250px] min-w-[100px]"
+              className="border-none shadow-none focus:outline-none h-12 xl:min-w-[350px] md:min-w-[250px] min-w-[100px]"
             />
           </div>
           <div className="flex gap-1 sm:gap-2 md:gap-2">
