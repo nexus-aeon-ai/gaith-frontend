@@ -92,7 +92,7 @@ const CampaignSubPage = () => {
       try {
         const response = await getCampaigns(currentPage, itemsPerPage);
         if (response.data) {
-          console.log("campaigns list:",campaigns)
+          console.log("campaigns list:",campaigns);
           setCampaigns(response.data.items);
           setSortedCampaigns(response.data.items);
           setTotalItems(response.data.total);
