@@ -16,6 +16,7 @@ import HeaderSection from "./HeaderSection";
 import SearchAndActionsSection from "./SearchAndActionsSection";
 import SubmitTicketForm from "./SubmitTicketForm";
 import useTableColumns from "./TableConfig";
+import TicketDetailsPage from "./TicketDetailsPage";
 import TicketTableSection from "./TicketTableSection";
 
 // Mock data - replace with actual API call
@@ -58,31 +59,41 @@ const mockTickets: SupportTicket[] = [
   },
 ];
 
+type TicketViewMode = "view" | "reply";
+
 const Support = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [showTicketDetails, setShowTicketDetails] = useState(false);
+  const [ticketViewMode, setTicketViewMode] = useState<TicketViewMode>("view");
 
   // TODO: Replace with actual API call
   const tickets = mockTickets;
 
   const handleView = (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
-    // TODO: API call to fetch ticket details and show in modal/sheet
+    setShowTicketDetails(true);
+    setTicketViewMode("view");
+    // TODO: API call to fetch full ticket details
     console.log("View ticket:", ticket);
   };
 
   const handleReply = (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
-    // TODO: API call to open reply modal/sheet
+    setShowTicketDetails(true);
+    setTicketViewMode("reply");
+    // TODO: API call to fetch full ticket details and focus reply box
     console.log("Reply to ticket:", ticket);
   };
 
   const handleClose = (ticket: SupportTicket) => {
     // TODO: API call to close ticket
     console.log("Close ticket:", ticket);
+    setShowTicketDetails(false);
+    setSelectedTicket(null);
   };
 
   const handleSubmitTicket = (data: SubmitTicketFormType) => {
@@ -123,6 +134,22 @@ const Support = () => {
     },
     manualPagination: true,
   });
+
+  // If ticket details view is shown
+  if (showTicketDetails && selectedTicket) {
+    return (
+      <TicketDetailsPage
+        ticket={selectedTicket}
+        onBack={() => {
+          setShowTicketDetails(false);
+          setSelectedTicket(null);
+          setTicketViewMode("view");
+        }}
+        onClose={handleClose}
+        mode={ticketViewMode}
+      />
+    );
+  }
 
   // If submit form is shown
   if (showSubmitForm) {
