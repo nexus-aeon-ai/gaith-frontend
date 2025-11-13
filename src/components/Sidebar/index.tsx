@@ -14,11 +14,13 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
+import {DashboardIcon} from "../ui/icons/dashboard";
 import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
 import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
 import { ClientManagmentIcon } from "../ui/icons/sidebar/clientManagment";
-import { DashboardListIcon } from "../ui/icons/sidebar/dashboard-list";
+import  DashboardOutline from "../ui/icons/sidebar/dashboard-outline";
 import { EmployeeIcon } from "../ui/icons/sidebar/Employee";
 import { EmployeeTasksIcon } from "../ui/icons/sidebar/employeeTasks";
 import { LeadsIcon } from "../ui/icons/sidebar/Leads";
@@ -35,52 +37,52 @@ import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 const mainItems = [
   {
     label: "Dashboard",
-    icon: <DashboardListIcon className="dark:text-[#E6EFF9]" />,
+    icon: <DashboardIcon className="dark:text-[#CCCFDB]" />,
     href: "/",
   },
   {
     label: "Task Tracking",
-    icon: <TaskTrackingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <TaskTrackingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/task-tracking",
   },
   {
     label: "Report & Analysis",
-    icon: <ReportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <ReportIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/reports",
   },
   {
     label: "Leads",
-    icon: <LeadsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <LeadsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/leads",
   },
   {
     label: "Client Management",
-    icon: <ClientManagmentIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <ClientManagmentIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/client-management",
   },
   {
     label: "Employees",
-    icon: <EmployeeIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <EmployeeIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/employees",
   },
   {
     label: "Employees Tasks",
-    icon: <EmployeeTasksIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <EmployeeTasksIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/employee-tasks",
   },
   {
     label: "Quotations",
-    icon: <QuotationsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <QuotationsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/quotations",
   },
   {
     label: "Submitted",
-    icon: <SubmitedIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <SubmitedIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/submitted",
   },
   {
     label: "Support",
-    icon: <SupportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <SupportIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/support",
   },
 ];
@@ -88,22 +90,22 @@ const mainItems = [
 const aiToolsItems = [
   {
     label: "Generate Pricing",
-    icon: <PricingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/ai/pricing",
   },
   {
     label: "Social Media Calendar",
-    icon: <SocialMediaCalenderIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/ai/social-media-calendar",
   },
   {
     label: "Blog & Articles",
-    icon: <BlogArticlesIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/ai/blog-articles",
   },
   {
     label: "AI Chatbot",
-    icon: <AIChatbotIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <AIChatbotIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/ai-chatbot",
   },
 ];
@@ -111,16 +113,16 @@ const aiToolsItems = [
 const settingsItems = [
   {
     label: "Settings",
-    icon: <SettingsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <SettingsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/settings",
   },
   {
     label: "Logout",
-    icon: <LogoutIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    icon: <LogoutIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
     href: "/logout",
   },
 ];
-const SidebarUI  = () => {
+const SidebarUI = () => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -129,10 +131,13 @@ const SidebarUI  = () => {
     return pathname === href || pathname.includes(href) || pathname.includes(`/${href}?`);
   };
 
-  const activeClasses = "bg-muted text-foreground";
+  const activeClasses = "bg-muted text-foreground border dark:border-[#3072C0]";
 
   return (
-    <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none">
+    <Sidebar
+      variant="inset"
+      className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none"
+    >
       <SidebarContent className="h-full bg-background md:shadow-md rounded-2xl scrollbar-hide overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
@@ -140,7 +145,10 @@ const SidebarUI  = () => {
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
-                  className={isActive(item.href) ? activeClasses : undefined}
+                  className={cn(
+                    "py-5",
+                    isActive(item.href) && activeClasses, 
+                  )}
                 >
                   <Link href={item.href}>
                     <span className="text-lg">{item.icon}</span>
