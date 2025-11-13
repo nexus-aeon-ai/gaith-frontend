@@ -1,152 +1,217 @@
 "use client";
-import { X } from "lucide-react";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTheme } from "next-themes";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import type { SupportTicket } from "@/lib/types";
+
+type SupportStatus = SupportTicket["status"];
+
+type DateInputElement = HTMLInputElement & {
+  showPicker?: () => void;
+};
+
+const statusOptions: Array<{ label: string; value: SupportStatus }> = [
+  { label: "Inprogress", value: "In Progress" },
+  { label: "Closed", value: "Closed" },
+  { label: "Resolved", value: "Resolved" },
+  { label: "Open", value: "Open" },
+];
+
+const filterSchema = z.object({
+  dateFrom: z.string().default(""),
+  dateTo: z.string().default(""),
+  statuses: z.array(z.enum(["Open", "In Progress", "Closed", "Resolved"])).default([]),
+});
+
+type FilterFormInput = z.input<typeof filterSchema>;
+type FilterFormValues = z.output<typeof filterSchema>;
 
 interface FilterSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onApplyFilters?: (filters: TicketFilters) => void;
-}
-
-interface TicketFilters {
-  categories: string[];
-  priorities: string[];
-  statuses: string[];
+  onApplyFilters?: (filters: FilterFormValues) => void;
 }
 
 const FilterSheet = ({ open, onOpenChange, onApplyFilters }: FilterSheetProps) => {
-  const [filters, setFilters] = useState<TicketFilters>({
-    categories: [],
-    priorities: [],
-    statuses: [],
+  const { theme } = useTheme();
+  const dateFromRef = useRef<DateInputElement | null>(null);
+  const dateToRef = useRef<DateInputElement | null>(null);
+
+  const form = useForm<FilterFormInput, unknown, FilterFormValues>({
+    resolver: zodResolver(filterSchema),
+    defaultValues: filterSchema.parse({}),
   });
 
-  const handleCategoryChange = (category: string, checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      categories: checked
-        ? [...prev.categories, category]
-        : prev.categories.filter(c => c !== category),
-    }));
-  };
+  const { control, handleSubmit, reset, watch, setValue } = form;
 
-  const handlePriorityChange = (priority: string, checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      priorities: checked
-        ? [...prev.priorities, priority]
-        : prev.priorities.filter(p => p !== priority),
-    }));
-  };
+  const selectedStatuses = watch("statuses") ?? [];
+  const isAllStatusSelected = selectedStatuses.length === statusOptions.length;
 
-  const handleStatusChange = (status: string, checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      statuses: checked ? [...prev.statuses, status] : prev.statuses.filter(s => s !== status),
-    }));
-  };
-
-  const handleApply = () => {
-    // TODO: API call with filters
-    onApplyFilters?.(filters);
+  const handleApply = handleSubmit(values => {
+    onApplyFilters?.({
+      dateFrom: values.dateFrom ?? "",
+      dateTo: values.dateTo ?? "",
+      statuses: values.statuses ?? [],
+    });
     onOpenChange(false);
-  };
+  });
 
   const handleReset = () => {
-    setFilters({
-      categories: [],
-      priorities: [],
-      statuses: [],
+    reset(filterSchema.parse({}));
+  };
+
+  const toggleAllStatuses = (checked: boolean) => {
+    setValue("statuses", checked ? statusOptions.map(option => option.value) : [], {
+      shouldDirty: true,
+      shouldTouch: true,
     });
+  };
+
+  const toggleStatus = (status: SupportStatus, checked: boolean) => {
+    const nextStatuses = checked
+      ? Array.from(new Set([...selectedStatuses, status]))
+      : selectedStatuses.filter(item => item !== status);
+
+    setValue("statuses", nextStatuses, { shouldDirty: true, shouldTouch: true });
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md">
-        <SheetHeader className="flex flex-row items-center justify-between pb-4 border-b">
-          <SheetTitle className="text-lg font-semibold">Filter Tickets</SheetTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </SheetHeader>
+      <SheetContent className="sm:max-w-md w-full rounded-l-[16px] bg-card p-0 shadow-lg">
+        <div className="flex h-full flex-col">
+          <div className="flex-1 space-y-6 px-6 py-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold text-foreground">Due Date</Label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+                      From
+                    </Label>
+                    <div className="relative">
+                      <Controller
+                        name="dateFrom"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            ref={node => {
+                              field.ref(node);
+                              dateFromRef.current = node;
+                            }}
+                            type="date"
+                            value={field.value ?? ""}
+                            className="h-12 rounded-xl bg-muted/40 pr-12 text-sm text-foreground"
+                          />
+                        )}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => dateFromRef.current?.showPicker?.()}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                      </button>
+                    </div>
+                  </div>
 
-        <div className="py-6 space-y-6">
-          {/* Category Filter */}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Category</Label>
-            <div className="space-y-2">
-              {["Technical", "Billing", "General", "Feature Request"].map(category => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`category-${category}`}
-                    checked={filters.categories.includes(category)}
-                    onCheckedChange={checked => handleCategoryChange(category, checked as boolean)}
-                  />
-                  <Label htmlFor={`category-${category}`} className="font-normal cursor-pointer">
-                    {category}
-                  </Label>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+                      To
+                    </Label>
+                    <div className="relative">
+                      <Controller
+                        name="dateTo"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            ref={node => {
+                              field.ref(node);
+                              dateToRef.current = node;
+                            }}
+                            type="date"
+                            value={field.value ?? ""}
+                            className="h-12 rounded-xl bg-muted/40 pr-12 text-sm text-foreground"
+                          />
+                        )}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => dateToRef.current?.showPicker?.()}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-semibold text-foreground">Status</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 rounded-xl border border-muted bg-muted/20 px-3 py-3">
+                    <Checkbox
+                      id="status-all"
+                      checked={isAllStatusSelected}
+                      onCheckedChange={checked => toggleAllStatuses(checked === true)}
+                    />
+                    <Label htmlFor="status-all" className="text-sm font-medium text-foreground">
+                      All status
+                    </Label>
+                  </div>
+                  {statusOptions.map(option => {
+                    const checked = selectedStatuses.includes(option.value);
+                    const checkboxId = `status-${option.value.toLowerCase().replace(/\s+/g, "-")}`;
+                    return (
+                      <div
+                        key={option.value}
+                        className="flex items-center gap-3 rounded-xl border border-muted bg-muted/10 px-3 py-3"
+                      >
+                        <Checkbox
+                          id={checkboxId}
+                          checked={checked}
+                          onCheckedChange={value => toggleStatus(option.value, value === true)}
+                        />
+                        <Label
+                          htmlFor={checkboxId}
+                          className="text-sm font-medium text-foreground"
+                        >
+                          {option.label}
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Priority Filter */}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Priority</Label>
-            <div className="space-y-2">
-              {["Low", "Medium", "High", "Critical"].map(priority => (
-                <div key={priority} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`priority-${priority}`}
-                    checked={filters.priorities.includes(priority)}
-                    onCheckedChange={checked => handlePriorityChange(priority, checked as boolean)}
-                  />
-                  <Label htmlFor={`priority-${priority}`} className="font-normal cursor-pointer">
-                    {priority}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Status</Label>
-            <div className="space-y-2">
-              {["Open", "In Progress", "Closed", "Resolved"].map(status => (
-                <div key={status} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`status-${status}`}
-                    checked={filters.statuses.includes(status)}
-                    onCheckedChange={checked => handleStatusChange(status, checked as boolean)}
-                  />
-                  <Label htmlFor={`status-${status}`} className="font-normal cursor-pointer">
-                    {status}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background">
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={handleReset}>
-              Reset
+          <div className="flex items-center gap-3 border-t px-6 py-5">
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex-1 rounded-xl border border-transparent bg-transparent text-base font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+              onClick={handleReset}
+            >
+              Clear Filters
             </Button>
-            <Button className="flex-1 bg-[#508CD3] hover:bg-blue-700" onClick={handleApply}>
-              Apply Filters
+            <Button
+              type="button"
+              className="flex-1 rounded-xl bg-[#508CD3] py-5 text-base font-semibold text-white shadow hover:bg-blue-600"
+              onClick={handleApply}
+            >
+              Apply Filter
             </Button>
           </div>
         </div>

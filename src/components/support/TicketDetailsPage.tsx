@@ -196,7 +196,7 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
             {ticket.status !== "Closed" && (
               <Button
                 variant="outline"
-                className="rounded-[16px]"
+                className="rounded-[16px] text-red-500 bg-card hover:bg-card/80 hover:text-red-500"
                 onClick={handleCloseTicket}
               >
                 Close Ticket
@@ -347,7 +347,7 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
                         <Button
                           type="button"
                           variant="outline"
-                          className="rounded-[16px]"
+                          className="rounded-[16px] bg-card hover:bg-card/80 text-blue-500 hover:text-blue-700"
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <Paperclip className="w-4 h-4 mr-2" />
