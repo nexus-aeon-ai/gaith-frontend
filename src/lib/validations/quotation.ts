@@ -21,12 +21,7 @@ export const createQuoteSchema = z.object({
 
   quoteNumber: z
     .string()
-    .min(2, "Quotation number must be at least 2 characters")
-    .max(50, "Quotation number must be less than 50 characters")
-    .regex(
-      /^[A-Za-z0-9_-]+$/,
-      "Quotation number can only contain letters, numbers, dashes, or underscores",
-    ),
+    .optional(),
 
   validUntil: z.date().optional(),
 

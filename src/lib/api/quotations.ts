@@ -141,7 +141,6 @@ export const createQuotation = async (
     currencyId,
     title: form.quotationTitle,
     description: form.description,
-    quotationNumber: form.quoteNumber,
     validUntil: form.validUntil
       ? new Date(form.validUntil).toISOString()
       : new Date().toISOString(),

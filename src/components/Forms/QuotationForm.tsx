@@ -189,7 +189,6 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
 
           const submit = form.handleSubmit(
             (data: any) => {
-              console.log("QuotationForm handleSubmit success", data);
               try {
                 onSubmit(data);
               } catch (err) {
@@ -439,25 +438,6 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 />
                 <FormField
                   control={form.control}
-                  name="quoteNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quotation Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Quotation Number"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
                   name="validUntil"
                   render={({ field: { value, onChange } }) => (
                     <FormItem>
@@ -501,7 +481,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="currencyId"
                   render={({ field }) => (
@@ -527,7 +507,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </div>
 
               <FormField
@@ -599,7 +579,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#1E293B] border-[#E4E7EC]"
+                  className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#404663] border-[#DCE0E4]"
                 >
                   {/* Description */}
                   <FormField
