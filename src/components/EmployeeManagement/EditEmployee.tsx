@@ -41,8 +41,8 @@ const EditEmployee = ({
       data.employeeStatus === "active"
         ? "Active"
         : data.employeeStatus === "inactive"
-        ? "Inactive"
-        : "On Leave";
+          ? "Inactive"
+          : "On Leave";
     const employmentTypeMap: Record<string, "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERN"> = {
       "Full-time": "FULL_TIME",
       "Part-time": "PART_TIME",
@@ -98,34 +98,37 @@ const EditEmployee = ({
       console.log(employeeData);
       const initialData = employeeData
         ? ({
-            fullName: employeeData.fullName,
-            email: employeeData.email,
-            department: "Other",
-            empRole: "Employee",
-            jobTitle: employeeData.jobTitle || "",
-            employeeID: employeeData.employeeId,
-            userManagement: [],
-            contentManagement: [],
-            analyticsAndReports: [],
-            primaryEmail: employeeData.email,
-            primaryPhone: employeeData.phone,
-            salary: employeeData.salary,
-            employementType: "Full-time",
-            address: employeeData.address || "",
-            skills: employeeData.skills?.join(", ") || "",
-            employeeStatus:
-              employeeData.status === "Active"
-                ? "active"
-                : employeeData.status === "Inactive"
+          fullName: employeeData.fullName,
+          email: employeeData.email,
+          department: "Other",
+          empRole: "Employee",
+          profilePhotoURL: employeeData.profilePicture,
+          profilePhoto: undefined,
+          userRole: "",
+          jobTitle: employeeData.jobTitle || "",
+          employeeID: employeeData.employeeId,
+          userManagement: [],
+          contentManagement: [],
+          analyticsAndReports: [],
+          primaryEmail: employeeData.email,
+          primaryPhone: employeeData.phone,
+          salary: employeeData.salary,
+          employementType: "Full-time",
+          address: employeeData.address || "",
+          skills: employeeData.skills?.join(", ") || "",
+          employeeStatus:
+            employeeData.status === "Active"
+              ? "active"
+              : employeeData.status === "Inactive"
                 ? "inactive"
                 : "onleave",
-            accountActive: true,
-            emailVerification: false,
-            forcePassChange: false,
-            accExpiryDate: undefined,
-            tempPassword: undefined,
-            notes: employeeData.notes || "",
-          } as CreateEmpFormData)
+          accountActive: true,
+          emailVerification: false,
+          forcePassChange: false,
+          accExpiryDate: undefined,
+          tempPassword: undefined,
+          notes: employeeData.notes || "",
+        } as CreateEmpFormData)
         : undefined;
 
       setInitialData(initialData);
@@ -180,12 +183,8 @@ const EditEmployee = ({
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                href="#"
-                className="text-blue-600 font-medium text-md"
-                onClick={closeEmployeeForm}
-              >
-                Settings
+              <Link href="#" className="text-blue-600 font-medium text-md" onClick={handleCancel}>
+                Employee Management
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

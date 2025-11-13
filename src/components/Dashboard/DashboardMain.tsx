@@ -65,13 +65,13 @@ const DashboardMain = () => (
     </div>
     {/* Main dashboard grid */}
     {/* First row - TopClients and BudgetUtilization side by side */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
       <TopClients />
       <BudgetUtilization />
     </div>
 
     {/* Second row - EngagementTrend and AlertsNotifications side by side */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
       <EngagementTrend />
       <AlertsNotifications />
     </div>

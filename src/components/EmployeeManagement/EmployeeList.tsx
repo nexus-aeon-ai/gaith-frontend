@@ -81,6 +81,7 @@ const EmployeeList = () => {
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
+        profilePicture: emp.profilePicture || "",
       }),
     );
   }, [apiEmployees]);
@@ -117,6 +118,8 @@ const EmployeeList = () => {
       (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  console.log("api employees:",data)
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -349,7 +352,7 @@ const EmployeeList = () => {
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center">
                       <Image
-                        src={"/images/default-avatar.jpg"}
+                        src={ employee.profilePicture || "/images/default-avatar.jpg"}
                         alt="avatar"
                         width={32}
                         height={32}

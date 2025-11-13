@@ -1,8 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,8 +48,9 @@ interface EmloyeeFormProps {
   mode?: "create" | "edit";
 }
 
-const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
+const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
   const { theme } = useTheme();
+  const [preview, setPreview] = useState<string | null>(null);
 
   const { data: rolesData } = useQuery({
     queryKey: ["roles"],
@@ -95,16 +97,68 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
             <CardTitle className="text-[16px] font-medium">Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-              <div className="flex flex-col lg:col-span-1 col-span-5 gap-2 justify-center items-center">
-                <div className="rounded-full text-xl text-[#3072C0] sm:text-3xl bg-[#3072C014] h-24 w-24 flex items-center justify-center">
-                  MA
-                </div>
-                <p className="text-[#3072C0] cursor-pointer hover:underline">Change Photo</p>
-                <p className="text-[#687192] text-sm">JPG, PNG up to 2MB</p>
-              </div>
+            <div className="flex lg:flex-row flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="profilePhoto"
+                render={({ field }) => (
+                  <FormItem className="lg:min-w-[20%] ">
+                    <div className="flex  flex-col lg:col-span-1 col-span-5 gap-2 justify-center items-center">
+                      {/* Circle for preview or initials */}
+                      <div className="rounded-full text-xl text-[#3072C0] sm:text-3xl bg-[#3072C014] h-24 w-24 flex items-center justify-center overflow-hidden">
+                        {preview ? (
+                          <Image
+                            src={preview}
+                            alt="Profile preview"
+                            width={96}
+                            height={96}
+                            className="object-cover h-full w-full"
+                          />
+                        ) : initialData?.profilePhotoURL ? (
+                          <Image
+                            src={initialData.profilePhotoURL}
+                            alt="Profile preview"
+                            width={96}
+                            height={96}
+                            className="object-cover h-full w-full"
+                          />
+                        ) : (
+                          <span>MA</span>
+                        )}
+                      </div>
+                      {/* Change Photo button (acts as label for hidden input) */}
+                      <FormLabel
+                        htmlFor="profilePhoto"
+                        className="text-[#3072C0] cursor-pointer hover:underline"
+                      >
+                        Change Photo
+                      </FormLabel>
 
-              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
+                      {/* Hidden file input */}
+                      <FormControl className="bg-red-400">
+                        <Input
+                          id="profilePhoto"
+                          type="file"
+                          accept="image/png, image/jpeg"
+                          className="hidden"
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file); // update form value
+                              setPreview(URL.createObjectURL(file)); // preview image
+                            }
+                          }}
+                        />
+                      </FormControl>
+
+                      <p className="text-[#687192] text-sm">JPG, PNG up to 2MB</p>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid md:grid-cols-2 w-full grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="fullName"
@@ -148,6 +202,23 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                 />
                 <FormField
                   control={form.control}
+                  name="jobTitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Job Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Job Title"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="userRole"
                   render={({ field }) => (
                     <FormItem>
@@ -170,43 +241,26 @@ const EmloyeeForm = ({ initialData, onSubmit }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="flex flex-col gap-4 lg:col-span-2 col-span-5">
-                <FormField
-                  control={form.control}
-                  name="employeeID"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Employee ID</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Employee ID"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="jobTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Job Title"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {mode === "edit" && (
+                  <FormField
+                    control={form.control}
+                    name="employeeID"
+                    disabled
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Employee ID</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Employee ID"
+                            className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </div>
           </CardContent>

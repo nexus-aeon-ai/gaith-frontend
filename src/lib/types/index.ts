@@ -8,3 +8,4 @@ export * from "./user-management";
 export * from "./campaign";
 export * from "./step-props";
 
+export * from "./campaign-pricing";

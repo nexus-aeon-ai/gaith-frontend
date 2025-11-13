@@ -1,6 +1,7 @@
+import { useWatch } from "react-hook-form";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -9,33 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
+
 
 /* Step 2: Target Audience Settings */
 function Step2({ form }: StepFormProps) {
+  const selectedCountry = useWatch({ control: form.control, name: "country" });
   const { control } = form;
+  const {
+    audienceTypes,
+    ageRangeTypes,
+    genderTypes,
+    interestTypes,
+    countryTypes,
+    regionTypes,
+    isLoading,
+  } = useCampaignLookups();
 
-  const interests = [
-    { value: "technology", label: "Technology" },
-    { value: "fashion", label: "Fashion & Style" },
-    { value: "sports", label: "Sports & Fitness" },
-    { value: "travel", label: "Travel & Adventure" },
-    { value: "food", label: "Food & Dining" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "business", label: "Business & Finance" },
-    { value: "education", label: "Education & Learning" },
-  ];
-
-  const countries = [
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "ca", label: "Canada" },
-    { value: "au", label: "Australia" },
-    { value: "fr", label: "France" },
-    { value: "de", label: "Germany" },
-    { value: "in", label: "India" },
-    { value: "jp", label: "Japan" },
-  ];
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col gap-4 ">
@@ -50,46 +43,26 @@ function Step2({ form }: StepFormProps) {
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   className="grid grid-cols-3 space-x-6"
                 >
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="existingCustomers"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Existing Customers</p>
-                      <p>Target current customer base</p>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="lookalikeAudience"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Lookalike Audience</p>
-                      <p>Similar to existing customers</p>
-                    </div>
-                  </FormItem>
-
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="newProspects"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">New Prospects</p>
-                      <p>Reach new potential customers</p>
-                    </div>
-                  </FormItem>
+                  {audienceTypes.map(audienceType => (
+                    <FormItem
+                      key={audienceType.id}
+                      className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0"
+                    >
+                      <FormControl className="mt-1">
+                        <RadioGroupItem
+                          value={audienceType.id}
+                          className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
+                        />
+                      </FormControl>
+                      <div className="font-normal flex flex-col">
+                        <p className="font-[500]">{audienceType.name}</p>
+                        <p className="text-sm">{audienceType.description || "No Description"}</p>
+                      </div>
+                    </FormItem>
+                  ))}
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -112,12 +85,11 @@ function Step2({ form }: StepFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="13-17">13-17 years</SelectItem>
-                  <SelectItem value="18-24">18-24 years</SelectItem>
-                  <SelectItem value="25-34">25-34 years</SelectItem>
-                  <SelectItem value="35-44">35-44 years</SelectItem>
-                  <SelectItem value="45-54">45-54 years</SelectItem>
-                  <SelectItem value="55+">55+ years</SelectItem>
+                  {ageRangeTypes.map(ageRangeType => (
+                    <SelectItem key={ageRangeType.id} value={ageRangeType.id}>
+                      {ageRangeType.displayName}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -138,9 +110,11 @@ function Step2({ form }: StepFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="all">All Genders</SelectItem>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
+                  {genderTypes.map(genderType => (
+                    <SelectItem key={genderType.id} value={genderType.id}>
+                      {genderType.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -157,7 +131,7 @@ function Step2({ form }: StepFormProps) {
             <FormItem>
               <FormLabel>Interests & Behaviors</FormLabel>
               <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
-                {interests.map(interest => (
+                {interestTypes.map(interest => (
                   <FormField
                     key={interest.value}
                     control={control}
@@ -166,23 +140,23 @@ function Step2({ form }: StepFormProps) {
                       const values = (value as string[]) || [];
                       return (
                         <FormItem
-                          key={interest.value}
+                          key={interest.id}
                           className="flex flex-row items-center space-x-3 space-y-0"
                         >
                           <FormControl>
                             <Checkbox
                               className="rounded-md"
-                              checked={values.includes(interest.value)}
+                              checked={values.includes(interest.id)}
                               onCheckedChange={checked => {
                                 if (checked) {
-                                  onChange([...values, interest.value]);
+                                  onChange([...values, interest.id]);
                                 } else {
-                                  onChange(values.filter(val => val !== interest.value));
+                                  onChange(values.filter(val => val !== interest.id));
                                 }
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal">{interest.label}</FormLabel>
+                          <FormLabel className="font-normal capitalize">{interest.name}</FormLabel>
                         </FormItem>
                       );
                     }}
@@ -203,16 +177,16 @@ function Step2({ form }: StepFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {countries.map(country => (
-                      <SelectItem key={country.value} value={country.value}>
-                        {country.label}
+                    {countryTypes.map(country => (
+                      <SelectItem key={country.id} value={country.id}>
+                        {country.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -229,11 +203,22 @@ function Step2({ form }: StepFormProps) {
               <FormItem>
                 <FormLabel>State/Region</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter state or region"
-                    {...field}
-                    className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                  />
+                  <Select onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger disabled={!selectedCountry} className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {regionTypes
+                        .filter(region => region.countryTypeId === selectedCountry)
+                        .map(region => (
+                          <SelectItem key={region.id} value={region.id}>
+                            {region.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

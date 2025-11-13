@@ -27,6 +27,7 @@ export type Employee = {
   skills: string[];
   address?: string;
   notes?: string;
+  profilePicture?: string;
 };
 
 export type EmployeeFilters = Record<string, string | number | string[] | undefined>;
@@ -68,6 +69,7 @@ export interface BackendEmployee {
   notes?: string;
   street?: string;
   fullAddress?: string;
+  profilePicture?: string;
 }
 
 // Transform backend employee to frontend employee
@@ -75,6 +77,7 @@ const transformEmployee = (backendEmployee: BackendEmployee): Employee => {
   return {
     id: backendEmployee.id,
     employeeId: backendEmployee.employeeId,
+    profilePicture: backendEmployee.profilePicture,
     fullName: backendEmployee.user?.fullName || "",
     email: backendEmployee.user?.email || "",
     phone: backendEmployee.user?.phoneNumber || "",
@@ -102,7 +105,9 @@ const transformEmployee = (backendEmployee: BackendEmployee): Employee => {
   };
 };
 
-export const getEmployees = async (filters: EmployeeFilters = {}): Promise<{
+export const getEmployees = async (
+  filters: EmployeeFilters = {},
+): Promise<{
   status: number;
   data: {
     results: Employee[];
@@ -149,7 +154,9 @@ export const getEmployees = async (filters: EmployeeFilters = {}): Promise<{
   };
 };
 
-export const getEmployeeById = async (id: string): Promise<{
+export const getEmployeeById = async (
+  id: string,
+): Promise<{
   status: number;
   data: Employee | null;
 }> => {
@@ -169,9 +176,10 @@ export const getEmployeeById = async (id: string): Promise<{
 export interface EmployeeFormData {
   fullName: string;
   primaryEmail: string;
+  profilePhotoURL: string;
   phone: string;
   jobTitle?: string;
-  employeeId: string;
+  employeeId: string | undefined;
   status: "Active" | "Inactive" | "On Leave";
   employmentType: EmploymentType;
   salary?: string | number;
@@ -186,6 +194,7 @@ const transformFormDataToBackend = (formData: EmployeeFormData) => {
   return {
     fullName: formData.fullName,
     email: formData.primaryEmail,
+    profilePicture: formData.profilePhotoURL,
     phoneNumber: formData.phone,
     jobTitle: formData.jobTitle,
     employeeId: formData.employeeId,
@@ -209,7 +218,9 @@ const transformFormDataToBackend = (formData: EmployeeFormData) => {
   };
 };
 
-export const createEmployee = async (formData: EmployeeFormData): Promise<{
+export const createEmployee = async (
+  formData: EmployeeFormData,
+): Promise<{
   status: number;
   data: Employee | null;
 }> => {
@@ -230,7 +241,9 @@ export const createEmployee = async (formData: EmployeeFormData): Promise<{
   }
 
   if (response.status !== 201) {
-    throw new Error(JSON.stringify((response.data as unknown as { message: string }).message) || "Create failed");
+    throw new Error(
+      JSON.stringify((response.data as unknown as { message: string }).message) || "Create failed",
+    );
   }
 
   return {
@@ -266,7 +279,9 @@ export const updateEmployee = async (
   };
 };
 
-export const deleteEmployee = async (id: string): Promise<{
+export const deleteEmployee = async (
+  id: string,
+): Promise<{
   status: number;
   data: null;
 }> => {

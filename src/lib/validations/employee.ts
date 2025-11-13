@@ -39,8 +39,8 @@ export const employementTypes = [
 // Main User Form Validation Schema
 export const createEmpSchema = z.object({
   // Basic Information
-  empPhoto: z.instanceof(File, { message: "Please upload a photo" }).optional(),
-
+  profilePhoto: z.instanceof(File, { message: "Please upload a photo" }).optional(),
+  profilePhotoURL: z.string().optional(),
   fullName: z
     .string()
     .min(2, "Full name must be at least 2 characters")
@@ -60,12 +60,7 @@ export const createEmpSchema = z.object({
 
   employeeID: z
     .string()
-    .min(2, "Employee ID must be at least 2 characters")
-    .max(150, "Employee ID must be less than 150 characters")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Employee ID can only contain letters, numbers, dashes, or underscores",
-    ),
+    .optional(),
 
   userRole: z.string().min(1, "User role is required"),
 
@@ -134,7 +129,7 @@ export const validateUrl = (url: string) => {
 
 export const defaultFormData: CreateEmpFormData = {
   // Basic Information
-  empPhoto: undefined,
+  profilePhoto: undefined,
   fullName: "",
   department: departments[0], // default first option
   // empRole: "",

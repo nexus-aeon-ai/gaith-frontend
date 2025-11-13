@@ -2,9 +2,9 @@ export type AnalyticsSummaryCardProps = {
   label: string;
   value: string | number;
   icon: React.ReactNode;
-  trend: string;
+  trend?: string;
   trendColor: string;
-  subLabel: string;
+  subLabel?: string;
 };
 
 const AnalyticsCard: React.FC<AnalyticsSummaryCardProps> = ({
@@ -23,7 +23,7 @@ const AnalyticsCard: React.FC<AnalyticsSummaryCardProps> = ({
     <div className="flex items-start justify-between gap-3">
       <div className="flex flex-col">
         <span className="text-xs font-medium opacity-80">{label}</span>
-        <span className="text-2xl font-bold leading-tight">{value}</span>
+        <span className="text-2xl font-bold leading-tight mt-2">{value}</span>
       </div>
       <div className={"  p-2  flex items-center justify-center w-12 h-12"}>{icon}</div>
     </div>
