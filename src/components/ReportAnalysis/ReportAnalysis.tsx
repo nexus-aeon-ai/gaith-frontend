@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { QuotationIcon } from "@/components/ui/icons/analytics/quotation";
+import { RejectedIcon } from "@/components/ui/icons/analytics/rejected";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
@@ -24,7 +25,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 import { PendingIcon } from "../ui/icons/alerts/pending";
-import RejectedIcon from "@/components/ui/icons/analytics/rejected";
 
 const analyticsCards = [
   {
