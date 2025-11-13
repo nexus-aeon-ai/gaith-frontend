@@ -24,7 +24,7 @@ function StepOverview({ form, values }: StepFormProps & { values: FormValues }) 
           <OverviewItem label="Total Budget" value={values.totalBudget} />
         </div>
         <div>
-          <OverviewItem label="Primary Headline" value={values.headline} />
+          <OverviewItem label="Primary Headline" value={values.headline || ""} />
           <OverviewItem label="Call-to-Action" value={values.callToAction} />
           <OverviewItem label="Platforms" value={values.platforms} />
           <OverviewItem label="Objectives" value={values.objectives} />
@@ -38,9 +38,11 @@ function StepOverview({ form, values }: StepFormProps & { values: FormValues }) 
           onCheckedChange={() => setAgreed(!agreed)}
         />
         <p className="max-w-4xl">
-          I agree to the <span className="cursor-pointer hover:underline text-[#3072C0]"> Terms of Service</span> and{" "}
-          <span className="cursor-pointer hover:underline text-[#3072C0]"> Privacy Policy</span>. I understand that campaign
-          charges will be applied according to The budget allocation and platform pricing.
+          I agree to the{" "}
+          <span className="cursor-pointer hover:underline text-[#3072C0]"> Terms of Service</span>{" "}
+          and <span className="cursor-pointer hover:underline text-[#3072C0]"> Privacy Policy</span>
+          . I understand that campaign charges will be applied according to The budget allocation
+          and platform pricing.
         </p>
       </div>
 

@@ -30,6 +30,7 @@ export interface Employee {
   contactInfo: ContactInfo;
   performance: string; // keep % string
   permissions: Permissions;
+  profilePicture: string;
 }
 
 // API response type for team members

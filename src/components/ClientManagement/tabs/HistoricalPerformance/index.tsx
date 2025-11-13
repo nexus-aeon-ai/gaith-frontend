@@ -24,6 +24,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import ExcelIcon from "@/components/ui/icons/options/excel-icon";
+import PDFIcon from "@/components/ui/icons/options/pdf-icon";
 import {
   Select,
   SelectContent,
@@ -35,6 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { HistoricalPerformanceTabProps } from "@/lib/types";
 
 import { mockBudgetData, mockFinancialData, mockSummaryMetrics } from "../../data";
+import { cn } from "@/lib/utils";
 
 const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => {
   const budgetData = mockBudgetData;
@@ -91,8 +94,8 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Select defaultValue="3-month">
-            <SelectTrigger className="w-full sm:w-32 bg-card">
-              <SelectValue />
+            <SelectTrigger className="w-full sm:w-32 bg-card rounded-[16px] py-6 shadow-none">
+              <SelectValue defaultValue={"3 Month"} placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="1-month">1 Month</SelectItem>
@@ -105,20 +108,32 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-white dark:bg-card rounded-2xl sm:w-auto",
+                "px-3 sm:px-4 lg:px-6 py-6",
+                "border border-gray-300 dark:border-gray-500 h-12 shadow-none",
+                "hover:bg-transparent hover:text-primary text-[#303444] dark:text-[#9aa1bb]",
+                "text-sm font-medium",
+              )}
             >
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Export Excel</span>
-              <span className="sm:hidden">Excel</span>
+              <ExcelIcon className="h-4 w-4" />
+              <span>Export Excel</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 sm:flex-none border-1 h-12 border-border bg-card hover:bg-[#3072C014] hover:text-black dark:hover:text-white"
+              className={cn(
+                "flex items-center gap-1 sm:gap-2",
+                "bg-white dark:bg-card rounded-2xl sm:w-auto",
+                "px-3 sm:px-4 lg:px-6 py-6",
+                "border border-gray-300 dark:border-gray-500 h-12 shadow-none",
+                "hover:bg-transparent hover:text-primary text-[#303444] dark:text-[#9aa1bb]",
+                "text-sm font-medium",
+              )}
             >
-              <FileText className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Export PDF</span>
-              <span className="sm:hidden">PDF</span>
+              <PDFIcon />
+              <span>Export PDF</span>
             </Button>
           </div>
         </div>
@@ -130,7 +145,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between p-2">
-              <CardTitle>Performance Metrics</CardTitle>
+              <CardTitle className="text-lg">Performance Metrics</CardTitle>
               <Select defaultValue="last-year">
                 <SelectTrigger className="w-24 p-2 rounded-[16px]">
                   <SelectValue />
@@ -290,7 +305,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between p-2">
-              <CardTitle>Budget Overview</CardTitle>
+              <CardTitle className="text-lg">Budget Overview</CardTitle>
               <Select defaultValue="last-year">
                 <SelectTrigger className="w-24 p-2 rounded-[16px]">
                   <SelectValue />
@@ -404,7 +419,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between p-2">
-            <CardTitle>Financial Summary</CardTitle>
+            <CardTitle className="text-lg">Financial Summary</CardTitle>
             <Select defaultValue="last-year">
               <SelectTrigger className="w-24 rounded-[16px]">
                 <SelectValue />
@@ -427,8 +442,9 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
             >
               <CartesianGrid
                 vertical={false}
+                horizontal={true}
                 strokeDasharray="3 3"
-                stroke="#DCE0E4"
+                stroke="gray"
                 opacity={0.3}
               />
               <XAxis dataKey="quarter" axisLine={false} tickLine={false} tick={{ fill: "#666" }} />
@@ -437,6 +453,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
                 tickLine={false}
                 tick={{ fill: "#666" }}
                 domain={[0, 100000]}
+                fontSize={16}
                 ticks={[0, 20000, 40000, 60000, 80000, 100000]}
               />
               {/* ✅ Shadcn Tooltip & Legend */}

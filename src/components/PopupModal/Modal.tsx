@@ -81,6 +81,10 @@ export default function PopupModal({
             "border shadow-xs transition-all cursor-pointer",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
           )}
+          onClick={() => onOpenChange(false)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={e => e.key === "Enter" && onOpenChange(false)}
         >
           <X className="size-4" />
         </div>

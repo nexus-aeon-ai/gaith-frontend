@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 import ClientFilterSheet from "../sheet/ClientFilter";
 
 interface SearchAndActionsSectionProps {
-  globalFilter: string;
-  setGlobalFilter: (value: string) => void;
+  globalFilter?: string;
+  setGlobalFilter?: (value: string) => void;
 }
 
 const SearchAndActionsSection = ({
@@ -38,29 +38,29 @@ const SearchAndActionsSection = ({
     <div className={cn(" items-center justify-center bg-card rounded-lg px-3 py-2 mb-3 shadow-sm")}>
       <div
         className={cn(
-          "flex flex-col sm:flex-row items-start sm:items-center justify-between ",
+          "flex flex-col lg:flex-row items-start lg:items-center justify-between ",
           "gap-2 sm:gap-3 ",
         )}
       >
         <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
           <Search />
           <Input
-            placeholder="Search leads"
+            placeholder="Search clients"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="border-none shadow-none focus:outline-none h-12 min-w-md"
+            className="border-none shadow-none focus:outline-none h-12 xl:min-w-md md:min-w-[250px] min-w-[100px]"
           />
         </div>
-        <div className="flex gap-1 sm:gap-2 md:gap-3">
+        <div className="flex gap-1 sm:gap-2 md:gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "flex items-center gap-1 sm:gap-2",
-                  "bg-card border-border text-xs h-8 sm:h-10",
+                  "flex items-center gap-1 sm:gap-2 ",
+                  "bg-card border-border text-xs h-auto",
                   "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
-                  "hover:bg-card hover:border-blue-500",
+                  "hover:bg-card hover:border-blue-500 rounded-[16px]",
                 )}
               >
                 <MenuIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
@@ -82,10 +82,10 @@ const SearchAndActionsSection = ({
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
+              "flex items-center gap-1 sm:gap-2 ",
+              "bg-card border-border text-xs h-auto",
               "[&_svg]:!w-5 [&_svg]:!h-5 sm:[&_svg]:!w-5 sm:[&_svg]:!h-5",
-              "hover:bg-card hover:border-blue-500",
+              "hover:bg-card hover:border-blue-500 rounded-[16px] ",
             )}
             onClick={() => setIsFilterSheetOpen(true)}
           >
@@ -95,26 +95,26 @@ const SearchAndActionsSection = ({
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
-              "hover:bg-card hover:border-blue-500",
+              "flex items-center gap-1 sm:gap-2 ",
+              "bg-card border-border text-xs h-auto",
+              "hover:bg-card hover:border-blue-500 rounded-[16px] py-[16px]",
             )}
           >
             <ExcelIcon />
-            <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
-            <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+            <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
+            <span className=" dark:text-white text-gray-900">Excel</span>
           </Button>
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-1 sm:gap-2",
-              "bg-card border-border text-xs h-8 sm:h-10",
-              "hover:bg-card hover:border-blue-500",
+              "flex items-center gap-1 sm:gap-2 ",
+              "bg-card border-border text-xs h-auto",
+              "hover:bg-card hover:border-blue-500 rounded-[16px]",
             )}
           >
             <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-            <span className="hidden sm:inline dark:text-white text-gray-900">Export PDF</span>
-            <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
+            <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
+            <span className=" dark:text-white text-gray-900">PDF</span>
           </Button>
         </div>
       </div>

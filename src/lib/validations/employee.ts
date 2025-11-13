@@ -39,20 +39,13 @@ export const employementTypes = [
 // Main User Form Validation Schema
 export const createEmpSchema = z.object({
   // Basic Information
-  empPhoto: z.instanceof(File, { message: "Please upload a photo" }).optional(),
-
+  profilePhoto: z.instanceof(File, { message: "Please upload a photo" }).optional(),
+  profilePhotoURL: z.string().optional(),
   fullName: z
     .string()
     .min(2, "Full name must be at least 2 characters")
     .max(100, "Full name must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
-
-  // Contact Information - Email is required
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(100, "Email must be less than 100 characters"),
 
   department: z.enum(departments, { required_error: "Department is required" }),
 
@@ -67,20 +60,17 @@ export const createEmpSchema = z.object({
 
   employeeID: z
     .string()
-    .min(2, "Employee ID must be at least 2 characters")
-    .max(150, "Employee ID must be less than 150 characters")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Employee ID can only contain letters, numbers, dashes, or underscores",
-    ),
+    .optional(),
+
+  userRole: z.string().min(1, "User role is required"),
 
   // Employee Permissions (optional)
-  userManagement: z.array(z.enum(empPerms)).optional().default([]),
-  contentManagement: z.array(z.enum(contentPerms)).optional().default([]),
-  analyticsAndReports: z.array(z.enum(analyticsPerms)).optional().default([]),
+  userManagement: z.array(z.enum(empPerms)).min(1, "Select at least one option"),
+  contentManagement: z.array(z.enum(contentPerms)).min(1, "Select at least one option"),
+  analyticsAndReports: z.array(z.enum(analyticsPerms)).min(1, "Select at least one option"),
 
   //primary contact information
-  primaryEmail: z.string().email().optional(),
+  primaryEmail: z.string().email(),
   primaryPhone: z
     .string()
     .regex(/^[\+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
@@ -100,13 +90,7 @@ export const createEmpSchema = z.object({
     invalid_type_error: "Invalid employee status selected",
   }),
 
-  // Company Profile
-  accountActive: z.boolean(),
-  emailVerification: z.boolean(),
-  forcePassChange: z.boolean(),
-  accExpiryDate: z.date().optional(),
-  tempPassword: z.string().min(8, "Password must be at least 8 characters").optional(),
-  notes: z.string().max(2000, "Notes must be less than 2000 characters"),
+  accStartDate: z.date().optional(),
 });
 
 // Type inference from schema
@@ -145,13 +129,14 @@ export const validateUrl = (url: string) => {
 
 export const defaultFormData: CreateEmpFormData = {
   // Basic Information
-  empPhoto: undefined,
+  profilePhoto: undefined,
   fullName: "",
-  email: "",
   department: departments[0], // default first option
   // empRole: "",
   jobTitle: "",
   employeeID: "",
+
+  userRole: "",
 
   // Empployee Permissions
   userManagement: [],
@@ -171,11 +156,5 @@ export const defaultFormData: CreateEmpFormData = {
   // Employee Status
   employeeStatus: "active", // default to "active"
 
-  // Company Profile
-  accountActive: true,
-  emailVerification: false,
-  forcePassChange: false,
-  accExpiryDate: undefined,
-  tempPassword: undefined,
-  notes: "",
+  accStartDate: undefined,
 };

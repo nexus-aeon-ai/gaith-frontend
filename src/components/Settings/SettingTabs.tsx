@@ -16,7 +16,7 @@ export type SettingsTabsRef = {
   submitModifiedForms: () => Promise<{ savedForms: string[]; skippedForms: string[] }>;
 };
 
-export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
+export const  SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
   const [activeTab, setActiveTab] = useState("general");
   
   const generalRef = useRef<GeneralTabFormRef>(null);
