@@ -1,7 +1,4 @@
-import Image from "next/image";
 import { useTheme } from "next-themes";
-import { JSX, useState } from "react";
-import { toast } from "react-toastify";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -22,23 +19,86 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
 
 function StepContent({ form }: StepFormProps) {
   const { control } = form;
   const { theme } = useTheme();
-  const { ctaTypes, platformTypes } = useCampaignLookups();
-  const [primaryPreview, setPrimaryPreview] = useState<string | null>(null);
-  const [secondaryPreview, setSecondaryPreview] = useState<string[] | null>(null);
 
-  const platformIconMap: Record<string, JSX.Element> = {
-    Facebook: <Facebook />,
-    Instagram: <Instagram />,
-    LinkedIn: <Linkedin />,
-    Twitter: <Twitter />,
-    Email: <Email />,
-  };
+  const interests = [
+    {
+      value: "linkedin",
+      label: "Linkedin",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Linkedin />
+        </div>
+      ),
+    },
+    {
+      value: "twitter",
+      label: "Twitter",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Twitter />
+        </div>
+      ),
+    },
+    {
+      value: "instagram",
+      label: "Instagram",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Instagram />
+        </div>
+      ),
+    },
+    {
+      value: "instagram",
+      label: "Instagram",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Instagram />
+        </div>
+      ),
+    },
+    {
+      value: "facebook",
+      label: "Facebook",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Facebook />
+        </div>
+      ),
+    },
+    {
+      value: "email",
+      label: "Email",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Email />
+        </div>
+      ),
+    },
+    {
+      value: "facebook",
+      label: "Facebook",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Facebook />
+        </div>
+      ),
+    },
+    {
+      value: "instagram",
+      label: "Instagram",
+      icon: (
+        <div className="bg-[#3072C014] w-7 h-7 flex items-center justify-center rounded-full p-1">
+          <Linkedin />
+        </div>
+      ),
+    },
+  ];
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -70,19 +130,13 @@ function StepContent({ form }: StepFormProps) {
                   <div className="relative">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/mp4"
                       id="primaryImageUpload"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={e => {
-                        if (!e.target.files?.[0]) return;
-                        const file = e.target.files[0];
-                        console.log("file size is :", file.size);
-                        console.log("allowed size is :", 10 * 1024 * 1024);
+                        const file = e.target.files?.[0];
                         if (file && file.size <= 10 * 1024 * 1024) {
                           field.onChange(file);
-                          setPrimaryPreview(URL.createObjectURL(file));
-                        } else {
-                          toast.error("File size should be less than 10MB");
                         }
                       }}
                     />
@@ -105,15 +159,6 @@ function StepContent({ form }: StepFormProps) {
                         )}
                       </div>
                     </div>
-                    {primaryPreview && (
-                      <Image
-                        src={primaryPreview}
-                        alt="Primary preview"
-                        width={80}
-                        height={80}
-                        className="mt-2 rounded-md"
-                      />
-                    )}
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -140,11 +185,7 @@ function StepContent({ form }: StepFormProps) {
                       onChange={e => {
                         const files = Array.from(e.target.files || []);
                         const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024);
-                        const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
-                        if (invalidFiles.length > 0)
-                          toast.error("Files with size greater than 10MB are filtered.");
                         if (validFiles.length > 0) {
-                          setSecondaryPreview(validFiles.map(file => URL.createObjectURL(file)));
                           const currentFiles = field.value || [];
                           const newFiles = [...currentFiles, ...validFiles].slice(0, 5);
                           field.onChange(newFiles);
@@ -170,20 +211,6 @@ function StepContent({ form }: StepFormProps) {
                         )}
                       </div>
                     </div>
-                    {secondaryPreview && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {secondaryPreview.map((preview, idx) => (
-                          <Image
-                            key={idx}
-                            src={preview}
-                            alt={`Secondary preview ${idx}`}
-                            width={80}
-                            height={80}
-                            className="mt-2 object-contain aspect-square bg-transparent rounded-md"
-                          />
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -250,11 +277,13 @@ function StepContent({ form }: StepFormProps) {
                     <SelectValue placeholder="Select Call to Action" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ctaTypes.map(cta => (
-                      <SelectItem key={cta.id} value={cta.id}>
-                        {cta.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="learn_more">Learn More</SelectItem>
+                    <SelectItem value="sign_up">Sign Up</SelectItem>
+                    <SelectItem value="shop_now">Shop Now</SelectItem>
+                    <SelectItem value="contact_us">Contact Us</SelectItem>
+                    <SelectItem value="download">Download</SelectItem>
+                    <SelectItem value="book_now">Book Now</SelectItem>
+                    <SelectItem value="subscribe">Subscribe</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -291,7 +320,7 @@ function StepContent({ form }: StepFormProps) {
                       min={new Date().toISOString().split("T")[0]}
                       {...field}
                       className="
-                    dark:bg-[#0F1B29] rounded-[12px] bg-[#F3F5F7] p-6
+                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -342,7 +371,7 @@ function StepContent({ form }: StepFormProps) {
                       }
                       {...field}
                       className="
-                    dark:bg-[#0F1B29] rounded-[12px] bg-[#F3F5F7] p-6
+                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -375,33 +404,33 @@ function StepContent({ form }: StepFormProps) {
             <FormItem>
               <FormLabel className="mb-3">Platform Selection</FormLabel>
               <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
-                {platformTypes.map(platform => (
+                {interests.map(interest => (
                   <FormField
-                    key={platform.id}
+                    key={interest.value}
                     control={control}
                     name="platforms"
                     render={({ field: { value, onChange } }) => {
                       const values = (value as string[]) || [];
                       return (
                         <FormItem
-                          key={platform.id}
+                          key={interest.value}
                           className="flex flex-row items-center space-x-3 space-y-0"
                         >
                           <FormControl>
                             <Checkbox
                               className="rounded-md"
-                              checked={values.includes(platform.id)}
+                              checked={values.includes(interest.value)}
                               onCheckedChange={checked => {
                                 if (checked) {
-                                  onChange([...values, platform.id]);
+                                  onChange([...values, interest.value]);
                                 } else {
-                                  onChange(values.filter(val => val !== platform.id));
+                                  onChange(values.filter(val => val !== interest.value));
                                 }
                               }}
                             />
                           </FormControl>
-                          {platformIconMap[platform.name]}
-                          <FormLabel className="font-normal">{platform.name}</FormLabel>
+                          {interest.icon}
+                          <FormLabel className="font-normal">{interest.label}</FormLabel>
                         </FormItem>
                       );
                     }}
