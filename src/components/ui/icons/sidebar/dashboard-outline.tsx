@@ -1,9 +1,16 @@
 import * as React from "react";
 
-const DashboardOutline = ({ color = "#303444", width = 24, height = 24, ...props }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} fill="none" {...props}>
+const DashboardOutline = ({ width = 24, height = 24, ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+    viewBox="0 0 24 24"
+  >
     <path
-      stroke={color}
+      stroke={"currentColor"}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}
