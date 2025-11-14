@@ -52,6 +52,12 @@ interface QuoteFormProps {
   quotation?: Quotation | null;
 }
 
+interface TotalAccumulation {
+  subtotal: number;
+  totalTax: number;
+  grandTotal: number;
+}
+
 const defaultFormData: CreateQuotationFormData = {
   clientId: "",
   validUntil: new Date(),
@@ -134,10 +140,9 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     if (!serviceInstances) return;
 
     serviceInstances.forEach((item: ServiceInstance, index: number) => {
-
       const servicePrice = Number(item.servicePrice) || 0;
       const tax = Number(item.taxPercentage) || 0;
-      const total = parseFloat(( servicePrice * (1 + tax / 100)).toFixed(2));
+      const total = parseFloat((servicePrice * (1 + tax / 100)).toFixed(2));
 
       if (item.total !== total) {
         setValue(`serviceInstance.${index}.total`, total, {
@@ -150,7 +155,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
   }, [serviceInstances]);
 
   const totals = serviceInstances?.reduce(
-    (acc, item: ServiceInstance) => {
+    (acc: TotalAccumulation, item: ServiceInstance) => {
       const quantity = 1;
       const servicePrice = Number(item.servicePrice) || 0;
       const tax = Number(item.taxPercentage) || 0;
@@ -187,7 +192,6 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
         return;
       }
       onChange(num);
-
     }
   };
 
@@ -681,7 +685,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                           <div className="py-3 px-3 rounded-[12px] text-gray-700 dark:text-gray-300 border border-transparent">
                             <p className="text-[16px] font-[700]">
                               {currencySymbol}
-                              {field.value?.toFixed(2) }
+                              {field.value?.toFixed(2)}
                             </p>
                           </div>
                         </FormControl>

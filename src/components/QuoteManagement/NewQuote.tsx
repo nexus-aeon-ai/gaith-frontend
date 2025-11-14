@@ -53,18 +53,11 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         });
         return;
       }
-      const accountId = data.clientId;
 
-      if (!accountId) {
-        console.error("Missing account ID from user state!");
-        return;
-      }
-
-      console.log("data to submit:",data);
+      console.log("data to submit:", data);
 
       mutation.mutate({
         ...data,
-        accountId,
       });
     } catch (error) {
       console.error("Form submission error:", error);

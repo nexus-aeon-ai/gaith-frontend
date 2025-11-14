@@ -107,9 +107,9 @@ export const getQuotations = async () => {
     status: response.status,
     data: backend
       ? {
-          results: backend.quotations.map(transformQuotation),
-          count: backend.total,
-        }
+        results: backend.quotations.map(transformQuotation),
+        count: backend.total,
+      }
       : { results: [], count: 0 },
   } as {
     status: number;
@@ -117,10 +117,13 @@ export const getQuotations = async () => {
   };
 };
 
+function isErrorResponse(data: unknown): data is { message: string } {
+  return typeof data === "object" && data !== null && "message" in data;
+}
+
 export const createQuotation = async (
-  form: CreateQuotationFormData & { currencyId?: string; accountID: string },
+  form: CreateQuotationFormData & { currencyId?: string; },
 ): Promise<{ status: number; data: Quotation | null }> => {
-  const accountId = form.clientId;
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
   const pricingItems = (form.serviceInstance || []).map(item => ({
@@ -137,7 +140,7 @@ export const createQuotation = async (
   }, 0);
 
   const body = {
-    accountId: accountId,
+    accountId: form.clientId,
     currencyId,
     title: form.title,
     description: form.description,
@@ -158,13 +161,14 @@ export const createQuotation = async (
       body: JSON.stringify(body),
     });
 
-    // ✅ Throw if not successful
+    // Throw if not successful
     if (response.status < 200 || response.status >= 300) {
-      toast.error("Failed to create quotation: " + response.data.message);
+      const message = isErrorResponse(response.data) ? response.data.message : "Unknown error";
+
+      toast.error("Failed to create quotation: " + message);
       console.error("[createQuotation] Failure:", response.data);
-      throw new Error(
-        response.data?.message || `Failed to create quotation (status ${response.status})`,
-      );
+
+      throw new Error(message);
     }
 
     console.log("[createQuotation] Success:", {
@@ -215,9 +219,8 @@ export const updateQuotation = async (
   const body = {
     accountId,
     currencyId,
-    title: form.quotationTitle,
+    title: form.title,
     description: form.description,
-    quotationNumber: form.quoteNumber,
     validUntil: form.validUntil
       ? new Date(form.validUntil).toISOString()
       : new Date().toISOString(),
