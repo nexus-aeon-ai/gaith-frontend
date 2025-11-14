@@ -87,7 +87,7 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
 
 const TopClients = () => {
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-lg py-4 w-full text-card-foreground">
+    <div className="bg-card lg:col-span-6 col-span-1 rounded-2xl border border-border shadow-lg py-4 w-full text-card-foreground">
       <div className="flex items-center justify-between mb-2 px-3">
         <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
         <Tabs defaultValue="engagement" className="min-w-[200px]">

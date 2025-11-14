@@ -1,3 +1,5 @@
+import { JSX } from "react";
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Content from "@/components/ui/icons/social/content";
 import Email from "@/components/ui/icons/social/email";
@@ -13,41 +15,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
+
+const iconMap: Record<string, JSX.Element> = {
+  "Social Media": <Fb />,
+  "Search Engine": <SearchEngine />,
+  "Email Marketing": <Email />,
+  "Content Marketing": <Content />,
+};
+
+const subTextMap: Record<string, string> = {
+  "Social Media": "Facebook, Instagram, Twitter",
+  "Search Engine": "Google Ads, Bing Ads",
+  "Email Marketing": "Newsletter, Campaigns",
+  "Content Marketing": "Blog, Video, Infographics",
+};
+
+interface Distribution {
+  channel: string;
+  percentage?: number;
+  percent?: number;
+}
 
 function StepPreferences({ form }: StepFormProps) {
   const { control } = form;
-
-  const budgetDistributionOptions = [
-    {
-      id: "socialMedia",
-      label: "Social Media",
-      subText: "Facebook, Instagram, Twitter",
-      icon: <Fb />,
-      channel: "social_media",
-    },
-    {
-      id: "searchEngine",
-      label: "Search Engine",
-      subText: "Google Ads, Bing Ads",
-      icon: <SearchEngine />,
-      channel: "search_engine",
-    },
-    {
-      id: "emailMarketing",
-      label: "Email Marketing",
-      subText: "Newsletter, Campaigns",
-      icon: <Email />,
-      channel: "email_marketing",
-    },
-    {
-      id: "contentMarketing",
-      label: "Content Marketing",
-      subText: "Blog, Video, Infographics",
-      icon: <Content />,
-      channel: "content_marketing",
-    },
-  ];
+  const { biddingStrategyTypes, channelTypes } = useCampaignLookups();
 
   return (
     <div className="flex flex-col gap-4 ">
@@ -102,50 +95,62 @@ function StepPreferences({ form }: StepFormProps) {
       </div>
 
       <div className="flex flex-col gap-3">
-        <p>Budget Distribution</p>
+        <p className="text-sm font-medium">Budget Distribution</p>
+
         <div className="flex flex-col gap-2">
-          {budgetDistributionOptions.map(option => (
+          {channelTypes?.map(option => (
             <FormField
               key={option.id}
               control={control}
               name="budgetDistribution"
               render={({ field }) => {
-                const distributions = field.value || [];
-                const currentDist = distributions.find(d => d.channel === option.channel) || {
-                  percentage: 25,
+                const distributions: Distribution[] = field.value || [];
+       
+                const currentDist: Distribution = distributions.find(
+                  d => d.channel === option.id,
+                ) ?? {
+                  channel: option.id,
                 };
 
+                const currentValue = currentDist.percentage ?? currentDist.percent ?? 25;
                 return (
                   <FormItem className="space-y-0">
                     <div className="flex flex-row border p-3 rounded-[12px] items-center space-x-3">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="text-[#508CD3] dark:text-[white]">{option.icon}</div>
+                        <div className="text-[#508CD3] dark:text-[white]">
+                          {iconMap[option.name] ?? <div className="w-5 h-5" />} {/* fallback */}
+                        </div>
                         <div className="flex flex-col">
-                          <p className="font-[500]">{option.label}</p>
-                          <p className="text-sm text-muted-foreground">{option.subText}</p>
+                          <p className="font-[500]">{option.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {subTextMap[option.name] ?? ""}
+                          </p>
                         </div>
                       </div>
+
                       <div className="flex items-center gap-4 text-[#303444] dark:text-[white] font-[500]">
                         <FormControl>
                           <Slider
-                            value={[currentDist.percentage]}
+                            value={[currentValue]}
                             min={0}
                             max={100}
                             step={5}
                             className="w-[100px]"
                             onValueChange={([value]) => {
-                              const newDist = distributions.filter(
-                                d => d.channel !== option.channel,
-                              );
+                              const newDist = distributions.filter(d => d.channel !== option.id);
                               if (value > 0) {
-                                newDist.push({ channel: option.channel, percentage: value });
+                                newDist.push({
+                                  channel: option.id,
+                                  percentage: value, // standardize going forward
+                                });
                               }
                               field.onChange(newDist);
                             }}
                           />
                         </FormControl>
+
                         <div className="dark:bg-[#0F1B29] min-w-[60px] px-3 py-2 text-center bg-[#F3F5F7] rounded-[12px]">
-                          {currentDist.percentage}%
+                          {currentValue}%
                         </div>
                       </div>
                     </div>
@@ -156,7 +161,6 @@ function StepPreferences({ form }: StepFormProps) {
           ))}
         </div>
       </div>
-
       <div>
         <FormField
           control={control}
@@ -170,54 +174,23 @@ function StepPreferences({ form }: StepFormProps) {
                   defaultValue={field.value}
                   className="grid grid-cols-2 gap-4"
                 >
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="maximize_clicks"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Maximize Clicks</p>
-                      <p>Get the most clicks for your budget</p>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="maximize_conversions"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Maximize Conversions</p>
-                      <p>Optimize for conversion actions</p>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="target_cpa"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Target CPA</p>
-                      <p>Set a target cost per acquisition</p>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0">
-                    <FormControl className="mt-1">
-                      <RadioGroupItem
-                        value="manual_cpc"
-                        className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                      />
-                    </FormControl>
-                    <div className="font-normal flex flex-col">
-                      <p className="font-[500]">Manual CPC</p>
-                      <p>Set your own cost per click</p>
-                    </div>
-                  </FormItem>
+                  {biddingStrategyTypes?.map(option => (
+                    <FormItem
+                      key={option.id}
+                      className="flex p-3 border rounded-[12px] items-start space-x-3 space-y-0"
+                    >
+                      <FormControl className="mt-1">
+                        <RadioGroupItem
+                          value={option.id}
+                          className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
+                        />
+                      </FormControl>
+                      <div className="font-normal flex flex-col">
+                        <p className="font-[500]">{option.name}</p>
+                        <p className="text-sm">{option.description || "No description"}</p>
+                      </div>
+                    </FormItem>
+                  ))}
                 </RadioGroup>
               </FormControl>
               <FormMessage />

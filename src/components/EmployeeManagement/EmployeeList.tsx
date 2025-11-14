@@ -1,11 +1,12 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 
+import EmployeeDetail from "@/components/EmployeeManagement/EmployeeDetail";
 import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -46,6 +47,7 @@ const EmployeeList = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
   const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
+  const [showEmpDetailPage, setShowEmpDetailPage] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
@@ -67,18 +69,21 @@ const EmployeeList = () => {
   }, [data]);
 
   const employees: UiEmployee[] = useMemo(() => {
-    return apiEmployees.map((emp: ApiEmployee): UiEmployee => ({
-      id: emp.id,
-      fullName: emp.fullName,
-      email: emp.email,
-      // UI expects these fields differently
-      role: emp.role.title,
-      status: emp.status === "Active" ? "active" : "inactive",
-      department: { name: emp.department.name, team: emp.department.subTeam || "" },
-      contactInfo: { email: emp.email, number: emp.phone },
-      performance: `${emp.performance}%`,
-      permissions: { view: true, edit: true, approve: false, delete: false },
-    }));
+    return apiEmployees.map(
+      (emp: ApiEmployee): UiEmployee => ({
+        id: emp.id,
+        fullName: emp.fullName,
+        email: emp.email,
+        // UI expects these fields differently
+        role: emp.role.title,
+        status: emp.status === "Active" ? "active" : "inactive",
+        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        contactInfo: { email: emp.email, number: emp.phone },
+        performance: `${emp.performance}%`,
+        permissions: { view: true, edit: true, approve: false, delete: false },
+        profilePicture: emp.profilePicture || "",
+      }),
+    );
   }, [apiEmployees]);
 
   const { mutate: deleteEmployeeMutate } = useMutation({
@@ -113,6 +118,8 @@ const EmployeeList = () => {
       (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  console.log("api employees:",data)
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -152,6 +159,10 @@ const EmployeeList = () => {
 
   if (showAddEmployeeForm) {
     return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
+  }
+
+  if (showEmpDetailPage) {
+    return <EmployeeDetail employeeId={selectedEmployeeId} closeEmployeeDetails={() => {}} />;
   }
 
   if (showEditEmployeeForm && selectedEmployeeId) {
@@ -341,7 +352,7 @@ const EmployeeList = () => {
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center">
                       <Image
-                        src={"/images/default-avatar.jpg"}
+                        src={ employee.profilePicture || "/images/default-avatar.jpg"}
                         alt="avatar"
                         width={32}
                         height={32}
@@ -427,7 +438,7 @@ const EmployeeList = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setShowEmpDetailPage(true)}>
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             View
@@ -448,7 +459,9 @@ const EmployeeList = () => {
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => {
-                            const confirmed = window.confirm("Are you sure you want to delete this employee?");
+                            const confirmed = window.confirm(
+                              "Are you sure you want to delete this employee?",
+                            );
                             if (confirmed) deleteEmployeeMutate(employee.id);
                           }}
                         >

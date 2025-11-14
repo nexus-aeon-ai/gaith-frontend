@@ -17,14 +17,26 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import MagicStarIcon from "@/components/ui/icons/magic-star";
 
 import MediaBuyingPlanSheet from "../../sheet/BuyingPlanPreview";
+import GeneratedAssetsSheet from "../../sheet/GenerateSelected";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Textarea } from "../../ui/textarea";
 import { mockGeneratedAssets } from "../data/mockGeneratedAssets";
 
 import AssetCard from "./AssetCard";
+import GeneratePricing from "./GeneratePricing";
 
 const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
   const [showMediaBuyingSheet, setShowMediaBuyingSheet] = useState(false);
+  const [showGeneratedAssetsSheet, setShowGeneratedAssetsSheet] = useState(false);
+  const [showPricingForm, setShowPricingForm] = useState(false);
+
+  if (showPricingForm) {
+    return (
+      <GeneratePricing
+        closeEditCampaignPricingForm={() => setShowPricingForm(false)}
+      />
+    );
+  }
 
   return (
     <div className="w-full mx-auto p-6">
@@ -68,7 +80,7 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            // onClick={() => setShowCancelModal(true)}
+            onClick={() => setShowPricingForm(true)}
             className="p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
           >
             <Tag />
@@ -77,6 +89,7 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
           <Button
             // type="submit"
             // form="aidata-form"
+            onClick={() => setShowGeneratedAssetsSheet(true)}
             variant={"outline"}
             className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -127,6 +140,10 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
         </CardContent>
       </Card>
       <MediaBuyingPlanSheet onOpenChange={setShowMediaBuyingSheet} open={showMediaBuyingSheet} />
+      <GeneratedAssetsSheet
+        onOpenChange={setShowGeneratedAssetsSheet}
+        open={showGeneratedAssetsSheet}
+      />
     </div>
   );
 };

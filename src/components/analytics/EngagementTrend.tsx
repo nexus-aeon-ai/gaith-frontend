@@ -81,7 +81,7 @@ const EngagementTrend = () => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full lg:col-span-6 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pt-4 pb-2">
         <CardTitle>Engagement Rate Trend</CardTitle>
         <DropdownMenu>

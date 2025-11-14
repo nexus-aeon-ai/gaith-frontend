@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -16,22 +16,17 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { createEmployee, type Employee as ApiEmployee, type EmployeeFormData } from "@/lib/api/employee";
-import { RoleCode, getRoles, type BackendRole } from "@/lib/api/roles";
-import { generateStrongPassword } from "@/lib/functions/generate-password";
+import {
+  createEmployee,
+  type Employee as ApiEmployee,
+  type EmployeeFormData,
+} from "@/lib/api/employee";
+import { uploadImage } from "@/lib/api/storage";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
 const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
-  const { data: rolesData } = useQuery({
-    queryKey: ["roles"],
-    queryFn: async () => {
-      const res = await getRoles();
-      return res.data ?? [];
-    },
-    initialData: [],
-  });
 
   const mapToApi = (data: CreateEmpFormData) => {
     const status: EmployeeFormData["status"] =
@@ -49,23 +44,20 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       Volunteer: "CONTRACT",
       Other: "CONTRACT",
     };
-    // Normalize known role labels to backend codes using enum
-    const normalizedRoleCode = data.empRole
-      .toLowerCase()
-      .replace(" ", "_") as RoleCode;
-    const selectedRole = (rolesData as BackendRole[]).find(r => r.code === normalizedRoleCode);
+
     return {
       fullName: data.fullName,
-      email: data.email,
       phone: data.primaryPhone || "",
+      primaryEmail: data.primaryEmail,
       jobTitle: data.jobTitle,
       employeeId: data.employeeID,
       status,
       employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
       salary: data.salary ?? 0,
-      password: data.tempPassword && data.tempPassword.length >= 6 ? data.tempPassword : generateStrongPassword(),
-      accountRoleId: selectedRole?.id || "",
+      accountRoleId: data.userRole,
       languagePreference: "EN",
+      startDate: data.accStartDate,
+      profilePhotoURL: data.profilePhotoURL as string,
     };
   };
 
@@ -81,7 +73,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast.success("Employee created successfully");
     },
-    onError: (error) => {
+    onError: error => {
       console.error("Error creating employee:", error);
       toast.error(error.message || "Failed to create employee");
     },
@@ -94,6 +86,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       // Validate form data
       const result = createEmpSchema.safeParse(data);
 
+
       if (!result.success) {
         // Extract validation errors
         const errors: Record<string, string> = {};
@@ -102,6 +95,22 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
           errors[field] = issue.message;
         });
         return;
+      }
+
+      // Upload primary image if present and is a File
+      if (data.profilePhoto && data.profilePhoto instanceof File) {
+        console.log("in try catch for image upload");
+        try {
+          const res = await uploadImage(data.profilePhoto);
+          console.log("Primary image upload response:", res);
+          if (res?.data) {
+            result.data.profilePhotoURL = res.data.url ;
+          }
+        } catch (err) {
+          console.error("Primary image upload failed:", err);
+          alert("Failed to upload primary image. Please try again.");
+          return;
+        }
       }
 
       // If validation passes, proceed with create employee api
@@ -139,7 +148,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
                 className="text-blue-600 font-medium text-md"
                 onClick={closeEmployeeForm}
               >
-                Settings
+                Employee Management
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

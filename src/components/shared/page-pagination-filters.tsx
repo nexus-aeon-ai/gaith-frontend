@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { PageSizeFilter } from "./page-size-selector";
 import PaginationControls from "./pagination-controls";
 
 type PaginationProps = {
@@ -19,15 +18,14 @@ export default function PagePaginationFilters({
   const currentPage = startIndex;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-4 font-inter">
       {/* Page Info */}
-      <p className="flex-1 text-sm text-gray-500">
-        Page <span className="text-foreground">{currentPage}</span> of{" "}
-        <span className="text-foreground">{totalPages}</span>
+      <p className="text-sm text-[#687192] font-medium">
+        Showing {currentPage} of {totalPages}
       </p>
 
       {/* Pagination controls */}
-      <div className="w-full max-sm:order-3 sm:flex-1">
+      <div>
         <PaginationControls
           totalPages={totalPages}
           paginationItemsToDisplay={paginationItemsToDisplay}
@@ -35,9 +33,9 @@ export default function PagePaginationFilters({
       </div>
 
       {/* Page size selector */}
-      <div className="flex flex-1 justify-end">
+      {/* <div className="flex flex-1 justify-end">
         <PageSizeFilter />
-      </div>
+      </div> */}
     </div>
   );
 }

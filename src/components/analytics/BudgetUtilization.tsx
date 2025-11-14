@@ -137,30 +137,64 @@ const useMediaQuery = (query: string) => {
 
 const BudgetUtilization: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<3 | 6 | 9 | 12>(3);
-  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
   const currentData = budgetDataByPeriod[selectedPeriod];
   const selectedOption = timeOptions.find(option => option.value === selectedPeriod);
 
   const totalBudget = currentData.reduce((sum, item) => sum + item.value, 0);
 
-  const isSmall = useMediaQuery("(max-width: 640px)");
-  const isMedium = useMediaQuery("(max-width: 1024px)");
+  const isXs = useMediaQuery("(max-width: 480px)");
+  const isSm = useMediaQuery("(max-width: 640px)");
+  const isMd = useMediaQuery("(max-width: 768px)");
+  const isLg = useMediaQuery("(max-width: 1024px)");
+  const isXl = useMediaQuery("(max-width: 1280px)");
+  const is2xl = useMediaQuery("(max-width: 1536px)");
 
-  const innerRadius = isSmall ? 90 : isMedium ? 110 : 120;
-  const outerRadius = isSmall ? 130 : isMedium ? 150 : 180;
-  const overlaySize = Math.max(64, Math.min(220, Math.round(innerRadius * 1.6)));
+  // Decide radii based on breakpoints
+  const innerRadius = isXs
+    ? 50
+    : isSm
+      ? 60
+      : isMd
+        ? 70
+        : isLg
+          ? 80
+          : isXl
+            ? 90
+            : is2xl
+              ? 100
+              : 100;
+
+  const outerRadius = isXs
+    ? 75
+    : isSm
+      ? 90
+      : isMd
+        ? 95
+        : isLg
+          ? 110
+          : isXl
+            ? 120
+            : is2xl
+              ? 140
+              : 140;
+
+  const overlaySize = Math.max(64, Math.min(240, Math.round(innerRadius * 1.6)));
 
   const renderCustomizedLabel = (props: any) => {
     const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent } = props;
 
-    const factor = isSmall ? 0.2 : isMedium ? 0.4 : 0.4;
+    // Adjust factor per breakpoint
+    const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.3 : isLg ? 0.35 : isXl ? 0.3 : 0.35;
+
     const radius = ir + (orr - ir) * factor;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     const textAnchor = x > cx ? "start" : "end";
-    const fontSize = isSmall ? 10 : 12;
+
+    // Adjust font size per breakpoint
+    const fontSize = isXs ? 8 : isSm ? 10 : isMd ? 11 : isLg ? 12 : isXl ? 13 : 14;
 
     return (
       <text
@@ -171,6 +205,7 @@ const BudgetUtilization: React.FC = () => {
         dominantBaseline="central"
         fontSize={fontSize}
         fontWeight="bold"
+        pointerEvents={"none"}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
@@ -178,7 +213,7 @@ const BudgetUtilization: React.FC = () => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full lg:col-span-4 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between pt-4">
         <CardTitle className="font-semibold text-lg text-card-foreground">
           Budget Utilization
@@ -218,10 +253,10 @@ const BudgetUtilization: React.FC = () => {
                 boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <div className={`font-bold ${isSmall ? "text-sm" : "text-xl"} text-foreground`}>
+              <div className={`font-bold ${isSm ? "text-sm" : "text-xl"} text-foreground`}>
                 {totalBudget.toLocaleString()}K Đ
               </div>
-              <div className={`text-muted-foreground ${isSmall ? "text-[10px]" : "text-xs"}`}>
+              <div className={`text-muted-foreground ${isSm ? "text-[10px]" : "text-xs"}`}>
                 Total Budget ({selectedPeriod}M)
               </div>
             </div>
@@ -240,10 +275,8 @@ const BudgetUtilization: React.FC = () => {
                 cornerRadius={5}
                 labelLine={false}
                 label={renderCustomizedLabel}
-                activeIndex={activeIndex !== undefined ? activeIndex : -1}
+                isAnimationActive={false}
                 activeShape={renderActiveShape as ActiveShape<PieSectorDataItem>}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
               />
             </PieChart>
           </ChartContainer>

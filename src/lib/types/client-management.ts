@@ -4,6 +4,7 @@ export interface Client {
   id: string;
   name: string;
   email: string;
+  clientName: string;
   status: "Active" | "Inactive" | "Pending";
   agreementPeriod: {
     start: string;
@@ -25,8 +26,8 @@ export interface MainInformationTabProps {
 }
 
 export interface CampaignTasksTabProps {
-  client: Client;
   setShowPendingTasks: (show: boolean) => void;
+  setShowCampaignOverview: (show: boolean) => void;
 }
 
 export interface HistoricalPerformanceTabProps {

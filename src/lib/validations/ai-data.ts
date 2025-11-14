@@ -22,48 +22,7 @@ export const marketingStrategists = [
   { value: "seo-specialist", label: "SEO Specialist" },
 ] as const;
 
-const primaryAccMgSchema = z.enum([
-  "creative-director",
-  "social-media-manager",
-  "ux-researcher",
-  "web-developer",
-  "content-writer",
-  "graphic-designer",
-  "seo-specialist",
-]);
-
-// Assigned To options validation
-const marketingStrategistSchema = z.enum([
-  "creative-director",
-  "social-media-manager",
-  "ux-researcher",
-  "web-developer",
-  "content-writer",
-  "graphic-designer",
-  "seo-specialist",
-]);
-
-// Products & Services validation for client
-const aiDataProdsServicesList = z.object({
-  socialMedia: z.boolean(),
-  blogCreation: z.boolean(),
-  marketingPlan: z.boolean(),
-  mediaBuyingPlan: z.boolean(),
-  graphicDesigns: z.boolean(),
-});
-
-// languages for client market/target audience
-export const aiDataLanguages = [
-  "English",
-  "Chinese",
-  "Portuguese",
-  "German",
-  "Spanish",
-  "Japanese",
-  "Arabic",
-  "French",
-] as const;
-
+// languages for client market/target au
 export const primaryRegions = [
   "North America",
   "Europe",
@@ -75,7 +34,7 @@ export const primaryRegions = [
 
 export const targetAudience = ["B2B", "B2C", "Enterprise", "Startups", "Other"] as const;
 
-const optionalUrl = z.string().url().or(z.literal("")).optional();
+// const optionalUrl = z.string().url().or(z.literal("")).optional();
 
 export const createAiDataSchema = z.object({
   // Basic Information
@@ -87,9 +46,8 @@ export const createAiDataSchema = z.object({
 
   industry: z
     .string()
-    .min(2, "Nationality must be at least 2 characters")
-    .max(50, "Nationality must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
+    .uuid("Each industry must be a valid ID")
+    .min(1, "At least one industry is required"),
 
   companySize: z
     .string()
@@ -133,25 +91,19 @@ export const createAiDataSchema = z.object({
     .min(2, "Contract duration must be at least 2 characters")
     .max(50, "Contract duration must be less than 50 characters"),
 
-  // Market and target audience
-  primaryRegion: z.enum(primaryRegions, {
-    required_error: "Primary region is required",
-    invalid_type_error: "Invalid region selected",
-  }),
-
-  targetAudience: z.enum(targetAudience, {
-    required_error: "Target audience is required",
-    invalid_type_error: "Invalid target audience selected",
-  }),
+  // Market primary region and target audience, the array will
+  // contain item ids instead of names for api request body
+  primaryRegion: z.string().uuid("Each region must be a valid ID").optional(),
+  targetAudience: z.string().uuid("Please select a valid target audience").optional(),
 
   secondaryMarkets: z
     .string()
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),
 
-  languagesSupported: z.array(z.enum(aiDataLanguages)).nonempty({
-    message: "Select at least one language",
-  }),
+  languagesSupported: z
+    .array(z.string())
+    .min(1, "Select at least one language").optional(),
 
   // Company profile
   visionStatement: z
@@ -164,19 +116,21 @@ export const createAiDataSchema = z.object({
     .min(10, "Mission statement must be at least 10 characters")
     .max(1000, "Mission statement must be less than 1000 characters"),
 
-  aiDataProdsServices: aiDataProdsServicesList,
+  aiDataProdsServices: z
+    .array(z.string().uuid("Each service offering must be a valid ID"))
+    .min(1, "At least one service offering is required"),
 
   // Social Media Accounts
-  linkedinUrl: optionalUrl,
-  facebookUrl: optionalUrl,
-  youtubeUrl: optionalUrl,
-  twitterUrl: optionalUrl,
-  instagramUrl: optionalUrl,
-  websiteUrl: z.string().url("Invalid Website URL").optional(),
+  linkedinUrl: z.string().url("Invalid URL").optional(),
+  facebookUrl: z.string().url("Invalid URL").optional(),
+  youtubeUrl: z.string().url("Invalid URL").optional(),
+  twitterUrl: z.string().url("Invalid URL").optional(),
+  instagramUrl: z.string().url("Invalid URL").optional(),
+  websiteUrl: z.string().url("Invalid URL").optional(),
 
   // Team Assignment
-  primaryAccManager: primaryAccMgSchema,
-  marketingStrategist: marketingStrategistSchema,
+  primaryAccManager: z.string().optional(),
+  marketingStrategist: z.string().optional() ,
   priorityLevel: z
     .enum(["High", "Medium", "Low"], {
       required_error: "Priority level is required",

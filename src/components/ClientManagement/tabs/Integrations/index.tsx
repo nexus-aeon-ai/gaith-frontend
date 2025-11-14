@@ -1,10 +1,11 @@
 "use client";
 
-import { Copy, Eye, EyeOff } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CopyIcon from "@/components/ui/icons/copy";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,9 +21,8 @@ import { IntegrationsTabProps } from "@/lib/types";
 const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
   const [googleApiKey, setGoogleApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
   const [metaApiKey, setMetaApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
-  const [showGoogleKey, setShowGoogleKey] = useState(false);
-  const [showMetaKey, setShowMetaKey] = useState(false);
   const [autoSync, setAutoSync] = useState(false);
+  const { theme } = useTheme();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -46,7 +46,9 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
         <CardContent className="space-y-6">
           {/* Google Analytics API Key */}
           <div className="space-y-2">
-            <Label htmlFor="google-api">Google Analytics API Key</Label>
+            <Label htmlFor="google-api" className="text-[#303444] dark:text-[#CCCFDB]">
+              Google Analytics API Key
+            </Label>
             <div className="relative">
               <Input
                 id="google-api"
@@ -58,18 +60,10 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowGoogleKey(!showGoogleKey)}
-                  className="h-6 w-6 p-0"
-                >
-                  {showGoogleKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
                   onClick={() => copyToClipboard(googleApiKey)}
                   className="h-6 w-6 p-0"
                 >
-                  <Copy className="h-3 w-3" />
+                  <CopyIcon color={theme === "dark" ? "#CACCD6" : "#687192"} />
                 </Button>
               </div>
             </div>
@@ -81,9 +75,11 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
 
           {/* Meta Analytics API Key */}
           <div className="space-y-2">
-            <Label htmlFor="meta-api">Meta Analytics API Key</Label>
+            <Label htmlFor="meta-api" className="text-[#303444] dark:text-[#CCCFDB]">
+              Meta Analytics API Key
+            </Label>
             <div className="space-y-1">
-              <p className="font-normal text-sm">App Id</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">App Id</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -95,18 +91,10 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowMetaKey(!showMetaKey)}
-                    className="h-6 w-6 p-0"
-                  >
-                    {showMetaKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     onClick={() => copyToClipboard(metaApiKey)}
                     className="h-6 w-6 p-0"
                   >
-                    <Copy className="h-3 w-3" />
+                    <CopyIcon color={theme === "dark" ? "#CACCD6" : "#687192"} />
                   </Button>
                 </div>
               </div>
@@ -120,7 +108,7 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="font-normal text-sm">App Secrete</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">App Secret</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -132,18 +120,10 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowMetaKey(!showMetaKey)}
-                    className="h-6 w-6 p-0"
-                  >
-                    {showMetaKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     onClick={() => copyToClipboard(metaApiKey)}
                     className="h-6 w-6 p-0"
                   >
-                    <Copy className="h-3 w-3" />
+                    <CopyIcon color={theme === "dark" ? "#CACCD6" : "#687192"} />
                   </Button>
                 </div>
               </div>
@@ -157,7 +137,7 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="font-normal text-sm">Access Token</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">Access Token</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -169,18 +149,10 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowMetaKey(!showMetaKey)}
-                    className="h-6 w-6 p-0"
-                  >
-                    {showMetaKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     onClick={() => copyToClipboard(metaApiKey)}
                     className="h-6 w-6 p-0"
                   >
-                    <Copy className="h-3 w-3" />
+                    <CopyIcon color={theme === "dark" ? "#CACCD6" : "#687192"} />
                   </Button>
                 </div>
               </div>
@@ -207,7 +179,9 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
           <div className="border border-border rounded-lg p-4 bg-[#F3F5F7] dark:bg-background">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="auto-sync">Auto Sync</Label>
+                <Label htmlFor="auto-sync" className="text-[#303444] dark:text-[#CCCFDB]">
+                  Auto Sync
+                </Label>
                 <p className="text-sm text-muted-foreground">Automatically sync data every hour</p>
               </div>
               <Switch
@@ -227,7 +201,9 @@ const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
 
           {/* Sync Schedule */}
           <div className="space-y-2">
-            <Label htmlFor="sync-schedule">Sync Schedule</Label>
+            <Label htmlFor="sync-schedule" className="text-[#303444] dark:text-[#CCCFDB]">
+              Sync Schedule
+            </Label>
             <Select defaultValue="every-hour">
               <SelectTrigger className="rounded-[12px] !h-12 shadow-none border border-border bg-[#F3F5F7] dark:bg-background">
                 <SelectValue />

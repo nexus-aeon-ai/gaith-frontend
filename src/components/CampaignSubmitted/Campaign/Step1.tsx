@@ -11,19 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 import { StepFormProps } from "@/lib/types";
 
 /* Step 1: Campaign Basics */
 function StepPersonal({ form }: StepFormProps) {
+  const { types, objectiveTypes, isLoading } = useCampaignLookups();
+
   const { control } = form;
-  const objectives = [
-    { id: "brandAwareness", label: "Brand Awareness" },
-    { id: "websiteTraffic", label: "Website Traffic" },
-    { id: "leadGeneration", label: "Lead Generation" },
-    { id: "engagement", label: "Engagement" },
-    { id: "salesConversion", label: "Sales Conversion" },
-    { id: "customerRetention", label: "Customer Retention" },
-  ];
 
   const { theme } = useTheme();
   const handleStartDateClick = () => {
@@ -38,6 +33,8 @@ function StepPersonal({ form }: StepFormProps) {
     };
     input?.showPicker?.();
   };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -75,11 +72,11 @@ function StepPersonal({ form }: StepFormProps) {
                     <SelectValue placeholder="Select campaign type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="social">Social Media</SelectItem>
-                    <SelectItem value="email">Email Marketing</SelectItem>
-                    <SelectItem value="search">Search Ads</SelectItem>
-                    <SelectItem value="display">Display Ads</SelectItem>
-                    <SelectItem value="video">Video Marketing</SelectItem>
+                    {types?.map(type => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -105,7 +102,7 @@ function StepPersonal({ form }: StepFormProps) {
                       onChange(date);
                     }}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -148,7 +145,7 @@ function StepPersonal({ form }: StepFormProps) {
                     min={form.getValues().startDate?.toISOString().split("T")[0]}
                     {...field}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] p-6
                       pr-10
                       [&::-webkit-calendar-picker-indicator]:opacity-0 
                       [&::-webkit-calendar-picker-indicator]:absolute 
@@ -175,7 +172,7 @@ function StepPersonal({ form }: StepFormProps) {
       <div className="sm:col-span-3">
         <p className="pb-2 font-medium text-md">Campaign Objectives</p>
         <div className="grid grid-cols-2 gap-4">
-          {objectives.map(obj => (
+          {objectiveTypes.map(obj => (
             <FormField
               key={obj.id}
               control={control}
@@ -197,7 +194,7 @@ function StepPersonal({ form }: StepFormProps) {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className="font-normal">{obj.label}</FormLabel>
+                    <FormLabel className="font-normal">{obj.name}</FormLabel>
                   </FormItem>
                 );
               }}

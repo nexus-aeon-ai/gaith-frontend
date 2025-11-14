@@ -24,25 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  aiDataLanguages,
-  createAiDataSchema,
-  marketingStrategists,
-  primaryAccManagers,
-  primaryRegions,
-  targetAudience,
-  type CreateAiFormData,
-} from "@/lib/validations/ai-data";
+import { useClientLookups } from "@/lib/api/client/client-lookups";
+import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
-import {
-  companySizeOptions,
-} from "../../lib/validations/client";
+import { companySizeOptions } from "../../lib/validations/client";
 import { CheckboxSquare } from "../ui/checkbox-square";
+import LocationIcon from "../ui/icons/location";
 import Fb from "../ui/icons/socials/fb";
 import Linkedin from "../ui/icons/socials/linkedin";
 import Twitterx from "../ui/icons/socials/twitterx";
 import Website from "../ui/icons/socials/website";
 import Youtube from "../ui/icons/socials/youtube";
+import Instagram from "../ui/icons/social/instagram";
 
 interface AiDataFormProps {
   initialData?: CreateAiFormData;
@@ -71,21 +64,15 @@ export const defaultFormData: CreateAiFormData = {
   contractDuration: "",
 
   // Market and Target Audience
-  primaryRegion: "Asia",
-  targetAudience: "B2B",
+  primaryRegion: undefined,
+  targetAudience: undefined,
   secondaryMarkets: "",
-  languagesSupported: ["English"],
+  languagesSupported: [],
 
   // Company Profile
   visionStatement: "",
   missionStatement: "",
-  aiDataProdsServices: {
-    socialMedia: false,
-    blogCreation: false,
-    marketingPlan: false,
-    mediaBuyingPlan: false,
-    graphicDesigns: false,
-  },
+  aiDataProdsServices: [],
 
   // Social Media Accounts
   linkedinUrl: "",
@@ -96,8 +83,8 @@ export const defaultFormData: CreateAiFormData = {
   websiteUrl: "",
 
   // Team Assignment
-  primaryAccManager: "creative-director",
-  marketingStrategist: "creative-director",
+  primaryAccManager: undefined,
+  marketingStrategist: undefined,
   priorityLevel: "Medium",
 
   // Additional Team Members
@@ -107,16 +94,6 @@ export const defaultFormData: CreateAiFormData = {
   additionalNotes: "",
 };
 
-const additionalTeamMembersOptions = [
-  { id: "creative-director", label: "Creative Director", value: "creative-director" },
-  { id: "social-media-manager", label: "Social Media Manager", value: "social-media-manager" },
-  { id: "ux-researcher", label: "UX Researcher", value: "ux-researcher" },
-  { id: "web-developer", label: "Web Developer", value: "web-developer" },
-  { id: "content-writer", label: "Content Writer", value: "content-writer" },
-  { id: "graphic-designer", label: "Graphic Designer", value: "graphic-designer" },
-  { id: "seo-specialist", label: "SEO Specialist", value: "seo-specialist" },
-];
-
 const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
   const { theme } = useTheme();
 
@@ -125,6 +102,16 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
   });
+
+  const {
+    clientLanguages,
+    clientIndustries,
+    clientMarketRegions,
+    clientServiceOffers,
+    clientTargetAudiences,
+    clientTeamRoles,
+  } = useClientLookups();
+
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -179,19 +166,23 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   <FormItem>
                     <FormLabel>Industry Sector</FormLabel>
                     <FormControl>
-                      <FormControl>
-                        <Input
-                          placeholder="Sector"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select industry" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {clientIndustries?.map(industry => (
+                            <SelectItem key={industry.id} value={industry.id as string}>
+                              {industry.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="companySize"
@@ -272,7 +263,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="+97655555"
+                        placeholder="+976555550"
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -288,11 +279,17 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   <FormItem>
                     <FormLabel>Location</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="City, Country"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
+                      <div className="relative flex items-center">
+                        <Input
+                          placeholder="City, Country"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px] pr-10" // added right padding
+                          {...field}
+                        />
+                        <LocationIcon
+                          className="absolute right-4 text-gray-900 dark:text-gray-300 pointer-events-none"
+                          color="currentColor"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -437,7 +434,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
           </CardContent>
         </Card>
 
-        {/* MArketing and Targeting Audience Management */}
+        {/* Marketing and Targeting Audience Management */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
             <CardTitle className="text-md font-medium">Market & Target Audience</CardTitle>
@@ -452,14 +449,14 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                     <FormItem>
                       <FormLabel>Primary Market Region</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select value={field.value || undefined} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select primary region" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
-                            {primaryRegions.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
+                            {clientMarketRegions.map(option => (
+                              <SelectItem key={option.id} value={option.id as string}>
+                                {option.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -478,12 +475,15 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select campaign type" />
+                            <SelectValue placeholder="Select target audience" />
                           </SelectTrigger>
                           <SelectContent>
-                            {targetAudience.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
+                            {clientTargetAudiences.map(option => (
+                              <SelectItem
+                                key={option.id}
+                                value={option.id as string} // ✅ store ID instead of name
+                              >
+                                {option.name} {/* ✅ display readable name */}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -512,42 +512,139 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   )}
                 />
 
-                {/* languages supported */}
                 <FormField
                   control={form.control}
                   name="languagesSupported"
-                  render={() => (
-                    <FormItem className="col-span-2">
-                      <FormLabel className="text-sm font-medium">Languages Supported</FormLabel>
-                      <div className="flex flex-col md:flex-row gap-4">
-                        <div className="space-y-1 grid lg:grid-cols-4 grid-cols-2 w-full mt-1">
-                          {aiDataLanguages.map(option => (
-                            <FormField
-                              key={option}
-                              control={form.control}
-                              name={"languagesSupported"}
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-2">
+                  render={({ field }) => {
+                    const selected = Array.isArray(field.value) ? field.value : [];
+
+                    return (
+                      <FormItem className="col-span-2">
+                        <FormLabel className="text-sm font-medium">Languages Supported</FormLabel>
+
+                        <div className="flex flex-col md:flex-row gap-4">
+                          <div className="space-y-1 grid lg:grid-cols-4 grid-cols-2 w-full mt-1">
+                            {clientLanguages.map(option => {
+                              const isChecked = selected.includes(option.id as string);
+
+                              return (
+                                <label
+                                  key={option.id}
+                                  className="flex flex-row items-center space-x-2 cursor-pointer"
+                                >
                                   <FormControl>
                                     <CheckboxSquare
-                                      id={option}
-                                      checked={field.value.includes(option)}
-                                      onCheckedChange={field.onChange}
+                                      checked={isChecked}
+                                      onCheckedChange={checkedNow => {
+                                        const updated = checkedNow
+                                          ? [...selected, option.id]
+                                          : selected.filter(id => id !== option.id);
+                                        field.onChange(updated); // ✅ triggers revalidation
+                                      }}
                                     />
                                   </FormControl>
-                                  <FormLabel htmlFor={option} className="text-sm">
-                                    {option}
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
-                          ))}
+                                  <span className="text-sm">{option.name}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
+
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* company profile */}
+        <Card className="pt-3 rounded-[16px] shadow-none ">
+          <CardHeader className="px-3">
+            <CardTitle className="text-lg font-medium">Company Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="visionStatement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vision Statement</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="What is the client's long-term vision and aspirations?"
+                          className="resize-none dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                          rows={4}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="missionStatement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mission Statement</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="client's core purpose and how they serve their customers"
+                          className="resize-none dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                          rows={4}
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="aiDataProdsServices"
+                render={({ field }) => {
+                  // Ensure it's always an array
+                  const selected = Array.isArray(field.value) ? field.value : [];
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Service Offerings</FormLabel>
+
+                      {/* Checkboxes grid */}
+                      <div className="grid md:grid-cols-2 grid-cols-1 max-w-md gap-2 mt-2">
+                        {clientServiceOffers.map(service => {
+                          const isChecked = selected.includes(service.id as string);
+                          return (
+                            <label
+                              key={service.id}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <CheckboxSquare
+                                checked={isChecked}
+                                onCheckedChange={checked => {
+                                  const updated = checked
+                                    ? [...selected, service.id]
+                                    : selected.filter(id => id !== service.id);
+                                  field.onChange(updated);
+                                }}
+                              />
+                              <span>{service.name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
             </div>
           </CardContent>
         </Card>
@@ -676,7 +773,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
                             <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
                               {/* Reuse Facebook SVG for demo */}
-                              <Fb />
+                              <Instagram />
                             </div>
                             <Input
                               placeholder="https://instagram.com/company"
@@ -735,7 +832,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Lead Source */}
+                {/* Primary Account Manager */}
                 <FormField
                   control={form.control}
                   name="primaryAccManager"
@@ -745,13 +842,13 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Lead Source" />
+                            <SelectValue placeholder="Select Account Manager" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {primaryAccManagers.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
+                          {clientTeamRoles.map(option => (
+                            <SelectItem key={option.id} value={option.id as string}>
+                              {option.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -761,7 +858,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   )}
                 />
 
-                {/* Assigned To */}
+                {/* Marketing strategist */}
                 <FormField
                   control={form.control}
                   name="marketingStrategist"
@@ -771,13 +868,13 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Assigned To" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {marketingStrategists.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
+                          {clientTeamRoles.map(option => (
+                            <SelectItem key={option.id} value={option.id as string}>
+                              {option.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -797,7 +894,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Assigned To" />
+                            <SelectValue placeholder="Select Priority" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -822,49 +919,70 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Additional Team Members</FormLabel>
                     <div className="flex flex-col md:flex-row gap-4">
+                      {/* First column */}
                       <div className="space-y-3">
-                        {additionalTeamMembersOptions.slice(0, 4).map(option => (
+                        {clientTeamRoles.slice(0, 4).map(option => (
                           <FormField
                             key={option.id}
                             control={form.control}
-                            name={"additionalTeamMembers"}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-2">
-                                <FormControl>
-                                  <CheckboxSquare
-                                    id={option.id}
-                                    checked={field.value?.includes(option.id)}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <FormLabel htmlFor={option.id} className="text-sm">
-                                  {option.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
+                            name="additionalTeamMembers"
+                            render={({ field }) => {
+                              const checked = field.value?.includes(option.id as string);
+
+                              return (
+                                <FormItem className="flex flex-row items-center space-x-2">
+                                  <FormControl>
+                                    <CheckboxSquare
+                                      id={option.id}
+                                      checked={checked}
+                                      onCheckedChange={checkedNow => {
+                                        const newValue = checkedNow
+                                          ? [...(field.value || []), option.id]
+                                          : field.value?.filter((val: string) => val !== option.id);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel htmlFor={option.id} className="text-sm">
+                                    {option.name}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
                           />
                         ))}
                       </div>
+
+                      {/* Second column */}
                       <div className="space-y-3">
-                        {additionalTeamMembersOptions.slice(4, 7).map(option => (
+                        {clientTeamRoles.slice(4, 7).map(option => (
                           <FormField
                             key={option.id}
                             control={form.control}
-                            name={"additionalTeamMembers"}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-2">
-                                <FormControl>
-                                  <CheckboxSquare
-                                    id={option.id}
-                                    checked={field.value?.includes(option.id)}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <FormLabel htmlFor={option.id} className="text-sm">
-                                  {option.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
+                            name="additionalTeamMembers"
+                            render={({ field }) => {
+                              const checked = field.value?.includes(option.id as string);
+
+                              return (
+                                <FormItem className="flex flex-row items-center space-x-2">
+                                  <FormControl>
+                                    <CheckboxSquare
+                                      id={option.id}
+                                      checked={checked}
+                                      onCheckedChange={checkedNow => {
+                                        const newValue = checkedNow
+                                          ? [...(field.value || []), option.id]
+                                          : field.value?.filter((val: string) => val !== option.id);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel htmlFor={option.id} className="text-sm">
+                                    {option.name}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
                           />
                         ))}
                       </div>
