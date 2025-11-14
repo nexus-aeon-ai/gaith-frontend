@@ -51,10 +51,10 @@ const EditQuote = ({
     setIsSubmitting(true);
 
     try {
-      console.log("EditQuote.handleSave invoked", { data, quotation });
       // Validate form data using partial (update) schema so optional fields are allowed
       const result = udpateQuoteSchema.safeParse(data);
       if (!result.success) {
+        console.log("validation erroir:", result.error);
         // Extract validation errors (optional: surface to UI later)
         const errors: Record<string, string> = {};
         result.error.issues.forEach(issue => {
@@ -63,10 +63,10 @@ const EditQuote = ({
         });
         return;
       }
-      		if (!quotation) return;
-      		// prefer backend id (uuid) if available
-      		const backendId = quotation.id ?? quotation.quotationId;
-      		mutation.mutate({ id: backendId, data });
+      if (!quotation) return;
+      // prefer backend id (uuid) if available
+      const backendId = quotation?.id;
+      mutation.mutate({ id: backendId as string, data: result.data as CreateQuotationFormData });
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
@@ -75,7 +75,7 @@ const EditQuote = ({
   };
 
   // if we have a backend id for this quotation, fetch full details to prefill the edit form
-  const backendId = quotation?.id ?? quotation?.quotationId;
+  const backendId = quotation?.id;
   const { data: backendResp } = useQuery<BackendQuotationItem | null>({
     queryKey: ["quotation-edit", backendId],
     queryFn: async () => {
@@ -91,29 +91,30 @@ const EditQuote = ({
   ): CreateQuotationFormData | undefined => {
     if (!item) return undefined;
     const serviceInstance = (item.pricingItems || []).map(p => {
-      const quantity = Number(p.quantity) || 1;
+      const serviceId = p.serviceId || "";
+      const currencyId = p.currencyId || "";
       const servicePrice = Number(p.servicePrice) || 0;
       const tax = Number(p.taxPercentage) || 0;
-      const total = parseFloat((quantity * servicePrice * (1 + tax / 100)).toFixed(2));
+      const total = parseFloat((1 * servicePrice * (1 + tax / 100)).toFixed(2));
       return {
-        description: p.serviceDescription || "",
-        quantity,
+        serviceId: serviceId || "",
+        currencyId: currencyId || "",
         servicePrice,
-        tax,
+        taxPercentage: tax,
         total,
       };
     });
 
     return {
-      customerName: quotation?.customer?.name || "",
-      quoteNumber: item.quotationNumber || quotation?.quotationId || "",
+      clientId: item?.accountId || "",
       validUntil: item.validUntil ? new Date(item.validUntil) : new Date(),
-      currencyId: item.currencyId || "",
-      quotationTitle: item.title || "",
+      title: item.title || "",
       description: item.description || "",
-      serviceInstance: serviceInstance.length ? serviceInstance : [{ description: "", quantity: 1, servicePrice: 0, tax: 0, total: 0 }],
+      serviceInstance: serviceInstance.length
+        ? serviceInstance
+        : [{ serviceId: "", currencyId: "", servicePrice: 0, taxPercentage: 0, total: 0 }],
       notes: item.notes || "",
-      status: item.isDeleted ? "rejected" : item.isActive ? "pending" : "pending",
+      status: item.status,
     };
   };
 
@@ -155,7 +156,7 @@ const EditQuote = ({
         <div>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Quotation</h1>
           <p className="text-muted-foreground">
-            {quotation?.quotationId} - {quotation?.customer.name}
+            {quotation?.id} - {quotation?.customer.name}
           </p>
         </div>
         <div className="flex gap-3">
