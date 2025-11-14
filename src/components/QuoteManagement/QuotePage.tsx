@@ -52,7 +52,7 @@ import SendToClientSheet from "../sheet/Quotation/SendToClient";
 import EditQuote from "./EditQuote";
 import NewQuote from "./NewQuote";
 import ViewQuoteDetails from "./ViewQuoteDetails";
-
+import { useAuthStore } from "@/lib/store/authStore";
 
 const data = {
   title: "Enterprise Software Solution",
@@ -90,9 +90,7 @@ const data = {
     currency: "USD",
     createdBy: "Sales Manager",
   },
-  terms: [
-    "Payment terms: 50% upfront, 50% upon completion",
-  ],
+  terms: ["Payment terms: 50% upfront, 50% upon completion"],
   notes:
     "This quotation includes comprehensive software development with modern technologies and best practices. Regular progress updates will be provided throughout the project. The solution will be scalable and maintainable for future enhancements.",
   currencyCode: "USD",
@@ -128,6 +126,7 @@ const QuotesPage = () => {
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+
   // const [showSendInvoicePopup, setShowSendInvoicePopup] = useState(false);
 
   // fetch single quotation when user opens view details
@@ -452,13 +451,27 @@ const QuotesPage = () => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">Quotation ID</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">Customer</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Amount</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Status</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Created Date</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Valid Until</TableHead>
-              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">Actions</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Quotation ID
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Customer
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Amount
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Status
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Created Date
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Valid Until
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -528,10 +541,10 @@ const QuotesPage = () => {
                         quote.status === "completed"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : quote.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : quote.status === "draft"
-                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : quote.status === "draft"
+                          ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
                       )}
                     >
                       {quote.status}

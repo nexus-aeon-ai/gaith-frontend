@@ -16,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createQuotation } from "@/lib/api/quotations";
-import { useAuthStore } from "@/lib/store/authStore";
 import { createQuoteSchema, type CreateQuotationFormData } from "@/lib/validations/quotation";
 
 import { ConfirmDialog } from "../Popups/PopupModal";
@@ -25,7 +24,6 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const user = useAuthStore(state => state.user);
 
   const queryClient = useQueryClient();
 
@@ -46,7 +44,6 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
     try {
       // Validate form data
       const result = createQuoteSchema.safeParse(data);
-
       if (!result.success) {
         // Extract validation errors
         const errors: Record<string, string> = {};
@@ -56,12 +53,14 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         });
         return;
       }
-      const accountId = user?.id.toString();
+      const accountId = data.clientId;
 
       if (!accountId) {
         console.error("Missing account ID from user state!");
         return;
       }
+
+      console.log("data to submit:",data);
 
       mutation.mutate({
         ...data,

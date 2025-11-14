@@ -4,31 +4,19 @@ export const statusOptions = ["pending", "approved", "rejected"] as const;
 
 export interface ServiceInstance {
   description: string;
-  quantity: number;
   servicePrice: number;
-  tax: number;
+  taxPercentage: number;
   total: number;
 }
 
 // Main Lead Form Validation Schema
 export const createQuoteSchema = z.object({
   // Basic Information
-  customerName: z
-    .string()
-    .min(2, "Full name must be at least 2 characters")
-    .max(100, "Full name must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
-
-  quoteNumber: z
-    .string()
-    .optional(),
+  clientId: z.string().optional(),
 
   validUntil: z.date().optional(),
 
-  // store selected currency id (from /quotations/currencies) to send to backend
-  currencyId: z.string({ required_error: "Currency is required" }).min(1, "Currency is required"),
-
-  quotationTitle: z
+  title: z
     .string()
     .min(2, "Quotation title must be at least 2 characters")
     .max(50, "Quotation title must be less than 50 characters"),
@@ -41,10 +29,10 @@ export const createQuoteSchema = z.object({
   // Service & pricing details
   serviceInstance: z.array(
     z.object({
-      description: z.string().min(2, "Description must be at least 2 characters"),
-      quantity: z.number().min(1, "Quantity must be at least 1"),
+      serviceId: z.string(),
+      currencyId: z.string(),
       servicePrice: z.number(),
-      tax: z.number().optional().nullable(),
+      taxPercentage: z.number(),
       total: z.number(),
     }),
   ),

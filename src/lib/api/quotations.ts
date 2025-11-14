@@ -1,4 +1,4 @@
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 import { fetchInstance } from "../clients";
 import type { Quotation } from "../types";
@@ -107,9 +107,9 @@ export const getQuotations = async () => {
     status: response.status,
     data: backend
       ? {
-        results: backend.quotations.map(transformQuotation),
-        count: backend.total,
-      }
+          results: backend.quotations.map(transformQuotation),
+          count: backend.total,
+        }
       : { results: [], count: 0 },
   } as {
     status: number;
@@ -118,28 +118,28 @@ export const getQuotations = async () => {
 };
 
 export const createQuotation = async (
-  form: CreateQuotationFormData & { currencyId?: string; accountId: string },
+  form: CreateQuotationFormData & { currencyId?: string; accountID: string },
 ): Promise<{ status: number; data: Quotation | null }> => {
-  const accountId = "176c429f-89f7-4389-9e12-19be5d9ddada";
+  const accountId = form.clientId;
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
 
   const pricingItems = (form.serviceInstance || []).map(item => ({
-    serviceDescription: item.description,
+    serviceId: item.serviceId,
+    currencyId: item.currencyId,
     servicePrice: Number(item.servicePrice) || 0,
-    taxPercentage: Number(item.tax) || 0,
-    quantity: Number(item.quantity) || 0,
+    taxPercentage: Number(item.taxPercentage) || 0,
   }));
 
   const totalAmount = pricingItems.reduce((sum, item) => {
-    const subtotal = item.quantity * item.servicePrice;
+    const subtotal = item.servicePrice;
     const tax = subtotal * (item.taxPercentage / 100);
     return sum + subtotal + tax;
   }, 0);
 
   const body = {
-    accountId,
+    accountId: accountId,
     currencyId,
-    title: form.quotationTitle,
+    title: form.title,
     description: form.description,
     validUntil: form.validUntil
       ? new Date(form.validUntil).toISOString()
@@ -193,7 +193,6 @@ export const createQuotation = async (
   }
 };
 
-
 export const updateQuotation = async (
   id: string,
   form: CreateQuotationFormData & { currencyId?: string },
@@ -201,14 +200,14 @@ export const updateQuotation = async (
   const accountId = "689e1ef8-8c22-4e64-acbc-b34ad7e887c5";
   const currencyId = form.currencyId || "4cf154b1-236f-496b-a0aa-3a8d0f1dd2ad";
   const pricingItems = (form.serviceInstance || []).map(item => ({
-    serviceDescription: item.description,
+    serviceId: item.serviceId,
+    currencyId: item.currencyId,
     servicePrice: Number(item.servicePrice) || 0,
-    taxPercentage: Number(item.tax) || 0,
-    quantity: Number(item.quantity) || 0,
+    taxPercentage: Number(item.taxPercentage) || 0,
   }));
 
   const totalAmount = pricingItems.reduce((sum, item) => {
-    const subtotal = item.quantity * item.servicePrice;
+    const subtotal = item.servicePrice;
     const tax = subtotal * (item.taxPercentage / 100);
     return sum + subtotal + tax;
   }, 0);
@@ -289,7 +288,10 @@ export const getQuotationCurrencies = async (): Promise<{
     if (response.status >= 200 && response.status < 300) {
       console.log("[getQuotationCurrencies] Success:", { status: response.status });
     } else {
-      console.error("[getQuotationCurrencies] Failure:", { status: response.status, data: response.data });
+      console.error("[getQuotationCurrencies] Failure:", {
+        status: response.status,
+        data: response.data,
+      });
     }
     return { status: response.status, data: (response.data as BackendCurrencyItem[]) || null };
   } catch (error) {
@@ -306,7 +308,10 @@ export const getQuotationById = async (
     if (response.status >= 200 && response.status < 300) {
       console.log("[getQuotationById] Success:", { status: response.status });
     } else {
-      console.error("[getQuotationById] Failure:", { status: response.status, data: response.data });
+      console.error("[getQuotationById] Failure:", {
+        status: response.status,
+        data: response.data,
+      });
     }
     return { status: response.status, data: (response.data as BackendQuotationItem) || null };
   } catch (error) {
