@@ -1,7 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
-
 import { Button } from "@/components/ui/button";
 import PDFIcon from "@/components/ui/icons/options/pdf-icon";
 import Fb from "@/components/ui/icons/social/fb";
@@ -75,8 +73,6 @@ export default function MediaBuyingPlanSheet({
   //   clients: [],
   // });
 
-  const { theme } = useTheme();
-
   // const clearFilters = () => {
   //   setFilters({
   //     dateFrom: "",
@@ -88,9 +84,6 @@ export default function MediaBuyingPlanSheet({
   //   });
   // };
 
-  const applyFilters = () => {
-    onOpenChange(false);
-  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -284,8 +277,8 @@ export default function MediaBuyingPlanSheet({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 p-4 border-t">
-          <div className="flex gap-3 justify-end">
+        <div className="sticky w-full flex bottom-0 gap-3 p-4 border-t bg-card">
+          <div className="flex w-full gap-3 justify-end">
             <Button
               variant="outline"
               onClick={()=>onOpenChange(false)}

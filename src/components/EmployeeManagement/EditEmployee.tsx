@@ -20,7 +20,13 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { getEmployeeById, updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
-const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; closeEmployeeForm?: () => void }) => {
+const EditEmployee = ({
+  employeeId,
+  closeEmployeeForm,
+}: {
+  employeeId: string;
+  closeEmployeeForm?: () => void;
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialData, setInitialData] = useState<CreateEmpFormData | undefined>(undefined);
   const queryClient = useQueryClient();
@@ -48,15 +54,17 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
     };
     return {
       fullName: data.fullName,
-      email: data.email,
       phone: data.primaryPhone || "",
+      primaryEmail: data.primaryEmail,
       jobTitle: data.jobTitle,
       employeeId: data.employeeID,
       status,
       employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
       salary: data.salary ?? 0,
-      notes: data.notes,
       address: data.address,
+      accountRoleId: data.userRole,
+      languagePreference: "EN",
+      startDate: data.accStartDate,
     };
   };
 
@@ -85,7 +93,6 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
     enabled: !!employeeId,
   });
 
-
   useEffect(() => {
     if (employeeData) {
       console.log(employeeData);
@@ -95,6 +102,9 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
           email: employeeData.email,
           department: "Other",
           empRole: "Employee",
+          profilePhotoURL: employeeData.profilePicture,
+          profilePhoto: undefined,
+          userRole: "",
           jobTitle: employeeData.jobTitle || "",
           employeeID: employeeData.employeeId,
           userManagement: [],
@@ -106,7 +116,12 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
           employementType: "Full-time",
           address: employeeData.address || "",
           skills: employeeData.skills?.join(", ") || "",
-          employeeStatus: employeeData.status === "Active" ? "active" : employeeData.status === "Inactive" ? "inactive" : "onleave",
+          employeeStatus:
+            employeeData.status === "Active"
+              ? "active"
+              : employeeData.status === "Inactive"
+                ? "inactive"
+                : "onleave",
           accountActive: true,
           emailVerification: false,
           forcePassChange: false,
@@ -115,7 +130,7 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
           notes: employeeData.notes || "",
         } as CreateEmpFormData)
         : undefined;
-  
+
       setInitialData(initialData);
     }
   }, [employeeData]);
@@ -168,12 +183,8 @@ const EditEmployee = ({ employeeId, closeEmployeeForm }: { employeeId: string; c
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                href="#"
-                className="text-blue-600 font-medium text-md"
-                onClick={closeEmployeeForm}
-              >
-                Settings
+              <Link href="#" className="text-blue-600 font-medium text-md" onClick={handleCancel}>
+                Employee Management
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

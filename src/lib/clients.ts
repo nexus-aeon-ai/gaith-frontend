@@ -11,15 +11,21 @@ interface FetchOptions extends RequestInit {
 
 export async function fetchInstance<T>(
   url: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<{ status: number; data: T | null }> {
   const headers = new Headers(options.headers);
 
   const token = await getAuthToken();
-  console.log(token);
   if (token) {
-    console.log("token");
     headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  // Ensure Content-Type is set for JSON request bodies when not provided.
+  // If callers pass a stringified JSON body (JSON.stringify), set application/json.
+  if (options.body && !headers.has("Content-Type")) {
+    if (typeof options.body === "string") {
+      headers.set("Content-Type", "application/json");
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
