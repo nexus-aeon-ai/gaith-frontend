@@ -14,6 +14,7 @@ import {
     getTicketReplies,
     updateTicket,
 } from "@/lib/api/support/support";
+import { getAllUsers } from "@/lib/api/tasks";
 import type { SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,14 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
     queryFn: async () => {
       const response = await getTicketReplies(ticket.id);
       return response.data || [];
+    },
+  });
+
+  // Fetch all users for assigned user lookup
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      return await getAllUsers();
     },
   });
 
@@ -385,7 +394,10 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
                   Assigned To
                 </p>
                 <p className="text-gray-900 dark:text-white">
-                  {ticket.assignedTo || "Not assigned"}
+                  {ticket.assignedToUserId
+                    ? users?.find(user => user.id === ticket.assignedToUserId)?.fullName ||
+                      "Not assigned"
+                    : "Not assigned"}
                 </p>
               </div>
             </div>

@@ -9,7 +9,13 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { createTicket, listTickets, updateTicket } from "@/lib/api/support/support";
+import {
+  assignTicket,
+  createTicket,
+  listTickets,
+  updateTicket,
+} from "@/lib/api/support/support";
+import { getAllUsers } from "@/lib/api/tasks";
 import type { SubmitTicketForm as SubmitTicketFormType, SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +76,14 @@ const Support = () => {
     },
   });
 
+  // Fetch all users for assigned user lookup
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      return await getAllUsers();
+    },
+  });
+
   // Create ticket mutation
   const createTicketMutation = useMutation({
     mutationFn: async (data: SubmitTicketFormType) => {
@@ -77,7 +91,7 @@ const Support = () => {
       const attachmentUrls: string[] = [];
       // TODO: Upload files and get URLs
 
-      return createTicket({
+      const ticketResponse = await createTicket({
         issueCategoryId: data.issueCategoryId,
         priority: data.priority,
         subject: data.subject,
@@ -86,6 +100,15 @@ const Support = () => {
         isDraft: data.isDraft,
         status: "Open",
       });
+
+      // If assignedToUserId is provided, assign the ticket
+      if (ticketResponse.data && data.assignedToUserId) {
+        await assignTicket(ticketResponse.data.id, {
+          assignedToUserId: data.assignedToUserId,
+        });
+      }
+
+      return ticketResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
@@ -104,7 +127,7 @@ const Support = () => {
       const attachmentUrls: string[] = [];
       // TODO: Upload files and get URLs
 
-      return updateTicket(ticketId, {
+      const ticketResponse = await updateTicket(ticketId, {
         issueCategoryId: data.issueCategoryId,
         priority: data.priority,
         subject: data.subject,
@@ -112,6 +135,15 @@ const Support = () => {
         attachments: attachmentUrls,
         isDraft: data.isDraft,
       });
+
+      // Handle assignment change
+      if (data.assignedToUserId !== undefined) {
+        await assignTicket(ticketId, {
+          assignedToUserId: data.assignedToUserId || undefined,
+        });
+      }
+
+      return ticketResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
@@ -174,7 +206,7 @@ const Support = () => {
     console.log("Export PDF");
   };
 
-  const columns = useTableColumns(handleViewAndReply, handleEdit);
+  const columns = useTableColumns(handleViewAndReply, handleEdit, users);
 
   const tickets = ticketsData?.data || [];
   const totalCount = ticketsData?.total || 0;

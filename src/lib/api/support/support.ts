@@ -1,5 +1,5 @@
-import type { SupportTicket } from "../../types";
 import { fetchInstance } from "../../clients";
+import type { SupportTicket } from "../../types";
 
 const supportEndpoint = "/support/tickets";
 
@@ -49,6 +49,11 @@ export interface ApiTicket {
     fullName: string;
     email: string;
   };
+  assignedToUser?: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
 }
 
 export interface ApiTicketListResponse {
@@ -91,7 +96,7 @@ const transformApiTicket = (apiTicket: ApiTicket): SupportTicket => {
     lastUpdated: formatDate(apiTicket.updatedAt),
     createdBy: apiTicket.user.fullName,
     user: apiTicket.user,
-    assignedTo: apiTicket.assignedToUserId ? undefined : undefined, // TODO: Fetch assigned user if needed
+    assignedTo: apiTicket.assignedToUser?.fullName || undefined,
     assignedToUserId: apiTicket.assignedToUserId,
     attachments: apiTicket.attachments,
     isDraft: apiTicket.isDraft,
@@ -147,7 +152,7 @@ export interface ApiTicketActivity {
 }
 
 export interface AssignTicketRequest {
-  assignedTo?: string;
+  assignedToUserId?: string;
 }
 
 // Build query string from parameters

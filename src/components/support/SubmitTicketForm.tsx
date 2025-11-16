@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { getIssueCategories } from "@/lib/api/support/issue-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,11 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getIssueCategories } from "@/lib/api/support/issue-categories";
+import type { SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import type { SupportTicket } from "@/lib/types";
-
 import CreateIssueCategoryModal from "./CreateIssueCategoryModal";
+import EmployeeSelect from "./EmployeeSelect";
 
 const ticketSchema = z.object({
   issueCategoryId: z.string().min(1, "Please select an issue category"),
@@ -32,6 +32,7 @@ const ticketSchema = z.object({
   description: z.string().min(1, "Description is required"),
   attachments: z.array(z.instanceof(File)).optional(),
   isDraft: z.boolean(),
+  assignedToUserId: z.string().nullable().optional(),
 });
 
 type TicketFormValues = z.infer<typeof ticketSchema>;
@@ -64,6 +65,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
       description: ticket?.description || "",
       attachments: [],
       isDraft: ticket?.isDraft || false,
+      assignedToUserId: ticket?.assignedToUserId || null,
     },
   });
 
@@ -183,6 +185,24 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
             )}
           />
 
+          {/* assignedToUserId */}
+          <Controller
+            name="assignedToUserId"
+            control={control}
+            render={({ field }) => (
+              <div className="space-y-2">
+                <Label htmlFor="assignedTo" className="text-sm font-medium">
+                  Assigned To
+                </Label>
+                <EmployeeSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Select employee to assign"
+                />
+              </div>
+            )}
+          />
+
           {/* Subject */}
           <Controller
             name="subject"
@@ -234,6 +254,14 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
           <div className="space-y-2">
             <Label className="text-sm font-medium">Attachments</Label>
             <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  document.getElementById("file-upload")?.click();
+                }
+              }}
               className={cn(
                 "border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg",
                 "p-8 text-center cursor-pointer hover:border-blue-500 transition-colors",

@@ -11,12 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { SimpleEmployee } from "@/lib/api/tasks";
 import { SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const useTableColumns = (
   onViewAndReply?: (ticket: SupportTicket) => void,
   onEdit?: (ticket: SupportTicket) => void,
+  users?: SimpleEmployee[],
 ) => {
   const columns: ColumnDef<SupportTicket>[] = [
     {
@@ -113,6 +115,21 @@ const useTableColumns = (
             )}
           >
             {status}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "assignedTo",
+      header: "assignedToUserId",
+      cell: ({ row }) => {
+        const ticket = row.original;
+        const assignedUser = ticket.assignedToUserId
+          ? users?.find(user => user.id === ticket.assignedToUserId)
+          : null;
+        return (
+          <span className="text-sm text-gray-900 dark:text-white">
+            {assignedUser?.fullName || "Not assigned"}
           </span>
         );
       },

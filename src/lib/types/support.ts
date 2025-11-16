@@ -36,6 +36,7 @@ export interface SubmitTicketForm {
   description: string;
   attachments?: File[];
   isDraft: boolean;
+  assignedToUserId?: string | null;
 }
 
 export interface IssueCategory {
