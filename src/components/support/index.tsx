@@ -9,7 +9,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { createTicket, listTickets } from "@/lib/api/support/support";
+import { createTicket, listTickets, updateTicket } from "@/lib/api/support/support";
 import type { SubmitTicketForm as SubmitTicketFormType, SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +28,7 @@ const Support = () => {
   const queryClient = useQueryClient();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [showTicketDetails, setShowTicketDetails] = useState(false);
@@ -96,16 +97,42 @@ const Support = () => {
     },
   });
 
-  const handleView = (ticket: SupportTicket) => {
-    setSelectedTicket(ticket);
-    setShowTicketDetails(true);
-    setTicketViewMode("view");
-  };
+  // Update ticket mutation
+  const updateTicketMutation = useMutation({
+    mutationFn: async ({ ticketId, data }: { ticketId: string; data: SubmitTicketFormType }) => {
+      // Upload attachments first if any (would need to implement file upload API)
+      const attachmentUrls: string[] = [];
+      // TODO: Upload files and get URLs
 
-  const handleReply = (ticket: SupportTicket) => {
+      return updateTicket(ticketId, {
+        issueCategoryId: data.issueCategoryId,
+        priority: data.priority,
+        subject: data.subject,
+        description: data.description,
+        attachments: attachmentUrls,
+        isDraft: data.isDraft,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
+      setShowEditForm(false);
+      setSelectedTicket(null);
+    },
+    onError: (error) => {
+      console.error("Error updating ticket:", error);
+      // TODO: Show error toast
+    },
+  });
+
+  const handleViewAndReply = (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
     setShowTicketDetails(true);
     setTicketViewMode("reply");
+  };
+
+  const handleEdit = (ticket: SupportTicket) => {
+    setSelectedTicket(ticket);
+    setShowEditForm(true);
   };
 
   const handleClose = (_ticket: SupportTicket) => {
@@ -118,7 +145,23 @@ const Support = () => {
   };
 
   const handleSaveDraft = (data: SubmitTicketFormType) => {
-    createTicketMutation.mutate({ ...data, isDraft: true });
+    if (showEditForm && selectedTicket) {
+      updateTicketMutation.mutate({
+        ticketId: selectedTicket.id,
+        data: { ...data, isDraft: true },
+      });
+    } else {
+      createTicketMutation.mutate({ ...data, isDraft: true });
+    }
+  };
+
+  const handleUpdateTicket = (data: SubmitTicketFormType) => {
+    if (selectedTicket) {
+      updateTicketMutation.mutate({
+        ticketId: selectedTicket.id,
+        data,
+      });
+    }
   };
 
   const handleExportExcel = () => {
@@ -131,7 +174,7 @@ const Support = () => {
     console.log("Export PDF");
   };
 
-  const columns = useTableColumns(handleView, handleReply, handleClose);
+  const columns = useTableColumns(handleViewAndReply, handleEdit);
 
   const tickets = ticketsData?.data || [];
   const totalCount = ticketsData?.total || 0;
@@ -162,6 +205,30 @@ const Support = () => {
         onClose={handleClose}
         mode={ticketViewMode}
       />
+    );
+  }
+
+  // If edit form is shown
+  if (showEditForm && selectedTicket) {
+    return (
+      <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6", "bg-background")}>
+        <div className="mb-6">
+          <button
+            onClick={() => {
+              setShowEditForm(false);
+              setSelectedTicket(null);
+            }}
+            className="text-blue-500 hover:text-blue-700 flex items-center gap-2"
+          >
+            ← Back to Tickets
+          </button>
+        </div>
+        <SubmitTicketForm
+          ticket={selectedTicket}
+          onSubmit={handleUpdateTicket}
+          onSaveDraft={handleSaveDraft}
+        />
+      </div>
     );
   }
 

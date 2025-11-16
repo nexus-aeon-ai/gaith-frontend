@@ -1,6 +1,6 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MessageSquare, MoreVertical, XCircle } from "lucide-react";
+import { Edit, Eye, MessageSquare, MoreVertical } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,9 +15,8 @@ import { SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const useTableColumns = (
-  onView?: (ticket: SupportTicket) => void,
-  onReply?: (ticket: SupportTicket) => void,
-  onClose?: (ticket: SupportTicket) => void,
+  onViewAndReply?: (ticket: SupportTicket) => void,
+  onEdit?: (ticket: SupportTicket) => void,
 ) => {
   const columns: ColumnDef<SupportTicket>[] = [
     {
@@ -147,25 +146,19 @@ const useTableColumns = (
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => onView?.(ticket)}
+                onClick={() => onViewAndReply?.(ticket)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
-                <span>View</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => onReply?.(ticket)}
-              >
                 <MessageSquare className="h-4 w-4 text-green-500" />
-                <span>Reply</span>
+                <span>View & Reply</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
-                onClick={() => onClose?.(ticket)}
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => onEdit?.(ticket)}
               >
-                <XCircle className="h-4 w-4" />
-                <span>Close</span>
+                <Edit className="h-4 w-4 text-orange-500" />
+                <span>Edit</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -21,6 +21,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
+import type { SupportTicket } from "@/lib/types";
+
 import CreateIssueCategoryModal from "./CreateIssueCategoryModal";
 
 const ticketSchema = z.object({
@@ -35,12 +37,14 @@ const ticketSchema = z.object({
 type TicketFormValues = z.infer<typeof ticketSchema>;
 
 interface SubmitTicketFormProps {
+  ticket?: SupportTicket;
   onSubmit: (data: TicketFormValues) => void;
   onSaveDraft?: (data: TicketFormValues) => void;
 }
 
-const SubmitTicketForm = ({ onSubmit, onSaveDraft }: SubmitTicketFormProps) => {
+const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormProps) => {
   const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const isEditMode = !!ticket;
 
   // Fetch issue categories
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
@@ -54,12 +58,12 @@ const SubmitTicketForm = ({ onSubmit, onSaveDraft }: SubmitTicketFormProps) => {
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
-      issueCategoryId: "",
-      priority: "Low",
-      subject: "",
-      description: "",
+      issueCategoryId: ticket?.issueCategoryId || "",
+      priority: ticket?.priority || "Low",
+      subject: ticket?.subject || "",
+      description: ticket?.description || "",
       attachments: [],
-      isDraft: false,
+      isDraft: ticket?.isDraft || false,
     },
   });
 
@@ -87,7 +91,7 @@ const SubmitTicketForm = ({ onSubmit, onSaveDraft }: SubmitTicketFormProps) => {
     <>
       <div className="max-w-2xl mx-auto bg-card rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-          Submit A Support Ticket
+          {isEditMode ? "Edit Support Ticket" : "Submit A Support Ticket"}
         </h2>
 
         <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -276,7 +280,7 @@ const SubmitTicketForm = ({ onSubmit, onSaveDraft }: SubmitTicketFormProps) => {
               className="flex-1 h-12 rounded-[16px] bg-[#508CD3] hover:bg-blue-700"
               disabled={!formState.isValid}
             >
-              Submit Ticket
+              {isEditMode ? "Update Ticket" : "Submit Ticket"}
             </Button>
           </div>
         </form>
