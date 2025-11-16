@@ -85,3 +85,18 @@ export interface TicketActivity {
   performedBy: string;
 }
 
+export interface FAQ {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FaqListFilters {
+  searchTerm?: string;
+  skip?: number;
+  take?: number;
+  orderBy?: string;
+  orderDirection?: "asc" | "desc";
+}

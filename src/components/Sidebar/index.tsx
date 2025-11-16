@@ -1,7 +1,9 @@
 "use client";
 
+import { Quote, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 import {
   Sidebar,
@@ -12,6 +14,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 
@@ -29,7 +34,6 @@ import { ReportIcon } from "../ui/icons/sidebar/Report";
 import { SettingsIcon } from "../ui/icons/sidebar/settings";
 import { SocialMediaCalenderIcon } from "../ui/icons/sidebar/socialMediaCalender";
 import { SubmitedIcon } from "../ui/icons/sidebar/submited";
-import { SupportIcon } from "../ui/icons/sidebar/support";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 
 const mainItems = [
@@ -78,10 +82,18 @@ const mainItems = [
     icon: <SubmitedIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
     href: "/submitted",
   },
+];
+
+const supportItems = [
   {
-    label: "Support",
-    icon: <SupportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
+    label: "My Ticket",
+    icon: <Ticket className="h-4 w-4" />,
     href: "/support",
+  },
+  {
+    label: "FAQ's",
+    icon: <Quote className="h-4 w-4" />,
+    href: "/support/faq",
   },
 ];
 
@@ -126,7 +138,7 @@ const SidebarUI  = () => {
   const isActive = (href: string) => {
     if (!pathname) return false;
     if (href === "/") return pathname === "/";
-    return pathname === href || pathname.includes(href) || pathname.includes(`/${href}?`);
+    return pathname === href || pathname.startsWith(href + "/") || pathname.includes(`${href}?`);
   };
 
   const activeClasses = "bg-muted text-foreground";
@@ -149,6 +161,36 @@ const SidebarUI  = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+          </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuSub className="border-l-0">
+                {supportItems.map(item => {
+                  const active = isActive(item.href);
+                  const iconWithColor = React.cloneElement(item.icon, {
+                    className: active
+                      ? "h-4 w-4"
+                      : "h-4 w-4 text-[#265B99] dark:text-[#E6EFF9]",
+                  });
+                  return (
+                    <SidebarMenuSubItem key={item.label}>
+                      <SidebarMenuSubButton
+                        asChild
+                        isActive={active}
+                        className={active ? activeClasses : undefined}
+                      >
+                        <Link href={item.href}>
+                          <span>{iconWithColor}</span>
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  );
+                })}
+              </SidebarMenuSub>
+            </SidebarMenuItem>
           </SidebarMenu>
           <SidebarSeparator />
           <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
