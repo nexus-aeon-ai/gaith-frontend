@@ -64,10 +64,12 @@ const useTableColumns = (
       },
     },
     {
-      accessorKey: "category",
+      accessorKey: "issueCategory",
       header: "Category",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">{row.original.category}</span>
+        <span className="text-sm text-gray-900 dark:text-white">
+          {row.original.issueCategory?.name || row.original.issueCategoryId}
+        </span>
       ),
     },
     {
