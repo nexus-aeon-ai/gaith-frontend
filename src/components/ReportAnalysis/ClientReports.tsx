@@ -16,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-
 const clients = [
   {
     name: "Northwind Traders",
@@ -51,31 +50,26 @@ export default function ClientReportsTable() {
 
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Client</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Progress</TableHead>
+            <TableRow className="dark:border-[#404663]">
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Client</TableHead>
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Status</TableHead>
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Progress</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {clients.map((client, idx) => (
-              <TableRow key={idx} className="text-sm">
+              <TableRow key={idx} className="text-sm dark:border-[#404663]">
                 {/* Client */}
                 <TableCell>
                   <div className="font-medium">{client.name}</div>
-                  <div className="text-xs text-gray-500 dark:text-[#bebebe]">
-                    {client.type}
-                  </div>
+                  <div className="text-xs text-gray-500 dark:text-[#bebebe]">{client.type}</div>
                 </TableCell>
 
                 {/* Status */}
                 <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className="bg-[#175E46]/10 text-[#03a46e] font-medium"
-                  >
+                  <Badge variant="secondary" className="bg-[#175E46]/10 text-[#03a46e] font-medium">
                     {client.status}
                   </Badge>
                 </TableCell>
@@ -98,14 +92,10 @@ export default function ClientReportsTable() {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button size="icon" variant="ghost" className="bg-transparent">
-                      <EyeIcon className="!h-6 !w-6 text-gray-500" />
+                      <EyeIcon className="!h-6 !w-6 " color="#508CD3" />
                     </Button>
                     <Button size="icon" variant="ghost">
-                      <DownloadFileIcon
-                        color="#2BAE82"
-                        className="!h-5 !w-5"
-                        viewBox="0 0 20 20"
-                      />
+                      <DownloadFileIcon color="#2BAE82" className="!h-5 !w-5" viewBox="0 0 20 20" />
                     </Button>
                   </div>
                 </TableCell>
