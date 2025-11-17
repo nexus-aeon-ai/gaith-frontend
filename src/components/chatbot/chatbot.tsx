@@ -9,7 +9,7 @@ import {
   getConversations,
   sendMessage,
 } from "@/lib/api";
-import type { Chat, ChatMessage, Conversation, Message } from "@/lib/types";
+import type { Chat, ChatMessage, Conversation, GetConversationsParams, Message } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { ChatSidebar } from "./chat-sidebar";
@@ -58,13 +58,21 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
     initialConversations[0]?.id ?? null,
   );
+  const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
 
-  // Fetch conversations with initial data
+  // Filter parameters with sensible defaults
+  const filterParams: GetConversationsParams = useMemo(() => ({
+    searchTerm: searchTerm || undefined,
+    orderBy: "lastMessageDate",
+    orderDirection: "desc",
+  }), [searchTerm]);
+
+  // Fetch conversations with initial data and filters
   const { data: conversationsData } = useQuery({
-    queryKey: ["conversations"],
+    queryKey: ["conversations", filterParams],
     queryFn: async () => {
-      const res = await getConversations();
+      const res = await getConversations(filterParams);
       return res.data ?? [];
     },
     initialData: initialConversations,
@@ -217,7 +225,13 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
           },
         )}
       >
-        <ChatSidebar chats={chats} activeChat={activeChat} onChatSelect={handleChatSelect} />
+        <ChatSidebar
+          chats={chats}
+          activeChat={activeChat}
+          onChatSelect={handleChatSelect}
+          searchQuery={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
       </div>
 
       {/* Main Chat Area */}

@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useMemo } from "react";
-
 import { Button } from "@/components/ui/button";
 import SearchIcon from "@/components/ui/icons/chatbot/search";
 import { Input } from "@/components/ui/input";
@@ -13,23 +11,11 @@ interface ChatSidebarProps {
   chats: Chat[];
   activeChat: Chat;
   onChatSelect: (chat: Chat) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
-export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Filter chats based on search query
-  const filteredChats = useMemo(() => {
-    if (!searchQuery.trim()) return chats;
-
-    const query = searchQuery.toLowerCase();
-    return chats.filter(
-      chat =>
-        chat.title.toLowerCase().includes(query) ||
-        chat.client.toLowerCase().includes(query) ||
-        chat.lastMessage.toLowerCase().includes(query),
-    );
-  }, [chats, searchQuery]);
+export function ChatSidebar({ chats, activeChat, onChatSelect, searchQuery, onSearchChange }: ChatSidebarProps) {
 
   return (
     <ScrollArea className="relative h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
@@ -46,7 +32,7 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
           <Input
             placeholder="Search conversations..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
             className=" border-none bg-transparent focus:ring-0 shadow-none focus:outline-none text-sidebar-foreground placeholder:text-muted-foreground text-sm"
           />
         </div>
@@ -55,12 +41,12 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
       {/* Chat List */}
       <div className="flex-1 z-10 h-0 lg:mt-[120px] mt-[200px]">
         <div className="px-2 space-y-2">
-          {filteredChats.length === 0 ? (
+          {chats.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-sm">
               {searchQuery ? "No conversations found" : "No conversations yet"}
             </div>
           ) : (
-            filteredChats.map(chat => (
+            chats.map(chat => (
               <Button
                 key={chat.id}
                 onClick={() => onChatSelect(chat)}

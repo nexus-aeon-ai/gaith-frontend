@@ -6,6 +6,7 @@ import type {
   Conversation,
   CreateConversationRequest,
   CreateTeamRequest,
+  GetConversationsParams,
   RemoveTeamMembersRequest,
   SendMessageRequest,
   SendMessageResponse,
@@ -16,17 +17,32 @@ import type {
 
 const aiChatEndpoint = "/ai-chat";
 
+// Helper to build query string from params
+const buildQueryString = (params: Record<string, any>): string => {
+  const searchParams = new URLSearchParams();
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
+    }
+  });
+  
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : "";
+};
+
 // ============ Conversations ============
 
 /**
- * List all conversations
+ * List all conversations with optional filters and sorting
  */
-export const getConversations = async (): Promise<{
+export const getConversations = async (params?: GetConversationsParams): Promise<{
   status: number;
   data: Conversation[] | null;
 }> => {
+  const queryString = params ? buildQueryString(params) : "";
   const response = await fetchInstance<{ data: Conversation[]; total: number; skip: number; take: number }>(
-    `${aiChatEndpoint}/conversations`,
+    `${aiChatEndpoint}/conversations${queryString}`,
   );
 
   if (!response.data || !response.data.data) {

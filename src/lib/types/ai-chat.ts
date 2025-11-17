@@ -159,6 +159,17 @@ export interface RemoveTeamMembersRequest {
   employeeIds: string[];
 }
 
+// Query parameters for filtering/sorting conversations
+export interface GetConversationsParams {
+  searchTerm?: string;
+  clientId?: string;
+  assignedEmployeeId?: string;
+  skip?: number;
+  take?: number;
+  orderBy?: "title" | "lastMessageDate" | "createdAt" | "updatedAt";
+  orderDirection?: "asc" | "desc";
+}
+
 // Response wrappers
 export interface ConversationsResponse {
   data: Conversation[];
