@@ -1,6 +1,6 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
+import { CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -9,13 +9,14 @@ import { useMemo, useState } from "react";
 import EmployeeDetail from "@/components/EmployeeManagement/EmployeeDetail";
 import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LeftArrow from "@/components/ui/icons/left-arrow";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
@@ -23,6 +24,7 @@ import FilterIcon from "@/components/ui/icons/options/filter-icon";
 import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
+import RightArrow from "@/components/ui/icons/right-arrow";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -55,6 +57,8 @@ const EmployeeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  console.log("employee list:", apiEmployees);
+
   const { data } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
@@ -76,8 +80,9 @@ const EmployeeList = () => {
         email: emp.email,
         // UI expects these fields differently
         role: emp.role?.title,
+        roleLevel: emp.role?.level,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        department: { name: emp.department?.name, team: emp.department.subTeam || "nil" },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
@@ -313,23 +318,34 @@ const EmployeeList = () => {
         <div className="overflow-x-auto sm:w-full w-[520px] ">
           <Table className="text-sm w-full">
             <TableHeader className="bg-gray-50 dark:bg-gray-800">
-              <TableRow>
+              <TableRow className="dark:bg-[#06080F]">
                 <TableHead className="px-4 py-3">
-                  <Checkbox
-                    className="!rounded-[8px]"
+                  <CheckboxSquare
                     checked={employees.length > 0 && selectedEmployees.length === employees.length}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="px-4 py-3 text-left">Employee</TableHead>
-                <TableHead className="px-4 py-3 text-center">Department</TableHead>
-                <TableHead className="px-4 py-3 text-center">Role</TableHead>
-                <TableHead className="px-4 py-3 text-center hidden md:table-cell">
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-left">
+                  Employee
+                </TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center">
+                  Department
+                </TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center">
+                  Role
+                </TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center hidden md:table-cell">
                   Contact Info
                 </TableHead>
-                <TableHead className="px-4 py-3 text-center">Status</TableHead>
-                <TableHead className="px-4 py-3 text-center">Performance</TableHead>
-                <TableHead className="px-4 py-3 text-center">Actions</TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center">
+                  Status
+                </TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center">
+                  Performance
+                </TableHead>
+                <TableHead className="px-4 py-3 text-[#303444] dark:text-[#CCCFDB] text-center">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -337,8 +353,7 @@ const EmployeeList = () => {
                 <TableRow key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   {/* Checkbox */}
                   <TableCell className="px-4 py-3">
-                    <Checkbox
-                      className="!rounded-[8px]"
+                    <CheckboxSquare
                       checked={selectedEmployees.includes(employee.id.toString())}
                       onCheckedChange={checked =>
                         handleSelectLead(employee.id.toString(), checked as boolean)
@@ -369,7 +384,7 @@ const EmployeeList = () => {
 
                   {/* Department */}
                   <TableCell className="px-4 py-3 text-center">
-                    <p className="text-sm font-medium">{employee.department.name}</p>
+                    <p className="text-sm font-medium">{employee.department?.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {employee.department.team}
                     </p>
@@ -378,9 +393,7 @@ const EmployeeList = () => {
                   {/* Role */}
                   <TableCell className="px-4 py-3 text-center">
                     <p className="text-sm font-medium">{employee.role}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {/* No explicit level in UI Employee mapping */}
-                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{employee.roleLevel}</p>
                   </TableCell>
 
                   {/* Contact Info (hidden on small screens) */}
@@ -396,10 +409,10 @@ const EmployeeList = () => {
                     <div className="px-4 py-3 text-center">
                       <span
                         className={cn(
-                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          "inline-flex py-2 text-xs font-semibold rounded-md px-4",
                           employee.status === "active"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                            ? "bg-green-100 text-[#175E46] dark:bg-[#2BAE8229] dark:text-[#68DAB3]"
+                            : "bg-red-100 text-red-800 dark:bg-[#EA3B1F14] dark:text-[#E02215]",
                         )}
                       >
                         {employee.status}
@@ -501,7 +514,7 @@ const EmployeeList = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <LeftArrow className="h-4 w-4" color={currentPage === 1 ? "gray":"#3072C0"}/>
             </Button>
 
             {/* Page numbers */}
@@ -545,7 +558,7 @@ const EmployeeList = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <ChevronRight className="h-4 w-4" />
+              <RightArrow className="h-4 w-4" color={currentPage === totalPages ? "gray":"#3072C0"}/>
             </Button>
           </div>
         </div>
