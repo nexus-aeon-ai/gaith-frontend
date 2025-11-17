@@ -1,12 +1,13 @@
 "use client";
 
+import { useState, useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
 import SearchIcon from "@/components/ui/icons/chatbot/search";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Chat } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
 
 interface ChatSidebarProps {
   chats: Chat[];
@@ -15,6 +16,21 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter chats based on search query
+  const filteredChats = useMemo(() => {
+    if (!searchQuery.trim()) return chats;
+
+    const query = searchQuery.toLowerCase();
+    return chats.filter(
+      chat =>
+        chat.title.toLowerCase().includes(query) ||
+        chat.client.toLowerCase().includes(query) ||
+        chat.lastMessage.toLowerCase().includes(query),
+    );
+  }, [chats, searchQuery]);
+
   return (
     <ScrollArea className="relative h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
       {/* Header */}
@@ -29,6 +45,8 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
           <SearchIcon className="" />
           <Input
             placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
             className=" border-none bg-transparent focus:ring-0 shadow-none focus:outline-none text-sidebar-foreground placeholder:text-muted-foreground text-sm"
           />
         </div>
@@ -37,35 +55,43 @@ export function ChatSidebar({ chats, activeChat, onChatSelect }: ChatSidebarProp
       {/* Chat List */}
       <div className="flex-1 z-10 h-0 lg:mt-[120px] mt-[200px]">
         <div className="px-2 space-y-2">
-          {chats.map(chat => (
-            <Button
-              key={chat.id}
-              onClick={() => onChatSelect(chat)}
-              variant="ghost"
-              className={cn(
-                "w-full cursor-pointer p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
-                "hover:opacity-40 transition-opacity",
-                "justify-start",
-                activeChat.id === chat.id
-                  ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
-                  : "text-sidebar-foreground",
-              )}
-            >
-              <div className="flex items-start gap-2 sm:gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-medium text-xs sm:text-sm truncate">
-                      Client: {chat.client}
-                    </h3>
-                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-1 sm:ml-2">
-                      {chat.timestamp}
-                    </span>
+          {filteredChats.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              {searchQuery ? "No conversations found" : "No conversations yet"}
+            </div>
+          ) : (
+            filteredChats.map(chat => (
+              <Button
+                key={chat.id}
+                onClick={() => onChatSelect(chat)}
+                variant="ghost"
+                className={cn(
+                  "w-full cursor-pointer p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
+                  "hover:opacity-40 transition-opacity",
+                  "justify-start",
+                  activeChat.id === chat.id
+                    ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
+                    : "text-sidebar-foreground",
+                )}
+              >
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-xs sm:text-sm truncate">
+                        Client: {chat.client}
+                      </h3>
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-1 sm:ml-2">
+                        {chat.timestamp}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {chat.lastMessage}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{chat.lastMessage}</p>
                 </div>
-              </div>
-            </Button>
-          ))}
+              </Button>
+            ))
+          )}
         </div>
       </div>
     </ScrollArea>
