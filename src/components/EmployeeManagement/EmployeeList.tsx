@@ -75,7 +75,7 @@ const EmployeeList = () => {
         fullName: emp.fullName,
         email: emp.email,
         // UI expects these fields differently
-        role: emp.role.title,
+        role: emp.role?.title,
         status: emp.status === "Active" ? "active" : "inactive",
         department: { name: emp.department.name, team: emp.department.subTeam || "" },
         contactInfo: { email: emp.email, number: emp.phone },
@@ -118,8 +118,6 @@ const EmployeeList = () => {
       (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-
-  console.log("api employees:",data)
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -352,7 +350,7 @@ const EmployeeList = () => {
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center">
                       <Image
-                        src={ employee.profilePicture || "/images/default-avatar.jpg"}
+                        src={employee.profilePicture || "/images/default-avatar.jpg"}
                         alt="avatar"
                         width={32}
                         height={32}
