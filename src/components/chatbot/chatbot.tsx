@@ -9,6 +9,7 @@ import {
   getConversations,
   sendMessage,
 } from "@/lib/api";
+import { getAIChatSocket, type SocketResponse } from "@/lib/api/ai-chat/socket";
 import type { Chat, ChatMessage, Conversation, GetConversationsParams, Message } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -59,7 +60,58 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
     initialConversations[0]?.id ?? null,
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const queryClient = useQueryClient();
+
+  // Initialize websocket connection
+  useEffect(() => {
+    const socket = getAIChatSocket();
+    
+    // Connect to websocket (non-blocking)
+    socket.connect().then(() => {
+      console.log("[Chatbot] WebSocket connected successfully");
+      setIsSocketConnected(true);
+    }).catch((error) => {
+      console.warn("[Chatbot] WebSocket connection failed, will use REST API fallback:", error);
+      setIsSocketConnected(false);
+    });
+
+    // Handle incoming messages
+    const unsubscribeMessage = socket.onMessage((response: SocketResponse) => {
+      console.log("[Chatbot] Received websocket message:", response);
+      
+      // Clear optimistic messages and loading state
+      setOptimisticMessages([]);
+      setIsWaitingForResponse(false);
+      
+      // If this is a new conversation, select it
+      if (response.conversationId && !selectedConversationId) {
+        setSelectedConversationId(response.conversationId);
+      }
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ 
+        queryKey: ["conversation-messages", response.conversationId] 
+      });
+    });
+
+    // Handle connection errors gracefully
+    const unsubscribeError = socket.onError(() => {
+      console.warn("[Chatbot] WebSocket error occurred, falling back to REST API");
+      setIsSocketConnected(false);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribeMessage();
+      unsubscribeError();
+      socket.disconnect();
+      setIsSocketConnected(false);
+    };
+  }, [queryClient, selectedConversationId]);
 
   // Filter parameters with sensible defaults
   const filterParams: GetConversationsParams = useMemo(() => ({
@@ -155,7 +207,7 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
     }));
   }, [conversations, clientsById]);
 
-  // Get active chat with messages
+  // Get active chat with messages (including optimistic messages)
   const activeChat: Chat | null = useMemo(() => {
     const chat = chats.find(c => c.id === selectedConversationId);
     if (!chat) return null;
@@ -164,11 +216,16 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
 
+    const transformedMessages = sortedMessages.map(transformChatMessage);
+    
+    // Append optimistic messages at the end
+    const allMessages = [...transformedMessages, ...optimisticMessages];
+
     return {
       ...chat,
-      messages: sortedMessages.map(transformChatMessage),
+      messages: allMessages,
     };
-  }, [chats, selectedConversationId, messages]);
+  }, [chats, selectedConversationId, messages, optimisticMessages]);
 
   // Set first conversation as active if none selected
   useEffect(() => {
@@ -183,13 +240,59 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
   };
 
   const handleSendMessage = (content: string, attachmentUrls?: string[]) => {
-    if (!selectedConversationId) return;
-
-    sendMessageMutate({
-      conversationId: selectedConversationId,
-      text: content,
+    const socket = getAIChatSocket();
+    
+    // Create optimistic user message
+    const userMessage: Message = {
+      id: `temp-${Date.now()}`,
+      content,
+      sender: "user",
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       attachmentUrls,
-    });
+    };
+
+    // Add user message to optimistic messages
+    setOptimisticMessages([userMessage]);
+    setIsWaitingForResponse(true);
+
+    // Use websocket if connected, otherwise fall back to REST API
+    if (isSocketConnected && socket.isConnected()) {
+      try {
+        const message = selectedConversationId
+          ? { conversationId: selectedConversationId, text: content }
+          : { text: content };
+        
+        socket.sendMessage(message);
+        console.log("[Chatbot] Message sent via websocket");
+      } catch (error) {
+        console.error("[Chatbot] Failed to send via websocket, falling back to REST:", error);
+        
+        // Clear optimistic state and fallback to REST API
+        setOptimisticMessages([]);
+        setIsWaitingForResponse(false);
+        
+        if (selectedConversationId) {
+          sendMessageMutate({
+            conversationId: selectedConversationId,
+            text: content,
+            attachmentUrls,
+          });
+        }
+      }
+    } else {
+      // Clear optimistic state for REST API (it has its own loading)
+      setOptimisticMessages([]);
+      setIsWaitingForResponse(false);
+      
+      // Use REST API if socket not connected
+      if (selectedConversationId) {
+        sendMessageMutate({
+          conversationId: selectedConversationId,
+          text: content,
+          attachmentUrls,
+        });
+      }
+    }
   };
 
   // Show loading state if no conversations yet
@@ -241,7 +344,7 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
           onSendMessage={handleSendMessage}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           isLoading={isLoadingMessages}
-          isSending={isSendingMessage}
+          isSending={isSendingMessage || isWaitingForResponse}
         />
       </div>
     </div>

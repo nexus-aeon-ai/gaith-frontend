@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AudioLines, CirclePlus, Menu, Mic, Send } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -46,6 +46,7 @@ export function ChatWindow({
   const [isRecording, setIsRecording] = useState(false);
   const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
   const { theme: themeNext } = useTheme();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,6 +54,15 @@ export function ChatWindow({
       message: "",
     },
   });
+
+  // Scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chat.messages, isSending]); // Scroll when messages or sending state changes
 
   const { watch } = form;
   const messageValue = watch("message");
@@ -198,6 +208,8 @@ export function ChatWindow({
                     </div>
                   </div>
                 )}
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} />
               </>
             )}
           </div>
