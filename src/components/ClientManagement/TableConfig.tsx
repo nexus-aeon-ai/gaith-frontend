@@ -78,8 +78,8 @@ const useTableColumns = (
               status === "Active"
                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                 : status === "Inactive"
-                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
             )}
           >
             {status}
@@ -148,7 +148,7 @@ const useTableColumns = (
       header: "Actions",
       cell: ({ row, table }) => {
         const client = row.original;
-        const onDelete = table.options.meta?.onDelete;
+        const onDelete = (table.options.meta as { onDelete?: (client: Client) => void })?.onDelete;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
