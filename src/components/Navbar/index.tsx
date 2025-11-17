@@ -1,8 +1,8 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { ChevronDown, Moon, Sun, UserRound } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DownArrow from "@/components/ui/icons/down-arrow";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/store/authStore";
 import { IProfile } from "@/lib/types";
@@ -107,7 +108,7 @@ const Navbar = ({ user }: NavbarProps) => {
                   <DropdownMenuTrigger asChild>
                     <div className="flex items-center min-h-12 gap-2 bg-card rounded-[24px] px-4 py-2 cursor-pointer min-w-[60px]">
                       <span className="text-base font-medium">{languageStore}</span>
-                      <ChevronDown className="h-4 w-4" />
+                      <DownArrow className="h-4 w-4 dark:text-[#F0F2F8]" />
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

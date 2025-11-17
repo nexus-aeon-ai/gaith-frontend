@@ -1,8 +1,8 @@
 export type AnalyticsSummaryCardProps = {
-  label: string;
-  value: string | number;
+  label: string ;
+  value: string | number | React.ReactNode;
   icon: React.ReactNode;
-  trend?: string;
+  trend?: string | React.ReactNode;
   trendColor: string;
   subLabel?: string;
 };
@@ -17,7 +17,7 @@ const AnalyticsCard: React.FC<AnalyticsSummaryCardProps> = ({
 }) => (
   <div
     className={
-      "flex flex-col justify-between rounded-xl shadow-md p-4 min-w-[180px] bg-card text-card-foreground"
+      "flex flex-col shadow-custom justify-between rounded-[12px] p-4 min-w-[180px] bg-card text-card-foreground"
     }
   >
     <div className="flex items-start justify-between gap-3">
