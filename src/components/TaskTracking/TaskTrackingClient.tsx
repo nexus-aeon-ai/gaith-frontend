@@ -9,29 +9,40 @@ import { transformTasksResponse } from "@/lib/utils/task-transformer";
 
 import { cn } from "../../lib/utils";
 
-
 import { AddCategoryModal, AddTaskButton, AddTaskModal } from "./add-modal";
 import TaskCalendar from "./components/TaskCalendar";
 import TaskCard from "./components/TaskCard";
 import TaskFilters from "./components/TaskFilters";
 import TaskSidebar from "./components/TaskSidebar";
-import { Category, NewCategory, Task, categories, getNextTaskId, statuses, updateCategoryCounts } from "./data/taskData";
+import {
+  Category,
+  NewCategory,
+  Task,
+  categories,
+  getNextTaskId,
+  statuses,
+  updateCategoryCounts,
+} from "./data/taskData";
 import { CancelConfirmModal, CanceledModal, SuccessModal } from "./pop-modal";
 
 const TaskTrackingClient = () => {
   // Use store for modal state management
   const { isOpen: isCreateTaskOpen, setOpen: setIsCreateTaskOpen } = useTaskModalStore();
-  const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } = useCategoryModalStore();
-  
+  const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } =
+    useCategoryModalStore();
+
   const [selectedCategory, setSelectedCategory] = useState("Social Media Calendar");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
-  
+
   // State for tasks and categories
   const [tasks, setTasks] = useState<Task[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>(categories);
   const [completionRate, setCompletionRate] = useState<number>(0);
-  const [totals, setTotals] = useState<{ all: number; completed: number }>({ all: 0, completed: 0 });
+  const [totals, setTotals] = useState<{ all: number; completed: number }>({
+    all: 0,
+    completed: 0,
+  });
 
   // Fetch tasks from backend and map to TaskTracking shape
   const { data: tasksData, isLoading } = useTasks(
@@ -85,8 +96,13 @@ const TaskTrackingClient = () => {
   // When a category is selected, recompute status counts from the filtered tasks
   useEffect(() => {
     if (!selectedCategoryId) return;
-    const byStatus: Record<string, number> = { NotStarted: 0, InProgress: 0, AwaitingFeedback: 0, Completed: 0 };
-    (tasksData || []).forEach((t) => {
+    const byStatus: Record<string, number> = {
+      NotStarted: 0,
+      InProgress: 0,
+      AwaitingFeedback: 0,
+      Completed: 0,
+    };
+    (tasksData || []).forEach(t => {
       byStatus[t.status] = (byStatus[t.status] || 0) + 1;
     });
     const notStarted = byStatus.NotStarted || 0;
@@ -104,7 +120,7 @@ const TaskTrackingClient = () => {
     // Map categories from API -> sidebar categories
     const iconFallback = categories[0]?.icon;
     const nameToIcon = new Map(categories.map(c => [c.name, c.icon] as const));
-    const mappedCategories: Category[] = overviewData.categories.map((cat) => ({
+    const mappedCategories: Category[] = overviewData.categories.map(cat => ({
       name: cat.name,
       count: cat.count,
       icon: nameToIcon.get(cat.name) || iconFallback,
@@ -148,14 +164,14 @@ const TaskTrackingClient = () => {
       ...taskData,
       progress: taskData.status === "Completed" ? 100 : taskData.status === "In Progress" ? 50 : 0,
     };
-    
+
     setTasks(prevTasks => {
       const updatedTasks = [...prevTasks, task];
       // Update category counts
       setCategoriesList(prevCategories => updateCategoryCounts(updatedTasks, prevCategories));
       return updatedTasks;
     });
-    
+
     setIsCreateTaskOpen(false);
     setModalType("task");
     setIsSuccessModalOpen(true);
@@ -170,7 +186,7 @@ const TaskTrackingClient = () => {
       icon: categoriesList[0].icon, // Default icon, you might want to make this configurable
       color: newCategory.color,
     };
-    
+
     setCategoriesList(prevCategories => [...prevCategories, category]);
     setIsCreateCategoryOpen(false);
     setModalType("category");
@@ -226,35 +242,38 @@ const TaskTrackingClient = () => {
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      weekday: "long", 
-      year: "numeric", 
-      month: "long", 
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
       day: "numeric",
     });
   };
 
   return (
-    <div className={cn(
-      "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
-      "bg-[#F9FBFA] dark:bg-[#0F1220] overflow-x-hidden",
-    )}>
+    <div
+      className={cn(
+        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
+        "bg-[#F9FBFA] dark:bg-[#0F1220] overflow-x-hidden",
+      )}
+    >
       {/* Header Section */}
-      <div className={cn(
-        "flex flex-col sm:flex-row justify-between items-start",
-        "gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6",
-      )}>
+      <div
+        className={cn(
+          "flex flex-col sm:flex-row justify-between items-start",
+          "gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6",
+        )}
+      >
         <div className="flex-1 min-w-0">
-          <h1 className={cn(
-            "text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold",
-            "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
-          )}>
+          <h1
+            className={cn(
+              "text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold",
+              "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
+            )}
+          >
             Task Tracking
           </h1>
-          <p className={cn(
-            "text-xs sm:text-sm md:text-base",
-            "text-gray-600 dark:text-gray-300",
-          )}>
+          <p className={cn("text-xs sm:text-sm md:text-base", "text-gray-600 dark:text-gray-300")}>
             Track, manage, and prioritize tasks efficiently.
           </p>
         </div>
@@ -264,17 +283,14 @@ const TaskTrackingClient = () => {
       {/* Filters Section */}
       <TaskFilters />
 
-      <div className={cn(
-        "flex flex-col lg:flex-row",
-        "gap-2 sm:gap-3 lg:gap-4 xl:gap-6",
-      )}>
+      <div className={cn("flex flex-col lg:flex-row", "gap-2 sm:gap-3 lg:gap-4 xl:gap-6")}>
         {/* Left Column - Categories and Status */}
         <div className="w-full lg:w-72 xl:w-80 lg:flex-shrink-0  ">
-          <TaskSidebar 
+          <TaskSidebar
             categories={categoriesList}
             statuses={statuses}
             selectedCategory={selectedCategory}
-            onCategorySelect={(name) => {
+            onCategorySelect={name => {
               setSelectedCategory(name);
               // find matching id from overview by name
               // We don't store id on Category, so derive via overview categories list name->id
@@ -294,23 +310,37 @@ const TaskTrackingClient = () => {
         {/* Right Column - Tasks */}
         <div className="flex-1 min-w-0">
           <div className="bg-card rounded-lg p-2 sm:p-3 md:p-4 shadow-sm">
-            <div className={cn(
-              "flex flex-col sm:flex-row items-start sm:items-center justify-between",
-              "gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-4",
-            )}>
-              <h2 className={cn(
-                "text-sm sm:text-base md:text-lg lg:text-xl font-semibold",
-                "text-gray-900 dark:text-white truncate",
-              )}>
+            <div
+              className={cn(
+                "flex flex-col sm:flex-row items-start sm:items-center justify-between",
+                "gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-4",
+              )}
+            >
+              <h2
+                className={cn(
+                  "text-sm sm:text-base md:text-lg lg:text-xl font-semibold",
+                  "text-gray-900 dark:text-white truncate",
+                )}
+              >
                 {selectedCategory}
               </h2>
             </div>
-            
+
             <Tabs defaultValue="list" className="rounded-3xl">
               <div className="flex justify-end ">
                 <TabsList className=" h-12  rounded-3xl  bg-card border-1 border-border">
-                  <TabsTrigger value="list" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">List</TabsTrigger>
-                  <TabsTrigger value="calendar" className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text">Calendar</TabsTrigger>
+                  <TabsTrigger
+                    value="list"
+                    className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text"
+                  >
+                    List
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="calendar"
+                    className="text-xs px-6 rounded-3xl h-11 data-[state=active]:bg-[#D29A09] data-[state=active]:text-primary-text"
+                  >
+                    Calendar
+                  </TabsTrigger>
                 </TabsList>
               </div>
               <TabsContent value="list">
@@ -318,17 +348,17 @@ const TaskTrackingClient = () => {
                   {isLoading ? (
                     <div className="text-sm text-gray-500">Loading tasks...</div>
                   ) : tasks.length === 0 ? (
-                    <div className="text-sm text-gray-500">No tasks found for the selected range.</div>
+                    <div className="text-sm text-gray-500">
+                      No tasks found for the selected range.
+                    </div>
                   ) : (
-                    tasks.map((task) => (
-                      <TaskCard key={task.id} task={task} />
-                    ))
+                    tasks.map(task => <TaskCard key={task.id} task={task} />)
                   )}
                 </div>
               </TabsContent>
               <TabsContent value="calendar">
                 <div className="overflow-x-auto -mx-2 sm:-mx-3 md:-mx-4 px-2 sm:px-3 md:px-4 rounded-3xl p-4 pb-6 bg-card">
-                  <TaskCalendar 
+                  <TaskCalendar
                     tasks={tasks}
                     categories={categoriesList}
                     currentDate={currentDate}
@@ -343,20 +373,20 @@ const TaskTrackingClient = () => {
       </div>
 
       {/* Modals */}
-      <AddTaskModal 
+      <AddTaskModal
         isOpen={isCreateTaskOpen}
         onClose={() => handleCancelConfirm("task")}
         onAddTask={addTask}
         categories={categoriesList}
       />
-      <AddCategoryModal 
+      <AddCategoryModal
         isOpen={isCreateCategoryOpen}
         onClose={() => handleCancelConfirm("category")}
         onAddCategory={addCategory}
       />
 
       {/* Success Modal */}
-      <SuccessModal 
+      <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={handleSuccessClose}
         type={modalType}
@@ -364,7 +394,7 @@ const TaskTrackingClient = () => {
       />
 
       {/* Cancel Confirmation Modal */}
-      <CancelConfirmModal 
+      <CancelConfirmModal
         isOpen={isCancelConfirmModalOpen}
         onClose={() => setIsCancelConfirmModalOpen(false)}
         type={modalType}
@@ -373,7 +403,7 @@ const TaskTrackingClient = () => {
       />
 
       {/* Canceled Modal */}
-      <CanceledModal 
+      <CanceledModal
         isOpen={isCanceledModalOpen}
         onClose={handleCanceledClose}
         type={modalType}
@@ -389,7 +419,7 @@ const TaskTrackingClient = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            {groupedTasks.map((task) => (
+            {groupedTasks.map(task => (
               <TaskCard key={task.id} task={task} />
             ))}
           </div>
