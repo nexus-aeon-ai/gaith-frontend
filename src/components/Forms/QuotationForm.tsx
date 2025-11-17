@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -27,11 +28,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getClients } from "@/lib/api/client/client";
+import { useClientLookups } from "@/lib/api/client/client-lookups";
+import { getQuotationCurrencies } from "@/lib/api/quotations";
 import {
   createQuoteSchema,
-  currencyOptions,
   ServiceInstance,
   statusOptions,
+  udpateQuoteSchema,
   type CreateQuotationFormData,
 } from "@/lib/validations/quotation";
 
@@ -48,14 +52,18 @@ interface QuoteFormProps {
   quotation?: Quotation | null;
 }
 
+interface TotalAccumulation {
+  subtotal: number;
+  totalTax: number;
+  grandTotal: number;
+}
+
 const defaultFormData: CreateQuotationFormData = {
-  customerName: "",
-  quoteNumber: "",
+  clientId: "",
   validUntil: new Date(),
-  currency: currencyOptions[0],
-  quotationTitle: "",
+  title: "",
   description: "",
-  serviceInstance: [{ description: "", quantity: 0, servicePrice: 0, tax: 0, total: 0 }],
+  serviceInstance: [{ serviceId: "", currencyId: "", servicePrice: 0, taxPercentage: 0, total: 0 }],
   notes: "",
   status: statusOptions[0],
 };
@@ -63,11 +71,48 @@ const defaultFormData: CreateQuotationFormData = {
 const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: QuoteFormProps) => {
   const { theme } = useTheme();
 
-  const form = useForm<CreateQuotationFormData>({
-    resolver: zodResolver(createQuoteSchema),
-    defaultValues: initialData || defaultFormData,
+  const { clientServiceOffers } = useClientLookups();
+
+  // Fetch clients from API
+  const { data: apiClientsData, isLoading } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  const { data: currenciesList } = useQuery({
+    queryKey: ["currencies"],
+    queryFn: async () => {
+      const res = await getQuotationCurrencies();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  type CurrencyItem = { id: string; code: string; name: string; symbol?: string };
+
+  const initialDefaultValues =
+    mode === "edit" ? initialData ?? undefined : initialData ?? defaultFormData;
+
+  console.log("initialDataaaaa", initialData);
+
+  const form = useForm<any>({
+    // use the partial update schema as resolver in edit mode so missing field's don't block submit
+    resolver: zodResolver(mode === "edit" ? udpateQuoteSchema : createQuoteSchema),
+    defaultValues: initialDefaultValues,
     mode: "onChange",
   });
+
+  // when initialData loads for edit mode, reset the form values so fields get populated
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      form.reset(initialData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
   const { control, setValue } = form;
   const { fields, append, remove } = useFieldArray({
     control,
@@ -78,14 +123,28 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     name: "serviceInstance",
   });
 
+  // Fetch currencies list
+  const { data: currenciesResp } = useQuery({
+    queryKey: ["quotationCurrencies"],
+    queryFn: async () => {
+      const res = await getQuotationCurrencies();
+      return res.data || [];
+    },
+  });
+  const currencies = (currenciesResp || []) as CurrencyItem[];
+
+  // watch selected currencyId to display symbol in price labels
+  const selectedCurrencyId = useWatch({ control, name: "currencyId" }) as string | undefined;
+  const selectedCurrency = currencies.find(c => c.id === selectedCurrencyId);
+  const currencySymbol = selectedCurrency?.symbol || "$";
+
   useEffect(() => {
     if (!serviceInstances) return;
 
     serviceInstances.forEach((item: ServiceInstance, index: number) => {
-      const quantity = Number(item.quantity) || 0;
       const servicePrice = Number(item.servicePrice) || 0;
-      const tax = Number(item.tax) || 0;
-      const total = parseFloat((quantity * servicePrice * (1 + tax / 100)).toFixed(2));
+      const tax = Number(item.taxPercentage) || 0;
+      const total = parseFloat((servicePrice * (1 + tax / 100)).toFixed(2));
 
       if (item.total !== total) {
         setValue(`serviceInstance.${index}.total`, total, {
@@ -98,10 +157,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
   }, [serviceInstances]);
 
   const totals = serviceInstances?.reduce(
-    (acc, item: ServiceInstance) => {
-      const quantity = Number(item.quantity) || 0;
+    (acc: TotalAccumulation, item: ServiceInstance) => {
+      const quantity = 1;
       const servicePrice = Number(item.servicePrice) || 0;
-      const tax = Number(item.tax) || 0;
+      const tax = Number(item.taxPercentage) || 0;
 
       const itemSubtotal = quantity * servicePrice;
       const itemTaxAmount = itemSubtotal * (tax / 100);
@@ -131,7 +190,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     const num = Number(value);
     if (!isNaN(num)) {
       if (num < 0 || num > 100) {
-        alert("Tax percentage must be between 0 and 100");
+        console.warn("Tax percentage must be between 0 and 100");
         return;
       }
       onChange(num);
@@ -147,12 +206,33 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
     "Client approval required for major changes",
   ];
 
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <Form {...form}>
       <form
         id="quotation-form"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full mx-auto space-y-4"
+        onSubmit={(e: React.BaseSyntheticEvent) => {
+          // debug: log submit event and then delegate to react-hook-form with both
+          // success and error handlers so we can see why submission may be blocked
+          console.log("QuotationForm onSubmit event", { mode });
+
+          const submit = form.handleSubmit(
+            (data: any) => {
+              try {
+                onSubmit(data);
+              } catch (err) {
+                console.error("Parent onSubmit threw:", err);
+              }
+            },
+            errors => {
+              console.log("QuotationForm handleSubmit errors", errors);
+            },
+          );
+
+          return submit(e);
+        }}
+        className="w-full mx-auto space-y-4 font-inter"
       >
         {mode === "edit" && quotation && (
           <Card className="shadow-none dark:bg-[#0F1B29] bg-[#F3F5F7]">
@@ -208,7 +288,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 <div className=" flex flex-col">
                   <div className="flex flex-row justify-between items-center">
                     <p className="text-md font-[400] text-[#687192]">Quotation Number</p>
-                    <p className="text-sm font-[400]">{quotation.quotationId}</p>
+                    <p className="text-sm font-[400]">{quotation.quotationNumber}</p>
                   </div>
                   <div className="flex flex-row justify-between items-center">
                     <p className="text-md font-[400] text-[#687192]">Created Date</p>
@@ -230,7 +310,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
               <CardTitle className="text-md">Quotation Details</CardTitle>
             </CardHeader>
             <CardContent className="p-4 w-full space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="validUntil"
@@ -278,30 +358,6 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 />
                 <FormField
                   control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {currencyOptions.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="status"
                   render={({ field }) => (
                     <FormItem>
@@ -309,11 +365,11 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] capitalize py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Currency" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions.map(option => (
-                              <SelectItem className="capitalize" key={option} value={option}>
+                              <SelectItem key={option} value={option}>
                                 {option}
                               </SelectItem>
                             ))}
@@ -328,7 +384,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
 
               <FormField
                 control={form.control}
-                name="quotationTitle"
+                name="title"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
                     <FormLabel>Quotation Title</FormLabel>
@@ -371,40 +427,28 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="customerName"
+                  name="clientId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer</FormLabel>
+                      <FormLabel>Select Client</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Client Name"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
+                        <Select value={field.value} onValueChange={val => field.onChange(val)}>
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select Client" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {apiClientsData.map(client => (
+                              <SelectItem key={client.id} value={client.id}>
+                                {client.clientName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="quoteNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quotation Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Quotation Number"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="validUntil"
@@ -450,35 +494,11 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {currencyOptions.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <FormField
                 control={form.control}
-                name="quotationTitle"
+                name="title"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
                     <FormLabel>Quotation Title</FormLabel>
@@ -525,11 +545,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 variant={"ghost"}
                 onClick={() =>
                   append({
-                    description: "",
-                    quantity: 1,
+                    serviceId: "",
+                    currencyId: "",
                     servicePrice: 0,
-                    tax: 0,
-                    total: 0,
+                    taxPercentage: 0,
                   })
                 }
                 className="flex items-center hover:bg-transparent hover:text-[#3072C0] gap-2 text-[#3072C0] dark:text-[#CCCFDB] dark:hover:text-[#CCCFDB] cursor-pointer"
@@ -542,81 +561,101 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
           <CardContent className="p-4 flex flex-col gap-6">
             {/* Service Fields */}
             <div className="flex flex-col gap-3">
-              {fields.map((field: any, index: number) => (
+              {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#1E293B] border-[#E4E7EC]"
+                  className="relative grid items-center grid-rows-1 grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]  gap-4 border rounded-[12px] p-4 dark:border-[#404663] border-[#DCE0E4]"
                 >
                   {/* Description */}
                   <FormField
                     control={control}
-                    name={`serviceInstance.${index}.description`}
+                    name={`serviceInstance.${index}.serviceId`}
                     render={({ field }) => (
-                      <FormItem className="md:col-span-2 col-span-1">
-                        <FormLabel>Service Description</FormLabel>
+                      <FormItem className="md:col-span-2 col-span-1 mt-[6px]">
+                        <FormLabel>Service</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Service Description"
-                            className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
-                            {...field}
-                          />
+                          <Select
+                            value={field.value as string}
+                            onValueChange={val => field.onChange(val)}
+                          >
+                            <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {clientServiceOffers.map(option => (
+                                <SelectItem key={option.id} value={option.id as string}>
+                                  {option.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* Quantity */}
-                  <FormField
-                    control={control}
-                    name={`serviceInstance.${index}.quantity`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={1}
-                            className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={e => field.onChange(Number(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   {/* Service Price */}
                   <FormField
                     control={control}
                     name={`serviceInstance.${index}.servicePrice`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service Price ($)</FormLabel>
+                    render={({ field: priceField }) => (
+                      <FormItem className="lg:col-span-2 col-span-1">
+                        <FormLabel className="whitespace-nowrap">Service Price</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            inputMode="decimal"
-                            className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
-                            value={field.value === 0 ? "" : field.value ?? ""}
-                            onChange={e => {
-                              const value = e.target.value;
-                              if (value === "") field.onChange(undefined);
-                              else if (!isNaN(Number(value))) field.onChange(Number(value));
-                            }}
-                          />
+                          <div className="relative flex items-center">
+                            <Input
+                              type="number"
+                              inputMode="decimal"
+                              placeholder="0"
+                              className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px] pr-20"
+                              value={priceField.value === 0 ? "" : priceField.value ?? ""}
+                              onChange={e => {
+                                const value = e.target.value;
+                                if (value === "") priceField.onChange(undefined);
+                                else if (!isNaN(Number(value))) priceField.onChange(Number(value));
+                              }}
+                            />
+                            <div className="absolute right-0 top-0 bottom-0 flex items-center">
+                              <FormField
+                                control={control}
+                                name={`serviceInstance.${index}.currencyId`}
+                                render={({ field: currencyField }) => (
+                                  <FormControl>
+                                    <Select
+                                      value={currencyField.value}
+                                      onValueChange={currencyField.onChange}
+                                    >
+                                      <SelectTrigger className="h-full w-[70px] border-0 border-l bg-transparent focus:ring-0 focus:ring-offset-0 rounded-l-none rounded-r-[12px] dark:border-gray-700 shadow-none">
+                                        <SelectValue>
+                                          {currencyField.value
+                                            ? currenciesList.find(
+                                                option => option.id === currencyField.value,
+                                              )?.symbol
+                                            : null}
+                                        </SelectValue>
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {currenciesList.map(option => (
+                                          <SelectItem key={option.id} value={option.id}>
+                                            {option.code} - {option.symbol}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                )}
+                              />
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
                   {/* Tax */}
                   <FormField
                     control={control}
-                    name={`serviceInstance.${index}.tax`}
+                    name={`serviceInstance.${index}.taxPercentage`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tax (%)</FormLabel>
@@ -625,6 +664,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                             type="number"
                             min={0}
                             max={100}
+                            placeholder="0"
                             inputMode="decimal"
                             className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]"
                             value={field.value === 0 ? "" : field.value ?? ""}
@@ -645,7 +685,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                         <FormLabel>Total</FormLabel>
                         <FormControl>
                           <div className="py-3 px-3 rounded-[12px] text-gray-700 dark:text-gray-300 border border-transparent">
-                            <p className="text-[16px] font-[700]">${field.value ?? 0}</p>
+                            <p className="text-[16px] font-[700]">
+                              {currencySymbol}
+                              {field.value?.toFixed(2)}
+                            </p>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -675,7 +718,8 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Subtotal:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.subtotal.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.subtotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center">
@@ -683,13 +727,15 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   Total Tax:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.totalTax.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.totalTax.toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center text-sm font-medium ">
                 <span className="text-gray-800 dark:text-gray-100">Grand Total:</span>
                 <span className="text-[18px] font-[700] tracking-wide">
-                  ${totals?.grandTotal.toFixed(2)}
+                  {currencySymbol}
+                  {totals?.grandTotal.toFixed(2)}
                 </span>
               </div>
             </div>

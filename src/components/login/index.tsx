@@ -50,6 +50,7 @@ export default function LoginForm() {
     },
     onSuccess: async response => {
       if (response?.status && response.status === 200) {
+        console.log("login response:", response);
         if (response.data?.access_token) {
           setCookie("authToken", response.data.access_token, {
             secure: false,
