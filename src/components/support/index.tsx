@@ -6,8 +6,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   assignTicket,
@@ -30,6 +30,8 @@ type TicketViewMode = "view" | "reply";
 
 const Support = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
@@ -61,6 +63,28 @@ const Support = () => {
       orderDirection: (searchParams.get("orderDirection") as OrderDirection | undefined) || "desc",
     };
   }, [searchParams]);
+
+  const [searchValue, setSearchValue] = useState(filterParams.searchTerm || "");
+
+  useEffect(() => {
+    setSearchValue(filterParams.searchTerm || "");
+  }, [filterParams.searchTerm]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value.trim()) {
+      params.set("searchTerm", value);
+    } else {
+      params.delete("searchTerm");
+    }
+
+    params.set("skip", "0");
+
+    const queryString = params.toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+  };
 
   // Fetch tickets with React Query
   const {
@@ -308,10 +332,8 @@ const Support = () => {
     >
       <HeaderSection onSubmitTicket={() => setShowSubmitForm(true)} />
       <SearchAndActionsSection
-        searchTerm={filterParams.searchTerm || ""}
-        onSearchChange={() => {
-          // Search is now handled by filter sheet
-        }}
+        searchTerm={searchValue}
+        onSearchChange={handleSearchChange}
         onFilterClick={() => setShowFilterSheet(true)}
         onExportExcel={handleExportExcel}
         onExportPDF={handleExportPDF}

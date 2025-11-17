@@ -41,7 +41,6 @@ const priorityOptions = [
 ];
 
 const filterSchema = z.object({
-  searchTerm: z.string().default(""),
   fromDate: z.string().default(""),
   toDate: z.string().default(""),
   statuses: z.array(z.enum(["Open", "In Progress", "Closed", "Resolved"])).default([]),
@@ -79,7 +78,6 @@ const FilterSheet = ({ open, onOpenChange }: FilterSheetProps) => {
   const form = useForm<FilterFormInput, unknown, FilterFormValues>({
     resolver: zodResolver(filterSchema),
     defaultValues: {
-      searchTerm: searchParams.get("searchTerm") || "",
       fromDate: searchParams.get("fromDate") || "",
       toDate: searchParams.get("toDate") || "",
       statuses: searchParams.get("status")
@@ -106,9 +104,6 @@ const FilterSheet = ({ open, onOpenChange }: FilterSheetProps) => {
     const params = new URLSearchParams(searchParams.toString());
 
     // Update URL params with filter values
-    if (values.searchTerm) params.set("searchTerm", values.searchTerm);
-    else params.delete("searchTerm");
-
     if (values.fromDate) params.set("fromDate", values.fromDate);
     else params.delete("fromDate");
 
@@ -189,22 +184,6 @@ const FilterSheet = ({ open, onOpenChange }: FilterSheetProps) => {
             <SheetTitle className="text-xl font-semibold text-foreground">Filters</SheetTitle>
           </SheetHeader>
           <div className="flex-1 space-y-6 px-6 pb-6">
-            {/* Search Term */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold text-foreground">Search</Label>
-              <Controller
-                name="searchTerm"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Search subject or description..."
-                    className="h-12 rounded-xl bg-muted/40"
-                  />
-                )}
-              />
-            </div>
-
             {/* Date Range */}
             <div className="space-y-4">
               <div className="space-y-2">

@@ -37,7 +37,7 @@ const SearchAndActionsSection = ({
         <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
           <Search />
           <Input
-            placeholder="Search clients"
+            placeholder="Search subject or description..."
             value={searchTerm}
             onChange={e => onSearchChange(e.target.value)}
             className="border-none shadow-none focus:outline-none h-12 xl:min-w-md md:min-w-[250px] min-w-[100px]"
