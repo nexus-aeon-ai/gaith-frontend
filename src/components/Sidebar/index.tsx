@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import React from "react";
 
-import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
 import {
   Sidebar,
   SidebarContent,
@@ -52,54 +51,6 @@ import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
-const mainItems = [
-  {
-    label: "Dashboard",
-    icon: <DashboardListIcon className="dark:text-[#E6EFF9]" />,
-    href: "/",
-  },
-  {
-    label: "Task Tracking",
-    icon: <TaskTrackingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/task-tracking",
-  },
-  {
-    label: "Report & Analysis",
-    icon: <ReportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/reports",
-  },
-  {
-    label: "Leads",
-    icon: <LeadsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/leads",
-  },
-  {
-    label: "Client Management",
-    icon: <ClientManagmentIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/client-management",
-  },
-  {
-    label: "Employees",
-    icon: <EmployeeIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/employees",
-  },
-  {
-    label: "Employees Tasks",
-    icon: <EmployeeTasksIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/employee-tasks",
-  },
-  {
-    label: "Quotations",
-    icon: <QuotationsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/quotations",
-  },
-  {
-    label: "Submitted",
-    icon: <SubmitedIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/submitted",
-  },
-];
-
 const supportItems = [
   {
     label: "My Ticket",
@@ -113,41 +64,6 @@ const supportItems = [
   },
 ];
 
-const aiToolsItems = [
-  {
-    label: "Generate Pricing",
-    icon: <PricingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/pricing",
-  },
-  {
-    label: "Social Media Calendar",
-    icon: <SocialMediaCalenderIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/social-media-calendar",
-  },
-  {
-    label: "Blog & Articles",
-    icon: <BlogArticlesIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/blog-articles",
-  },
-  {
-    label: "AI Chatbot",
-    icon: <AIChatbotIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai-chatbot",
-  },
-];
-
-const settingsItems = [
-  {
-    label: "Settings",
-    icon: <SettingsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/settings",
-  },
-  {
-    label: "Logout",
-    icon: <LogoutIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/logout",
-  },
-];
 const SidebarUI  = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
