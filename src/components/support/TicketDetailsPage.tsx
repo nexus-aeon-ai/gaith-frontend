@@ -220,7 +220,7 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
             {ticket.status !== "Closed" && (
               <Button
                 variant="outline"
-                className="rounded-[16px]"
+                className="rounded-[16px] bg-[#508CD3] hover:bg-blue-700 text-white border-none"
                 onClick={handleCloseTicket}
                 disabled={updateTicketMutation.isPending}
               >
@@ -346,13 +346,13 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
                 )}
               />
               <div className="flex items-center justify-between">
-                <Button type="button" variant="outline" className="rounded-[16px]">
+                <Button type="button" variant="outline" className="rounded-[16px] bg-gray-100 hover:bg-gray-200 text-gray-800 border-none hover:text-gray-800">
                   <Paperclip className="w-4 h-4 mr-2" />
                   Attach File
                 </Button>
                 <Button
                   type="submit"
-                  className="rounded-[16px] bg-[#508CD3] hover:bg-blue-700"
+                  className="rounded-[16px] bg-[#508CD3] hover:bg-blue-700 text-white border-none"
                   disabled={createReplyMutation.isPending}
                 >
                   <Send className="w-4 h-4 mr-2" />

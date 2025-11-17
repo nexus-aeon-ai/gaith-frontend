@@ -298,14 +298,14 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
             <Button
               type="button"
               variant="outline"
-              className="flex-1 h-12 rounded-[16px]"
+              className="flex-1 h-12 rounded-[16px] bg-gray-100 hover:bg-gray-200 text-gray-800 border-none hover:text-gray-800"
               onClick={handleSaveDraftClick}
             >
               Save As Draft
             </Button>
             <Button
               type="submit"
-              className="flex-1 h-12 rounded-[16px] bg-[#508CD3] hover:bg-blue-700"
+              className="flex-1 h-12 rounded-[16px] bg-[#508CD3] hover:bg-blue-700 text-white border-none"
               disabled={!formState.isValid}
             >
               {isEditMode ? "Update Ticket" : "Submit Ticket"}
