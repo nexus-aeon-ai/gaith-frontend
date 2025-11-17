@@ -141,6 +141,8 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
     );
   };
 
+  console.log("single task:", task);
+
   return (
     <div className="w-full space-y-6 font-inter">
       {/* Breadcrumb */}
@@ -175,7 +177,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
             "hover:bg-card hover:border-blue-500 rounded-[16px] py-[16px]",
           )}
         >
-          <ExcelIcon />
+          <ExcelIcon className="!w-6 !h-6" />
           <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
           <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
         </Button>
@@ -274,7 +276,11 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
             </h3>
             <div className="flex items-start gap-3">
               <Avatar className="w-12 h-12">
-                <AvatarImage src={"/images/girl-avatar.jpg"} alt={task.assignee.name} className=""/>
+                <AvatarImage
+                  src={"/images/girl-avatar.jpg"}
+                  alt={task.assignee.name}
+                  className=""
+                />
                 <AvatarFallback className="bg-gray-400">
                   {task.assignee.name
                     .split(" ")
@@ -282,13 +288,11 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
+              <div className="flex-1 space-y-[2px]">
                 <div className="font-semibold text-gray-900 dark:text-white">
                   {task.assignee.name}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {task.assignee.department}
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{task.category.name}</div>
                 <div className="text-sm text-gray-500">{task.assignee.email}</div>
               </div>
             </div>

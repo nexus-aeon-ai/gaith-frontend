@@ -135,9 +135,9 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Edit Task</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Edit Employee Task</h1>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Add information to create a new task
+            Update employee task details and information
           </p>
         </div>
         <div className="flex gap-2">
@@ -152,7 +152,7 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
             onClick={form.handleSubmit(handleSubmit)}
             className="cursor-pointer p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-[#3072C0]  bg-[#3072C0] text-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {"Edit Task"}
+            {"Save Changes"}
           </Button>
         </div>
       </div>
@@ -371,26 +371,6 @@ export default function EditTaskForm({ task, onSubmit }: EditTaskFormProps) {
               />
             </div>
 
-            {/* Additional Comments */}
-            <FormField
-              control={form.control}
-              name="additionalComments"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="mb-3">
-                    Enter Any Additional Instructions Or Requirements
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter any additional instructions or requirements"
-                      className="min-h-[100px] resize-none dark:bg-[#0F1B29]  bg-[#F3F5F7] rounded-[12px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </form>
         </Form>
       </div>
