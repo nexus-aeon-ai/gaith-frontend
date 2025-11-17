@@ -15,9 +15,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -51,22 +48,24 @@ import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
-const supportItems = [
-  {
-    label: "My Ticket",
-    icon: <Ticket className="h-4 w-4" />,
-    href: "/support",
-  },
-  {
-    label: "FAQ's",
-    icon: <Quote className="h-4 w-4" />,
-    href: "/support/faq",
-  },
-];
-
 const SidebarUI  = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
+
+  const supportItems = [
+    {
+      label: "My Ticket",
+      icon: <Ticket className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Ticket className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/support",
+    },
+    {
+      label: "FAQ's",
+      icon: <Quote className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Quote className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/support/faq",
+    },
+  ];
 
   const mainItems = [
     {
@@ -171,8 +170,16 @@ const SidebarUI  = () => {
     if (!pathname) {
       return false;
     }
+
     if (href === "/") {
       return pathname === "/en";
+    }
+
+    if (href === "/support") {
+      return (pathname.includes("/support") && !pathname.includes("/support/faq"));
+    }
+    if (href === "/support/faq") {
+      return pathname.includes("/support/faq");
     }
     return pathname === href || pathname.includes(href) || pathname.includes(`/${href}?`);
   };
@@ -221,32 +228,38 @@ const SidebarUI  = () => {
           <SidebarSeparator />
           <SidebarGroupLabel>Support</SidebarGroupLabel>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuSub className="border-l-0">
-                {supportItems.map(item => {
-                  const active = isActive(item.href);
-                  const iconWithColor = React.cloneElement(item.icon, {
-                    className: active
-                      ? "h-4 w-4"
-                      : "h-4 w-4 text-[#265B99] dark:text-[#E6EFF9]",
-                  });
-                  return (
-                    <SidebarMenuSubItem key={item.label}>
-                      <SidebarMenuSubButton
-                        asChild
-                        isActive={active}
-                        className={active ? activeClasses : undefined}
-                      >
-                        <Link href={item.href}>
-                          <span>{iconWithColor}</span>
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  );
-                })}
-              </SidebarMenuSub>
-            </SidebarMenuItem>
+            {supportItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  asChild
+                  className={cn(
+                    "py-5 transition-all duration-500 ease-in-out",
+                    isActive(item.href) && activeClasses,
+                  )}
+                >
+                  <Link href={item.href}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isActive(item.href) ? item.iconFilled : item.icon}
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full transition-all duration-500 ease-in-out transform",
+                          isActive(item.href) ? "scale-100 opacity-100" : "scale-0 opacity-0",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(268.38deg, #F7C649 1.37%, #FFB257 26.94%, #29AD82 66.61%, #265B99 98.7%)",
+                        }}
+                      />
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
           <SidebarSeparator />
           <SidebarGroupLabel>AI Tools</SidebarGroupLabel>

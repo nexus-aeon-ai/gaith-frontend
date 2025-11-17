@@ -1,6 +1,6 @@
 "use client";
 import { setCookie } from "cookies-next";
-import { ChevronDown, Moon, Sun, UserRound } from "lucide-react";
+import { ChevronDown, UserRound } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
