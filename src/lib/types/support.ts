@@ -19,7 +19,11 @@ export interface SupportTicket {
     fullName: string;
     email: string;
   };
-  assignedTo?: string; // User fullName
+  assignedTo?: {
+    id: string;
+    fullName: string;
+    email: string;
+  }; // User fullName
   assignedToUserId?: string | null;
   attachments?: string[]; // URLs to attachments
   isDraft: boolean;

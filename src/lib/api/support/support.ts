@@ -49,7 +49,7 @@ export interface ApiTicket {
     fullName: string;
     email: string;
   };
-  assignedToUser?: {
+  assignedTo?: {
     id: string;
     fullName: string;
     email: string;
@@ -96,7 +96,11 @@ const transformApiTicket = (apiTicket: ApiTicket): SupportTicket => {
     lastUpdated: formatDate(apiTicket.updatedAt),
     createdBy: apiTicket.user.fullName,
     user: apiTicket.user,
-    assignedTo: apiTicket.assignedToUser?.fullName || undefined,
+    assignedTo: apiTicket.assignedTo ? {
+      id: apiTicket.assignedTo.id,
+      fullName: apiTicket.assignedTo.fullName,
+      email: apiTicket.assignedTo.email,
+    } : undefined,
     assignedToUserId: apiTicket.assignedToUserId,
     attachments: apiTicket.attachments,
     isDraft: apiTicket.isDraft,

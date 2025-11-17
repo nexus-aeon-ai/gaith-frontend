@@ -15,7 +15,6 @@ import {
   listTickets,
   updateTicket,
 } from "@/lib/api/support/support";
-import { getAllUsers } from "@/lib/api/tasks";
 import type { SubmitTicketForm as SubmitTicketFormType, SupportTicket } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -77,12 +76,7 @@ const Support = () => {
   });
 
   // Fetch all users for assigned user lookup
-  const { data: users } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      return await getAllUsers();
-    },
-  });
+
 
   // Create ticket mutation
   const createTicketMutation = useMutation({
@@ -206,7 +200,7 @@ const Support = () => {
     console.log("Export PDF");
   };
 
-  const columns = useTableColumns(handleViewAndReply, handleEdit, users);
+  const columns = useTableColumns(handleViewAndReply, handleEdit);
 
   const tickets = ticketsData?.data || [];
   const totalCount = ticketsData?.total || 0;
