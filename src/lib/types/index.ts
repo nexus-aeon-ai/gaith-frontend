@@ -9,3 +9,4 @@ export * from "./campaign";
 export * from "./step-props";
 
 export * from "./campaign-pricing";
+export * from "./support";
