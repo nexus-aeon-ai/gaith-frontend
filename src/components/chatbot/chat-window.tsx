@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AudioLines, CirclePlus, Menu, Mic, Send } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -46,15 +46,6 @@ export function ChatWindow({
   const [isRecording, setIsRecording] = useState(false);
   const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
   const { theme: themeNext } = useTheme();
-  const messagesStartRef = useRef<HTMLDivElement>(null);
-
-  const scrollToTop = () => {
-    messagesStartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  useEffect(() => {
-    scrollToTop();
-  }, [chat.messages]); // Scroll when messages change
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -146,7 +137,6 @@ export function ChatWindow({
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-3 sm:p-4 sm:pb-2 space-y-3 sm:space-y-4">
-            <div ref={messagesStartRef} />
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
