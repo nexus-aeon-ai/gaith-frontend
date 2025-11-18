@@ -97,8 +97,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
   const initialDefaultValues =
     mode === "edit" ? initialData ?? undefined : initialData ?? defaultFormData;
 
+  console.log("initialDataaaaa", initialData);
+
   const form = useForm<any>({
-    // use the partial update schema as resolver in edit mode so missing fields don't block submit
+    // use the partial update schema as resolver in edit mode so missing field's don't block submit
     resolver: zodResolver(mode === "edit" ? udpateQuoteSchema : createQuoteSchema),
     defaultValues: initialDefaultValues,
     mode: "onChange",
@@ -286,7 +288,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 <div className=" flex flex-col">
                   <div className="flex flex-row justify-between items-center">
                     <p className="text-md font-[400] text-[#687192]">Quotation Number</p>
-                    <p className="text-sm font-[400]">{quotation.quotationId}</p>
+                    <p className="text-sm font-[400]">{quotation.quotationNumber}</p>
                   </div>
                   <div className="flex flex-row justify-between items-center">
                     <p className="text-md font-[400] text-[#687192]">Created Date</p>
@@ -363,11 +365,11 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] capitalize py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Currency" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions.map(option => (
-                              <SelectItem className="capitalize" key={option} value={option}>
+                              <SelectItem key={option} value={option}>
                                 {option}
                               </SelectItem>
                             ))}
@@ -627,8 +629,8 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                                         <SelectValue>
                                           {currencyField.value
                                             ? currenciesList.find(
-                                              option => option.id === currencyField.value,
-                                            )?.symbol
+                                                option => option.id === currencyField.value,
+                                              )?.symbol
                                             : null}
                                         </SelectValue>
                                       </SelectTrigger>

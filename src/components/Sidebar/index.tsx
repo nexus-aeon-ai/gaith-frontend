@@ -1,7 +1,10 @@
 "use client";
 
+import { Quote, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import React from "react";
 
 import {
   Sidebar,
@@ -14,122 +17,175 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
+import FileIcon from "../ui/icons/file";
+import CalendarIcon from "../ui/icons/options/calendar-icon";
+import SettingsFilled from "../ui/icons/settings-filled";
 import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
+import AiChatbotFilled from "../ui/icons/sidebar/aichatbot-filled";
 import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
+import SubmitedFilled from "../ui/icons/sidebar/campaign-filled";
+import ClientFilled from "../ui/icons/sidebar/client-filled";
 import { ClientManagmentIcon } from "../ui/icons/sidebar/clientManagment";
-import { DashboardListIcon } from "../ui/icons/sidebar/dashboard-list";
+import DashboarFilled from "../ui/icons/sidebar/dashboard-filled";
+import DashboardOutline from "../ui/icons/sidebar/dashboard-outline";
 import { EmployeeIcon } from "../ui/icons/sidebar/Employee";
+import EmployeeFilled from "../ui/icons/sidebar/employee-filled";
+import EmployeeTasksFilled from "../ui/icons/sidebar/employee-tasks-filled";
 import { EmployeeTasksIcon } from "../ui/icons/sidebar/employeeTasks";
 import { LeadsIcon } from "../ui/icons/sidebar/Leads";
+import LeadsFilled from "../ui/icons/sidebar/leads-filled";
 import { LogoutIcon } from "../ui/icons/sidebar/logout";
 import { PricingIcon } from "../ui/icons/sidebar/pricing";
+import QuotationsFilled from "../ui/icons/sidebar/quotation-filled";
 import { QuotationsIcon } from "../ui/icons/sidebar/quotations";
 import { ReportIcon } from "../ui/icons/sidebar/Report";
+import ReportsFilled from "../ui/icons/sidebar/report-filled";
 import { SettingsIcon } from "../ui/icons/sidebar/settings";
 import { SocialMediaCalenderIcon } from "../ui/icons/sidebar/socialMediaCalender";
 import { SubmitedIcon } from "../ui/icons/sidebar/submited";
-import { SupportIcon } from "../ui/icons/sidebar/support";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
+import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
-const mainItems = [
-  {
-    label: "Dashboard",
-    icon: <DashboardListIcon className="dark:text-[#E6EFF9]" />,
-    href: "/",
-  },
-  {
-    label: "Task Tracking",
-    icon: <TaskTrackingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/task-tracking",
-  },
-  {
-    label: "Report & Analysis",
-    icon: <ReportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/reports",
-  },
-  {
-    label: "Leads",
-    icon: <LeadsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/leads",
-  },
-  {
-    label: "Client Management",
-    icon: <ClientManagmentIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/client-management",
-  },
-  {
-    label: "Employees",
-    icon: <EmployeeIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/employees",
-  },
-  {
-    label: "Employees Tasks",
-    icon: <EmployeeTasksIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/employee-tasks",
-  },
-  {
-    label: "Quotations",
-    icon: <QuotationsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/quotations",
-  },
-  {
-    label: "Submitted",
-    icon: <SubmitedIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/submitted",
-  },
-  {
-    label: "Support",
-    icon: <SupportIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/support",
-  },
-];
-
-const aiToolsItems = [
-  {
-    label: "Generate Pricing",
-    icon: <PricingIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/pricing",
-  },
-  {
-    label: "Social Media Calendar",
-    icon: <SocialMediaCalenderIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/social-media-calendar",
-  },
-  {
-    label: "Blog & Articles",
-    icon: <BlogArticlesIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai/blog-articles",
-  },
-  {
-    label: "AI Chatbot",
-    icon: <AIChatbotIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/ai-chatbot",
-  },
-];
-
-const settingsItems = [
-  {
-    label: "Settings",
-    icon: <SettingsIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/settings",
-  },
-  {
-    label: "Logout",
-    icon: <LogoutIcon className="text-[#265B99] dark:text-[#E6EFF9]" />,
-    href: "/logout",
-  },
-];
 const SidebarUI  = () => {
   const pathname = usePathname();
+  const { theme } = useTheme();
+
+  const supportItems = [
+    {
+      label: "My Ticket",
+      icon: <Ticket className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Ticket className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/support",
+    },
+    {
+      label: "FAQ's",
+      icon: <Quote className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Quote className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/support/faq",
+    },
+  ];
+
+  const mainItems = [
+    {
+      label: "Dashboard",
+      icon: <DashboardOutline className="dark:text-[#CCCFDB]" />,
+      iconFilled: <DashboarFilled className="dark:text-[#CCCFDB]" />,
+      href: "/",
+    },
+    {
+      label: "Task Tracking",
+      icon: <TaskTrackingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <TaskTrackingFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/task-tracking",
+    },
+    {
+      label: "Report & Analysis",
+      icon: <ReportIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <ReportsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/reports",
+    },
+    {
+      label: "Leads",
+      icon: <LeadsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <LeadsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/leads",
+    },
+    {
+      label: "Client Management",
+      icon: <ClientManagmentIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <ClientFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/client-management",
+    },
+    {
+      label: "Employees",
+      icon: <EmployeeIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <EmployeeFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/employees",
+    },
+    {
+      label: "Employees Tasks",
+      icon: <EmployeeTasksIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <EmployeeTasksFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/employee-tasks",
+    },
+    {
+      label: "Quotations",
+      icon: <QuotationsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <QuotationsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/quotations",
+    },
+    {
+      label: "Submitted",
+      icon: <SubmitedIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <SubmitedFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/submitted",
+    },
+  ];
+
+  const aiToolsItems = [
+    {
+      label: "Generate Pricing",
+      icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      href: "/ai/pricing",
+    },
+    {
+      label: "Social Media Calendar",
+      icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB":"#265B99"} />,
+      href: "/ai/social-media-calendar",
+    },
+    {
+      label: "Blog & Articles",
+      icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB":"#265B99"}/>,
+      href: "/ai/blog-articles",
+    },
+    {
+      label: "AI Chatbot",
+      icon: <AIChatbotIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <AiChatbotFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/ai-chatbot",
+    },
+  ];
+
+  const settingsItems = [
+    {
+      label: "Settings",
+      icon: <SettingsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <SettingsFilled color={ theme === "dark" ? "#CCCFDB":"#265B99" } />,
+      href: "/settings",
+    },
+    {
+      label: "Logout",
+      icon: <LogoutIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <LogoutIcon className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/logout",
+    },
+  ];
 
   const isActive = (href: string) => {
-    if (!pathname) return false;
-    if (href === "/") return pathname === "/";
+    if (!pathname) {
+      return false;
+    }
+
+    if (href === "/") {
+      return pathname === "/en";
+    }
+
+    if (href === "/support") {
+      return (pathname.includes("/support") && !pathname.includes("/support/faq"));
+    }
+    if (href === "/support/faq") {
+      return pathname.includes("/support/faq");
+    }
     return pathname === href || pathname.includes(href) || pathname.includes(`/${href}?`);
   };
 
-  const activeClasses = "bg-muted text-foreground";
+  const activeClasses =
+    "bg-muted text-foreground border dark:border-[#3072C0] transition-all duration-300 ease-in-out";
 
   return (
     <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none bg-transparent">
@@ -140,11 +196,66 @@ const SidebarUI  = () => {
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
-                  className={isActive(item.href) ? activeClasses : undefined}
+                  className={cn(
+                    "py-5 transition-all duration-500 ease-in-out",
+                    isActive(item.href) && activeClasses,
+                  )}
                 >
                   <Link href={item.href}>
-                    <span className="text-lg">{item.icon}</span>
-                    <span className="font-medium">{item.label}</span>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isActive(item.href) ? item.iconFilled : item.icon}
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full transition-all duration-500 ease-in-out transform",
+                          isActive(item.href) ? "scale-100 opacity-100" : "scale-0 opacity-0",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(268.38deg, #F7C649 1.37%, #FFB257 26.94%, #29AD82 66.61%, #265B99 98.7%)",
+                        }}
+                      />
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarMenu>
+            {supportItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  asChild
+                  className={cn(
+                    "py-5 transition-all duration-500 ease-in-out",
+                    isActive(item.href) && activeClasses,
+                  )}
+                >
+                  <Link href={item.href}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isActive(item.href) ? item.iconFilled : item.icon}
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full transition-all duration-500 ease-in-out transform",
+                          isActive(item.href) ? "scale-100 opacity-100" : "scale-0 opacity-0",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(268.38deg, #F7C649 1.37%, #FFB257 26.94%, #29AD82 66.61%, #265B99 98.7%)",
+                        }}
+                      />
+                    </div>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -157,10 +268,12 @@ const SidebarUI  = () => {
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
-                  className={isActive(item.href) ? activeClasses : undefined}
+                  className={cn("py-5", isActive(item.href) && activeClasses)}
                 >
                   <Link href={item.href}>
-                    <span className="text-lg">{item.icon}</span>
+                    <span className="text-lg">
+                      {isActive(item.href) ? item.iconFilled : item.icon}
+                    </span>
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -176,7 +289,9 @@ const SidebarUI  = () => {
                   className={isActive(item.href) ? activeClasses : undefined}
                 >
                   <Link href={item.href}>
-                    <span className="text-lg">{item.icon}</span>
+                    <span className="text-lg">
+                      {isActive(item.href) ? item.iconFilled : item.icon}
+                    </span>
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>

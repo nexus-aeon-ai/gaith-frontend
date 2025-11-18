@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -16,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -52,7 +54,14 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
   const router = useRouter();
   const createMutation = useCreateTask();
 
-  const { data: categories } = useQuery({ queryKey: ["task-categories"], queryFn: getAllCategories });
+  // used for setting minumum today's date for due date in form
+  const today = new Date().toISOString().split("T")[0];
+  const { theme } = useTheme();
+
+  const { data: categories } = useQuery({
+    queryKey: ["task-categories"],
+    queryFn: getAllCategories,
+  });
   const { data: users } = useQuery({ queryKey: ["users"], queryFn: getAllUsers });
   const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
 
@@ -78,7 +87,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
       if (onSubmit) {
         onSubmit(data);
       }
-      
+
       // Convert form data to API format
       const taskData = {
         title: data.title,
@@ -101,15 +110,19 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
     }
   };
 
+  const handleDueDateClick = () => {
+    const input = document.getElementById("date-due") as HTMLInputElement & {
+      showPicker?: () => void;
+    };
+    input?.showPicker?.();
+  };
+
+
   return (
     <div className="w-full space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-        <svg
-          className="w-5 h-5 text-primary"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7" rx="1" />
           <rect x="14" y="3" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -126,12 +139,8 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            Create New Task
-          </h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
-            Create New Task
-          </p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Create New Task</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Add information to create a new task</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -163,7 +172,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 <FormItem>
                   <FormLabel>Task Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Task Title" {...field} />
+                    <Input
+                      className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                      placeholder="Task Title"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -180,7 +193,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormControl>
                     <Textarea
                       placeholder="Task Description"
-                      className="min-h-[100px] resize-none"
+                      className="min-h-[100px] resize-none dark:bg-[#0F1B29] pb-6 bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />
                   </FormControl>
@@ -198,14 +211,16 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Assignee</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select Assignee" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users?.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>{u.fullName}</SelectItem>
+                        {users?.map(u => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.fullName}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -222,14 +237,16 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Client</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select client" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {clients?.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>{c.fullName}</SelectItem>
+                        {clients?.map(c => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.clientName}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -248,7 +265,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Priority Level</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select Priority" />
                         </SelectTrigger>
@@ -273,7 +290,35 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Due Date</FormLabel>
                     <FormControl>
-                      <Input type="date" placeholder="--/--/---" {...field} />
+                      {/* <Input
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        type="date"
+                        placeholder="--/--/---"
+                        {...field}
+                        min={today}
+                      /> */}
+                      <div className="relative w-full">
+                        <Input
+                          id="date-due"
+                          type="date"
+                          {...field}
+                          min={today}
+                          className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-6 pr-10
+                          [&::-webkit-calendar-picker-indicator]:opacity-0 
+                          [&::-webkit-calendar-picker-indicator]:absolute 
+                          [&::-webkit-calendar-picker-indicator]:w-full 
+                          [&::-webkit-calendar-picker-indicator]:h-full"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={handleDueDateClick}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          aria-label="Select from date"
+                        >
+                          <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -290,14 +335,16 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Task Category</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                      <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
                           <SelectValue placeholder="Select Task Category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories?.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        {categories?.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -314,7 +361,12 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                   <FormItem>
                     <FormLabel>Estimated Hours</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="--/--" {...field} />
+                      <Input
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        type="number"
+                        placeholder="--/--"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -328,11 +380,13 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
               name="additionalComments"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Enter Any Additional Instructions Or Requirements</FormLabel>
+                  <FormLabel className="mb-3">
+                    Enter Any Additional Instructions Or Requirements
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Enter any additional instructions or requirements"
-                      className="min-h-[100px] resize-none"
+                      className="min-h-[100px] resize-none dark:bg-[#0F1B29]  bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />
                   </FormControl>
@@ -346,4 +400,3 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
     </div>
   );
 }
-

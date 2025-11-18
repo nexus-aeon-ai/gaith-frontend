@@ -45,7 +45,7 @@ export default function LeadReportsTable() {
   return (
     <Card className="rounded-2xl shadow-sm border pt-4 lg:col-span-4 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold">Client Reports</CardTitle>
+        <CardTitle className="text-lg font-semibold">Lead Reports</CardTitle>
         <div className="flex items-center gap-1">
           <a href="#none" className="text-md font-medium text-[#3072C0]">
             View All

@@ -163,7 +163,7 @@ const QuotesPage = () => {
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       // Select all quotation IDs
-      setSelectedQuotations(currentQuotations.map(q => q.quotationId));
+      setSelectedQuotations(currentQuotations.map(q => q.quotationNumber));
     } else {
       // Clear all selections
       setSelectedQuotations([]);
@@ -172,7 +172,7 @@ const QuotesPage = () => {
 
   const filteredQuotations = quotations.filter(
     q =>
-      q.quotationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.quotationNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.customer.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -494,16 +494,16 @@ const QuotesPage = () => {
                   <TableCell className="px-4 py-3">
                     <Checkbox
                       className="!rounded-[8px]"
-                      checked={selectedQuotations.includes(quote.quotationId)}
+                      checked={selectedQuotations.includes(quote.quotationNumber)}
                       onCheckedChange={checked =>
-                        handleSelectQuotation(quote.quotationId, checked as boolean)
+                        handleSelectQuotation(quote.quotationNumber, checked as boolean)
                       }
                     />
                   </TableCell>
 
                   {/* Quotation ID */}
                   <TableCell className="text-sm font-medium text-[#3072C0] whitespace-nowrap">
-                    {quote.quotationId}
+                    {quote.quotationNumber}
                   </TableCell>
 
                   {/* Customer */}

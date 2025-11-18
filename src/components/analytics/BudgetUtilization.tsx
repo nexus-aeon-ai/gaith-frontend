@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import React, { useState } from "react";
 import { Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import DownArrow from "@/components/ui/icons/down-arrow";
 import { Separator } from "@/components/ui/separator";
-import { useTheme } from "next-themes";
 
 // Mock data for different time periods
 const budgetDataByPeriod = {
@@ -189,7 +189,7 @@ const BudgetUtilization: React.FC = () => {
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    const lineEndX = x + (x > cx ? 50 : -50); // horizontal line direction
+    const lineEndX = x + (x > cx ? 30 : -30); // horizontal line direction
     const lineEndY = y;
 
     return (
@@ -308,7 +308,7 @@ const BudgetUtilization: React.FC = () => {
         </DropdownMenu>
       </CardHeader>
       <Separator />
-      <CardContent>
+      <CardContent className="p-0">
         <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px]">
           {/* Center overlay - moved outside ChartContainer */}
           <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">

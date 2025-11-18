@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const statusOptions = ["pending", "approved", "rejected"] as const;
+export const statusOptions = ["DRAFT", "SENT", "ACCEPTED", "REJECTED", "EXPIRED"] as const;
 
 export interface ServiceInstance {
   description: string;

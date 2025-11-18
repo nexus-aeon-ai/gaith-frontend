@@ -118,7 +118,7 @@ export interface SimpleEmployee {
 
 export interface SimpleClient {
   id: string;
-  fullName: string;
+  clientName: string;
 }
 
 /**

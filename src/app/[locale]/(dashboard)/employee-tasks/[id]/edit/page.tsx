@@ -37,10 +37,13 @@ export default function EditTaskPage({ params }: EditTaskPageProps) {
 
   const categoriesById = useMemo(() => {
     if (!categories) return undefined;
-    return categories.reduce<Record<string, { id: string; name: string; color: string }>>((acc, c) => {
-      acc[c.id] = c;
-      return acc;
-    }, {});
+    return categories.reduce<Record<string, { id: string; name: string; color: string }>>(
+      (acc, c) => {
+        acc[c.id] = c;
+        return acc;
+      },
+      {},
+    );
   }, [categories]);
 
   const employeesById = useMemo(() => {
@@ -70,4 +73,3 @@ export default function EditTaskPage({ params }: EditTaskPageProps) {
     </div>
   );
 }
-

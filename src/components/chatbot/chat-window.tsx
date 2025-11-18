@@ -24,8 +24,10 @@ import { Textarea } from "../ui/textarea";
 
 interface ChatWindowProps {
   chat: Chat;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, attachmentUrls?: string[]) => void;
   onToggleSidebar: () => void;
+  isLoading?: boolean;
+  isSending?: boolean;
 }
 
 const formSchema = z.object({
@@ -34,18 +36,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowProps) {
+export function ChatWindow({
+  chat,
+  onSendMessage,
+  onToggleSidebar,
+  isLoading,
+  isSending,
+}: ChatWindowProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
   const { theme: themeNext } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [chat.messages]); // Scroll when messages change
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,12 +55,22 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
     },
   });
 
+  // Scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chat.messages, isSending]); // Scroll when messages or sending state changes
+
   const { watch } = form;
   const messageValue = watch("message");
 
   const onSubmit = (data: FormValues) => {
-    onSendMessage(data.message);
+    onSendMessage(data.message, attachmentUrls.length > 0 ? attachmentUrls : undefined);
     form.reset();
+    setAttachmentUrls([]);
   };
 
   const handleQuickAction = (action: string) => {
@@ -136,48 +147,71 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-3 sm:p-4 sm:pb-2 space-y-3 sm:space-y-4">
-            {chat.messages.map(message => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex gap-2 sm:gap-3 w-full",
-                  message.sender === "user" ? "justify-end" : "justify-start",
-                )}
-              >
-                {message.sender === "assistant" && (
-                  <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
-                    <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
-                  </Avatar>
-                )}
-
-                <div
-                  className={cn(
-                    "flex flex-col max-w-[85%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2",
-                    message.sender === "user"
-                      ? " bg-[#3072C0] text-primary-foreground  ml-auto"
-                      : "dark:bg-[#212945] bg-white dark:text-[#CCCFDB] text-[#303444]",
-                  )}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                    {message.content}
-                  </p>
-                  <p
-                    className={`text-xs opacity-70 mt-1 ${
-                      message.sender === "user" ? "self-end" : "self-start"
-                    }`}
-                  >
-                    {message.timestamp}
-                  </p>
-                </div>
-
-                {message.sender === "user" && (
-                  <Avatar className="flex items-center justify-center dark:bg-[#212945] bg-white pt-[2px] h-9 w-9 flex-shrink-0">
-                    <UserIcon color={themeNext === "dark" ? "white" : "#687192"} />
-                  </Avatar>
-                )}
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+            ) : (
+              <>
+                {chat.messages.map(message => (
+                  <div
+                    key={message.id}
+                    className={cn(
+                      "flex gap-2 sm:gap-3 w-full",
+                      message.sender === "user" ? "justify-end" : "justify-start",
+                    )}
+                  >
+                    {message.sender === "assistant" && (
+                      <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
+                        <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
+                      </Avatar>
+                    )}
+
+                    <div
+                      className={cn(
+                        "flex flex-col max-w-[85%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2",
+                        message.sender === "user"
+                          ? " bg-[#3072C0] text-primary-foreground  ml-auto"
+                          : "dark:bg-[#212945] bg-white dark:text-[#CCCFDB] text-[#303444]",
+                      )}
+                    >
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
+                      <p
+                        className={`text-xs opacity-70 mt-1 ${
+                          message.sender === "user" ? "self-end" : "self-start"
+                        }`}
+                      >
+                        {message.timestamp}
+                      </p>
+                    </div>
+
+                    {message.sender === "user" && (
+                      <Avatar className="flex items-center justify-center dark:bg-[#212945] bg-white pt-[2px] h-9 w-9 flex-shrink-0">
+                        <UserIcon color={themeNext === "dark" ? "white" : "#687192"} />
+                      </Avatar>
+                    )}
+                  </div>
+                ))}
+                {isSending && (
+                  <div className="flex gap-2 sm:gap-3 w-full justify-start">
+                    <Avatar className="flex items-center justify-center bg-[linear-gradient(360deg,#2BAE82_0%,#266297_100%)]">
+                      <ChatbotIcon color={themeNext === "light" ? "white" : "black"} />
+                    </Avatar>
+                    <div className="flex items-center gap-2 dark:bg-[#212945] bg-white px-3 sm:px-4 py-2 rounded-lg">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.2s]" />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.4s]" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} />
+              </>
+            )}
           </div>
         </ScrollArea>
       </div>
@@ -221,8 +255,9 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
                           {...field}
                           rows={2}
                           placeholder="Let the magic begin, Ask a question"
+                          disabled={isSending}
                           className="!shadow-none !focus:shadow-none !border-none bg-transparent !focus:!stroke-none
-                 !ring-0 !outline-none !focus:ring-0 !focus:outline-none"
+                 !ring-0 !outline-none !focus:ring-0 !focus:outline-none disabled:opacity-50"
                         />
                       </FormControl>
                     </FormItem>
@@ -265,8 +300,15 @@ export function ChatWindow({ chat, onSendMessage, onToggleSidebar }: ChatWindowP
                   variant="ghost"
                   size="sm"
                   className={cn("h-8 transition-all duration-200")}
-                  onClick={handleVoiceRecording}
-                  title={isRecording ? "Stop recording" : "Start voice recording"}
+                  onClick={messageValue?.trim() ? form.handleSubmit(onSubmit) : handleVoiceRecording}
+                  disabled={isSending}
+                  title={
+                    messageValue?.trim()
+                      ? "Send message"
+                      : isRecording
+                        ? "Stop recording"
+                        : "Start voice recording"
+                  }
                 >
                   {messageValue?.trim() ? (
                     <Send className="h-5 w-5" />
