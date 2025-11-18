@@ -133,7 +133,7 @@ const SidebarUI  = () => {
 
   return (
     <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none bg-transparent">
-      <SidebarContent className="h-full bg-background md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
+      <SidebarContent className="h-full bg-background dark:bg-[#06080F] md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
             {mainItems.map(item => (
