@@ -59,7 +59,7 @@ const EmployeeList = () => {
 
   console.log("employee list:", apiEmployees);
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const res = await getEmployees();
@@ -82,7 +82,7 @@ const EmployeeList = () => {
         role: emp.role?.title,
         roleLevel: emp.role?.level,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department?.name, team: emp.department.subTeam || "nil" },
+        department: { name: emp.department?.name, team: emp.department?.subTeam || "nil" },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
@@ -101,6 +101,10 @@ const EmployeeList = () => {
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
   });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -496,7 +500,14 @@ const EmployeeList = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Left side - Page info */}
           <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Page {currentPage} of {totalPages} ({filteredEmployees.length} total employees)
+            {(() => {
+              const startIndex = (currentPage - 1) * 5 + 1;
+              const endIndex = Math.min(currentPage * 5, filteredEmployees.length);
+
+              return startIndex === endIndex
+                ? `Showing ${startIndex} of ${filteredEmployees.length}`
+                : `Showing ${startIndex} to ${endIndex} of ${filteredEmployees.length}`;
+            })()}
           </div>
 
           {/* Right side - Pagination controls */}
@@ -514,7 +525,7 @@ const EmployeeList = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <LeftArrow className="h-4 w-4" color={currentPage === 1 ? "gray":"#3072C0"}/>
+              <LeftArrow className="h-4 w-4" color={currentPage === 1 ? "gray" : "#3072C0"} />
             </Button>
 
             {/* Page numbers */}
@@ -558,7 +569,10 @@ const EmployeeList = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              <RightArrow className="h-4 w-4" color={currentPage === totalPages ? "gray":"#3072C0"}/>
+              <RightArrow
+                className="h-4 w-4"
+                color={currentPage === totalPages ? "gray" : "#3072C0"}
+              />
             </Button>
           </div>
         </div>

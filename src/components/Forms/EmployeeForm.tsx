@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -143,10 +144,19 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                           className="hidden"
                           onChange={e => {
                             const file = e.target.files?.[0];
-                            if (file) {
-                              field.onChange(file); // update form value
-                              setPreview(URL.createObjectURL(file)); // preview image
+                            if (!file) return;
+
+                            // 2 MB limit (2 * 1024 * 1024 bytes)
+                            const maxSize = 2 * 1024 * 1024;
+
+                            if (file.size > maxSize) {
+                              toast.error("File size exceeds 2MB limit.");
+                              e.target.value = ""; // Clear file input
+                              return;
                             }
+
+                            field.onChange(file); // update form value
+                            setPreview(URL.createObjectURL(file)); // preview image
                           }}
                         />
                       </FormControl>
