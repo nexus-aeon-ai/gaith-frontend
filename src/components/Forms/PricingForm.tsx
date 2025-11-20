@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import PricingPackageConfiguration from "@/components/ClientManagement/GenerateAssets/PricingPackageConfiguration";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -39,7 +40,6 @@ import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
-import PricingPackageConfiguration from "@/components/ClientManagement/GenerateAssets/PricingPackageConfiguration";
 
 interface PricingFormProps {
   onSubmit: (data: GeneratePricingFormData) => void;
@@ -170,8 +170,8 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
   };
 
   const handleCustomChange = (index: number, field: string, value: string) => {
-    const updated = [...customServices];
-    updated[index][field] = value;
+    const updated: { name: string; description: string; price: string }[] = [...customServices];
+    updated[index] = { ...updated[index], [field]: value };
     setCustomServices(updated);
   };
 

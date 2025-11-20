@@ -13,9 +13,18 @@ interface AssetCardProps {
   description: string;
   footerText: string;
   setShowMediaBuyingSheet: (show: boolean) => void;
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
 }
 
-const AssetCard = ({ title, description, footerText, setShowMediaBuyingSheet }: AssetCardProps) => {
+const AssetCard = ({ 
+  title, 
+  description, 
+  footerText, 
+  setShowMediaBuyingSheet,
+  checked = false,
+  onCheckedChange
+}: AssetCardProps) => {
   const { theme } = useTheme();
 
   return (
@@ -23,7 +32,10 @@ const AssetCard = ({ title, description, footerText, setShowMediaBuyingSheet }: 
       <CardHeader className="p-0 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <CheckboxSquare />
+            <CheckboxSquare 
+              checked={checked}
+              onCheckedChange={onCheckedChange}
+            />
             <CardTitle className="text-sm font-bold">{title}</CardTitle>
           </div>
           <EyeIcon

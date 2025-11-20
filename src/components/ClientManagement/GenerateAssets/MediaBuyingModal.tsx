@@ -1,0 +1,128 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const mediaBuyingFormSchema = z.object({
+  platform: z.string().min(1, "Platform is required"),
+});
+
+type MediaBuyingFormData = z.infer<typeof mediaBuyingFormSchema>;
+
+interface MediaBuyingModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: MediaBuyingFormData) => void;
+}
+
+const platforms = [
+  { value: "meta", label: "Meta (Facebook & Instagram)" },
+  { value: "google", label: "Google Ads" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "twitter", label: "Twitter/X" },
+  { value: "tiktok", label: "TikTok" },
+];
+
+export default function MediaBuyingModal({
+  open,
+  onOpenChange,
+  onSubmit,
+}: MediaBuyingModalProps) {
+  const form = useForm<MediaBuyingFormData>({
+    resolver: zodResolver(mediaBuyingFormSchema),
+    defaultValues: {
+      platform: "meta",
+    },
+  });
+
+  const handleSubmit = (data: MediaBuyingFormData) => {
+    onSubmit(data);
+    form.reset();
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px] dark:bg-[#212945] bg-card font-inter rounded-[16px]">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold">Generate Media Buying Plan</DialogTitle>
+          <DialogDescription>
+            Select the platform for your media buying plan.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="platform"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Platform</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                        <SelectValue placeholder="Select platform" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {platforms.map(platform => (
+                        <SelectItem key={platform.value} value={platform.value}>
+                          {platform.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="rounded-[12px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#3072C0] hover:bg-[#184a86] text-white rounded-[12px]"
+              >
+                Generate
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
