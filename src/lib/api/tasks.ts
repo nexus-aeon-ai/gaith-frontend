@@ -108,6 +108,8 @@ export interface SimpleCategory {
   id: string;
   name: string;
   color: string;
+  count?: number;
+  stages?: Record<string, number>;
 }
 
 export interface SimpleEmployee {
@@ -132,7 +134,7 @@ export async function createTask(data: CreateTaskDTO): Promise<TaskResponse> {
     },
     body: JSON.stringify(data),
   });
-
+  console.log("Create Task Response:", response);
   if (response.status !== 200 && response.status !== 201 || !response.data) {
     throw new Error("Failed to create task");
   }
@@ -248,6 +250,29 @@ export async function getAllCategories(): Promise<SimpleCategory[]> {
   if (response.status !== 200 || !response.data) {
     throw new Error("Failed to fetch categories");
   }
+  return response.data;
+}
+
+/**
+ * Create a new category
+ */
+export async function createCategory(data: { name: string; color: string }): Promise<SimpleCategory> {
+  const response = await fetchInstance<SimpleCategory>("/utils/categories", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error("Failed to create category");
+  }
+
+  if (!response.data) {
+    throw new Error("Create category returned empty response");
+  }
+
   return response.data;
 }
 

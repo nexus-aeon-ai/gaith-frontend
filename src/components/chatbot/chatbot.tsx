@@ -308,7 +308,7 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
   }
 
   return (
-    <div className="flex p-3 h-[calc(100vh-var(--header-height))] w-full overflow-hidden bg-background">
+    <div className="flex p-3 h-[calc(100vh-var(--header-height))] w-full overflow-hidden">
       {/* Mobile backdrop */}
       {isSidebarOpen && (
         // eslint-disable-next-line
@@ -321,7 +321,7 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed lg:relative inset-y-0 left-0 z-[40] w-full sm:w-80 lg:w-80 h-full transform transition-transform duration-300 ease-in-out",
+          "fixed lg:relative rounded-s-[16px] overflow-hidden inset-y-0 left-0 z-[40] w-full sm:w-80 lg:w-80 h-full transform transition-transform duration-300 ease-in-out",
           {
             "translate-x-0": isSidebarOpen,
             "-translate-x-full lg:translate-x-0": !isSidebarOpen,

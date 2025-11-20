@@ -55,7 +55,7 @@ const EmployeeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const res = await getEmployees();
@@ -77,7 +77,7 @@ const EmployeeList = () => {
         // UI expects these fields differently
         role: emp.role?.title,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        department: { name: emp.department?.name, team: emp.department.subTeam || "" },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
@@ -96,6 +96,8 @@ const EmployeeList = () => {
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
   });
+
+  if (isLoading) return;
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -177,10 +179,7 @@ const EmployeeList = () => {
 
   return (
     <div
-      className={cn(
-        "min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
-        "bg-background overflow-x-hidden",
-      )}
+      className={cn("min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0", "overflow-x-hidden")}
     >
       {/* Header Section */}
       <div
@@ -369,7 +368,7 @@ const EmployeeList = () => {
 
                   {/* Department */}
                   <TableCell className="px-4 py-3 text-center">
-                    <p className="text-sm font-medium">{employee.department.name}</p>
+                    <p className="text-sm font-medium">{employee.department?.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {employee.department.team}
                     </p>
@@ -516,15 +515,15 @@ const EmployeeList = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}

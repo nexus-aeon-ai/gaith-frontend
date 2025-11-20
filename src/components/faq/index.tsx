@@ -95,7 +95,7 @@ const FAQ = () => {
   const totalFaqs = faqsData?.total || 0;
 
   return (
-    <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6", "bg-background")}>
+    <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6")}>
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">FAQ</h1>
@@ -154,7 +154,7 @@ const FAQ = () => {
           ) : (
             <div className="space-y-8">
               {groupedFaqs.map(([category, faqs]) => (
-                <div key={category}>
+                <div key={category} className="bg-background rounded-[16px] p-4">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     {category}
                   </h2>

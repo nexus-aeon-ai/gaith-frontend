@@ -36,7 +36,7 @@ const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with create user api
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {

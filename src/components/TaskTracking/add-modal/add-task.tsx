@@ -24,7 +24,7 @@ const AddTaskButton: React.FC<AddTaskButtonProps> = ({
       }}
       className={cn(
         "flex items-center gap-1 sm:gap-2",
-        "bg-[#508CD3] rounded-3xl w-full sm:w-auto cursor-pointer",
+        "bg-[#508CD3] rounded-[16px] w-full sm:w-auto cursor-pointer",
         "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
         "hover:bg-blue-700 text-white",
         "text-xs sm:text-sm lg:text-base",

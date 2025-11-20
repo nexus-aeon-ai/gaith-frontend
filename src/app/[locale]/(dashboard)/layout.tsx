@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="[--header-height:85px] ">
+    <div className="[--header-height:85px]">
       <SidebarProvider className="flex flex-col min-h-screen">
         <Navbar user={userProfile.data} />
 

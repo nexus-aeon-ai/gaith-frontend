@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DownloadFileIcon from "@/components/ui/icons/download-file";
 import EyeIcon from "@/components/ui/icons/eye";
+import RightArrow from "@/components/ui/icons/right-arrow";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -42,7 +43,12 @@ export default function ClientReportsTable() {
     <Card className="rounded-2xl shadow-sm border pt-4 lg:col-span-6 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">Client Reports</CardTitle>
-        <p className="text-sm text-blue-600 cursor-pointer hover:underline">View All</p>
+       <div className="flex items-center gap-1">
+          <a href="#none" className="text-md font-medium text-[#3072C0]">
+            View All
+          </a>
+          <RightArrow size={16} className="text-[#3072C0] " />
+        </div>
       </CardHeader>
 
       <CardContent>
