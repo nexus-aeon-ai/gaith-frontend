@@ -43,6 +43,7 @@ const EmployeeList = () => {
   const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [employeeToShow, setEmployeeToShow] = useState<UiEmployee | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
@@ -160,7 +161,14 @@ const EmployeeList = () => {
   }
 
   if (showEmpDetailPage) {
-    return <EmployeeDetail employeeId={selectedEmployeeId} closeEmployeeDetails={() => {}} />;
+    return (
+      <EmployeeDetail
+        employeeId={selectedEmployeeId as string}
+        closeEmployeeDetails={() => {
+          setShowEmpDetailPage(false);
+        }}
+      />
+    );
   }
 
   if (showEditEmployeeForm && selectedEmployeeId) {
@@ -418,8 +426,8 @@ const EmployeeList = () => {
                             parseInt(employee.performance) >= 80
                               ? "bg-green-500"
                               : parseInt(employee.performance) >= 60
-                                ? "bg-yellow-500"
-                                : "bg-red-500",
+                              ? "bg-yellow-500"
+                              : "bg-red-500",
                           )}
                           style={{ width: employee.performance }}
                         />
@@ -436,7 +444,12 @@ const EmployeeList = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setShowEmpDetailPage(true)}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedEmployeeId(employee.id);
+                            setShowEmpDetailPage(true);
+                          }}
+                        >
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="hidden sm:inline dark:text-white text-gray-900">
                             View
@@ -516,15 +529,15 @@ const EmployeeList = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                        "bg-[#3072C0] text-white border border-[#3072C0]",
-                        "hover:bg-blue-700 hover:border-blue-700",
-                        "dark:bg-blue-600 dark:border-blue-600",
-                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                      )
+                          "bg-[#3072C0] text-white border border-[#3072C0]",
+                          "hover:bg-blue-700 hover:border-blue-700",
+                          "dark:bg-blue-600 dark:border-blue-600",
+                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                        )
                       : cn(
-                        "text-gray-500 dark:text-gray-400",
-                        "hover:text-gray-700 dark:hover:text-gray-200",
-                      ),
+                          "text-gray-500 dark:text-gray-400",
+                          "hover:text-gray-700 dark:hover:text-gray-200",
+                        ),
                   )}
                 >
                   {page}

@@ -1,4 +1,5 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, SquarePen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,13 +21,15 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import ChecklistIcon from "@/components/ui/icons/task-tracking/checklist";
 import TeacherHatIcon from "@/components/ui/icons/TeacherHat";
+import { getEmployeeById } from "@/lib/api/employee";
 
 import { cn } from "../../lib/utils";
 import { Badge } from "../ui/badge";
 import { Card } from "../ui/card";
 
+
 export type EmployeeDetailsProps = {
-  employeeId?: string | null;
+  employeeId: string;
   closeEmployeeDetails: () => void;
 };
 
@@ -34,6 +37,21 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
   const [showRequestChangesSheet, setShowRequestChangesSheet] = useState(false);
   const [showRejectCampaignSheet, setShowRejectCampaignSheet] = useState(false);
 
+  console.log("Employee Details Employee:", employeeId);
+
+  const { data: employee,isLoading } = useQuery({
+    queryKey: ["employees", employeeId],
+    queryFn: async () => {
+      const res = await getEmployeeById(employeeId);
+      return res.data;
+    },
+    enabled: !!employeeId,
+  });
+
+  if(isLoading){
+    return <div>Loading...</div>;
+  }
+  console.log("Fetched Employee Details:", employee);
   const skills = [
     {
       name: "Team Leadership",
@@ -57,7 +75,6 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
     },
   ];
 
-  console.log("Employee ID:", employeeId);
   return (
     <div className="w-full mx-auto p-6">
       {/* Breadcrumb */}
@@ -74,7 +91,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                href="/submitted"
+                href="/en/employees"
                 className="text-blue-600 font-medium text-md"
                 onClick={closeEmployeeDetails}
               >
@@ -101,12 +118,12 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           />
           <div>
             <div className="flex md:gap-2 gap-1 md:items-center items-start">
-              <h1 className="text-2xl font-semibold text-foreground">Holiday Season Sale 2025</h1>
+              <h1 className="text-2xl font-semibold text-foreground">{employee?.fullName}</h1>
               <Badge className="md:mt-0 mt-2 rounded-sm bg-yellow-100 pointer-events-none dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-500">
-                Pending
+                {employee?.status}
               </Badge>
             </div>
-            <p className="text-muted-foreground">Submitted Dec 18, 2024</p>
+            <p className="text-muted-foreground capitalize">{employee?.role.title}</p>
           </div>
         </div>
         <div className="flex md:flex-row flex-col gap-2">
@@ -177,11 +194,11 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
               <div className="flex flex-col gap-2 mt-2" role="list">
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground">Employee ID</span>
-                  <span className="font-medium text-foreground text-right break-all">EMP001</span>
+                  <span className="font-medium text-foreground text-right break-all">{employee?.employeeId}</span>
                 </div>
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground">Department</span>
-                  <span className="font-medium text-foreground text-right">North Region</span>
+                  <span className="font-medium text-foreground text-right">{employee?.department.name}</span>
                 </div>
                 <div
                   className="flex items-start justify-between gap-4 text-sm sm:col-span-3"
@@ -197,7 +214,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                   role="listitem"
                 >
                   <span className="text-muted-foreground">Employment Type</span>
-                  <span className="font-medium text-foreground text-right block">Full Time</span>
+                  <span className="font-medium text-foreground text-right capitalize block">{employee?.employmentType.replace("_", " ").toLowerCase()}</span>
                 </div>
               </div>
             </section>
@@ -270,7 +287,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">Publishing Schedule</span>
+                  <span className="text-muted-foreground">{employee?.email}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <svg
@@ -299,7 +316,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">+9670000000000</span>
+                  <span className="text-muted-foreground">{employee?.phone}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <svg
@@ -320,7 +337,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">New York, NY, United States</span>
+                  <span className="text-muted-foreground">{employee?.address}</span>
                 </div>
               </div>
             </section>
@@ -336,16 +353,16 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
               </h3>
 
               <div className="space-x-1 space-y-1 mt-2" role="list">
-                {skills.map((skill, index) => (
+                {employee?.skills.map((skill, index) => (
                   <Badge
                     key={index}
                     className="rounded-[8px] p-[5px] px-[8px]"
                     style={{
-                      backgroundColor: `${skill.color}1A`, // "B3" = ~70% opacity (in HEX)
-                      color: skill.color,
+                      backgroundColor: `${skill}1A`, // "B3" = ~70% opacity (in HEX)
+                      color: skills[index%employee.skills.length].color,
                     }}
                   >
-                    {skill.name}
+                    {skill}
                   </Badge>
                 ))}
               </div>
