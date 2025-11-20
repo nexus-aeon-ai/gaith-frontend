@@ -188,6 +188,7 @@ export interface EmployeeFormData {
   languagePreference?: string;
   notes?: string;
   address?: string;
+  skills: string;
 }
 
 const transformFormDataToBackend = (formData: EmployeeFormData) => {
@@ -210,6 +211,10 @@ const transformFormDataToBackend = (formData: EmployeeFormData) => {
     accountRoleId: formData.accountRoleId || "EMPLOYEE",
     languagePreference: formData.languagePreference || "EN",
     notes: formData.notes || "",
+    skills:
+      formData.skills?.split(",").map(skill => skill.trim()) ||
+      formData.skills?.split(" ").map(skill => skill.trim()) ||
+      [],
     street: formData.address || "",
     city: "",
     state: "",
@@ -241,10 +246,12 @@ export const createEmployee = async (
   }
 
   if (response.status !== 201) {
-    throw new Error(
-      JSON.stringify((response.data as unknown as { message: string }).message) || "Create failed",
-    );
-  }
+  const err = new Error(
+    (response.data as { message?: string }).message || "Create failed"
+  );
+  (err as any).status = response.status;
+  throw err;
+}
 
   return {
     status: response.status,
@@ -260,7 +267,7 @@ export const updateEmployee = async (
   data: Employee | null;
 }> => {
   const backendData = transformFormDataToBackend(formData);
-
+  console.log("👤 Updating employee:", backendData);
   const response = await fetchInstance<BackendEmployee>(`${employeesEndpoint}/${id}`, {
     method: "PATCH",
     headers: {

@@ -623,6 +623,24 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                   )}
                 />
               </div>
+               <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Notes</FormLabel>
+
+                    <FormControl>
+                      <Textarea
+                        placeholder="Notes"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
