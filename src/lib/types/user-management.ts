@@ -25,6 +25,7 @@ export interface Employee {
   fullName: string; // Changed from name to fullName to match API
   email: string; // Added email field from API
   role: string;
+  roleLevel: string;
   status: "active" | "inactive";
   department: Department;
   contactInfo: ContactInfo;
