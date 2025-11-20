@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -14,18 +15,31 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createLead } from "@/lib/api/leads";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
 const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
+  const mutation = useMutation({
+    mutationFn: createLead,
+    onSuccess: () => {
+      // Invalidate and refetch leads list
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      closeNewLeadForm();
+    },
+    onError: err => {
+      // show simple error, can replace with toast/notification later
+      console.error("Failed to create lead. " + (err instanceof Error ? err.message : ""));
+    },
+  });
+  
   const handleSave = async (data: CreateLeadFormData) => {
     setIsSubmitting(true);
-
     try {
       // Validate form data
       const result = createLeadSchema.safeParse(data);
-
       if (!result.success) {
         // Extract validation errors
         const errors: Record<string, string> = {};
@@ -33,14 +47,13 @@ const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
           const field = issue.path.join(".");
           errors[field] = issue.message;
         });
+        setIsSubmitting(false);
         return;
       }
-
       // If validation passes, proceed with create lead api
+      mutation.mutate(data);
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the lead. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };

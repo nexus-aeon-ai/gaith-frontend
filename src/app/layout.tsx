@@ -23,6 +23,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Gait - Dashboard",
   description: "Gait - Dashboard",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -34,7 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}>
         <Providers>{children}</Providers>
-        <footer className="w-full text-center py-4 text-xs text-gray-500 dark:text-gray-400">
+        <footer className="w-full text-center py-4 text-xs bg-[#E4E9F1] dark:bg-[#0F1220] text-gray-500 dark:text-gray-400">
           © {new Date().getFullYear()} Gaith | All rights reserved |{" "}
           <a href="https://gaith.ae" className="underline hover:text-blue-600">
             Terms of Service

@@ -19,7 +19,7 @@ import { createClient } from "@/lib/api/client/client";
 import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
 
 import AiDataForm from "../Forms/AiDataForm";
-import PopupModal from "../PopupModal/Modal";
+import PopupModal from "../PopupModal/PopupModal";
 
 import GenerateMarketingAssets from "./GenerateAssets/GenerateMarketingAssets";
 

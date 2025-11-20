@@ -1,9 +1,11 @@
 "use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
+import PopupModal from "@/components/PopupModal/PopupModal";
 import InvoiceSheet from "@/components/sheet/Quotation/InvoiceSheet";
 import QuotationFilterSheet from "@/components/sheet/Quotation/QuotationFilter";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import FolderIcon from "@/components/ui/icons/folder";
 import CopyIcon from "@/components/ui/icons/options/copy-icon";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import DeleteIconFilled from "@/components/ui/icons/options/delete-icon-filled";
@@ -34,11 +37,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { mockQuotations } from "@/lib/mockdata/quotations";
+import {
+  deleteQuotation,
+  getQuotationById,
+  getQuotations,
+  type BackendQuotationItem,
+} from "@/lib/api/quotations";
 import { cn } from "@/lib/utils";
 
 import { Quotation } from "../../lib/types";
-import { ConfirmDialog } from "../Popups/PopupModal";
+// import { ConfirmDialog } from "../Popups/PopupModal";
 import SendToClientSheet from "../sheet/Quotation/SendToClient";
 
 import EditQuote from "./EditQuote";
@@ -81,14 +89,7 @@ const data = {
     currency: "USD",
     createdBy: "Sales Manager",
   },
-  terms: [
-    "Payment terms: 50% upfront, 50% upon completion",
-    "Project timeline: 3–4 months",
-    "Includes 6 months of technical support",
-    "Additional changes may incur extra charges",
-    "All work will be completed according to agreed specifications",
-    "Client approval required for major changes",
-  ],
+  terms: ["Payment terms: 50% upfront, 50% upon completion"],
   notes:
     "This quotation includes comprehensive software development with modern technologies and best practices. Regular progress updates will be provided throughout the project. The solution will be scalable and maintainable for future enhancements.",
   currencyCode: "USD",
@@ -96,8 +97,25 @@ const data = {
 
 const QuotesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const {
+    data: quotationsResponse,
+    isLoading,
+    isError,
+  } = useQuery<
+    {
+      status: number;
+      data: { results: Quotation[]; count: number };
+    },
+    Error
+  >({
+    queryKey: ["quotations"],
+    queryFn: getQuotations,
+    initialData: { status: 200, data: { results: [], count: 0 } },
+  });
+  const quotations: Quotation[] = quotationsResponse?.data.results || [];
   const [quoteToEdit, setQuoteToEdit] = useState<Quotation | null>(null);
   const [selectedQuotations, setSelectedQuotations] = useState<string[]>([]);
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewQuoteForm] = useState(false);
@@ -105,10 +123,35 @@ const QuotesPage = () => {
   const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
   const [showSendToClientSheet, setShowSendToClientSheet] = useState(false);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
-  const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
+  // const [showDeleteAllPopup, setShowDeleteAllPopup] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+
+  // const [showSendInvoicePopup, setShowSendInvoicePopup] = useState(false);
+
+  // fetch single quotation when user opens view details
+  const { data: fetchedQuotationResp } = useQuery<BackendQuotationItem | null>({
+    queryKey: ["quotation", selectedQuoteId],
+    queryFn: async () => {
+      if (!selectedQuoteId) return null;
+      const resp = await getQuotationById(selectedQuoteId);
+      return resp.data;
+    },
+    enabled: !!selectedQuoteId && showQuoteDetails,
+  });
 
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteQuotationMutate } = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await deleteQuotation(id);
+      return res.status;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["quotations"] });
+    },
+  });
 
   const handleSelectQuotation = (quotationId: string, checked: boolean) => {
     setSelectedQuotations(prev =>
@@ -120,16 +163,16 @@ const QuotesPage = () => {
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       // Select all quotation IDs
-      setSelectedQuotations(mockQuotations.map(q => q.quotationId));
+      setSelectedQuotations(currentQuotations.map(q => q.quotationNumber));
     } else {
       // Clear all selections
       setSelectedQuotations([]);
     }
   };
 
-  const filteredQuotations = mockQuotations.filter(
+  const filteredQuotations = quotations.filter(
     q =>
-      q.quotationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.quotationNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.customer.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -170,6 +213,32 @@ const QuotesPage = () => {
     return pages;
   };
 
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "min-h-fit w-full p-2 mt-4 rounded-[12px] sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
+          "bg-backgrournd mb-3 overflow-x-hidden",
+        )}
+      >
+        Loading quotations...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div
+        className={cn(
+          "min-h-fit w-full p-2 mt-4 rounded-[12px] sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
+          "bg-backgrournd mb-3 overflow-x-hidden",
+        )}
+      >
+        Failed to load quotations.
+      </div>
+    );
+  }
+
   if (showNewLeadForm) {
     return <NewQuote closeNewQuoteForm={() => setShowNewQuoteForm(false)} />;
   }
@@ -180,7 +249,60 @@ const QuotesPage = () => {
     );
   }
   if (showQuoteDetails) {
-    return <ViewQuoteDetails data={data} closeViewDetails={() => setShowQuoteDetails(false)} />;
+    // transform backend item into the shape expected by ViewQuoteDetails
+    const transformToViewData = (item: BackendQuotationItem) => {
+      const services = (item.pricingItems || []).map(p => {
+        return {
+          name: p.serviceDescription,
+          price: p.servicePrice,
+          quantity: p.quantity,
+          taxPercentage: p.taxPercentage,
+        };
+      });
+
+      const terms = item.termsAndConditions
+        ? item.termsAndConditions.split(/\.\s*/).filter((t: string) => t.trim().length > 0)
+        : [];
+
+      const details = {
+        number: item.quotationNumber || item.id,
+        createdDate: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "",
+        currency: item.currencyId || "",
+        createdBy: item.createdBy || "",
+      };
+
+      return {
+        title: item.title || "",
+        description: item.description || "",
+        status: item.isDeleted ? "rejected" : item.isActive ? "pending" : "draft",
+        services,
+        setupFee: 0,
+        customer: {
+          name: item.title || "",
+          subtitle: "",
+          avatarUrl: "/images/girl-avatar.jpg",
+          email: "-",
+          phone: "",
+          address: "",
+        },
+        details,
+        terms,
+        notes: item.notes || "",
+        currencyCode: item.currencyId || "USD",
+      };
+    };
+
+    const viewData = fetchedQuotationResp ? transformToViewData(fetchedQuotationResp) : data;
+
+    return (
+      <ViewQuoteDetails
+        data={viewData}
+        closeViewDetails={() => {
+          setShowQuoteDetails(false);
+          setSelectedQuoteId(null);
+        }}
+      />
+    );
   }
 
   return (
@@ -263,9 +385,9 @@ const QuotesPage = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   variant="destructive"
-                  onClick={() => {
-                    setShowDeleteAllPopup(true);
-                  }}
+                  // onClick={() => {
+                  //   setShowDeleteAllPopup(true);
+                  // }}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                   <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
@@ -317,7 +439,7 @@ const QuotesPage = () => {
       <div className="w-full overflow-auto border border-gray-200 rounded-lg shadow dark:border-gray-800">
         <Table className="bg-card">
           <TableHeader>
-            <TableRow className="text-[#303444] dark:text-[#CCCFDB]">
+            <TableRow>
               <TableHead className="w-12 text-left">
                 <Checkbox
                   className="!rounded-[8px]"
@@ -328,156 +450,188 @@ const QuotesPage = () => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold">Quotation ID</TableHead>
-              <TableHead className="text-xs font-semibold">Customer</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Amount</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Status</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Created Date</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Valid Until</TableHead>
-              <TableHead className="text-xs font-semibold text-center">Actions</TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Quotation ID
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
+                Customer
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Amount
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Status
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Created Date
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Valid Until
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {currentQuotations.map((quote, index) => (
-              <TableRow
-                key={index}
-                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                {/* Checkbox */}
-                <TableCell className="px-4 py-3">
-                  <Checkbox
-                    className="!rounded-[8px]"
-                    checked={selectedQuotations.includes(quote.quotationId)}
-                    onCheckedChange={checked =>
-                      handleSelectQuotation(quote.quotationId, checked as boolean)
-                    }
-                  />
-                </TableCell>
-
-                {/* Quotation ID */}
-                <TableCell className="text-sm font-medium text-[#3072C0] whitespace-nowrap">
-                  {quote.quotationId}
-                </TableCell>
-
-                {/* Customer */}
-                <TableCell className="min-w-[220px]">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={quote.customer.avatar}
-                      alt={quote.customer.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full shrink-0"
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {quote.customer.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {quote.customer.email}
-                      </div>
-                    </div>
+            {currentQuotations.length === 0 ? (
+              <TableRow className="pointer-events-none">
+                <TableCell colSpan={8} className="p-0">
+                  <div className="min-h-[300px] flex flex-col items-center justify-center">
+                    <FolderIcon />
+                    <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
                   </div>
-                </TableCell>
-
-                {/* Amount */}
-                <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                  ${quote.amount.toLocaleString()}
-                </TableCell>
-
-                {/* Status */}
-                <TableCell className="text-center">
-                  <span
-                    className={cn(
-                      "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
-                      quote.status === "completed"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : quote.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : quote.status === "draft"
-                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-                    )}
-                  >
-                    {quote.status}
-                  </span>
-                </TableCell>
-
-                {/* Created Date */}
-                <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                  {quote.createdDate}
-                </TableCell>
-
-                {/* Valid Until */}
-                <TableCell className="text-center text-sm text-gray-900 dark:text-white">
-                  <div>{quote.validUntil.date}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {quote.validUntil.text}
-                  </div>
-                </TableCell>
-
-                {/* Actions */}
-                <TableCell className="text-center whitespace-nowrap">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <EllipsisVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowQuoteDetails(true);
-                        }}
-                      >
-                        <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">
-                          View Details
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setQuoteToEdit(quote);
-                          setShowEditQuoteForm(true);
-                        }}
-                      >
-                        <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowSendToClientSheet(true);
-                        }}
-                      >
-                        <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">
-                          Send To Client
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setIsInvoiceSheetOpen(true);
-                        }}
-                      >
-                        <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">
-                          Generate Invoice
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
-                        <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">Copy</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
-                        <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                        <span className="ml-2 text-sm dark:text-white text-gray-900">Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              currentQuotations.map(quote => (
+                <TableRow
+                  key={quote.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {/* Checkbox */}
+                  <TableCell className="px-4 py-3">
+                    <Checkbox
+                      className="!rounded-[8px]"
+                      checked={selectedQuotations.includes(quote.quotationNumber)}
+                      onCheckedChange={checked =>
+                        handleSelectQuotation(quote.quotationNumber, checked as boolean)
+                      }
+                    />
+                  </TableCell>
+
+                  {/* Quotation ID */}
+                  <TableCell className="text-sm font-medium text-[#3072C0] whitespace-nowrap">
+                    {quote.quotationNumber}
+                  </TableCell>
+
+                  {/* Customer */}
+                  <TableCell className="min-w-[220px]">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={quote.customer.avatar}
+                        alt={quote.customer.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full shrink-0"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {quote.customer.name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {quote.customer.email}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Amount */}
+                  <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                    ${quote.amount.toLocaleString()}
+                  </TableCell>
+
+                  {/* Status */}
+                  <TableCell className="text-center">
+                    <span
+                      className={cn(
+                        "inline-flex px-3 py-1 min-w-[80px] justify-center text-xs font-semibold rounded-sm",
+                        quote.status === "completed"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : quote.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : quote.status === "draft"
+                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                      )}
+                    >
+                      {quote.status}
+                    </span>
+                  </TableCell>
+
+                  {/* Created Date */}
+                  <TableCell className="text-center text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                    {quote.createdDate}
+                  </TableCell>
+
+                  {/* Valid Until */}
+                  <TableCell className="text-center text-sm text-gray-900 dark:text-white">
+                    <div>{quote.validUntil.date}</div>
+                    <div className="text-xs text-[#2BAE82] ">{quote.validUntil.text}</div>
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="text-center whitespace-nowrap">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // prefer backend id when available
+                            // otherwise fall back to the table's quotationId
+                            setSelectedQuoteId(quote.id as string);
+                            setShowQuoteDetails(true);
+                          }}
+                        >
+                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">
+                            View Details
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setQuoteToEdit(quote);
+                            setShowEditQuoteForm(true);
+                          }}
+                        >
+                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowSendToClientSheet(true);
+                          }}
+                        >
+                          <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">
+                            Send To Client
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setIsInvoiceSheetOpen(true);
+                          }}
+                        >
+                          <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">
+                            Generate Invoice
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {}}>
+                          <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">Copy</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          //  onClick={() => deleteQuotationMutate(quote.id)}
+                          onClick={() => {
+                            setSelectedQuoteId(quote.id as string);
+                            setShowDeletePopup(true);
+                          }}
+                        >
+                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
@@ -556,17 +710,42 @@ const QuotesPage = () => {
       <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
       <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
       <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} />
-
-      {/* Delete Popup */}
-      <ConfirmDialog
-        open={showDeleteAllPopup}
-        onOpenChange={setShowDeleteAllPopup}
-        title="Delete Quotations?"
-        description="Are you sure you want to Delete Quotations? This action cannot be undone."
+      {/* Delete Single Quotation Popup */}
+      <PopupModal
+        open={showDeletePopup}
+        onOpenChange={setShowDeletePopup}
+        title="Delete Quotation"
+        iconComponent={<DeleteIconFilled width={70} height={70} />}
+        description="Are you sure you want to Delete this Quotation? This action cannot be undone."
+        cancelButton={{
+          label: "Yes, Delete",
+          onClick: () => {
+            setShowDeletePopup(false);
+            deleteQuotationMutate(selectedQuoteId as string);
+          },
+        }}
+        confirmButton={{ label: "No, Keep", onClick: () => setShowDeletePopup(false) }}
+      />
+      {/* <ConfirmDialog
+        open={showDeletePopup}
+        onOpenChange={setShowDeletePopup}
+        title="Delete Quotation"
+        description="Are you sure you want to Delete this Quotation? This action cannot be undone."
+        confirmText="No, Keep"
+        onCancel={()=>deleteQuotationMutate(selectedQuoteId as string)}
+        cancelText="Yes, Delete"
+        icon={<DeleteIconFilled width={70} height={70} />}
+      /> */}
+      {/* Delete all Quotations Popup */}
+      {/* <ConfirmDialog
+        open={showDeleteQuotePopup}
+        onOpenChange={setShowDeleteQuotePopup}
+        title="Delete Quotations"
+        description="Are you sure you want to Delete ? This action cannot be undone."
         confirmText="No, Keep"
         cancelText="Yes, Cancel"
         icon={<DeleteIconFilled width={70} height={70} />}
-      />
+      /> */}
     </div>
   );
 };

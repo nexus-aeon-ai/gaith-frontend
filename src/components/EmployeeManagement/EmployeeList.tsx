@@ -195,10 +195,7 @@ const EmployeeList = () => {
 
   return (
     <div
-      className={cn(
-        "min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
-        "bg-background overflow-x-hidden",
-      )}
+      className={cn("min-h-fit w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0", "overflow-x-hidden")}
     >
       {/* Header Section */}
       <div

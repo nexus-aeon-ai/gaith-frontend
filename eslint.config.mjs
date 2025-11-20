@@ -20,6 +20,7 @@ const eslintConfig = [
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "prettier", // Must be last to override other configs
   ),
   {
     rules: {
@@ -55,31 +56,23 @@ const eslintConfig = [
       "import/no-unresolved": "off", // TypeScript handles this
       "import/named": "off", // TypeScript handles this
 
-      // General rules
+      // General rules (code quality only - formatting handled by Prettier)
       "no-console": ["warn", { allow: ["warn", "error", "log"] }],
       "no-debugger": "error",
       "no-var": "error",
       "prefer-const": "error",
       "no-unused-expressions": "error",
       "no-duplicate-imports": "error",
-      "no-multiple-empty-lines": ["error", { max: 2, maxEOF: 1 }],
-      "eol-last": "error",
-      "comma-dangle": ["error", "always-multiline"],
-      semi: ["error", "always"],
-      quotes: ["error", "double", { avoidEscape: true }],
-      "object-curly-spacing": ["error", "always"],
-      "array-bracket-spacing": ["error", "never"],
-      indent: ["error", 2, { SwitchCase: 1 }],
-      "max-len": [
-        "warn",
-        {
-          code: 100,
-          tabWidth: 2,
-          ignoreUrls: true,
-          ignoreStrings: true,
-          ignoreTemplateLiterals: true,
-        },
-      ],
+      // Formatting rules disabled - Prettier handles these
+      "no-multiple-empty-lines": "off",
+      "eol-last": "off",
+      "comma-dangle": "off",
+      semi: "off",
+      quotes: "off",
+      "object-curly-spacing": "off",
+      "array-bracket-spacing": "off",
+      indent: "off",
+      "max-len": "off",
     },
     settings: {
       react: {

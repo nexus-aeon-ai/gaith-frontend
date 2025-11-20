@@ -1,5 +1,7 @@
 export interface Quotation {
-  quotationId: string;
+  // backend primary id for the quotation (UUID)
+  id?: string;
+  quotationNumber: string;
   customer: {
     avatar: string;
     name: string;
