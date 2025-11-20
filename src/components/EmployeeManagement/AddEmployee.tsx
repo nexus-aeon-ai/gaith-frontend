@@ -75,12 +75,12 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast.success("Employee created successfully");
     },
-    onError: error => {
-      if(error.status === 409){
+    onError: (error: { message: string; status: number }) => {
+      if (error.status === 409) {
         toast.error("Employee with this email already exists.");
-        return
+        return;
       }
-      toast.error(error.message|| "Failed to create employee");
+      toast.error(error.message || "Failed to create employee");
     },
   });
 
