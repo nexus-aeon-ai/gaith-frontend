@@ -1,40 +1,85 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import DatedPostSheet from "@/components/sheet/AiCalendar/DatedPostsSheet";
 import { Button } from "@/components/ui/button";
 
-interface CalendarEvent {
-  date: number;
-  platforms: string[];
+interface CalendarData {
+  calendar: Array<{
+    date: string;
+    content: string;
+    platform: string;
+    post_details: string;
+  }>;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
 }
 
 const PLATFORMS = {
   instagram: { color: "bg-pink-500", label: "Instagram" },
   x: { color: "bg-black", label: "X" },
+  twitter: { color: "bg-black", label: "Twitter/X" },
   facebook: { color: "bg-blue-500", label: "Facebook" },
   googleAds: { color: "bg-cyan-500", label: "Google Ads" },
+  linkedin: { color: "bg-blue-700", label: "LinkedIn" },
+  tiktok: { color: "bg-gray-900", label: "TikTok" },
 };
 
-const EVENTS: CalendarEvent[] = [
-  { date: 1, platforms: ["instagram", "x", "facebook", "googleAds"] },
-  { date: 2, platforms: ["instagram", "x", "facebook", "googleAds"] },
-  { date: 5, platforms: ["instagram", "x", "facebook", "googleAds"] },
-  { date: 8, platforms: ["instagram"] },
-  { date: 10, platforms: ["instagram", "x", "facebook"] },
-  { date: 15, platforms: ["instagram", "x"] },
-];
+interface CalendarProps {
+  setShowAllPostsPage: (arg: boolean) => void;
+  calendarData?: CalendarData | null;
+  calendarId?: number | null;
+  onCalendarUpdate?: () => void;
+}
 
 export default function Calendar({
   setShowAllPostsPage,
-}: {
-  setShowAllPostsPage: (arg: boolean) => void;
-}) {
+  calendarData,
+  calendarId,
+  onCalendarUpdate,
+}: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPostsByDate, setShowPostsByDate] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // Convert API calendar data to events format
+  const EVENTS = useMemo(() => {
+    console.log(calendarData);
+    if (!calendarData?.calendar || calendarData.calendar.length === 0) {
+      return []; // Return empty array if no data
+    }
+
+    const eventsMap = new Map<number, Set<string>>();
+    
+    calendarData.calendar.forEach((entry) => {
+      try {
+        console.log(entry);
+        const entryDate = new Date(entry.date);
+        const day = entryDate.getDate();
+        const month = entryDate.getMonth();
+        const year = entryDate.getFullYear();
+        
+        // Only include events from the current month/year
+        if (month === currentDate.getMonth() && year === currentDate.getFullYear()) {
+          if (!eventsMap.has(day)) {
+            eventsMap.set(day, new Set());
+          }
+          const platformKey = entry.platform.toLowerCase().replace(/\s+/g, '');
+          eventsMap.get(day)?.add(platformKey);
+        }
+      } catch (error) {
+        console.error("Error parsing date:", entry.date, error);
+      }
+    });
+
+    return Array.from(eventsMap.entries()).map(([date, platforms]) => ({
+      date,
+      platforms: Array.from(platforms),
+    }));
+  }, [calendarData, currentDate]);
 
   const getDaysInMonth = (date: Date) =>
     new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -148,40 +193,49 @@ export default function Calendar({
             const currentMonth = d.month === currentDate.getMonth();
             const highlight = isToday(d);
             const event = currentMonth && EVENTS.find(e => e.date === d.day);
+            const hasEvent = event && event.platforms.length > 0;
 
             return (
               <div
                 key={index}
                 className={`aspect-square p-3 border rounded-lg flex flex-col cursor-pointer hover:bg-accent justify-between transition-colors ${
-                  highlight ? "border-blue-500 border-2 " : "border-gray-200 0"
-                }`}
+                  highlight ? "border-blue-500 border-2 " : "border-border"
+                } ${!currentMonth ? "opacity-40" : ""} ${hasEvent ? "bg-blue-50 dark:bg-blue-950/20" : ""}`}
                 role="button"
                 onClick={() => {
-                  setSelectedDate(new Date(d.year, d.month, d.day));
-                  setShowPostsByDate(true);
+                  if (hasEvent) {
+                    setSelectedDate(new Date(d.year, d.month, d.day));
+                    setShowPostsByDate(true);
+                  }
                 }}
                 onKeyDown={() => {
-                  setSelectedDate(new Date(d.year, d.month, d.day));
-                  setShowPostsByDate(true);
+                  if (hasEvent) {
+                    setSelectedDate(new Date(d.year, d.month, d.day));
+                    setShowPostsByDate(true);
+                  }
                 }}
-                tabIndex={0}
+                tabIndex={hasEvent ? 0 : -1}
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium">{d.day}</span>
+                  <span className={`text-sm font-medium ${hasEvent ? "font-bold text-blue-600 dark:text-blue-400" : ""}`}>
+                    {d.day}
+                  </span>
                   {highlight && <span className="text-xs font-semibold text-blue-600">Today</span>}
                 </div>
 
                 {/* Event Indicators */}
-                {event && (
+                {hasEvent && (
                   <div className="flex gap-1.5 flex-wrap">
-                    {event.platforms.map(platform => (
-                      <div
-                        key={platform}
-                        className={`w-2 h-2 rounded-full ${
-                          PLATFORMS[platform as keyof typeof PLATFORMS].color
-                        }`}
-                      />
-                    ))}
+                    {event.platforms.map((platform, idx) => {
+                      const platformConfig = PLATFORMS[platform as keyof typeof PLATFORMS];
+                      return platformConfig ? (
+                        <div
+                          key={`${platform}-${idx}`}
+                          className={`w-2 h-2 rounded-full ${platformConfig.color}`}
+                          title={platformConfig.label}
+                        />
+                      ) : null;
+                    })}
                   </div>
                 )}
               </div>
@@ -189,20 +243,38 @@ export default function Calendar({
           })}
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center justify-center gap-6 pt-6 border-t border-gray-200">
-          {Object.entries(PLATFORMS).map(([key, { color, label }]) => (
-            <div key={key} className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${color}`} />
-              <span className="text-sm text-muted-foreground">{label}</span>
-            </div>
-          ))}
-        </div>
+        {/* Legend - Only show platforms that have posts */}
+        {EVENTS.length > 0 && (
+          <div className="flex items-center justify-center gap-6 pt-6 border-t border-border">
+            {Object.entries(PLATFORMS)
+              .filter(([key]) => 
+                EVENTS.some(event => event.platforms.includes(key))
+              )
+              .map(([key, { color, label }]) => (
+                <div key={key} className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${color}`} />
+                  <span className="text-sm text-muted-foreground">{label}</span>
+                </div>
+              ))}
+          </div>
+        )}
+        
+        {/* No posts message */}
+        {EVENTS.length === 0 && (
+          <div className="flex items-center justify-center pt-6 border-t border-border">
+            <p className="text-sm text-muted-foreground">
+              No scheduled posts for this month. Create your first post to get started!
+            </p>
+          </div>
+        )}
       </div>
       <DatedPostSheet
         day={selectedDate ? selectedDate.toISOString() : ""}
         open={showPostsByDate}
         onOpenChange={setShowPostsByDate}
+        calendarData={calendarData}
+        calendarId={calendarId}
+        onCalendarUpdate={onCalendarUpdate}
       />
     </>
   );

@@ -1,122 +1,135 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
 import XIcon from "@/components/ui/icons/social/twitterx";
 
-const posts = [
-  {
-    id: 1,
-    platform: "facebook",
-    title: "Facebook Post - Customer Testimonials",
-    description: "Showcase satisfied customers and reviews",
-    status: "Scheduled",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-  {
-    id: 2,
-    platform: "x",
-    title: "X Thread - Sale Highlights",
-    description: "Last chance messaging and top deals",
-    status: "Draft",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-  {
-    id: 3,
-    platform: "instagram",
-    title: "Instagram Story - Flash Sale Alert",
-    description: "Final 48-hour countdown promotion",
-    status: "Scheduled",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-  {
-    id: 4,
-    platform: "instagram",
-    title: "Instagram Story - Flash Sale Alert",
-    description: "Final 48-hour countdown promotion",
-    status: "Scheduled",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-  {
-    id: 5,
-    platform: "facebook",
-    title: "Facebook Post - Customer Testimonials",
-    description: "Showcase satisfied customers and reviews",
-    status: "Published",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-  {
-    id: 6,
-    platform: "x",
-    title: "X Thread - Sale Highlights",
-    description: "Last chance messaging and top deals",
-    status: "Draft",
-    date: "Dec 28, 2024",
-    time: "at 3:00 PM",
-  },
-];
+interface CalendarEntry {
+  date: string;
+  content: string;
+  platform: string;
+  post_details: string;
+}
+
+interface UpcomingPostsProps {
+  calendarData?: {
+    calendar: CalendarEntry[];
+    created_at: string;
+    updated_at: string;
+    status: "draft" | "completed" | "failed";
+  } | null;
+}
 
 const PlatformIcon = ({ platform }: { platform: string }) => {
+  const platformLower = platform.toLowerCase();
   
-  switch (platform) {
+  switch (platformLower) {
     case "facebook":
       return <Facebook />;
     case "instagram":
       return <Instagram />;
     case "x":
+    case "twitter":
+    case "tiktok":
       return <XIcon />;
+    case "linkedin":
+      return <Facebook />; // Use Facebook icon as placeholder for LinkedIn
     default:
       return null;
   }
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusColor = () => {
-    switch (status) {
-      case "Scheduled":
-        return "text-blue-600";
-      case "Draft":
-        return "text-gray-500";
-      case "Published":
-        return "text-emerald-600";
-      default:
-        return "text-muted-foreground";
+export default function UpcomingPosts({ calendarData }: UpcomingPostsProps) {
+  // Get upcoming posts sorted by date
+  const upcomingPosts = useMemo(() => {
+    if (!calendarData?.calendar || calendarData.calendar.length === 0) {
+      return [];
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Filter posts from today onwards and sort by date
+    const filtered = calendarData.calendar
+      .map((entry, index) => {
+        try {
+          const postDate = new Date(entry.date);
+          return {
+            id: `${entry.date}-${index}`,
+            date: postDate,
+            dateStr: entry.date,
+            platform: entry.platform,
+            content: entry.content,
+            post_details: entry.post_details,
+          };
+        } catch (e) {
+          console.error("Error parsing date:", entry.date, e);
+          return null;
+        }
+      })
+      .filter((post) => post !== null && post.date >= today)
+      .sort((a, b) => a!.date.getTime() - b!.date.getTime())
+      .slice(0, 6); // Show up to 6 upcoming posts
+
+    return filtered;
+  }, [calendarData]);
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch (e) {
+      return dateStr;
     }
   };
 
-  return <div className={`font-semibold ${getStatusColor()}`}>{status}</div>;
-};
+  const truncateContent = (text: string, maxLength: number = 60) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
-export default function UpcomingPosts() {
   return (
-    <div className="bg-white border  dark:bg-card rounded-[16px] overflow-hidden">
-      <div className=" mx-auto">
-        <div className=" shadow-sm p-3">
-          <h1 className="text-lg font-bold  mb-6">Upcoming Posts</h1>
+    <div className="bg-white border dark:bg-card rounded-[16px] overflow-hidden">
+      <div className="mx-auto">
+        <div className="shadow-sm p-3">
+          <h1 className="text-lg font-bold mb-6">Upcoming Posts</h1>
 
-          <div className="space-y-4">
-            {posts.map(post => (
-              <div key={post.id} className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 flex gap-4">
-                <PlatformIcon platform={post.platform} />
+          {upcomingPosts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No upcoming posts scheduled
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {upcomingPosts.map((post) => (
+                <div
+                  key={post!.id}
+                  className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 flex gap-4"
+                >
+                  <PlatformIcon platform={post!.platform} />
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold  text-sm mb-1">{post.title}</h3>
-                  <p className="text-sm text-muted-foreground">{post.description}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm mb-1">
+                      {post!.platform} Post
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {truncateContent(post!.content)}
+                    </p>
+                  </div>
+
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-semibold text-blue-600">Scheduled</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {formatDate(post!.dateStr)}
+                    </div>
+                  </div>
                 </div>
-
-                <div className="text-right flex-shrink-0">
-                  <StatusBadge status={post.status} />
-                  <div className="text-xs text-muted-foreground mt-1">{post.date}</div>
-                  <div className="text-xs text-muted-foreground">{post.time}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

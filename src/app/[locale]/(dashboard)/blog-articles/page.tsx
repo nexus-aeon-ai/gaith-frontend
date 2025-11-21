@@ -1,14 +1,12 @@
 import React from "react";
 
-const BlogArticlesPage = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Blog & Articles</h1>
-      <div className="bg-card rounded-lg shadow-md p-6">
-        <p className="text-card-foreground">Blog & Articles content will be displayed here.</p>
-      </div>
-    </div>
-  );
-};
+import BlogArticlesPage from "@/components/BlogArticles/BlogArticlesPage";
 
-export default BlogArticlesPage; 
+// This is a server component that can fetch data
+export default async function BlogArticlesServerPage() {
+  // TODO: Fetch initial blog articles data from API
+  // const response = await getBlogs();
+  // const initialArticles = response.data || [];
+
+  return <BlogArticlesPage initialArticles={[]} />;
+} 

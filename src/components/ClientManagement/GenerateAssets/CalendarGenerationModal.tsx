@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -44,23 +45,36 @@ interface CalendarGenerationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CalendarFormData) => void;
+  initialData?: CalendarFormData;
 }
 
 export default function CalendarGenerationModal({
   open,
   onOpenChange,
   onSubmit,
+  initialData,
 }: CalendarGenerationModalProps) {
   const { theme } = useTheme();
   
   const form = useForm<CalendarFormData>({
     resolver: zodResolver(calendarFormSchema),
     defaultValues: {
-      start_date: new Date(),
-      end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      post_per_week: 3,
+      start_date: initialData?.start_date || new Date(),
+      end_date: initialData?.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      post_per_week: initialData?.post_per_week || 3,
     },
   });
+
+  // Reset form when initialData changes or modal opens
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        start_date: initialData?.start_date || new Date(),
+        end_date: initialData?.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        post_per_week: initialData?.post_per_week || 3,
+      });
+    }
+  }, [open, initialData, form]);
 
   const handleSubmit = (data: CalendarFormData) => {
     onSubmit(data);

@@ -129,19 +129,19 @@ const SidebarUI  = () => {
       label: "Generate Pricing",
       icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      href: "/ai/pricing",
+      href: "/generate-pricing",
     },
     {
       label: "Social Media Calendar",
       icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB":"#265B99"} />,
-      href: "/ai/social-media-calendar",
+      href: "/social-media-calendar",
     },
     {
       label: "Blog & Articles",
       icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB":"#265B99"}/>,
-      href: "/ai/blog-articles",
+      href: "/blog-articles",
     },
     {
       label: "AI Chatbot",

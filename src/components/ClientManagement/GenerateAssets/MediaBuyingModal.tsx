@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -39,6 +40,7 @@ interface MediaBuyingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: MediaBuyingFormData) => void;
+  initialData?: MediaBuyingFormData;
 }
 
 const platforms = [
@@ -53,13 +55,23 @@ export default function MediaBuyingModal({
   open,
   onOpenChange,
   onSubmit,
+  initialData,
 }: MediaBuyingModalProps) {
   const form = useForm<MediaBuyingFormData>({
     resolver: zodResolver(mediaBuyingFormSchema),
     defaultValues: {
-      platform: "meta",
+      platform: initialData?.platform || "meta",
     },
   });
+
+  // Reset form when initialData changes or modal opens
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        platform: initialData?.platform || "meta",
+      });
+    }
+  }, [open, initialData, form]);
 
   const handleSubmit = (data: MediaBuyingFormData) => {
     onSubmit(data);

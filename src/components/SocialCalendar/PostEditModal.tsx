@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,74 +30,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
-const blogFormSchema = z.object({
+const postFormSchema = z.object({
+  date: z.string().min(1, "Date is required"),
   platform: z.string().min(1, "Platform is required"),
-  topic: z.string().min(1, "Topic is required"),
-  company_website: z.string().url("Please enter a valid URL"),
+  content: z.string().min(1, "Content is required"),
+  post_details: z.string().min(1, "Post details are required"),
 });
 
-type BlogFormData = z.infer<typeof blogFormSchema>;
+export type PostFormData = z.infer<typeof postFormSchema>;
 
-interface BlogGenerationModalProps {
+interface PostEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: BlogFormData) => void;
-  defaultWebsite?: string;
-  initialData?: BlogFormData;
+  onSubmit: (data: PostFormData) => void;
+  initialData?: PostFormData;
+  defaultDate?: string;
 }
 
 const platforms = [
-  { value: "Website", label: "Website" },
   { value: "LinkedIn", label: "LinkedIn" },
-  { value: "Medium", label: "Medium" },
-  { value: "Blog", label: "Blog" },
+  { value: "Instagram", label: "Instagram" },
+  { value: "Facebook", label: "Facebook" },
+  { value: "TikTok", label: "TikTok" },
+  { value: "Twitter", label: "Twitter/X" },
 ];
 
-export default function BlogGenerationModal({
+export default function PostEditModal({
   open,
   onOpenChange,
   onSubmit,
-  defaultWebsite = "",
   initialData,
-}: BlogGenerationModalProps) {
-  const form = useForm<BlogFormData>({
-    resolver: zodResolver(blogFormSchema),
+  defaultDate,
+}: PostEditModalProps) {
+  const form = useForm<PostFormData>({
+    resolver: zodResolver(postFormSchema),
     defaultValues: {
-      platform: initialData?.platform || "Website",
-      topic: initialData?.topic || "",
-      company_website: initialData?.company_website || defaultWebsite,
+      date: initialData?.date || defaultDate || "",
+      platform: initialData?.platform || "",
+      content: initialData?.content || "",
+      post_details: initialData?.post_details || "",
     },
   });
 
-  // Reset form when initialData changes or modal opens
   useEffect(() => {
     if (open) {
       form.reset({
-        platform: initialData?.platform || "Website",
-        topic: initialData?.topic || "",
-        company_website: initialData?.company_website || defaultWebsite,
+        date: initialData?.date || defaultDate || "",
+        platform: initialData?.platform || "",
+        content: initialData?.content || "",
+        post_details: initialData?.post_details || "",
       });
     }
-  }, [open, initialData, defaultWebsite, form]);
+  }, [open, initialData, defaultDate, form]);
 
-  const handleSubmit = (data: BlogFormData) => {
+  const handleSubmit = (data: PostFormData) => {
     onSubmit(data);
     form.reset();
-    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] dark:bg-[#212945] bg-card font-inter rounded-[16px]">
+      <DialogContent className="sm:max-w-[600px] w-full dark:bg-[#212945] bg-card font-inter rounded-[16px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Generate Blog Post</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            {initialData ? "Edit Post" : "Create New Post"}
+          </DialogTitle>
           <DialogDescription>
-            Provide the details below to generate a blog post.
+            {initialData
+              ? "Update the post details below"
+              : "Fill in the details to create a new post"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6 w-full"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="platform"
@@ -111,7 +136,7 @@ export default function BlogGenerationModal({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {platforms.map(platform => (
+                      {platforms.map((platform) => (
                         <SelectItem key={platform.value} value={platform.value}>
                           {platform.label}
                         </SelectItem>
@@ -125,15 +150,15 @@ export default function BlogGenerationModal({
 
             <FormField
               control={form.control}
-              name="topic"
+              name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Topic</FormLabel>
+                  <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter blog topic"
-                      className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                    <Textarea
                       {...field}
+                      placeholder="Enter post content"
+                      className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] min-h-[120px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -143,15 +168,15 @@ export default function BlogGenerationModal({
 
             <FormField
               control={form.control}
-              name="company_website"
+              name="post_details"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Website</FormLabel>
+                  <FormLabel>Post Details</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://company.com"
-                      className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                    <Textarea
                       {...field}
+                      placeholder="Enter detailed post information"
+                      className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] min-h-[150px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -159,7 +184,7 @@ export default function BlogGenerationModal({
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -172,7 +197,7 @@ export default function BlogGenerationModal({
                 type="submit"
                 className="bg-[#3072C0] hover:bg-[#184a86] text-white rounded-[12px]"
               >
-                Generate
+                {initialData ? "Update Post" : "Create Post"}
               </Button>
             </DialogFooter>
           </form>

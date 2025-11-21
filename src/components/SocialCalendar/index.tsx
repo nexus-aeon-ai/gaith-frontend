@@ -1,10 +1,12 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 import BulkPostSheet from "@/components/sheet/AiCalendar/BulkPostsSheet";
-import CreatePostSheet from "@/components/sheet/AiCalendar/NewPostSheet";
+import CreatePostSheet, { type PostFormData } from "@/components/sheet/AiCalendar/NewPostSheet";
 import AllPostsPage from "@/components/SocialCalendar/AllPostsPage";
 import { BulkScheduleForm } from "@/components/SocialCalendar/BulkScheduling/BulkScheduleMain";
 import SocialMediaAnalytics from "@/components/SocialCalendar/SocialMediaAnalytics";
@@ -17,6 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AnalyticsIcon } from "@/components/ui/icons/analytics/analytics";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarListItem, getSocialMediaCalendars, updateSocialMediaCalendar } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
 
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "../Dashboard/AnalyticsCard";
@@ -54,12 +58,166 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
   },
 ];
 
-const SocialCalendarPage = () => {
+interface SocialCalendarPageProps {
+  calendarsList: CalendarListItem[];
+  initialCalendarData?: {
+    calendar: Array<{
+      date: string;
+      content: string;
+      platform: string;
+      post_details: string;
+    }>;
+    created_at: string;
+    updated_at: string;
+    status: "draft" | "completed" | "failed";
+  } | null;
+  initialSelectedCalendarId: number | null;
+}
+
+const SocialCalendarPage = ({ 
+  calendarsList: initialCalendarsList = [],
+  initialCalendarData,
+  initialSelectedCalendarId,
+}: SocialCalendarPageProps) => {
+  // Sort calendars by status: completed > failed > draft
+  const statusPriority = { completed: 1, failed: 2, draft: 3 };
+  const calendarsList = [...initialCalendarsList].sort((a, b) => {
+    return statusPriority[a.status] - statusPriority[b.status];
+  });
+
   const [showNewPostSheet, setShowNewPostSheet] = useState(false);
   const [showBulkPostSheet, setShowBulkPostSheet] = useState(false);
   const [showAllPostsPage, setShowAllPostsPage] = useState(false);
   const [showBulkSchedulePage, setShowBulkSchedulePage] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [selectedCalendarId, setSelectedCalendarId] = useState<number | null>(initialSelectedCalendarId);
+  const [currentCalendarData, setCurrentCalendarData] = useState(initialCalendarData);
+  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Handle calendar tab change
+  const handleCalendarChange = async (calendarId: string) => {
+    const id = parseInt(calendarId);
+    if (id === selectedCalendarId) return;
+    
+    setIsLoadingCalendar(true);
+    setSelectedCalendarId(id);
+    
+    try {
+      const response = await getSocialMediaCalendars(id);
+      
+      if (response.status === 200 && response.data?.details?.message) {
+        const apiData = response.data.details.message as {
+          calendar?: { calendar: any[] };
+          created_at: string;
+          updated_at: string;
+          status: "draft" | "completed" | "failed";
+        };
+        
+        if (apiData.calendar?.calendar) {
+          setCurrentCalendarData({
+            calendar: apiData.calendar.calendar,
+            created_at: apiData.created_at,
+            updated_at: apiData.updated_at,
+            status: apiData.status,
+          });
+        }
+      } else {
+        toast.error("Failed to load calendar data");
+      }
+    } catch (error) {
+      console.error("Error fetching calendar:", error);
+      toast.error("An error occurred while fetching calendar data");
+    } finally {
+      setIsLoadingCalendar(false);
+    }
+  };
+
+  // Refresh current calendar data
+  const refreshCalendarData = async () => {
+    if (!selectedCalendarId) return;
+    
+    try {
+      const response = await getSocialMediaCalendars(selectedCalendarId);
+      
+      if (response.status === 200 && response.data?.details?.message) {
+        const apiData = response.data.details.message as {
+          calendar?: { calendar: any[] };
+          created_at: string;
+          updated_at: string;
+          status: "draft" | "completed" | "failed";
+        };
+        
+        if (apiData.calendar?.calendar) {
+          setCurrentCalendarData({
+            calendar: apiData.calendar.calendar,
+            created_at: apiData.created_at,
+            updated_at: apiData.updated_at,
+            status: apiData.status,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing calendar:", error);
+    }
+  };
+
+  // Create post mutation
+  const createPostMutation = useMutation({
+    mutationFn: async ({ calendarId, updatedCalendar }: { calendarId: number; updatedCalendar: Array<{ date: string; content: string; platform: string; post_details: string }> }) => {
+      const response = await updateSocialMediaCalendar(calendarId, { calendar: updatedCalendar });
+      if (response.status !== 200) {
+        throw new Error("Failed to create post");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("Post created successfully");
+      setShowNewPostSheet(false);
+      // Refresh calendar data to show the new post
+      refreshCalendarData();
+      queryClient.invalidateQueries({ queryKey: ["social-media-calendars", selectedCalendarId] });
+    },
+    onError: (error) => {
+      console.error("Error creating post:", error);
+      toast.error(error instanceof Error ? error.message : "An error occurred while creating post");
+    },
+  });
+
+  // Handle creating a new post from the main "New Post" button
+  const handleCreatePostSubmit = (data: PostFormData) => {
+    if (!selectedCalendarId || !currentCalendarData) {
+      toast.error("Please select a calendar first");
+      return;
+    }
+
+    // Add new post to calendar array
+    const updatedCalendar = [
+      ...currentCalendarData.calendar,
+      {
+        date: data.date,
+        content: data.content,
+        platform: data.platform,
+        post_details: data.post_details,
+      },
+    ];
+
+    createPostMutation.mutate({ calendarId: selectedCalendarId, updatedCalendar });
+  };
+
+  // Helper to get status badge color
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      case "draft":
+        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+      case "failed":
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      default:
+        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+    }
+  };
 
   if (showAllPostsPage)
     return <AllPostsPage closeAllPostsPage={() => setShowAllPostsPage(false)} />;
@@ -159,25 +317,71 @@ const SocialCalendarPage = () => {
           </div>
         </div>
 
+        {/* Calendar Tabs */}
+        {calendarsList.length > 0 && (
+          <Tabs 
+            value={selectedCalendarId?.toString() || ""} 
+            onValueChange={handleCalendarChange}
+            className="w-full bg-card rounded-xl"
+          >
+            <TabsList className="w-full justify-start overflow-x-auto flex-nowrap h-auto p-0 bg-card rounded-t-xl border-b border-border">
+              {calendarsList.map((calendar) => (
+                <TabsTrigger 
+                  key={calendar.id} 
+                  value={calendar.id.toString()}
+                  disabled={isLoadingCalendar}
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200",
+                    "border-b-2 border-transparent rounded-none",
+                    "data-[state=active]:bg-[#3072C014] data-[state=active]:text-[#78A7DD]",
+                    "data-[state=active]:border-[#78A7DD]",
+                    "hover:bg-card/50 hover:text-blue-500",
+                    "text-gray-600"
+                  )}
+                >
+                  <span className="whitespace-nowrap">Calendar #{calendar.id}</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap",
+                    getStatusBadgeClass(calendar.status)
+                  )}>
+                    {calendar.status}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
+
         {/* Analytics cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {analyticsCards.map((card: AnalyticsSummaryCardProps, idx: number) => (
-            <AnalyticsCard key={idx} {...card} />
+          {analyticsCards.map((card: AnalyticsSummaryCardProps) => (
+            <AnalyticsCard key={card.label} {...card} />
           ))}
         </div>
         <div className="grid lg:grid-cols-5 grid-cols-1 gap-3">
           {/* calendar view */}
           <div className="col-span-3">
-            <Calendar setShowAllPostsPage={setShowAllPostsPage} />
+            {isLoadingCalendar ? (
+              <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+              </div>
+            ) : (
+              <Calendar 
+                setShowAllPostsPage={setShowAllPostsPage} 
+                calendarData={currentCalendarData}
+                calendarId={selectedCalendarId}
+                onCalendarUpdate={refreshCalendarData}
+              />
+            )}
           </div>
 
           {/* upcoming posts */}
           <div className="col-span-2 rounded-[16px]">
-            <UpcomingPosts />
+            <UpcomingPosts calendarData={currentCalendarData} />
           </div>
         </div>
       </div>
-      <CreatePostSheet open={showNewPostSheet} onOpenChange={setShowNewPostSheet} />
+      <CreatePostSheet open={showNewPostSheet} onOpenChange={setShowNewPostSheet} onSubmit={handleCreatePostSubmit} />
       <BulkPostSheet open={showBulkPostSheet} onOpenChange={setShowBulkPostSheet} />
     </>
   );
