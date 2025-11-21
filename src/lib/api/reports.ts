@@ -366,42 +366,124 @@ export const publishSocialMediaCalendar = async (
   return response;
 };
 
+// Blog Post Types
+export interface BlogPostListItem {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
+}
+
+export interface BlogPostData {
+  title: string;
+  content: string;
+  keywords: string[];
+  reference_links?: string[];
+}
+
+export interface BlogPostResponse {
+  blog_post: BlogPostData;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
+}
+
+export interface BlogPostListResponse {
+  details: {
+    message: BlogPostListItem[];
+  };
+}
+
+export interface BlogPostSingleResponse {
+  details: {
+    message: BlogPostResponse;
+  };
+}
+
 /**
- * Publish blog post
- * PUT /reports/blog
+ * Get blog posts list
+ * GET /reports/blog-post
  */
-export const publishBlog = async (
-  id: number,
-): Promise<{ status: number; data: unknown | null }> => {
-  const response = await fetchInstance<unknown>("/reports/blog", {
-    method: "PUT",
+export const getBlogs = async (
+  page?: number,
+): Promise<{ status: number; data: BlogPostListResponse | null }> => {
+  let url = "/reports/blog-post";
+  const params = new URLSearchParams();
+  
+  if (page !== undefined) {
+    params.append("page", String(page));
+  }
+
+  if (params.toString()) {
+    url += `?${params.toString()}`;
+  }
+
+  const response = await fetchInstance<BlogPostListResponse>(url, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ blog_id: id }),
   });
 
   return response;
 };
 
 /**
- * Get blog posts
- * GET /reports/blog
+ * Get single blog post by ID
+ * GET /reports/blog-post?blog_post_id={id}
  */
-export const getBlogs = async (
-  page?: number,
-): Promise<{ status: number; data: unknown | null }> => {
-  let url = "/reports/blog";
-  
-  if (page !== undefined) {
-    url += `?page=${page}`;
-  }
+export const getBlogPost = async (
+  blog_post_id: number,
+): Promise<{ status: number; data: BlogPostSingleResponse | null }> => {
+  const url = `/reports/blog-post?blog_post_id=${blog_post_id}`;
 
-  const response = await fetchInstance<unknown>(url, {
+  const response = await fetchInstance<BlogPostSingleResponse>(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
+  });
+
+  return response;
+};
+
+/**
+ * Update blog post
+ * PUT /reports/blog-post?blog_post_id={id}
+ */
+export const updateBlogPost = async (
+  blog_post_id: number,
+  blog_post_data: BlogPostData,
+): Promise<{ status: number; data: unknown | null }> => {
+  const url = `/reports/blog-post?blog_post_id=${blog_post_id}`;
+
+  const response = await fetchInstance<unknown>(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      blog_post_id,
+      blog_post_data,
+    }),
+  });
+
+  return response;
+};
+
+/**
+ * Publish blog post
+ * PUT /reports/blog-post
+ */
+export const publishBlog = async (
+  id: number,
+): Promise<{ status: number; data: unknown | null }> => {
+  const response = await fetchInstance<unknown>("/reports/blog-post", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ blog_id: id }),
   });
 
   return response;

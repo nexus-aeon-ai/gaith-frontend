@@ -1,9 +1,12 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { MoreVertical, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
+import EditBlogPostModal, { type BlogPostFormData } from "@/components/BlogArticles/EditBlogPostModal";
 import BlogGenerationModal from "@/components/ClientManagement/GenerateAssets/BlogGenerationModal";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,33 +23,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { generateBlog, publishBlog } from "@/lib/api/reports";
+import { generateBlog, publishBlog, getBlogPost, updateBlogPost, BlogPostListItem } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
 
-interface BlogArticle {
-  id: number;
-  title: string;
-  status: "draft" | "completed" | "failed";
-  author: string;
-  category: string;
-  date: string;
-  views: number;
-  platform?: string;
-  topic?: string;
-  company_website?: string;
-}
-
 interface BlogArticlesPageProps {
-  initialArticles?: BlogArticle[];
+  initialArticles?: BlogPostListItem[];
 }
 
 const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
-  const [articles, setArticles] = useState<BlogArticle[]>(initialArticles);
-  const [showModal, setShowModal] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<BlogArticle | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [articles, setArticles] = useState<BlogPostListItem[]>(initialArticles);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingArticleId, setEditingArticleId] = useState<number | null>(null);
+  const [editingArticleData, setEditingArticleData] = useState<BlogPostFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const queryClient = useQueryClient();
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -61,51 +53,82 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
     }
   };
 
+  // Fetch single blog post mutation
+  const fetchBlogPostMutation = useMutation({
+    mutationFn: async (blog_post_id: number) => {
+      const response = await getBlogPost(blog_post_id);
+      if (response.status !== 200 || !response.data?.details?.message) {
+        throw new Error("Failed to fetch blog post");
+      }
+      return response.data.details.message;
+    },
+    onSuccess: (data) => {
+      setEditingArticleData({
+        title: data.blog_post.title,
+        content: data.blog_post.content,
+        keywords: data.blog_post.keywords,
+        reference_links: data.blog_post.reference_links ?? [],
+      });
+      setShowEditModal(true);
+    },
+    onError: (error) => {
+      console.error("Error fetching blog post:", error);
+      toast.error("Failed to fetch blog post details");
+    },
+  });
+
+  // Update blog post mutation
+  const updateBlogPostMutation = useMutation({
+    mutationFn: async ({ blog_post_id, blog_post_data }: { blog_post_id: number; blog_post_data: BlogPostFormData }) => {
+      const response = await updateBlogPost(blog_post_id, blog_post_data);
+      if (response.status !== 200) {
+        throw new Error("Failed to update blog post");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("Blog post updated successfully!");
+      setShowEditModal(false);
+      setEditingArticleId(null);
+      setEditingArticleData(null);
+      queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
+      // Refresh the page to get updated data
+      window.location.reload();
+    },
+    onError: (error) => {
+      console.error("Error updating blog post:", error);
+      toast.error("Failed to update blog post");
+    },
+  });
+
   const handleGenerate = async (data: {
     platform: string;
     topic: string;
     company_website: string;
   }) => {
-    setIsGenerating(true);
     try {
       const response = await generateBlog(data);
 
       if (response.status === 200 || response.status === 201) {
         toast.success("Blog article generation started successfully!");
-
-        // Add new article to the list
-        const newArticle: BlogArticle = {
-          id: Date.now(), // temporary ID
-          title: data.topic,
-          status: "draft",
-          author: "System",
-          category: "Generated",
-          date: new Date().toISOString().split("T")[0],
-          views: 0,
-          platform: data.platform,
-          topic: data.topic,
-          company_website: data.company_website,
-        };
-
-        setArticles([newArticle, ...articles]);
-        setShowModal(false);
+        setShowGenerateModal(false);
+        // Refresh the page to get updated data
+        window.location.reload();
       } else {
         toast.error("Failed to generate blog article");
       }
     } catch (error) {
       console.error("Error generating blog:", error);
       toast.error("An error occurred while generating the blog article");
-    } finally {
-      setIsGenerating(false);
     }
   };
 
-  const handleEdit = (article: BlogArticle) => {
-    setEditingArticle(article);
-    setShowModal(true);
+  const handleEdit = (article: BlogPostListItem) => {
+    setEditingArticleId(article.id);
+    fetchBlogPostMutation.mutate(article.id);
   };
 
-  const handlePublish = async (article: BlogArticle) => {
+  const handlePublish = async (article: BlogPostListItem) => {
     try {
       const response = await publishBlog(article.id);
 
@@ -116,6 +139,7 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
         );
         setArticles(updatedArticles);
         toast.success("Blog article published successfully!");
+        queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
       } else {
         toast.error("Failed to publish blog article");
       }
@@ -128,6 +152,28 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
   const handleDelete = (articleId: number) => {
     setArticles(articles.filter((a) => a.id !== articleId));
     toast.success("Blog article deleted successfully!");
+  };
+
+  const handleUpdate = (data: BlogPostFormData) => {
+    if (editingArticleId === null) {
+      toast.error("No article selected for editing");
+      return;
+    }
+    const blogPostData = {
+      title: data.title,
+      content: data.content,
+      keywords: data.keywords,
+      reference_links: data.reference_links ?? [],
+    };
+    updateBlogPostMutation.mutate({ blog_post_id: editingArticleId, blog_post_data: blogPostData });
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy");
+    } catch {
+      return dateString;
+    }
   };
 
   // Pagination
@@ -159,8 +205,7 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                   "text-xs sm:text-sm lg:text-base",
                 )}
                 onClick={() => {
-                  setEditingArticle(null);
-                  setShowModal(true);
+                  setShowGenerateModal(true);
                 }}
               >
                 <Plus className="h-4 w-4 rounded-full bg-blue-400 text-white" />
@@ -175,26 +220,25 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40%]">Title</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Views</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentArticles.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No blog articles found. Click "Generate Idea" to create one.
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No blog articles found. Click &quot;Generate Idea&quot; to create one.
                   </TableCell>
                 </TableRow>
               ) : (
                 currentArticles.map((article) => (
                   <TableRow key={article.id}>
-                    <TableCell className="font-medium">{article.title}</TableCell>
+                    <TableCell className="font-medium">{article.id}</TableCell>
                     <TableCell>
                       <span
                         className={cn(
@@ -205,10 +249,9 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                         {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
                       </span>
                     </TableCell>
-                    <TableCell>{article.author}</TableCell>
-                    <TableCell>{article.category}</TableCell>
-                    <TableCell>{article.date}</TableCell>
-                    <TableCell>{article.views.toLocaleString()}</TableCell>
+                    <TableCell>{formatDate(article.created_at)}</TableCell>
+                    <TableCell>{formatDate(article.updated_at)}</TableCell>
+                    <TableCell>{formatDate(article.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -217,7 +260,10 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(article)}>
+                          <DropdownMenuItem 
+                            onClick={() => handleEdit(article)}
+                            disabled={fetchBlogPostMutation.isPending}
+                          >
                             Edit
                           </DropdownMenuItem>
                           {article.status === "draft" && (
@@ -300,26 +346,27 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Generate Modal */}
       <BlogGenerationModal
-        open={showModal}
+        open={showGenerateModal}
+        onOpenChange={setShowGenerateModal}
+        onSubmit={handleGenerate}
+        defaultWebsite=""
+      />
+
+      {/* Edit Modal */}
+      <EditBlogPostModal
+        open={showEditModal}
         onOpenChange={(open) => {
-          setShowModal(open);
+          setShowEditModal(open);
           if (!open) {
-            setEditingArticle(null);
+            setEditingArticleId(null);
+            setEditingArticleData(null);
           }
         }}
-        onSubmit={handleGenerate}
-        defaultWebsite={editingArticle?.company_website || ""}
-        initialData={
-          editingArticle
-            ? {
-                platform: editingArticle.platform || "",
-                topic: editingArticle.topic || "",
-                company_website: editingArticle.company_website || "",
-              }
-            : undefined
-        }
+        onSubmit={handleUpdate}
+        initialData={editingArticleData || undefined}
+        isSubmitting={updateBlogPostMutation.isPending || fetchBlogPostMutation.isPending}
       />
     </>
   );

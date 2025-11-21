@@ -1,12 +1,24 @@
 import React from "react";
 
 import BlogArticlesPage from "@/components/BlogArticles/BlogArticlesPage";
+import { getBlogs, BlogPostListItem } from "@/lib/api/reports";
 
-// This is a server component that can fetch data
-export default async function BlogArticlesServerPage() {
-  // TODO: Fetch initial blog articles data from API
-  // const response = await getBlogs();
-  // const initialArticles = response.data || [];
+export default async function BlogArticlesServerPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams.page) || 1;
+  let initialArticles: BlogPostListItem[] = [];
 
-  return <BlogArticlesPage initialArticles={[]} />;
+  try {
+    const response = await getBlogs(page);
+    if (response.status === 200 && response.data?.details?.message) {
+      initialArticles = response.data.details.message;
+    }
+  } catch (error) {
+    console.error("Error fetching blog articles:", error);
+  }
+
+  return <BlogArticlesPage initialArticles={initialArticles} />;
 } 
