@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 
 import EditBlogPostModal, { type BlogPostFormData } from "@/components/BlogArticles/EditBlogPostModal";
+import ViewBlogPostModal from "@/components/BlogArticles/ViewBlogPostModal";
 import BlogGenerationModal from "@/components/ClientManagement/GenerateAssets/BlogGenerationModal";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +35,10 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
   const [articles, setArticles] = useState<BlogPostListItem[]>(initialArticles);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<number | null>(null);
   const [editingArticleData, setEditingArticleData] = useState<BlogPostFormData | null>(null);
+  const [viewingArticleData, setViewingArticleData] = useState<BlogPostFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
@@ -53,7 +56,7 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
     }
   };
 
-  // Fetch single blog post mutation
+  // Fetch single blog post mutation for editing
   const fetchBlogPostMutation = useMutation({
     mutationFn: async (blog_post_id: number) => {
       const response = await getBlogPost(blog_post_id);
@@ -70,6 +73,30 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
         reference_links: data.blog_post.reference_links ?? [],
       });
       setShowEditModal(true);
+    },
+    onError: (error) => {
+      console.error("Error fetching blog post:", error);
+      toast.error("Failed to fetch blog post details");
+    },
+  });
+
+  // Fetch single blog post mutation for viewing
+  const fetchBlogPostForViewMutation = useMutation({
+    mutationFn: async (blog_post_id: number) => {
+      const response = await getBlogPost(blog_post_id);
+      if (response.status !== 200 || !response.data?.details?.message) {
+        throw new Error("Failed to fetch blog post");
+      }
+      return response.data.details.message;
+    },
+    onSuccess: (data) => {
+      setViewingArticleData({
+        title: data.blog_post.title,
+        content: data.blog_post.content,
+        keywords: data.blog_post.keywords,
+        reference_links: data.blog_post.reference_links ?? [],
+      });
+      setShowViewModal(true);
     },
     onError: (error) => {
       console.error("Error fetching blog post:", error);
@@ -126,6 +153,10 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
   const handleEdit = (article: BlogPostListItem) => {
     setEditingArticleId(article.id);
     fetchBlogPostMutation.mutate(article.id);
+  };
+
+  const handleView = (article: BlogPostListItem) => {
+    fetchBlogPostForViewMutation.mutate(article.id);
   };
 
   const handlePublish = async (article: BlogPostListItem) => {
@@ -261,6 +292,12 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem 
+                            onClick={() => handleView(article)}
+                            disabled={fetchBlogPostForViewMutation.isPending}
+                          >
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
                             onClick={() => handleEdit(article)}
                             disabled={fetchBlogPostMutation.isPending}
                           >
@@ -367,6 +404,19 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
         onSubmit={handleUpdate}
         initialData={editingArticleData || undefined}
         isSubmitting={updateBlogPostMutation.isPending || fetchBlogPostMutation.isPending}
+      />
+
+      {/* View Modal */}
+      <ViewBlogPostModal
+        open={showViewModal}
+        onOpenChange={(open) => {
+          setShowViewModal(open);
+          if (!open) {
+            setViewingArticleData(null);
+          }
+        }}
+        blogPostData={viewingArticleData}
+        isLoading={fetchBlogPostForViewMutation.isPending}
       />
     </>
   );
