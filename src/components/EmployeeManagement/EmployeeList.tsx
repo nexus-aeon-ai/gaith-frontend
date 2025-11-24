@@ -77,7 +77,10 @@ const EmployeeList = () => {
         // UI expects these fields differently
         role: emp.role?.title,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        department: {
+          name: emp.department?.name || "General",
+          team: emp.department?.subTeam || "",
+        },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },

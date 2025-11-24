@@ -92,13 +92,13 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const countryId = form.watch("country");
   const { data: regions = [], isLoading: loadingRegions } = useQuery<Region[]>({
     queryKey: ["leads", "regions", countryId],
-    queryFn: () => getLeadsLookup<Region>("regions"),
+    queryFn: () => getLeadsLookup<Region>("regions", { countryId }),
     enabled: !!countryId,
   });
   const regionId = form.watch("region");
   const { data: areas = [], isLoading: loadingAreas } = useQuery<Area[]>({
     queryKey: ["leads", "areas", regionId],
-    queryFn: () => getLeadsLookup<Area>("areas"),
+    queryFn: () => getLeadsLookup<Area>("areas", { regionId }),
     enabled: !!regionId,
   });
   const { data: productServices = [], isLoading: loadingProductServices } = useQuery<

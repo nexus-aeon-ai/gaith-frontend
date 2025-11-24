@@ -1,6 +1,6 @@
 "use client";
 
-import { Quote, Ticket } from "lucide-react";
+import { Quote, ShoppingBag, Target, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -142,6 +142,18 @@ const SidebarUI  = () => {
       icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB":"#265B99"}/>,
       href: "/blog-articles",
+    },
+    {
+      label: "Marketing Plans",
+      icon: <Target className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Target className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/marketing-plans",
+    },
+    {
+      label: "Media Buying",
+      icon: <ShoppingBag className="text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <ShoppingBag className="text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/media-buying",
     },
     {
       label: "AI Chatbot",

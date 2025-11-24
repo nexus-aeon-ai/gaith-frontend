@@ -71,11 +71,40 @@ export interface UtilsRole {
 }
 
 // Generic lookup fetcher
+type LookupResponse<T> = { data?: T[] } | T[] | null;
+type LookupTable =
+  | "countries"
+  | "regions"
+  | "areas"
+  | "product-services"
+  | "lead-sources"
+  | "team-roles";
+
+type LookupParams = Record<string, string | null | undefined>;
+
+const buildLookupUrl = (table: LookupTable, params?: LookupParams) => {
+  if (!params) return `${leadsEndpoint}/lookups/${table}`;
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      query.append(key, value);
+    }
+  });
+  const qs = query.toString();
+  return qs ? `${leadsEndpoint}/lookups/${table}?${qs}` : `${leadsEndpoint}/lookups/${table}`;
+};
+
 export const getLeadsLookup = async <T = unknown>(
-  table: "countries" | "regions" | "areas" | "product-services" | "lead-sources" | "team-roles",
+  table: LookupTable,
+  params?: LookupParams,
 ): Promise<T[]> => {
-  const response = await fetchInstance<T[]>(`${leadsEndpoint}/lookups/${table}`);
-  return response.data || [];
+  const response = await fetchInstance<LookupResponse<T>>(buildLookupUrl(table, params));
+
+  if (!response.data) return [];
+  if (Array.isArray(response.data)) return response.data;
+  if (Array.isArray(response.data.data)) return response.data.data;
+
+  return [];
 };
 
 // API response shape
@@ -302,5 +331,8 @@ export interface LeadByIdResponse {
 
 export const getLeadById = async (id: string): Promise<LeadByIdResponse> => {
   const response = await fetchInstance<LeadByIdResponse>(`/leads/${id}`);
+  if (!response.data) {
+    throw new Error("Lead not found");
+  }
   return response.data;
 };

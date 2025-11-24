@@ -6,9 +6,9 @@ import { MoreVertical, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
-import MediaBuyingModal from "@/components/ClientManagement/GenerateAssets/MediaBuyingModal";
-import EditMediaBuyingPlanModal from "@/components/MediaBuying/EditMediaBuyingPlanModal";
-import ViewMediaBuyingPlanModal from "@/components/MediaBuying/ViewMediaBuyingPlanModal";
+import EditMarketingPlanModal from "@/components/MarketingPlans/EditMarketingPlanModal";
+import MarketingPlanGenerationModal from "@/components/MarketingPlans/MarketingPlanGenerationModal";
+import ViewMarketingPlanModal from "@/components/MarketingPlans/ViewMarketingPlanModal";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,27 +25,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  generateMediaBuying,
-  getMediaBuyingPlan,
-  publishMediaBuyingPlan,
-  updateMediaBuyingPlan,
-  type MediaBuyingData,
-  type MediaBuyingListItem,
+  generateMarketingPlan,
+  getMarketingPlan,
+  publishMarketingPlan,
+  updateMarketingPlan,
+  type MarketingPlanData,
+  type MarketingPlanListItem,
 } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
 
-interface MediaBuyingPageProps {
-  initialPlans?: MediaBuyingListItem[];
+interface MarketingPlansPageProps {
+  initialPlans?: MarketingPlanListItem[];
+  defaultWebsite?: string;
 }
 
-const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
-  const [plans, setPlans] = useState<MediaBuyingListItem[]>(initialPlans);
+const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: MarketingPlansPageProps) => {
+  const [plans, setPlans] = useState<MarketingPlanListItem[]>(initialPlans);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<number | null>(null);
-  const [editingData, setEditingData] = useState<MediaBuyingData | undefined>();
-  const [viewingData, setViewingData] = useState<MediaBuyingData | undefined>();
+  const [editingData, setEditingData] = useState<MarketingPlanData | undefined>();
+  const [viewingData, setViewingData] = useState<MarketingPlanData | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
@@ -73,114 +74,114 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
 
   const fetchPlanMutation = useMutation({
     mutationFn: async (planId: number) => {
-      const response = await getMediaBuyingPlan(planId);
+      const response = await getMarketingPlan(planId);
       if (response.status !== 200 || !response.data?.details?.message) {
-        throw new Error("Failed to fetch media buying plan");
+        throw new Error("Failed to fetch marketing plan");
       }
       return response.data.details.message;
     },
     onSuccess: (data) => {
-      setEditingData(data.media_buying);
+      setEditingData(data.marketing_plan);
       setShowEditModal(true);
     },
     onError: (error) => {
-      console.error("Error fetching media buying plan:", error);
-      toast.error("Failed to fetch media buying plan details");
+      console.error("Error fetching marketing plan:", error);
+      toast.error("Failed to fetch marketing plan details");
     },
   });
 
   const fetchPlanForViewMutation = useMutation({
     mutationFn: async (planId: number) => {
-      const response = await getMediaBuyingPlan(planId);
+      const response = await getMarketingPlan(planId);
       if (response.status !== 200 || !response.data?.details?.message) {
-        throw new Error("Failed to fetch media buying plan");
+        throw new Error("Failed to fetch marketing plan");
       }
       return response.data.details.message;
     },
     onSuccess: (data) => {
-      setViewingData(data.media_buying);
+      setViewingData(data.marketing_plan);
       setShowViewModal(true);
     },
     onError: (error) => {
-      console.error("Error fetching media buying plan:", error);
-      toast.error("Failed to fetch media buying plan details");
+      console.error("Error fetching marketing plan:", error);
+      toast.error("Failed to fetch marketing plan details");
     },
   });
 
   const updatePlanMutation = useMutation({
-    mutationFn: async ({ planId, planData }: { planId: number; planData: MediaBuyingData }) => {
-      const response = await updateMediaBuyingPlan(planId, planData);
+    mutationFn: async ({ planId, planData }: { planId: number; planData: MarketingPlanData }) => {
+      const response = await updateMarketingPlan(planId, planData);
       if (response.status !== 200) {
-        throw new Error("Failed to update media buying plan");
+        throw new Error("Failed to update marketing plan");
       }
       return response;
     },
     onSuccess: () => {
-      toast.success("Media buying plan updated successfully!");
+      toast.success("Marketing plan updated successfully!");
       setShowEditModal(false);
       setEditingPlanId(null);
       setEditingData(undefined);
-      queryClient.invalidateQueries({ queryKey: ["media-buying-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["marketing-plans"] });
       window.location.reload();
     },
     onError: (error) => {
-      console.error("Error updating media buying plan:", error);
-      toast.error("Failed to update media buying plan");
+      console.error("Error updating marketing plan:", error);
+      toast.error("Failed to update marketing plan");
     },
   });
 
-  const handleGenerate = async (data: { platform: string }) => {
+  const handleGenerate = async (data: { company_website: string }) => {
     try {
-      const response = await generateMediaBuying(data);
+      const response = await generateMarketingPlan(data);
       if (response.status === 200 || response.status === 201) {
-        toast.success("Media buying plan generation started successfully!");
+        toast.success("Marketing plan generation started successfully!");
         setShowGenerateModal(false);
         window.location.reload();
       } else {
-        toast.error("Failed to generate media buying plan");
+        toast.error("Failed to generate marketing plan");
       }
     } catch (error) {
-      console.error("Error generating media buying plan:", error);
-      toast.error("An error occurred while generating the media buying plan");
+      console.error("Error generating marketing plan:", error);
+      toast.error("An error occurred while generating the marketing plan");
     }
   };
 
-  const handleEdit = (plan: MediaBuyingListItem) => {
+  const handleEdit = (plan: MarketingPlanListItem) => {
     setEditingPlanId(plan.id);
     fetchPlanMutation.mutate(plan.id);
   };
 
-  const handleView = (plan: MediaBuyingListItem) => {
+  const handleView = (plan: MarketingPlanListItem) => {
     fetchPlanForViewMutation.mutate(plan.id);
   };
 
-  const handlePublish = async (plan: MediaBuyingListItem) => {
+  const handlePublish = async (plan: MarketingPlanListItem) => {
     try {
-      const response = await publishMediaBuyingPlan(plan.id);
+      const response = await publishMarketingPlan(plan.id);
       if (response.status === 200 || response.status === 204) {
         const updatedPlans = plans.map((p) =>
           p.id === plan.id ? { ...p, status: "completed" as const } : p,
         );
         setPlans(updatedPlans);
-        toast.success("Media buying plan published successfully!");
-        queryClient.invalidateQueries({ queryKey: ["media-buying-plans"] });
+        toast.success("Marketing plan published successfully!");
+        queryClient.invalidateQueries({ queryKey: ["marketing-plans"] });
       } else {
-        toast.error("Failed to publish media buying plan");
+        toast.error("Failed to publish marketing plan");
       }
     } catch (error) {
-      console.error("Error publishing media buying plan:", error);
-      toast.error("Failed to publish media buying plan");
+      console.error("Error publishing marketing plan:", error);
+      toast.error("Failed to publish marketing plan");
     }
   };
 
   const handleDelete = (planId: number) => {
     setPlans((prev) => prev.filter((plan) => plan.id !== planId));
-    toast.success("Media buying plan deleted successfully!");
+    toast.success("Marketing plan deleted successfully!");
   };
 
-  const handleUpdate = (data: MediaBuyingData) => {
+  const handleUpdate = (data: MarketingPlanData) => {
     if (editingPlanId === null) {
-      toast.error("No media buying plan selected for editing");
+      toast.error("No marketing plan selected for editing");
       return;
     }
     updatePlanMutation.mutate({ planId: editingPlanId, planData: data });
@@ -198,9 +199,9 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
         <div className="mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center sm:justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <h1 className="text-lg font-bold text-foreground">Media Buying Plans</h1>
+              <h1 className="text-lg font-bold text-foreground">Marketing Plans</h1>
               <span className="text-[12px] max-w-[300px] text-muted-foreground">
-                Generate, review, and publish media buying strategies.
+                Generate, review, and publish AI-powered marketing plans.
               </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -236,7 +237,7 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
               {currentPlans.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No media buying plans found. Click &quot;Generate Plan&quot; to create one.
+                    No marketing plans found. Click &quot;Generate Plan&quot; to create one.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -353,9 +354,14 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
         </div>
       </div>
 
-      <MediaBuyingModal open={showGenerateModal} onOpenChange={setShowGenerateModal} onSubmit={handleGenerate} />
+      <MarketingPlanGenerationModal
+        open={showGenerateModal}
+        onOpenChange={setShowGenerateModal}
+        onSubmit={handleGenerate}
+        defaultWebsite={defaultWebsite}
+      />
 
-      <EditMediaBuyingPlanModal
+      <EditMarketingPlanModal
         open={showEditModal}
         onOpenChange={(open) => {
           setShowEditModal(open);
@@ -369,7 +375,7 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
         isSubmitting={updatePlanMutation.isPending || fetchPlanMutation.isPending}
       />
 
-      <ViewMediaBuyingPlanModal
+      <ViewMarketingPlanModal
         open={showViewModal}
         onOpenChange={(open) => {
           setShowViewModal(open);
@@ -384,5 +390,5 @@ const MediaBuyingPage = ({ initialPlans = [] }: MediaBuyingPageProps) => {
   );
 };
 
-export default MediaBuyingPage;
+export default MarketingPlansPage;
 

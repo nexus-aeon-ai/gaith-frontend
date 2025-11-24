@@ -129,6 +129,19 @@ export const generateMediaBuying = async (
 /**
  * Marketing Plan Data Structure
  */
+export interface MarketingPlanListItem {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
+}
+
+export interface MarketingPlanListResponse {
+  details: {
+    message: MarketingPlanListItem[];
+  };
+}
+
 export interface MarketingPlanData {
   strategies: string[];
   review_process: string;
@@ -146,24 +159,95 @@ export interface MarketingPlanData {
   tactics_and_action_plan: string[];
 }
 
-export interface MarketingPlan {
-  marketing_plan_id: number;
-  marketing_plan_data: MarketingPlanData;
+export interface MarketingPlanDetails {
+  marketing_plan: MarketingPlanData;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
+}
+
+export interface MarketingPlanSingleResponse {
+  details: {
+    message: MarketingPlanDetails;
+  };
 }
 
 /**
  * Media Buying Data Structure
  */
-export interface MediaBuyingItem {
+export interface MediaBuyingListItem {
   id: number;
   created_at: string;
   updated_at: string;
   status: "draft" | "completed" | "failed";
 }
 
-export interface MediaBuyingResponse {
+export interface MediaBuyingListResponse {
   details: {
-    message: MediaBuyingItem[];
+    message: MediaBuyingListItem[];
+  };
+}
+
+export interface MediaBuyingAudience {
+  audience_name: string;
+  interests: string[];
+  pain_points: string[];
+  demographics: string;
+  platform_behavior: string;
+}
+
+export interface MediaBuyingBudgetMonth {
+  month: string;
+  amount: string;
+  focus: string;
+}
+
+export interface MediaBuyingBudgetAllocation {
+  amount: string;
+  percentage: string;
+  reasoning: string;
+}
+
+export interface MediaBuyingCampaignTypeAllocation {
+  awareness_campaigns: { amount?: string; percentage?: string };
+  consideration_campaigns: { amount?: string; percentage?: string };
+  conversion_campaigns: { amount?: string; percentage?: string };
+}
+
+export interface MediaBuyingBudgetBreakdown {
+  total_budget: string;
+  monthly_breakdown: MediaBuyingBudgetMonth[];
+  platform_allocation: MediaBuyingBudgetAllocation;
+  campaign_type_allocation: MediaBuyingCampaignTypeAllocation;
+}
+
+export interface MediaBuyingPaidAdsRecommendation {
+  budget_pacing: string;
+  bidding_strategy: string;
+  creative_rotation: string;
+  optimization_goal: string;
+  platform_specific_tips: string;
+  audience_targeting_approach: string;
+}
+
+export interface MediaBuyingData {
+  campaign_count: string;
+  target_audiences: MediaBuyingAudience[];
+  suggested_platforms: string;
+  estimated_budget_breakdown: MediaBuyingBudgetBreakdown;
+  paid_ads_algorithm_recommendation: MediaBuyingPaidAdsRecommendation;
+}
+
+export interface MediaBuyingDetails {
+  media_buying: MediaBuyingData;
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
+}
+
+export interface MediaBuyingSingleResponse {
+  details: {
+    message: MediaBuyingDetails;
   };
 }
 
@@ -208,32 +292,66 @@ export interface SocialMediaCalendarResponse {
 }
 
 /**
- * Get marketing plans
+ * Get marketing plans list
  * GET /reports/marketing-plan
  */
 export const getMarketingPlans = async (
-  marketing_plan_id?: number,
   page?: number,
-): Promise<{ status: number; data: MarketingPlan | MarketingPlan[] | null }> => {
+): Promise<{ status: number; data: MarketingPlanListResponse | null }> => {
   let url = "/reports/marketing-plan";
   const params = new URLSearchParams();
-  
-  if (marketing_plan_id !== undefined) {
-    params.append("marketing_plan_id", String(marketing_plan_id));
-  }
+
   if (page !== undefined) {
     params.append("page", String(page));
   }
-  
+
   if (params.toString()) {
     url += `?${params.toString()}`;
   }
 
-  const response = await fetchInstance<MarketingPlan | MarketingPlan[]>(url, {
+  const response = await fetchInstance<MarketingPlanListResponse>(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
+  });
+
+  return response;
+};
+
+/**
+ * Get single marketing plan by ID
+ * GET /reports/marketing-plan?marketing_plan_id={id}
+ */
+export const getMarketingPlan = async (
+  marketing_plan_id: number,
+): Promise<{ status: number; data: MarketingPlanSingleResponse | null }> => {
+  const url = `/reports/marketing-plan?marketing_plan_id=${marketing_plan_id}`;
+
+  const response = await fetchInstance<MarketingPlanSingleResponse>(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response;
+};
+
+/**
+ * Update marketing plan
+ * PUT /reports/marketing-plan
+ */
+export const updateMarketingPlan = async (
+  marketing_plan_id: number,
+  marketing_plan_data: MarketingPlanData,
+): Promise<{ status: number; data: unknown | null }> => {
+  const response = await fetchInstance<unknown>("/reports/marketing-plan", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ marketing_plan_id, marketing_plan_data }),
   });
 
   return response;
@@ -263,18 +381,56 @@ export const publishMarketingPlan = async (
  */
 export const getMediaBuyingPlans = async (
   page?: number,
-): Promise<{ status: number; data: MediaBuyingResponse | null }> => {
+): Promise<{ status: number; data: MediaBuyingListResponse | null }> => {
   let url = "/reports/media-buying";
-  
+
   if (page !== undefined) {
     url += `?page=${page}`;
   }
 
-  const response = await fetchInstance<MediaBuyingResponse>(url, {
+  const response = await fetchInstance<MediaBuyingListResponse>(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
+  });
+
+  return response;
+};
+
+/**
+ * Get single media buying plan
+ * GET /reports/media-buying?media_buying_id={id}
+ */
+export const getMediaBuyingPlan = async (
+  media_buying_id: number,
+): Promise<{ status: number; data: MediaBuyingSingleResponse | null }> => {
+  const url = `/reports/media-buying?media_buying_id=${media_buying_id}`;
+
+  const response = await fetchInstance<MediaBuyingSingleResponse>(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response;
+};
+
+/**
+ * Update media buying plan
+ * PUT /reports/media-buying
+ */
+export const updateMediaBuyingPlan = async (
+  media_buying_id: number,
+  media_buying_data: MediaBuyingData,
+): Promise<{ status: number; data: unknown | null }> => {
+  const response = await fetchInstance<unknown>("/reports/media-buying", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ media_buying_id, media_buying_data }),
   });
 
   return response;
