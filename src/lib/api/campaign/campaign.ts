@@ -258,13 +258,39 @@ export interface CampaignListResponse {
 export const getCampaigns = async (
   page: number = 1,
   pageSize: number = 20,
+  filters?: {
+    campaignTypeId?: string;
+    statusTypeId?: string;
+    platformTypeIds?: string[];
+    minBudget?: number;
+    maxBudget?: number;
+    startFrom?: string;
+    startTo?: string;
+  },
 ): Promise<{
   status: number;
   data: CampaignListResponse | null;
 }> => {
-  const response = await fetchInstance<CampaignListResponse>(
-    `${campaignEndpoint}?page=${page}&pageSize=${pageSize}`,
-  );
+  // Build query string with optional filters
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+
+  if (filters) {
+    if (filters.campaignTypeId) params.set("campaignTypeId", filters.campaignTypeId);
+    if (filters.statusTypeId) params.set("statusTypeId", filters.statusTypeId);
+    if (filters.platformTypeIds && filters.platformTypeIds.length > 0) {
+      // send multiple platformTypeIds as repeated params
+      filters.platformTypeIds.forEach(pt => params.append("platformTypeIds", pt));
+    }
+    if (filters.minBudget !== undefined) params.set("minBudget", String(filters.minBudget));
+    if (filters.maxBudget !== undefined) params.set("maxBudget", String(filters.maxBudget));
+    if (filters.startFrom) params.set("startFrom", filters.startFrom);
+    if (filters.startTo) params.set("startTo", filters.startTo);
+  }
+
+  const url = `${campaignEndpoint}?${params.toString()}`;
+  const response = await fetchInstance<CampaignListResponse>(url);
   if (!response.data) {
     return {
       status: response.status,

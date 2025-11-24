@@ -57,6 +57,15 @@ const CampaignSubPage = () => {
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [campaignFilters, setCampaignFilters] = useState<{
+    campaignTypeId?: string;
+    statusTypeId?: string;
+    platformTypeIds?: string[];
+    minBudget?: number;
+    maxBudget?: number;
+    startFrom?: string;
+    startTo?: string;
+  } | null>(null);
   const [showNewCampaignForm, setShowNewCampaignForm] = useState(false);
   const [showEditCampaignForm, setShowEditCampaignForm] = useState(false);
   const [showCampaignDetails, setShowCampaignDetails] = useState(false);
@@ -90,11 +99,10 @@ const CampaignSubPage = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await getCampaigns(currentPage, itemsPerPage);
+        const response = await getCampaigns(currentPage, itemsPerPage, campaignFilters || undefined);
         if (response.data) {
-          console.log("campaigns list:",campaigns);
-          setCampaigns(response.data.items);
-          setSortedCampaigns(response.data.items);
+          setCampaigns(response.data.items || []);
+          setSortedCampaigns(response.data.items || []);
           setTotalItems(response.data.total);
           setTotalPages(response.data.totalPages);
         }
@@ -105,7 +113,22 @@ const CampaignSubPage = () => {
     };
 
     fetchCampaigns();
-  }, [currentPage]);
+  }, [currentPage, campaignFilters]);
+
+  // Handle filters applied from the filter sheet
+  const handleApplyCampaignFilters = (filters: {
+    campaignTypeId?: string;
+    statusTypeId?: string;
+    platformTypeIds?: string[];
+    minBudget?: number;
+    maxBudget?: number;
+    startFrom?: string;
+    startTo?: string;
+  }) => {
+    setCampaignFilters(filters);
+    // reset to first page when filters change
+    setCurrentPage(1);
+  };
 
   const handleSelectCampaign = (campaignId: string, checked: boolean) => {
     setSelectedCampaigns(prev =>
@@ -212,13 +235,13 @@ const CampaignSubPage = () => {
   };
 
   const getAudienceInfo = (campaign: ApiCampaign) => {
-    const campaignAgeRanges = campaign.ageRanges;
+    const campaignAgeRanges = campaign.ageRanges || [];
     const campaignAgeRangeTypeIds = campaignAgeRanges.map(ar => ar.ageRangeTypeId);
     const matchingAgeRanges = ageRangeTypes.filter(art => campaignAgeRangeTypeIds.includes(art.id));
 
     return {
       group: campaign.genderType?.name,
-      location: campaign.countries.map(c => c.countryType?.name).join(", "),
+      location: (campaign.countries || []).map(c => c.countryType?.name).join(", "),
       ageGroups: matchingAgeRanges.map(ar => ar.displayName),
     };
   };
@@ -398,7 +421,7 @@ const CampaignSubPage = () => {
               <TableHead className="w-12 text-left">
                 <Checkbox
                   className="!rounded-[8px]"
-                  checked={selectedCampaigns.length === campaigns.length && campaigns.length > 0}
+                  checked={(campaigns?.length ?? 0) > 0 && selectedCampaigns.length === campaigns.length}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
@@ -516,7 +539,7 @@ const CampaignSubPage = () => {
                   {/* Platforms */}
                   <TableCell className="text-center shrink-0">
                     <div className="flex justify-center items-center gap-2">
-                      {campaign.platforms.map((platform, idx) => (
+                      {(campaign.platforms || []).map((platform, idx) => (
                         <div
                           key={idx}
                           className="transition-colors"
@@ -645,7 +668,7 @@ const CampaignSubPage = () => {
                   {page}
                 </Button>
               ))}
-            </div>
+             </div>
 
             {/* Next button */}
             <Button
@@ -665,7 +688,11 @@ const CampaignSubPage = () => {
           </div>
         </div>
       </div>
-      <CampaignFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      <CampaignFilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        onApplyFilters={handleApplyCampaignFilters}
+      />
     </div>
   );
 };

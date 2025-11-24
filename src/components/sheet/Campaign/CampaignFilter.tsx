@@ -11,27 +11,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useCampaignLookups } from "@/lib/api/campaign/campaign-lookups";
 
 interface FilterState {
   dateFrom: string;
   dateTo: string;
   minAmount?: number;
   maxAmount?: number;
-  statuses: string[];
-  type: string[];
-  platforms: string[];
+  statuses: { id: string; name: string }[];
+  type: { id: string; name: string }[];
+  platforms: { id: string; name: string }[];
 }
 
-const statusOptions = ["Draft", "Pending", "Accepted", "Rejected"];
-const typeOptions = ["Display", "Video", "Social Media", "Email", "Search"];
-const platformOptions = ["Facebook", "Instagram", "LinkedIn", "X", "Google Ads"];
+const statusOptions = ["Draft", ];
+const typeOptions = ["Display"];
+const platformOptions = ["Facebook"];
 
 export default function FilterSheet({
   open,
   onOpenChange,
+  onApplyFilters,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onApplyFilters?: (filters: {
+    campaignTypeId?: string;
+    statusTypeId?: string;
+    platformTypeIds?: string[];
+    minBudget?: number;
+    maxBudget?: number;
+    startFrom?: string;
+    startTo?: string;
+  }) => void;
 }) {
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
@@ -43,26 +54,42 @@ export default function FilterSheet({
     platforms: [],
   });
 
+  const { types, statusTypes, platformTypes, isLoading } = useCampaignLookups();
+  console.log("types:", types, " \nstatusTypes:", statusTypes, " \nplatformTypes:", platformTypes);
+
+  // Convert lookup objects to { id, name } format or use fallback strings
+  const statusList = (statusTypes && statusTypes.length > 0)
+    ? statusTypes.map(s => ({ id: s.id, name: s.name }))
+    : statusOptions.map(name => ({ id: name, name }));
+  
+  const typeList = (types && types.length > 0)
+    ? types.map(t => ({ id: t.id, name: t.name }))
+    : typeOptions.map(name => ({ id: name, name }));
+  
+  const platformList = (platformTypes && platformTypes.length > 0)
+    ? platformTypes.map(p => ({ id: p.id, name: p.name }))
+    : platformOptions.map(name => ({ id: name, name }));
+
   const { theme } = useTheme();
 
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "type" | "statuses" | "platforms">,
-    value: string,
+    item: { id: string; name: string },
     checked: boolean,
   ) => {
     setFilters(prev => ({
       ...prev,
       [category]: checked
-        ? [...prev[category], value]
-        : prev[category].filter(item => item !== value),
+        ? [...prev[category], item]
+        : prev[category].filter(x => x.id !== item.id),
     }));
   };
 
   const handleSelectAll = (
     category: keyof Pick<FilterState, "type" | "statuses" | "platforms">,
-    options: string[],
+    options: { id: string; name: string }[],
   ) => {
-    const allSelected = options.every(option => filters[category].includes(option));
+    const allSelected = options.every(option => filters[category].some(x => x.id === option.id));
     setFilters(prev => ({
       ...prev,
       [category]: allSelected ? [] : options,
@@ -124,11 +151,28 @@ export default function FilterSheet({
     });
 
     // Close the sheet and apply filters
-    console.log("Applying filters:", filters);
     onOpenChange(false);
 
-    // Here you would typically call your filter application logic
-    // onApply?.(filters);
+    // Map internal filter state to backend API params
+    const payload: {
+      campaignTypeId?: string;
+      statusTypeId?: string;
+      platformTypeIds?: string[];
+      minBudget?: number;
+      maxBudget?: number;
+      startFrom?: string;
+      startTo?: string;
+    } = {};
+
+    if (filters.type && filters.type.length > 0) payload.campaignTypeId = filters.type[0].id;
+    if (filters.statuses && filters.statuses.length > 0) payload.statusTypeId = filters.statuses[0].id;
+    if (filters.platforms && filters.platforms.length > 0) payload.platformTypeIds = filters.platforms.map(p => p.id);
+    if (filters.minAmount !== undefined) payload.minBudget = filters.minAmount;
+    if (filters.maxAmount !== undefined) payload.maxBudget = filters.maxAmount;
+    if (filters.dateFrom) payload.startFrom = filters.dateFrom;
+    if (filters.dateTo) payload.startTo = filters.dateTo;
+
+    onApplyFilters?.(payload);
   };
 
   const handleDateFromClick = () => {
@@ -257,8 +301,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-statuses"
-                  checked={statusOptions.every(option => filters.statuses.includes(option))}
-                  onCheckedChange={() => handleSelectAll("statuses", statusOptions)}
+                  checked={statusList.every(option => filters.statuses.some(s => s.id === option.id))}
+                  onCheckedChange={() => handleSelectAll("statuses", statusList)}
                 />
                 <Label htmlFor="select-all-statuses" className="text-sm text-muted-foreground">
                   Select All
@@ -266,17 +310,17 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {statusOptions.map(status => (
-                <div key={status} className="flex items-center space-x-2">
+              {statusList.map(status => (
+                <div key={status.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`status-${status}`}
-                    checked={filters.statuses.includes(status)}
+                    id={`status-${status.id}`}
+                    checked={filters.statuses.some(s => s.id === status.id)}
                     onCheckedChange={checked =>
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm font-normal">
-                    {status}
+                  <Label htmlFor={`status-${status.id}`} className="text-sm font-normal">
+                    {status.name}
                   </Label>
                 </div>
               ))}
@@ -292,8 +336,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-types"
-                  checked={typeOptions.every(option => filters.type.includes(option))}
-                  onCheckedChange={() => handleSelectAll("type", typeOptions)}
+                  checked={typeList.every(option => filters.type.some(t => t.id === option.id))}
+                  onCheckedChange={() => handleSelectAll("type", typeList)}
                 />
                 <Label htmlFor="select-all-types" className="text-sm text-muted-foreground">
                   Select All
@@ -301,17 +345,17 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {typeOptions.map(option => (
-                <div key={option} className="flex items-center space-x-2">
+              {typeList.map(option => (
+                <div key={option.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`status-${option}`}
-                    checked={filters.type.includes(option)}
+                    id={`type-${option.id}`}
+                    checked={filters.type.some(t => t.id === option.id)}
                     onCheckedChange={checked =>
                       handleCheckboxChange("type", option, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`option-${option}`} className="text-sm font-normal">
-                    {option}
+                  <Label htmlFor={`type-${option.id}`} className="text-sm font-normal">
+                    {option.name}
                   </Label>
                 </div>
               ))}
@@ -327,8 +371,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-platforms"
-                  checked={platformOptions.every(option => filters.platforms.includes(option))}
-                  onCheckedChange={() => handleSelectAll("platforms", platformOptions)}
+                  checked={platformList.every(option => filters.platforms.some(p => p.id === option.id))}
+                  onCheckedChange={() => handleSelectAll("platforms", platformList)}
                 />
                 <Label htmlFor="select-all-platforms" className="text-sm text-muted-foreground">
                   Select All
@@ -336,17 +380,17 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {platformOptions.map(platform => (
-                <div key={status} className="flex items-center space-x-2">
+              {platformList.map(platform => (
+                <div key={platform.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`status-${platform}`}
-                    checked={filters.platforms.includes(platform)}
+                    id={`platform-${platform.id}`}
+                    checked={filters.platforms.some(p => p.id === platform.id)}
                     onCheckedChange={checked =>
                       handleCheckboxChange("platforms", platform, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${platform}`} className="text-sm font-normal">
-                    {platform}
+                  <Label htmlFor={`platform-${platform.id}`} className="text-sm font-normal">
+                    {platform.name}
                   </Label>
                 </div>
               ))}
