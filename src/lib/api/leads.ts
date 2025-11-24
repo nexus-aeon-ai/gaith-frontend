@@ -17,10 +17,10 @@ export interface Country {
   updatedAt: string;
 }
 
-export interface Region {
+export interface City {
   id: string;
   organizationId: string;
-  countryId: string;
+  countryTypeId: string;
   name: string;
   isDeleted: boolean;
   createdAt: string;
@@ -30,7 +30,7 @@ export interface Region {
 export interface Area {
   id: string;
   organizationId: string;
-  regionId: string;
+  cityId: string;
   name: string;
   isDeleted: boolean;
   createdAt: string;
@@ -74,7 +74,7 @@ export interface UtilsRole {
 
 // Generic lookup fetcher
 export const getLeadsLookup = async <T = unknown>(
-  table: "countries" | "regions" | "areas" | "product-services" | "lead-sources" | "team-roles",
+  table: "countries" | "cities" | "areas" | "product-services" | "lead-sources" | "team-roles",
 ): Promise<T[]> => {
   const response = await fetchInstance<T[]>(`${leadsEndpoint}/lookups/${table}`);
   return response.data || [];
@@ -99,6 +99,15 @@ export interface BackendLead {
   leadSource?: { name: string };
   productServices?: Array<{ productService: { name: string } }>;
   assignedToUser?: { fullName: string };
+  assignedUsers?: Array<{
+    leadId: string;
+    userId: string;
+    user: {
+      id: string;
+      fullName: string;
+      email: string;
+    };
+  }>;
 }
 
 function getStatus(active: boolean, status: string): "Active" | "Inactive" | "Pending" {
@@ -115,35 +124,44 @@ const COLORS = [
 ];
 
 function transformLead(lead: BackendLead, idx: number): Lead {
-  const assignedName = lead.assignedToUser?.fullName || "Unassigned";
+
+  // Transform assignedUsers to match the expected format
+  const assignedTo = (lead.assignedUsers || []).map((au, index) => {
+    const color = COLORS[index % COLORS.length];
+    const fullName = au.user?.fullName || "Unknown";
+    const initials = fullName
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    return {
+      name: fullName,
+      initial: initials,
+      color,
+    };
+  });
+
   return {
     id: lead.id,
     name: lead.fullName,
     email: lead.emailAddress,
     source: lead.leadSource?.name || "Unknown",
     status: getStatus(lead.isActive, lead.status),
-    agreementPeriod: { start: "-", end: "-" }, // API lacks these fields
-    marketRegion: "-", // Not in API, fallback
+    agreementPeriod: { start: "-", end: "-" },
+    marketRegion: "-",
     services: lead.productServices?.map(s => s.productService.name).join(", ") || "-",
     contactInfo: lead.phoneNumber || "-",
-    assignedTo: [
-      {
-        name: assignedName,
-        initial: assignedName[0] || "U",
-        color: COLORS[idx % COLORS.length],
-      },
-    ],
+    assignedTo,
     createdAt: lead.createdAt || undefined,
   };
 }
 
 export type LeadsFilters = {
-  status?: string; // API expects values like NEW, LOST, NEGOTIATING
+  status?: string; // API expects values like NEW, CONTACTED, QUALIFIED, etc.
   assignedToUserIds?: string[];
   leadSourceId?: string;
-  startDate?: string; // ISO date string for client-side filtering
-  endDate?: string; // ISO date string for client-side filtering
-  // additional params like skip/take can be added if needed
 };
 
 export const getLeads = async (filters?: LeadsFilters) => {
@@ -159,6 +177,8 @@ export const getLeads = async (filters?: LeadsFilters) => {
   }
 
   const url = params.toString() ? `${leadsEndpoint}?${params.toString()}` : leadsEndpoint;
+  console.log("getLeads URL:", url);
+  console.log("getLeads filters:", filters);
   const response = await fetchInstance<BackendLeadResponse>(url);
   console.log("Fetched leads response:", response);
   return {
@@ -182,7 +202,7 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     emailAddress: formData.email,
     phoneNumber: formData.phoneNumber,
     countryId: formData.country,
-    regionId: formData.region,
+    cityId: formData.city,
     areaId: formData.area,
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
@@ -234,7 +254,7 @@ export const editLead = async (
     emailAddress: formData.email,
     phoneNumber: formData.phoneNumber,
     countryId: formData.country,
-    regionId: formData.region,
+    cityId: formData.city,
     areaId: formData.area,
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
@@ -249,7 +269,7 @@ export const editLead = async (
     productServiceIds: formData.productServiceIds,
     serviceOfferingIds: formData.serviceOfferingIds,
     teamRoleIds: formData.teamRoleIds,
-    assignedToUserIds: formData.assignedToUserIds,
+    assignedToUserId: "a4a5bc80-c882-4ef9-8134-fe7affb08a0a",
   };
   Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
   try {
@@ -317,11 +337,11 @@ export interface LeadByIdResponse {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  country: any;
-  region: any;
-  area: any;
-  leadSource: any;
-  assignedToUser: any;
+  country: string;
+  city: string;
+  area: string;
+  leadSource: string;
+  assignedToUser: string;
   productServices: any[];
   teamRoles: any[];
   communications: any[];
@@ -330,7 +350,7 @@ export interface LeadByIdResponse {
 
 export const getLeadById = async (id: string): Promise<LeadByIdResponse> => {
   const response = await fetchInstance<LeadByIdResponse>(`/leads/${id}`);
-  return response.data;
+  return response.data as LeadByIdResponse;
 };
 
 export const useLeadSources = () => {

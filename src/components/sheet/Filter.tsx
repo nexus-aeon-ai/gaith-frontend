@@ -18,13 +18,12 @@ interface FilterState {
   dateFrom: string;
   dateTo: string;
   assignees: string[]; // store IDs
-  statuses: string[];
-  sources: string[];
+  statuses: string[]; // store status values like "NEW", "CONTACTED", etc.
+  sources: string[]; // store source IDs
   clients: string[]; // store IDs
 }
 
-const statusOptions = ["New", "Lost", "In Progress"];
-const sourceOptions = ["Website", "Social Media", "Campaign", "Referral"];
+const statusOptions = ["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL_SENT", "NEGOTIATING", "CONVERTING", "LOST"];
 
 export default function FilterSheet({
   open,
@@ -49,7 +48,7 @@ export default function FilterSheet({
   const { theme } = useTheme();
   const { data: employees } = useQuery({ queryKey: ["employees"], queryFn: getAllEmployees });
   const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
-  const { data: leadSources, isLoading } = useLeadSources();
+  const { data: leadSources = [], isLoading } = useLeadSources();
 
   const assigneeOptions = useMemo(
     () => (Array.isArray(employees) ? employees.map(e => ({ 
@@ -68,23 +67,9 @@ export default function FilterSheet({
     if (!value) return;
     setFilters(prev => ({
       ...prev,
-      // Map dates from backend filters
-      dateFrom: value.startDate ? new Date(value.startDate).toISOString().slice(0, 10) : "",
-      dateTo: value.endDate ? new Date(value.endDate).toISOString().slice(0, 10) : "",
       assignees: value.assignedToUserIds ? [...value.assignedToUserIds] : [],
       sources: value.leadSourceId ? [value.leadSourceId] : [],
-      // Map status from backend string to UI label if available
-      statuses: value.status
-        ? [
-            value.status === "NEW"
-              ? "New"
-              : value.status === "LOST"
-              ? "Lost"
-              : value.status === "NEGOTIATING"
-              ? "In Progress"
-              : value.status,
-          ]
-        : [],
+      statuses: value.status ? [value.status] : [],
     }));
   }, [open, value]);
 
@@ -103,9 +88,9 @@ export default function FilterSheet({
 
   const handleSelectAll = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    options: string[] | { id: string; label: string }[],
+    options: string[] | { id: string; label?: string; name?: string }[],
   ) => {
-    const typedOptions = options as (string | { id: string; label: string })[];
+    const typedOptions = options as (string | { id: string; label?: string; name?: string })[];
     const ids = typedOptions.map(o => (typeof o === "string" ? o : o.id));
     const allSelected = ids.every(option => filters[category].includes(option));
     setFilters(prev => ({
@@ -126,40 +111,20 @@ export default function FilterSheet({
   };
 
   const applyFilters = () => {
-    // Build filters for leads endpoint
-    const mappedStatus =
-      filters.statuses.length > 0
-        ? filters.statuses[0] === "New"
-          ? "NEW"
-          : filters.statuses[0] === "Lost"
-          ? "LOST"
-          : filters.statuses[0] === "In Progress"
-          ? "NEGOTIATING"
-          : filters.statuses[0]
-        : undefined;
+    // Build filters for leads endpoint - only send status, assignedToUserIds, and leadSourceId
+    const status = filters.statuses.length > 0 ? filters.statuses[0] : undefined;
 
     const assignedToUserIds =
-      filters.assignees.length > 0
-        ? filters.assignees.map(a => {
-            // ensure we return IDs; employees list uses id field
-            const found = Array.isArray(employees) ? employees.find(e => e.id === a || e.user?.fullName === a) : undefined;
-            return found?.id || a;
-          }).filter(Boolean)
-        : undefined;
+      filters.assignees.length > 0 ? filters.assignees : undefined;
 
     const leadSourceId = filters.sources.length > 0 ? filters.sources[0] : undefined;
 
-    // Convert date strings to ISO format for client-side filtering
-    const startDate = filters.dateFrom ? new Date(filters.dateFrom).toISOString() : undefined;
-    const endDate = filters.dateTo ? new Date(filters.dateTo).toISOString() : undefined;
-
     const backendFilters: LeadsFilters = {
-      status: mappedStatus,
+      status,
       assignedToUserIds,
       leadSourceId,
-      startDate,
-      endDate,
     };
+    console.log("Applying filters:", backendFilters);
     onApply?.(backendFilters);
     onOpenChange(false);
   };
@@ -204,7 +169,7 @@ export default function FilterSheet({
                     value={filters.dateFrom}
                     onChange={e => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
           pr-10
           [&::-webkit-calendar-picker-indicator]:opacity-0 
           [&::-webkit-calendar-picker-indicator]:absolute 
@@ -234,7 +199,7 @@ export default function FilterSheet({
                     value={filters.dateTo}
                     onChange={e => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
 
             pr-10
             [&::-webkit-calendar-picker-indicator]:opacity-0 
@@ -314,8 +279,8 @@ export default function FilterSheet({
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm">
-                    {status}
+                  <Label htmlFor={`status-${status}`} className="text-sm capitalize">
+                    {status.replace("_", " ").toLowerCase()}
                   </Label>
                 </div>
               ))}
@@ -329,8 +294,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-sources"
-                  checked={sourceOptions.every(option => filters.sources.includes(option))}
-                  onCheckedChange={() => handleSelectAll("sources", sourceOptions)}
+                  checked={(leadSources as Array<{ id: string; name: string }>).every(option => filters.sources.includes(option.id))}
+                  onCheckedChange={() => handleSelectAll("sources", (leadSources as Array<{ id: string; name: string }>))}
                 />
                 <Label htmlFor="select-all-sources" className="text-sm text-muted-foreground">
                   Select All
@@ -338,21 +303,18 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {leadSources?.map(source => {
-                const s = source as unknown as { id: string; name: string };
-                return (
-                  <div key={s.id} className="flex items-center space-x-2">
-                    <CheckboxSquare
-                      id={`source-${s.id}`}
-                      checked={filters.sources.includes(s.id)}
-                      onCheckedChange={checked => handleCheckboxChange("sources", s.id, checked as boolean)}
-                    />
-                    <Label htmlFor={`source-${s.id}`} className="text-sm">
-                      {s.name}
-                    </Label>
-                  </div>
-                );
-              })}
+              {(leadSources as Array<{ id: string; name: string }>)?.map(source => (
+                <div key={source.id} className="flex items-center space-x-2">
+                  <CheckboxSquare
+                    id={`source-${source.id}`}
+                    checked={filters.sources.includes(source.id)}
+                    onCheckedChange={checked => handleCheckboxChange("sources", source.id, checked as boolean)}
+                  />
+                  <Label htmlFor={`source-${source.id}`} className="text-sm">
+                    {source.name}
+                  </Label>
+                </div>
+              ))}
             </div>
           </div>
 

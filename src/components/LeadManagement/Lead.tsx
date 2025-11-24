@@ -39,7 +39,7 @@ function leadToFormData(lead: Lead): CreateLeadFormData {
     email: lead.email || "",
     phoneNumber: lead.contactInfo || "",
     country: "", // not available, fallback
-    region: "",
+    city: "",
     area: "",
     fullAddress: "", // not available
     leadSource: lead.source || "",
@@ -54,7 +54,9 @@ function leadToFormData(lead: Lead): CreateLeadFormData {
     websiteUrl: "",
     additionalNotes: "",
     productServiceIds: [], // Not in table view
+    serviceOfferingIds: [],
     teamRoleIds: [], // Not in table view
+    assignedToUserIds: [],
     companyLogo: undefined,
   };
 }
@@ -84,18 +86,15 @@ const LeadsPage = () => {
   const { theme: themNext } = useTheme();
   const [showLeadProfile, setShowLeadProfile] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteLead(id),
     onSuccess: () => {
-      setDeletingLeadId(null);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       console.log("Lead deleted successfully!");
     },
     onError: error => {
-      setDeletingLeadId(null);
       console.error("Failed to delete lead. See console for details.");
       console.error(error);
     },
@@ -122,30 +121,7 @@ const LeadsPage = () => {
       (client: Lead) =>
         client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .filter((client: Lead) => {
-      // Apply date range filter if dates are set
-      if (!leadFilters?.startDate && !leadFilters?.endDate) {
-        return true;
-      }
-
-      const clientDate = client.createdAt ? new Date(client.createdAt) : null;
-      if (!clientDate) return true;
-
-      if (leadFilters?.startDate) {
-        const startDate = new Date(leadFilters.startDate);
-        if (clientDate < startDate) return false;
-      }
-
-      if (leadFilters?.endDate) {
-        const endDate = new Date(leadFilters.endDate);
-        // Set end date to end of day
-        endDate.setHours(23, 59, 59, 999);
-        if (clientDate > endDate) return false;
-      }
-
-      return true;
-    });
+    );
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
@@ -201,7 +177,6 @@ const LeadsPage = () => {
     if (!id) return;
     console.log("Deleting lead:", id);
     deleteMutation.mutate(id);
-    setDeletingLeadId(null);
   };
   return (
     <div
@@ -595,6 +570,7 @@ const LeadsPage = () => {
         open={isFilterSheetOpen}
         onOpenChange={setIsFilterSheetOpen}
         onApply={filters => {
+          console.log("Lead page received filters:", filters);
           setLeadFilters(filters);
           setCurrentPage(1);
         }}

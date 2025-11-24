@@ -16,5 +16,6 @@ export interface Lead {
     initial: string;
     color: string;
   }[];
+  assignedUsers?: any[]; // Array of user IDs or names
   createdAt?: string; // ISO date string for filtering
 }

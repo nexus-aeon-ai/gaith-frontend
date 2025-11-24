@@ -29,11 +29,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useClientLookups } from "@/lib/api/client/client-lookups";
 import {
   Area,
+  City,
   Country,
   LeadSource,
-  ProductService,
-  Region,
-  TeamRole,
   UtilsRole,
   getLeadsLookup,
   getUtilsRoles,
@@ -61,7 +59,7 @@ const defaultFormData: CreateLeadFormData = {
   email: "",
   phoneNumber: "",
   country: "",
-  region: "",
+  city: "",
   area: "",
   fullAddress: "",
   leadSource: "",
@@ -95,31 +93,22 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
     queryFn: () => getLeadsLookup<Country>("countries"),
   });
   const countryId = form.watch("country");
-  const { data: regions = [], isLoading: loadingRegions } = useQuery<Region[]>({
-    queryKey: ["leads", "regions", countryId],
-    queryFn: () => getLeadsLookup<Region>("regions"),
+  const { data: cities = [], isLoading: loadingCities} = useQuery<City[]>({
+    queryKey: ["leads", "cities", countryId],
+    queryFn: () => getLeadsLookup<City>("cities"),
     enabled: !!countryId,
   });
-  const regionId = form.watch("region");
+  const cityId = form.watch("city");
   const { data: areas = [], isLoading: loadingAreas } = useQuery<Area[]>({
-    queryKey: ["leads", "areas", regionId],
+    queryKey: ["leads", "areas", cityId],
     queryFn: () => getLeadsLookup<Area>("areas"),
-    enabled: !!regionId,
+    enabled: !!cityId,
   });
-  // const { data: productServices = [], isLoading: loadingProductServices } = useQuery<
-  //   ProductService[]
-  // >({
-  //   queryKey: ["leads", "product-services"],
-  //   queryFn: () => getLeadsLookup<ProductService>("product-services"),
-  // });
   const { data: leadSources = [], isLoading: loadingLeadSources } = useQuery<LeadSource[]>({
     queryKey: ["leads", "lead-sources"],
     queryFn: () => getLeadsLookup<LeadSource>("lead-sources"),
   });
-  const { data: teamRoles = [], isLoading: loadingTeamRoles } = useQuery<TeamRole[]>({
-    queryKey: ["leads", "team-roles"],
-    queryFn: () => getLeadsLookup<TeamRole>("team-roles"),
-  });
+
   const { data: assignedRoles = [], isLoading: loadingAssignedRoles } = useQuery<UtilsRole[]>({
     queryKey: ["utils", "roles"],
     queryFn: getUtilsRoles,
@@ -135,25 +124,23 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
 
   const { clientServiceOffers = [] } = useClientLookups();
 
-  const selectedProductServiceIds = (form.watch("productServiceIds") || []) as string[];
   const selectedServiceOfferingIds = (form.watch("serviceOfferingIds") || []) as string[];
-  const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
+  // const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
   const selectedAssignedUserIds = (form.watch("assignedToUserIds") || []) as string[];
 
-  const filteredRegions = regions.filter(r => r.countryId === countryId);
-  const filteredAreas = areas.filter(a => a.regionId === regionId);
+  const filteredCities = cities.filter(city => city.countryTypeId === countryId);
+  const filteredAreas = areas.filter(a => a.cityId === cityId);
 
-  if (
-    loadingCountries ||
-    loadingRegions ||
-    loadingAreas ||
-    loadingLeadSources ||
-    loadingTeamRoles ||
-    loadingAssignedRoles ||
-    loadingUsers
-  ) {
-    return <div>Loading form data...</div>;
-  }
+  // if (
+  //   loadingCountries ||
+  //   loadingCities ||
+  //   loadingAreas ||
+  //   loadingLeadSources ||
+  //   loadingAssignedRoles ||
+  //   loadingUsers
+  // ) {
+  //   return <div>Loading form data...</div>;
+  // }
 
   return (
     <Form {...form}>
@@ -263,7 +250,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Country, Region, Area selects (with filtering) */}
+                {/* Country, City, Area selects (with filtering) */}
                 <FormField
                   control={form.control}
                   name="country"
@@ -275,8 +262,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                           value={field.value}
                           onValueChange={val => {
                             field.onChange(val);
-                            form.setValue("region", "");
-                            form.setValue("area", "");
+                            form.setValue("city", "");
                           }}
                           disabled={loadingCountries}
                         >
@@ -299,10 +285,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 />
                 <FormField
                   control={form.control}
-                  name="region"
+                  name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Region</FormLabel>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -310,25 +296,31 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             field.onChange(val);
                             form.setValue("area", "");
                           }}
-                          disabled={loadingRegions || !countryId}
+                          disabled={loadingCities || !countryId}
                         >
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                             <SelectValue
                               placeholder={
-                                loadingRegions
+                                loadingCities
                                   ? "Loading..."
                                   : !countryId
                                     ? "Select Country first"
-                                    : "Select Region"
+                                    : "Select City"
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {filteredRegions.map(r => (
-                              <SelectItem key={r.id} value={r.id}>
-                                {r.name}
+                            {filteredCities.length === 0 ? (
+                              <SelectItem value="no city" disabled>
+                                No cities available
                               </SelectItem>
-                            ))}
+                            ) : (
+                              filteredCities.map(r => (
+                                <SelectItem key={r.id} value={r.id}>
+                                  {r.name}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -345,15 +337,15 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
-                          disabled={loadingAreas || !regionId}
+                          disabled={loadingAreas || !cityId}
                         >
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                             <SelectValue
                               placeholder={
                                 loadingAreas
                                   ? "Loading..."
-                                  : !regionId
-                                    ? "Select Region first"
+                                  : !cityId
+                                    ? "Select City first"
                                     : "Select Area"
                               }
                             />
@@ -751,13 +743,13 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   >
                     <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                       <SelectValue
-                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Role"}
+                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Account Manager"}
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      {assignedRoles.map(role => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.code}
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.fullName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -801,9 +793,6 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
             />
           </CardContent>
         </Card>
-
-       
-
 
         {/* Additional Notes */}
         <Card className="pt-3 rounded-[16px] shadow-none">
