@@ -16,4 +16,5 @@ export interface Lead {
     initial: string;
     color: string;
   }[];
+  createdAt?: string; // ISO date string for filtering
 }

@@ -30,12 +30,12 @@ import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-
 import { companySizeOptions } from "../../lib/validations/client";
 import { CheckboxSquare } from "../ui/checkbox-square";
 import LocationIcon from "../ui/icons/location";
+import Instagram from "../ui/icons/social/instagram";
 import Fb from "../ui/icons/socials/fb";
 import Linkedin from "../ui/icons/socials/linkedin";
 import Twitterx from "../ui/icons/socials/twitterx";
 import Website from "../ui/icons/socials/website";
 import Youtube from "../ui/icons/socials/youtube";
-import Instagram from "../ui/icons/social/instagram";
 
 interface AiDataFormProps {
   initialData?: CreateAiFormData;
@@ -111,6 +111,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
     clientTargetAudiences,
     clientTeamRoles,
   } = useClientLookups();
+
 
 
   const handleStartDateClick = () => {
@@ -525,11 +526,11 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="space-y-1 grid lg:grid-cols-4 grid-cols-2 w-full mt-1">
                             {clientLanguages.map(option => {
-                              const isChecked = selected.includes(option.id as string);
+                              const isChecked = selected.includes(option.code as string);
 
                               return (
                                 <label
-                                  key={option.id}
+                                  key={option.code}
                                   className="flex flex-row items-center space-x-2 cursor-pointer"
                                 >
                                   <FormControl>
@@ -537,8 +538,8 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                                       checked={isChecked}
                                       onCheckedChange={checkedNow => {
                                         const updated = checkedNow
-                                          ? [...selected, option.id]
-                                          : selected.filter(id => id !== option.id);
+                                          ? [...selected, option.code]
+                                          : selected.filter(code => code !== option.code);
                                         field.onChange(updated); // ✅ triggers revalidation
                                       }}
                                     />

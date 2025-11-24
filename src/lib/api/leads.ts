@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { fetchInstance } from "../clients";
 import type { Lead } from "../types/lead";
 import type { CreateLeadFormData } from "../validations/lead";
@@ -93,6 +95,7 @@ export interface BackendLead {
   phoneNumber: string;
   status: string;
   isActive: boolean;
+  createdAt?: string;
   leadSource?: { name: string };
   productServices?: Array<{ productService: { name: string } }>;
   assignedToUser?: { fullName: string };
@@ -130,11 +133,34 @@ function transformLead(lead: BackendLead, idx: number): Lead {
         color: COLORS[idx % COLORS.length],
       },
     ],
+    createdAt: lead.createdAt || undefined,
   };
 }
 
-export const getLeads = async () => {
-  const response = await fetchInstance<BackendLeadResponse>(leadsEndpoint);
+export type LeadsFilters = {
+  status?: string; // API expects values like NEW, LOST, NEGOTIATING
+  assignedToUserIds?: string[];
+  leadSourceId?: string;
+  startDate?: string; // ISO date string for client-side filtering
+  endDate?: string; // ISO date string for client-side filtering
+  // additional params like skip/take can be added if needed
+};
+
+export const getLeads = async (filters?: LeadsFilters) => {
+  // Build query string from filters
+  const params = new URLSearchParams();
+  if (filters) {
+    if (filters.status) params.append("status", filters.status);
+    if (filters.leadSourceId) params.append("leadSourceId", filters.leadSourceId);
+    if (Array.isArray(filters.assignedToUserIds)) {
+      // Send repeated params e.g. assignedToUserIds=1&assignedToUserIds=2
+      filters.assignedToUserIds.forEach(id => params.append("assignedToUserIds", id));
+    }
+  }
+
+  const url = params.toString() ? `${leadsEndpoint}?${params.toString()}` : leadsEndpoint;
+  const response = await fetchInstance<BackendLeadResponse>(url);
+  console.log("Fetched leads response:", response);
   return {
     status: response.status,
     data: response.data
@@ -303,4 +329,11 @@ export interface LeadByIdResponse {
 export const getLeadById = async (id: string): Promise<LeadByIdResponse> => {
   const response = await fetchInstance<LeadByIdResponse>(`/leads/${id}`);
   return response.data;
+};
+
+export const useLeadSources = () => {
+  return useQuery({
+    queryKey: ["lead-sources"],
+    queryFn: () => getLeadsLookup("lead-sources"),
+  });
 };

@@ -48,6 +48,7 @@ interface ResponseT {
   id?: string;
   name?: string;
   value?: string;
+  code?: string;
 }
 
 export interface CreateClientRequest {
@@ -175,7 +176,6 @@ export const getClientById = async (
       data: null,
     };
   }
-  console.log("Client by id:", id, " \ndata:", response.data);
   return {
     status: response.status,
     data: response.data,

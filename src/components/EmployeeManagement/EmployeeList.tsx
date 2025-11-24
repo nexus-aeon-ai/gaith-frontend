@@ -77,7 +77,7 @@ const EmployeeList = () => {
         // UI expects these fields differently
         role: emp.role?.title,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        department: { name: emp.department?.name, team: emp.department?.subTeam || "" },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
@@ -369,7 +369,7 @@ const EmployeeList = () => {
 
                   {/* Department */}
                   <TableCell className="px-4 py-3 text-center">
-                    <p className="text-sm font-medium">{employee.department.name}</p>
+                    <p className="text-sm font-medium">{employee.department?.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {employee.department.team}
                     </p>

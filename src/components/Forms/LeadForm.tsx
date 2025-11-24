@@ -126,6 +126,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const filteredRegions = regions.filter(r => r.countryId === countryId);
   const filteredAreas = areas.filter(a => a.regionId === regionId);
 
+  if(loadingProductServices || loadingCountries || loadingRegions || loadingAreas || loadingLeadSources || loadingTeamRoles || loadingAssignedRoles) {
+    return <div>Loading form data...</div>;
+  }
+
   return (
     <Form {...form}>
       <form
