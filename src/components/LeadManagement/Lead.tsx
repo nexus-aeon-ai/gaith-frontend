@@ -23,7 +23,7 @@ import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
-import { deleteLead, getLeads } from "@/lib/api/leads";
+import { deleteLead, getLeads, LeadsFilters } from "@/lib/api/leads";
 import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
 import { CreateLeadFormData } from "@/lib/validations/lead";
@@ -39,7 +39,7 @@ function leadToFormData(lead: Lead): CreateLeadFormData {
     email: lead.email || "",
     phoneNumber: lead.contactInfo || "",
     country: "", // not available, fallback
-    region: "",
+    city: "",
     area: "",
     fullAddress: "", // not available
     leadSource: lead.source || "",
@@ -54,16 +54,20 @@ function leadToFormData(lead: Lead): CreateLeadFormData {
     websiteUrl: "",
     additionalNotes: "",
     productServiceIds: [], // Not in table view
+    serviceOfferingIds: [],
     teamRoleIds: [], // Not in table view
+    assignedToUserIds: [],
     companyLogo: undefined,
   };
 }
 
 const LeadsPage = () => {
   // Fetch leads from API
+  const [leadFilters, setLeadFilters] = useState<LeadsFilters | undefined>(undefined);
+
   const { data } = useQuery<{ status: number; data: { results: Lead[]; count: number } }, Error>({
-    queryKey: ["leads"],
-    queryFn: getLeads,
+    queryKey: ["leads", leadFilters],
+    queryFn: () => getLeads(leadFilters),
     initialData: { status: 200, data: { results: [], count: 0 } },
   });
 
@@ -82,19 +86,15 @@ const LeadsPage = () => {
   const { theme: themNext } = useTheme();
   const [showLeadProfile, setShowLeadProfile] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteLead(id),
     onSuccess: () => {
-      setDeletingLeadId(null);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       console.log("Lead deleted successfully!");
     },
     onError: error => {
-      setDeletingLeadId(null);
       console.error("Failed to delete lead. See console for details.");
       console.error(error);
     },
@@ -116,11 +116,12 @@ const LeadsPage = () => {
     }
   };
 
-  const filteredClients = leads.filter(
-    (client: Lead) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredClients = leads
+    .filter(
+      (client: Lead) =>
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
@@ -176,7 +177,6 @@ const LeadsPage = () => {
     if (!id) return;
     console.log("Deleting lead:", id);
     deleteMutation.mutate(id);
-    setDeletingLeadId(null);
   };
   return (
     <div
@@ -461,7 +461,7 @@ const LeadsPage = () => {
 
                           <DropdownMenuItem
                             onClick={() => {
-                              setSelectedLead(leadToFormData(lead));
+                              setSelectedLead({ ...leadToFormData(lead), id: lead.id });
                               setShowEditLeadForm(true);
                             }}
                           >
@@ -565,39 +565,16 @@ const LeadsPage = () => {
           </div>
         </div>
       </div>
-      {/* <PopupModal
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        closeOnAction
-        title="Delete Lead?"
-        iconComponent={
-          <DeleteIcon
-            style={{
-              background: "#FDEEEE",
-              borderRadius: 999,
-              padding: 8,
-              width: 40,
-              height: 40,
-            }}
-          />
-        }
-        description="Are you sure you want to delete this lead? This action cannot be undone."
-        cancelButton={{
-          label: "Delete",
-          disabled: deleteMutation.isPending,
-          onClick: () => {
-            setShowDeleteDialog(false);
-            if (deletingLeadId) {
-              deleteMutation.mutate(deletingLeadId);
-            }
-          },
+    
+      <FilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        onApply={filters => {
+          console.log("Lead page received filters:", filters);
+          setLeadFilters(filters);
+          setCurrentPage(1);
         }}
-        confirmButton={{
-          label: "Cancel",
-          onClick: () => setShowDeleteDialog(false),
-        }}
-      /> */}
-      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      />
     </div>
   );
 };

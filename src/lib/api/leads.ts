@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { fetchInstance } from "../clients";
 import type { Lead } from "../types/lead";
 import type { CreateLeadFormData } from "../validations/lead";
@@ -15,10 +17,10 @@ export interface Country {
   updatedAt: string;
 }
 
-export interface Region {
+export interface City {
   id: string;
   organizationId: string;
-  countryId: string;
+  countryTypeId: string;
   name: string;
   isDeleted: boolean;
   createdAt: string;
@@ -28,7 +30,7 @@ export interface Region {
 export interface Area {
   id: string;
   organizationId: string;
-  regionId: string;
+  cityId: string;
   name: string;
   isDeleted: boolean;
   createdAt: string;
@@ -95,8 +97,7 @@ const buildLookupUrl = (table: LookupTable, params?: LookupParams) => {
 };
 
 export const getLeadsLookup = async <T = unknown>(
-  table: LookupTable,
-  params?: LookupParams,
+  table: "countries" | "cities" | "areas" | "product-services" | "lead-sources" | "team-roles",
 ): Promise<T[]> => {
   const response = await fetchInstance<LookupResponse<T>>(buildLookupUrl(table, params));
 
@@ -122,9 +123,19 @@ export interface BackendLead {
   phoneNumber: string;
   status: string;
   isActive: boolean;
+  createdAt?: string;
   leadSource?: { name: string };
   productServices?: Array<{ productService: { name: string } }>;
   assignedToUser?: { fullName: string };
+  assignedUsers?: Array<{
+    leadId: string;
+    userId: string;
+    user: {
+      id: string;
+      fullName: string;
+      email: string;
+    };
+  }>;
 }
 
 function getStatus(active: boolean, status: string): "Active" | "Inactive" | "Pending" {
@@ -141,29 +152,63 @@ const COLORS = [
 ];
 
 function transformLead(lead: BackendLead, idx: number): Lead {
-  const assignedName = lead.assignedToUser?.fullName || "Unassigned";
+
+  // Transform assignedUsers to match the expected format
+  const assignedTo = (lead.assignedUsers || []).map((au, index) => {
+    const color = COLORS[index % COLORS.length];
+    const fullName = au.user?.fullName || "Unknown";
+    const initials = fullName
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    return {
+      name: fullName,
+      initial: initials,
+      color,
+    };
+  });
+
   return {
     id: lead.id,
     name: lead.fullName,
     email: lead.emailAddress,
     source: lead.leadSource?.name || "Unknown",
     status: getStatus(lead.isActive, lead.status),
-    agreementPeriod: { start: "-", end: "-" }, // API lacks these fields
-    marketRegion: "-", // Not in API, fallback
+    agreementPeriod: { start: "-", end: "-" },
+    marketRegion: "-",
     services: lead.productServices?.map(s => s.productService.name).join(", ") || "-",
     contactInfo: lead.phoneNumber || "-",
-    assignedTo: [
-      {
-        name: assignedName,
-        initial: assignedName[0] || "U",
-        color: COLORS[idx % COLORS.length],
-      },
-    ],
+    assignedTo,
+    createdAt: lead.createdAt || undefined,
   };
 }
 
-export const getLeads = async () => {
-  const response = await fetchInstance<BackendLeadResponse>(leadsEndpoint);
+export type LeadsFilters = {
+  status?: string; // API expects values like NEW, CONTACTED, QUALIFIED, etc.
+  assignedToUserIds?: string[];
+  leadSourceId?: string;
+};
+
+export const getLeads = async (filters?: LeadsFilters) => {
+  // Build query string from filters
+  const params = new URLSearchParams();
+  if (filters) {
+    if (filters.status) params.append("status", filters.status);
+    if (filters.leadSourceId) params.append("leadSourceId", filters.leadSourceId);
+    if (Array.isArray(filters.assignedToUserIds)) {
+      // Send repeated params e.g. assignedToUserIds=1&assignedToUserIds=2
+      filters.assignedToUserIds.forEach(id => params.append("assignedToUserIds", id));
+    }
+  }
+
+  const url = params.toString() ? `${leadsEndpoint}?${params.toString()}` : leadsEndpoint;
+  console.log("getLeads URL:", url);
+  console.log("getLeads filters:", filters);
+  const response = await fetchInstance<BackendLeadResponse>(url);
+  console.log("Fetched leads response:", response);
   return {
     status: response.status,
     data: response.data
@@ -185,7 +230,7 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     emailAddress: formData.email,
     phoneNumber: formData.phoneNumber,
     countryId: formData.country,
-    regionId: formData.region,
+    cityId: formData.city,
     areaId: formData.area,
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
@@ -198,8 +243,9 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
+    serviceOfferingIds: formData.serviceOfferingIds,
     teamRoleIds: formData.teamRoleIds,
-    assignedToUserId: "a4a5bc80-c882-4ef9-8134-fe7affb08a0a",
+    assignedToUserIds: formData.assignedToUserIds,
     leadSourceId: formData.leadSource,
     status: "NEW",
   };
@@ -236,7 +282,7 @@ export const editLead = async (
     emailAddress: formData.email,
     phoneNumber: formData.phoneNumber,
     countryId: formData.country,
-    regionId: formData.region,
+    cityId: formData.city,
     areaId: formData.area,
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
@@ -249,6 +295,7 @@ export const editLead = async (
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
+    serviceOfferingIds: formData.serviceOfferingIds,
     teamRoleIds: formData.teamRoleIds,
     assignedToUserId: "a4a5bc80-c882-4ef9-8134-fe7affb08a0a",
   };
@@ -318,11 +365,11 @@ export interface LeadByIdResponse {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  country: any;
-  region: any;
-  area: any;
-  leadSource: any;
-  assignedToUser: any;
+  country: string;
+  city: string;
+  area: string;
+  leadSource: string;
+  assignedToUser: string;
   productServices: any[];
   teamRoles: any[];
   communications: any[];
@@ -331,8 +378,12 @@ export interface LeadByIdResponse {
 
 export const getLeadById = async (id: string): Promise<LeadByIdResponse> => {
   const response = await fetchInstance<LeadByIdResponse>(`/leads/${id}`);
-  if (!response.data) {
-    throw new Error("Lead not found");
-  }
-  return response.data;
+  return response.data as LeadByIdResponse;
+};
+
+export const useLeadSources = () => {
+  return useQuery({
+    queryKey: ["lead-sources"],
+    queryFn: () => getLeadsLookup("lead-sources"),
+  });
 };

@@ -21,7 +21,8 @@ export type ApiClient = {
   industrySectorId: string | null;
   agreementStartDate: string | null;
   agreementEndDate: string | null;
-  contractDurationMonths: number | null;
+  contractDuration: number | null;
+  contractDurationUnit: string | null;
   primaryMarketRegionId: string | null;
   targetAudienceId: string | null;
   languagesSupported: string[];
@@ -48,6 +49,7 @@ interface ResponseT {
   id?: string;
   name?: string;
   value?: string;
+  code?: string;
 }
 
 export interface CreateClientRequest {
@@ -175,7 +177,6 @@ export const getClientById = async (
       data: null,
     };
   }
-  console.log("Client by id:", id, " \ndata:", response.data);
   return {
     status: response.status,
     data: response.data,

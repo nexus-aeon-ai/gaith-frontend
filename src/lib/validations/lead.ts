@@ -64,10 +64,10 @@ export const createLeadSchema = z.object({
     .min(2, "Country must be at least 2 characters")
     .max(50, "Country must be less than 50 characters"),
 
-  region: z
+  city: z
     .string()
-    .min(2, "Region must be at least 2 characters")
-    .max(50, "Region must be less than 50 characters").optional(),
+    .min(2, "City must be at least 2 characters")
+    .max(50, "City must be less than 50 characters").optional(),
 
   area: z
     .string()
@@ -107,8 +107,11 @@ export const createLeadSchema = z.object({
 
   // Products & Services
   productServiceIds: z.array(z.string()).default([]),
+  serviceOfferingIds: z.array(z.string()).default([]),
   // Team Roles/Additional Team Members
   teamRoleIds: z.array(z.string()).default([]),
+  // Assigned Users
+  assignedToUserIds: z.array(z.string()).default([]),
 
   //company logo
   companyLogo: z

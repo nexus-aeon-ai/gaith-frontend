@@ -1,8 +1,10 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import {
   Breadcrumb,
@@ -24,6 +26,7 @@ import PopupModal from "../PopupModal/PopupModal";
 import GenerateMarketingAssets from "./GenerateAssets/GenerateMarketingAssets";
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showMarketingAssets, setShowMarketingAssets] = useState(false);
@@ -47,7 +50,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
 
       // If validation passes, proceed with create client api
       console.log("Creating new client with data:", data);
-      
+
       const response = await createClient({
         // Required fields only as per API spec
         clientName: data.clientName,
@@ -57,7 +60,8 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         businessOverview: data.businessOverview,
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
-        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        contractDuration: data.contractDuration,
+        contractDurationUnit: data.contractDurationUnit,
         primaryMarketRegionId: data.primaryRegion as string,
         targetAudienceId: data.targetAudience as string,
         secondaryMarketIds: [data.primaryRegion as string],
@@ -67,7 +71,8 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
 
       // Close the form on success
       if (response.status >= 200 && response.status < 300) {
-        alert("Client created successfully!");
+        queryClient.invalidateQueries({ queryKey: ["clients"] });
+        toast.success("Client created successfully!");
         closeNewClientForm();
       } else {
         throw new Error("Failed to create client");

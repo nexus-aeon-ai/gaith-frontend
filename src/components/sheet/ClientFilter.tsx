@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -10,6 +10,8 @@ import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { getClients } from "@/lib/api/client/client";
+import { getUsers } from "@/lib/api/user";
 
 interface FilterState {
   dateFrom: string;
@@ -19,26 +21,6 @@ interface FilterState {
   sources: string[];
   clients: string[];
 }
-
-const assigneeOptions = [
-  "Emily Johnson",
-  "Michael Smith",
-  "Sophia Brown",
-  "James Williams",
-  "Olivia Davis",
-  "Liam Garcia",
-  "Ava Martinez",
-  "Noah Robinson",
-];
-
-const clientOptions = [
-  "Fashion Brand",
-  "Sustainable Fashion",
-  "Streetwear Collection",
-  "Luxury Accessories",
-  "Activewear Line",
-  "Vintage Revival",
-];
 
 export default function ClientFilterSheet({
   open,
@@ -56,7 +38,56 @@ export default function ClientFilterSheet({
     clients: [],
   });
 
+  const [users, setUsers] = useState<Array<{ id: string; fullName: string }>>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [clients, setClients] = useState<Array<{ id: string; clientName: string }>>([]);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+
   const { theme } = useTheme();
+
+  // Fetch users on component mount
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+        const response = await getUsers();
+        if (response?.data) {
+          const userList = Array.isArray(response.data)
+            ? response.data.map(user => ({ id: user.id, fullName: user.fullName }))
+            : [];
+          setUsers(userList);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Fetch clients on component mount
+  useEffect(() => {
+    const fetchClientList = async () => {
+      setIsLoadingClients(true);
+      try {
+        const response = await getClients();
+        if (response?.data) {
+          const clientList = Array.isArray(response.data)
+            ? response.data.map(client => ({ id: client.id, clientName: client.clientName || "Unnamed" }))
+            : [];
+          setClients(clientList);
+        }
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      } finally {
+        setIsLoadingClients(false);
+      }
+    };
+
+    fetchClientList();
+  }, []);
 
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
@@ -73,12 +104,14 @@ export default function ClientFilterSheet({
 
   const handleSelectAll = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    options: string[],
+    options: Array<{ id: string; fullName?: string; clientName?: string }> | string[],
   ) => {
-    const allSelected = options.every(option => filters[category].includes(option));
+    // Handle both user/client objects and string arrays
+    const optionIds = options.map(opt => (typeof opt === "string" ? opt : opt.id));
+    const allSelected = optionIds.every(id => filters[category].includes(id));
     setFilters(prev => ({
       ...prev,
-      [category]: allSelected ? [] : options,
+      [category]: allSelected ? [] : optionIds,
     }));
   };
 
@@ -191,8 +224,8 @@ export default function ClientFilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-assignees"
-                  checked={assigneeOptions.every(option => filters.assignees.includes(option))}
-                  onCheckedChange={() => handleSelectAll("assignees", assigneeOptions)}
+                  checked={users.length > 0 && users.every(user => filters.assignees.includes(user.id))}
+                  onCheckedChange={() => handleSelectAll("assignees", users)}
                 />
                 <Label htmlFor="select-all-assignees" className="text-sm text-muted-foreground">
                   Select All
@@ -200,20 +233,26 @@ export default function ClientFilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {assigneeOptions.map(assignee => (
-                <div key={assignee} className="flex items-center space-x-2">
-                  <CheckboxSquare
-                    id={`assignee-${assignee}`}
-                    checked={filters.assignees.includes(assignee)}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange("assignees", assignee, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={`assignee-${assignee}`} className="text-sm">
-                    {assignee}
-                  </Label>
-                </div>
-              ))}
+              {isLoadingUsers ? (
+                <p className="text-xs text-muted-foreground">Loading users...</p>
+              ) : users.length > 0 ? (
+                users.map(user => (
+                  <div key={user.id} className="flex items-center space-x-2">
+                    <CheckboxSquare
+                      id={`assignee-${user.id}`}
+                      checked={filters.assignees.includes(user.id)}
+                      onCheckedChange={checked =>
+                        handleCheckboxChange("assignees", user.id, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`assignee-${user.id}`} className="text-sm">
+                      {user.fullName}
+                    </Label>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground">No users available</p>
+              )}
             </div>
           </div>
 
@@ -224,8 +263,8 @@ export default function ClientFilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-clients"
-                  checked={clientOptions.every(option => filters.clients.includes(option))}
-                  onCheckedChange={() => handleSelectAll("clients", clientOptions)}
+                  checked={clients.length > 0 && clients.every(client => filters.clients.includes(client.id))}
+                  onCheckedChange={() => handleSelectAll("clients", clients)}
                 />
                 <Label htmlFor="select-all-clients" className="text-sm text-muted-foreground">
                   Select All
@@ -233,20 +272,26 @@ export default function ClientFilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {clientOptions.map(client => (
-                <div key={client} className="flex items-center space-x-2">
-                  <CheckboxSquare
-                    id={`client-${client}`}
-                    checked={filters.clients.includes(client)}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange("clients", client, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={`client-${client}`} className="text-sm">
-                    {client}
-                  </Label>
-                </div>
-              ))}
+              {isLoadingClients ? (
+                <p className="text-xs text-muted-foreground">Loading clients...</p>
+              ) : clients.length > 0 ? (
+                clients.map(client => (
+                  <div key={client.id} className="flex items-center space-x-2">
+                    <CheckboxSquare
+                      id={`client-${client.id}`}
+                      checked={filters.clients.includes(client.id)}
+                      onCheckedChange={checked =>
+                        handleCheckboxChange("clients", client.id, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`client-${client.id}`} className="text-sm">
+                      {client.clientName}
+                    </Label>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground">No clients available</p>
+              )}
             </div>
           </div>
         </div>

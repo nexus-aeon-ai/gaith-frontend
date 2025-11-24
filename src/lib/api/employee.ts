@@ -28,6 +28,7 @@ export type Employee = {
   address?: string;
   notes?: string;
   profilePicture?: string;
+  createdAt?: string;
 };
 
 export type EmployeeFilters = Record<string, string | number | string[] | undefined>;
@@ -70,6 +71,7 @@ export interface BackendEmployee {
   street?: string;
   fullAddress?: string;
   profilePicture?: string;
+  createdAt?: string;
 }
 
 // Transform backend employee to frontend employee
@@ -102,6 +104,7 @@ const transformEmployee = (backendEmployee: BackendEmployee): Employee => {
     skills: backendEmployee.skills?.map((s: { skill: string }) => s.skill) || [],
     address: backendEmployee.fullAddress || backendEmployee.street || "",
     notes: backendEmployee.notes || "",
+      createdAt: backendEmployee.createdAt,
   };
 };
 
@@ -117,16 +120,16 @@ export const getEmployees = async (
     page_count: number;
   } | null;
 }> => {
+  // Only pass supported query params to backend (e.g., status)
   const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        value.forEach(v => params.append(key, v));
-      } else {
-        params.append(key, String(value));
-      }
+  const { status, dateFrom, dateTo, ...rest } = filters as Record<string, any>;
+  if (status) {
+    if (Array.isArray(status)) {
+      status.forEach((s: string) => params.append("status", String(s)));
+    } else {
+      params.append("status", String(status));
     }
-  });
+  }
 
   const queryString = params.toString();
   const url = queryString ? `${employeesEndpoint}?${queryString}` : employeesEndpoint;
@@ -140,12 +143,31 @@ export const getEmployees = async (
     };
   }
 
+  // Apply client-side date filtering (createdAt) if provided
+  let backendList = response.data.data || [];
+  try {
+    const from = dateFrom ? new Date(String(dateFrom)) : null;
+    const to = dateTo ? new Date(String(dateTo)) : null;
+    if (from || to) {
+      backendList = backendList.filter(be => {
+        if (!be.createdAt) return false;
+        const created = new Date(be.createdAt);
+        if (from && created < from) return false;
+        if (to && created > to) return false;
+        return true;
+      });
+    }
+  } catch (err) {
+    // if date parsing fails, ignore date filter
+    console.warn("Failed to parse date filters", err);
+  }
+
   const transformedData = {
-    results: response.data.data.map(transformEmployee),
-    count: response.data.total,
+    results: backendList.map(transformEmployee),
+    count: backendList.length,
     next: null,
     previous: null,
-    page_count: Math.ceil(response.data.total / (response.data.take || 10)),
+    page_count: Math.ceil((backendList.length || 0) / (response.data.take || 10)),
   };
 
   return {

@@ -26,8 +26,6 @@ interface SearchAndActionsSectionProps {
 }
 
 const SearchAndActionsSection = ({
-  globalFilter,
-  setGlobalFilter,
 }: SearchAndActionsSectionProps) => {
 
   const [searchTerm, setSearchTerm] = useState("");

@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import {
   Form,
   FormControl,
@@ -25,17 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useClientLookups } from "@/lib/api/client/client-lookups";
 import {
   Area,
+  City,
   Country,
   LeadSource,
-  ProductService,
-  Region,
-  TeamRole,
   UtilsRole,
   getLeadsLookup,
   getUtilsRoles,
 } from "@/lib/api/leads";
+import { getUsers, type IUser } from "@/lib/api/user";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
 import Fb from "../ui/icons/socials/fb";
@@ -58,7 +59,7 @@ const defaultFormData: CreateLeadFormData = {
   email: "",
   phoneNumber: "",
   country: "",
-  region: "",
+  city: "",
   area: "",
   fullAddress: "",
   leadSource: "",
@@ -73,7 +74,9 @@ const defaultFormData: CreateLeadFormData = {
   websiteUrl: "",
   additionalNotes: "",
   productServiceIds: [],
+  serviceOfferingIds: [],
   teamRoleIds: [],
+  assignedToUserIds: [],
 };
 
 const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
@@ -90,41 +93,54 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
     queryFn: () => getLeadsLookup<Country>("countries"),
   });
   const countryId = form.watch("country");
-  const { data: regions = [], isLoading: loadingRegions } = useQuery<Region[]>({
-    queryKey: ["leads", "regions", countryId],
-    queryFn: () => getLeadsLookup<Region>("regions", { countryId }),
+  const { data: cities = [], isLoading: loadingCities} = useQuery<City[]>({
+    queryKey: ["leads", "cities", countryId],
+    queryFn: () => getLeadsLookup<City>("cities"),
     enabled: !!countryId,
   });
-  const regionId = form.watch("region");
+  const cityId = form.watch("city");
   const { data: areas = [], isLoading: loadingAreas } = useQuery<Area[]>({
-    queryKey: ["leads", "areas", regionId],
-    queryFn: () => getLeadsLookup<Area>("areas", { regionId }),
-    enabled: !!regionId,
-  });
-  const { data: productServices = [], isLoading: loadingProductServices } = useQuery<
-    ProductService[]
-  >({
-    queryKey: ["leads", "product-services"],
-    queryFn: () => getLeadsLookup<ProductService>("product-services"),
+    queryKey: ["leads", "areas", cityId],
+    queryFn: () => getLeadsLookup<Area>("areas"),
+    enabled: !!cityId,
   });
   const { data: leadSources = [], isLoading: loadingLeadSources } = useQuery<LeadSource[]>({
     queryKey: ["leads", "lead-sources"],
     queryFn: () => getLeadsLookup<LeadSource>("lead-sources"),
   });
-  const { data: teamRoles = [], isLoading: loadingTeamRoles } = useQuery<TeamRole[]>({
-    queryKey: ["leads", "team-roles"],
-    queryFn: () => getLeadsLookup<TeamRole>("team-roles"),
-  });
+
   const { data: assignedRoles = [], isLoading: loadingAssignedRoles } = useQuery<UtilsRole[]>({
     queryKey: ["utils", "roles"],
     queryFn: getUtilsRoles,
   });
 
-  const selectedProductServiceIds = (form.watch("productServiceIds") || []) as string[];
-  const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
+  const { data: users = [], isLoading: loadingUsers } = useQuery<IUser[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await getUsers();
+      return response.data || [];
+    },
+  });
 
-  const filteredRegions = regions.filter(r => r.countryId === countryId);
-  const filteredAreas = areas.filter(a => a.regionId === regionId);
+  const { clientServiceOffers = [] } = useClientLookups();
+
+  const selectedServiceOfferingIds = (form.watch("serviceOfferingIds") || []) as string[];
+  // const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
+  const selectedAssignedUserIds = (form.watch("assignedToUserIds") || []) as string[];
+
+  const filteredCities = cities.filter(city => city.countryTypeId === countryId);
+  const filteredAreas = areas.filter(a => a.cityId === cityId);
+
+  // if (
+  //   loadingCountries ||
+  //   loadingCities ||
+  //   loadingAreas ||
+  //   loadingLeadSources ||
+  //   loadingAssignedRoles ||
+  //   loadingUsers
+  // ) {
+  //   return <div>Loading form data...</div>;
+  // }
 
   return (
     <Form {...form}>
@@ -234,7 +250,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Country, Region, Area selects (with filtering) */}
+                {/* Country, City, Area selects (with filtering) */}
                 <FormField
                   control={form.control}
                   name="country"
@@ -246,8 +262,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                           value={field.value}
                           onValueChange={val => {
                             field.onChange(val);
-                            form.setValue("region", "");
-                            form.setValue("area", "");
+                            form.setValue("city", "");
                           }}
                           disabled={loadingCountries}
                         >
@@ -270,10 +285,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 />
                 <FormField
                   control={form.control}
-                  name="region"
+                  name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Region</FormLabel>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -281,25 +296,31 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             field.onChange(val);
                             form.setValue("area", "");
                           }}
-                          disabled={loadingRegions || !countryId}
+                          disabled={loadingCities || !countryId}
                         >
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                             <SelectValue
                               placeholder={
-                                loadingRegions
+                                loadingCities
                                   ? "Loading..."
                                   : !countryId
-                                  ? "Select Country first"
-                                  : "Select Region"
+                                    ? "Select Country first"
+                                    : "Select City"
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {filteredRegions.map(r => (
-                              <SelectItem key={r.id} value={r.id}>
-                                {r.name}
+                            {filteredCities.length === 0 ? (
+                              <SelectItem value="no city" disabled>
+                                No cities available
                               </SelectItem>
-                            ))}
+                            ) : (
+                              filteredCities.map(r => (
+                                <SelectItem key={r.id} value={r.id}>
+                                  {r.name}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -316,16 +337,16 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
-                          disabled={loadingAreas || !regionId}
+                          disabled={loadingAreas || !cityId}
                         >
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                             <SelectValue
                               placeholder={
                                 loadingAreas
                                   ? "Loading..."
-                                  : !regionId
-                                  ? "Select Region first"
-                                  : "Select Area"
+                                  : !cityId
+                                    ? "Select City first"
+                                    : "Select Area"
                               }
                             />
                           </SelectTrigger>
@@ -631,39 +652,40 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           </CardContent>
         </Card>
 
-        {/* Product Services Multiselect */}
+        {/* Service Offerings Multiselect */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Product Services</CardTitle>
+            <CardTitle className="text-lg font-medium">Service Offerings</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <FormField
               control={form.control}
-              name="productServiceIds"
+              name="serviceOfferingIds"
               render={() => (
                 <FormItem>
-                  <div className="flex flex-wrap gap-4">
-                    {productServices.map(ps => (
-                      <label key={ps.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          disabled={loadingProductServices}
-                          checked={selectedProductServiceIds.includes(ps.id)}
-                          onChange={e => {
-                            if (e.target.checked) {
-                              form.setValue("productServiceIds", [
-                                ...selectedProductServiceIds,
-                                ps.id,
+                  <div className="grid mg:grid-cols-2 lg:grid-cols-4  gap-4">
+                    {clientServiceOffers.map(service => (
+                      <label key={service.id} className="flex items-center gap-2 cursor-pointer">
+                        <CheckboxSquare
+                          checked={selectedServiceOfferingIds.includes(service.id as string)}
+                          onCheckedChange={checked => {
+                            if (checked) {
+                              form.setValue("serviceOfferingIds", [
+                                ...selectedServiceOfferingIds,
+                                service.id as string,
                               ]);
                             } else {
                               form.setValue(
-                                "productServiceIds",
-                                selectedProductServiceIds.filter((id: string) => id !== ps.id),
+                                "serviceOfferingIds",
+                                selectedServiceOfferingIds.filter(
+                                  (id: string) => id !== service.id,
+                                ),
                               );
                             }
                           }}
                         />
-                        <span>{ps.name}</span>
+
+                        <span>{service.name}</span>
                       </label>
                     ))}
                   </div>
@@ -676,14 +698,15 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Lead Source Select */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Lead Source</CardTitle>
+            <CardTitle className="text-lg font-medium">Team Assignment</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
+          <CardContent className="p-4 grid md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="leadSource"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Lead Source</FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -707,15 +730,6 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
-
-        {/* Assigned To role select using /utils/roles */}
-        <Card className="pt-3 rounded-[16px] shadow-none">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Assigned To (Role)</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
             <FormField
               control={form.control}
               name="assignedTo"
@@ -729,13 +743,13 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   >
                     <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                       <SelectValue
-                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Role"}
+                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Account Manager"}
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      {assignedRoles.map(role => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.code}
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.fullName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -744,39 +758,33 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
 
-        {/* Additional Team Members field, now with teamRoles as source */}
-        <Card className="pt-3 rounded-[16px] shadow-none">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Additional Team Members</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
             <FormField
               control={form.control}
-              name="teamRoleIds"
+              name="assignedToUserIds"
               render={() => (
-                <FormItem>
-                  <div className="flex flex-wrap gap-4">
-                    {teamRoles.map(role => (
-                      <label key={role.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          disabled={loadingTeamRoles}
-                          checked={selectedTeamRoleIds.includes(role.id)}
-                          onChange={e => {
-                            if (e.target.checked) {
-                              form.setValue("teamRoleIds", [...selectedTeamRoleIds, role.id]);
+                <FormItem className="col-span-2">
+                  <FormLabel>Additional Team Members</FormLabel>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {users.map(user => (
+                      <label key={user.id} className="flex items-center gap-2 cursor-pointer">
+                        <CheckboxSquare
+                          checked={selectedAssignedUserIds.includes(user.id)}
+                          onCheckedChange={checked => {
+                            if (checked) {
+                              form.setValue("assignedToUserIds", [
+                                ...selectedAssignedUserIds,
+                                user.id,
+                              ]);
                             } else {
                               form.setValue(
-                                "teamRoleIds",
-                                selectedTeamRoleIds.filter((id: string) => id !== role.id),
+                                "assignedToUserIds",
+                                selectedAssignedUserIds.filter((id: string) => id !== user.id),
                               );
                             }
                           }}
                         />
-                        <span>{role.name}</span>
+                        <span>{user.fullName}</span>
                       </label>
                     ))}
                   </div>

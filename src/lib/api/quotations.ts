@@ -88,8 +88,31 @@ function transformQuotation(item: BackendQuotationItem): Quotation {
   };
 }
 
-export const getQuotations = async () => {
-  const response = await fetchInstance<BackendQuotationsResponse>(quotationsEndpoint);
+export const getQuotations = async (filters?: {
+  startDate?: string;
+  endDate?: string;
+  status?: string | string[];
+  minAmount?: number;
+  maxAmount?: number;
+}) => {
+  const params = new URLSearchParams();
+  if (filters) {
+    const { startDate, endDate, status, minAmount, maxAmount } = filters;
+    if (startDate) params.append("startDate", String(startDate));
+    if (endDate) params.append("endDate", String(endDate));
+    if (status !== undefined) {
+      if (Array.isArray(status)) {
+        status.forEach(s => params.append("status", s));
+      } else {
+        params.append("status", status);
+      }
+    }
+    if (minAmount !== undefined) params.append("minAmount", String(minAmount));
+    if (maxAmount !== undefined) params.append("maxAmount", String(maxAmount));
+  }
+  const query = params.toString();
+  const url = query ? `${quotationsEndpoint}?${query}` : quotationsEndpoint;
+  const response = await fetchInstance<BackendQuotationsResponse>(url);
   const backend = response.data;
   if (response.status >= 200 && response.status < 300) {
     console.log("[getQuotations] Success:", {

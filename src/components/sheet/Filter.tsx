@@ -11,19 +11,19 @@ import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { TasksCalendarFilters, getAllClients, getAllEmployees } from "@/lib/api/tasks";
+import { useLeadSources, LeadsFilters } from "@/lib/api/leads";
+import { getAllClients, getAllEmployees } from "@/lib/api/tasks";
 
 interface FilterState {
   dateFrom: string;
   dateTo: string;
   assignees: string[]; // store IDs
-  statuses: string[];
-  sources: string[];
+  statuses: string[]; // store status values like "NEW", "CONTACTED", etc.
+  sources: string[]; // store source IDs
   clients: string[]; // store IDs
 }
 
-const statusOptions = ["New", "Lost", "In Progress"];
-const sourceOptions = ["Website", "Social Media", "Campaign", "Referral"];
+const statusOptions = ["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL_SENT", "NEGOTIATING", "CONVERTING", "LOST"];
 
 export default function FilterSheet({
   open,
@@ -33,8 +33,8 @@ export default function FilterSheet({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  value?: TasksCalendarFilters;
-  onApply?: (filters: TasksCalendarFilters) => void;
+  value?: LeadsFilters;
+  onApply?: (filters: LeadsFilters) => void;
 }) {
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
@@ -48,6 +48,7 @@ export default function FilterSheet({
   const { theme } = useTheme();
   const { data: employees } = useQuery({ queryKey: ["employees"], queryFn: getAllEmployees });
   const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
+  const { data: leadSources = [], isLoading } = useLeadSources();
 
   const assigneeOptions = useMemo(
     () => (Array.isArray(employees) ? employees.map(e => ({ 
@@ -56,21 +57,21 @@ export default function FilterSheet({
     [employees],
   );
   const clientOptions = useMemo(
-    () => (Array.isArray(clients) ? clients.map(c => ({ id: c.id, label: c.fullName })) : []),
+    () => (Array.isArray(clients) ? clients.map(c => ({ id: c.id, label: c.clientName })) : []),
     [clients],
   );
 
   // Sync internal state with external value when sheet opens or value changes
   useEffect(() => {
     if (!open) return;
+    if (!value) return;
     setFilters(prev => ({
       ...prev,
-      dateFrom: value?.startDate ? new Date(value.startDate).toISOString().slice(0, 10) : "",
-      dateTo: value?.endDate ? new Date(value.endDate).toISOString().slice(0, 10) : "",
-      assignees: value?.assignedTo ? [value.assignedTo] : [],
-      clients: value?.accountId ? [value.accountId] : [],
+      assignees: value.assignedToUserIds ? [...value.assignedToUserIds] : [],
+      sources: value.leadSourceId ? [value.leadSourceId] : [],
+      statuses: value.status ? [value.status] : [],
     }));
-  }, [open, value?.startDate, value?.endDate, value?.assignedTo, value?.accountId]);
+  }, [open, value]);
 
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
@@ -87,9 +88,10 @@ export default function FilterSheet({
 
   const handleSelectAll = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    options: string[] | { id: string; label: string }[],
+    options: string[] | { id: string; label?: string; name?: string }[],
   ) => {
-    const ids = (options as any[]).map(o => (typeof o === "string" ? o : o.id));
+    const typedOptions = options as (string | { id: string; label?: string; name?: string })[];
+    const ids = typedOptions.map(o => (typeof o === "string" ? o : o.id));
     const allSelected = ids.every(option => filters[category].includes(option));
     setFilters(prev => ({
       ...prev,
@@ -109,38 +111,20 @@ export default function FilterSheet({
   };
 
   const applyFilters = () => {
+    // Build filters for leads endpoint - only send status, assignedToUserIds, and leadSourceId
+    const status = filters.statuses.length > 0 ? filters.statuses[0] : undefined;
 
-    const backendFilters: TasksCalendarFilters = {
-      ...(value || {}),
-      startDate: filters.dateFrom ? new Date(filters.dateFrom).toISOString() : undefined,
-      endDate: filters.dateTo ? new Date(filters.dateTo).toISOString() : undefined,
-      // comma separated lists for multi-select
-      assignedTo:
-        filters.assignees.length > 0
-          ? filters.assignees
-            .map(a => {
-              const found = Array.isArray(employees)
-                ? employees.find(e => e.id === a || e.user?.fullName === a)
-                : undefined;
-              return found?.id || a;
-            })
-            .filter(Boolean)
-            .join(",")
-          : undefined,
-      accountId:
-        filters.clients.length > 0
-          ? filters.clients
-            .map(c => {
-              const found = Array.isArray(clients)
-                ? clients.find(x => x.id === c || x.fullName === c)
-                : undefined;
-              return found?.id || c;
-            })
-            .filter(Boolean)
-            .join(",")
-          : undefined,
-      // NOTE: The current UI uses checkbox labels; integrate IDs here when the sheet supplies them
+    const assignedToUserIds =
+      filters.assignees.length > 0 ? filters.assignees : undefined;
+
+    const leadSourceId = filters.sources.length > 0 ? filters.sources[0] : undefined;
+
+    const backendFilters: LeadsFilters = {
+      status,
+      assignedToUserIds,
+      leadSourceId,
     };
+    console.log("Applying filters:", backendFilters);
     onApply?.(backendFilters);
     onOpenChange(false);
   };
@@ -158,6 +142,11 @@ export default function FilterSheet({
     };
     input?.showPicker?.();
   };
+
+  if(isLoading){
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} >
@@ -180,7 +169,7 @@ export default function FilterSheet({
                     value={filters.dateFrom}
                     onChange={e => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
           pr-10
           [&::-webkit-calendar-picker-indicator]:opacity-0 
           [&::-webkit-calendar-picker-indicator]:absolute 
@@ -210,7 +199,7 @@ export default function FilterSheet({
                     value={filters.dateTo}
                     onChange={e => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
 
             pr-10
             [&::-webkit-calendar-picker-indicator]:opacity-0 
@@ -290,8 +279,8 @@ export default function FilterSheet({
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm">
-                    {status}
+                  <Label htmlFor={`status-${status}`} className="text-sm capitalize">
+                    {status.replace("_", " ").toLowerCase()}
                   </Label>
                 </div>
               ))}
@@ -305,8 +294,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-sources"
-                  checked={sourceOptions.every(option => filters.sources.includes(option))}
-                  onCheckedChange={() => handleSelectAll("sources", sourceOptions)}
+                  checked={(leadSources as Array<{ id: string; name: string }>).every(option => filters.sources.includes(option.id))}
+                  onCheckedChange={() => handleSelectAll("sources", (leadSources as Array<{ id: string; name: string }>))}
                 />
                 <Label htmlFor="select-all-sources" className="text-sm text-muted-foreground">
                   Select All
@@ -314,17 +303,15 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {sourceOptions.map(source => (
-                <div key={source} className="flex items-center space-x-2">
+              {(leadSources as Array<{ id: string; name: string }>)?.map(source => (
+                <div key={source.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`source-${source}`}
-                    checked={filters.sources.includes(source)}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange("sources", source, checked as boolean)
-                    }
+                    id={`source-${source.id}`}
+                    checked={filters.sources.includes(source.id)}
+                    onCheckedChange={checked => handleCheckboxChange("sources", source.id, checked as boolean)}
                   />
-                  <Label htmlFor={`source-${source}`} className="text-sm">
-                    {source}
+                  <Label htmlFor={`source-${source.id}`} className="text-sm">
+                    {source.name}
                   </Label>
                 </div>
               ))}
