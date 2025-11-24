@@ -21,7 +21,8 @@ export type ApiClient = {
   industrySectorId: string | null;
   agreementStartDate: string | null;
   agreementEndDate: string | null;
-  contractDurationMonths: number | null;
+  contractDuration: number | null;
+  contractDurationUnit: string | null;
   primaryMarketRegionId: string | null;
   targetAudienceId: string | null;
   languagesSupported: string[];

@@ -86,10 +86,8 @@ export const createAiDataSchema = z.object({
   // Agreement information
   agreementStartDate: z.date().min(new Date(), "Agreement start date must be in the future"),
   agreementEndDate: z.date().min(new Date(), "Agreement end date must be in the future"),
-  contractDuration: z
-    .string()
-    .min(2, "Contract duration must be at least 2 characters")
-    .max(50, "Contract duration must be less than 50 characters"),
+  contractDuration: z.number().optional(),
+  contractDurationUnit: z.enum(["MONTH", "YEAR"]),
 
   // Market primary region and target audience, the array will
   // contain item ids instead of names for api request body
@@ -101,9 +99,7 @@ export const createAiDataSchema = z.object({
     .min(2, "Secondary markets must be at least 2 characters")
     .max(50, "Secondary markets must be less than 50 characters"),
 
-  languagesSupported: z
-    .array(z.string())
-    .min(1, "Select at least one language").optional(),
+  languagesSupported: z.array(z.string()).min(1, "Select at least one language").optional(),
 
   // Company profile
   visionStatement: z
@@ -130,7 +126,7 @@ export const createAiDataSchema = z.object({
 
   // Team Assignment
   primaryAccManager: z.string().optional(),
-  marketingStrategist: z.string().optional() ,
+  marketingStrategist: z.string().optional(),
   priorityLevel: z
     .enum(["High", "Medium", "Low"], {
       required_error: "Priority level is required",

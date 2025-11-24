@@ -61,7 +61,8 @@ export const defaultFormData: CreateAiFormData = {
   // Agreement Information
   agreementStartDate: new Date(),
   agreementEndDate: new Date(),
-  contractDuration: "",
+  contractDuration: 0,
+  contractDurationUnit: "MONTH",
 
   // Market and Target Audience
   primaryRegion: undefined,
@@ -111,8 +112,6 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
     clientTargetAudiences,
     clientTeamRoles,
   } = useClientLookups();
-
-
 
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
@@ -385,8 +384,8 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                           min={
                             form.getValues().agreementStartDate
                               ? new Date(form.getValues().agreementStartDate)
-                                .toISOString()
-                                .split("T")[0]
+                                  .toISOString()
+                                  .split("T")[0]
                               : undefined
                           }
                           {...field}
@@ -416,17 +415,56 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
 
               <FormField
                 control={form.control}
-                name="contractDuration"
-                render={({ field }) => (
+                name="contractDurationNumber"
+                render={({ field: durationField }) => (
                   <FormItem>
                     <FormLabel>Contract Duration</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="10 Months"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
+                      <div className="relative flex items-center">
+                        {/* Number Input */}
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="0"
+                          className="dark:bg-[#0F1B29] text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px] pr-28"
+                          value={durationField.value === 0 ? "" : (durationField.value ?? "")}
+                          onChange={e => {
+                            const value = e.target.value;
+                            if (value === "") durationField.onChange(undefined);
+                            else if (!isNaN(Number(value))) durationField.onChange(Number(value));
+                          }}
+                        />
+
+                        {/* Unit Dropdown */}
+                        <div className="absolute right-0 top-0 bottom-0 flex items-center">
+                          <FormField
+                            control={form.control}
+                            name="contractDurationUnit"
+                            render={({ field: unitField }) => (
+                              <FormControl>
+                                <Select value={unitField.value} onValueChange={unitField.onChange}>
+                                  <SelectTrigger className="h-full w-[100px] border-0 border-l bg-transparent focus:ring-0 rounded-l-none rounded-r-[12px] dark:border-gray-700 shadow-none">
+                                    <SelectValue>
+                                      {unitField.value
+                                        ? unitField.value === "YEAR"
+                                          ? "Year"
+                                          : "Month"
+                                        : null}
+                                    </SelectValue>
+                                  </SelectTrigger>
+
+                                  <SelectContent>
+                                    <SelectItem value="MONTH">Month</SelectItem>
+                                    <SelectItem value="YEAR">Year</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            )}
+                          />
+                        </div>
+                      </div>
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -614,17 +652,17 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
                   const selected = Array.isArray(field.value) ? field.value : [];
 
                   return (
-                    <FormItem>
+                    <FormItem className="col-span-2">
                       <FormLabel>Service Offerings</FormLabel>
 
                       {/* Checkboxes grid */}
-                      <div className="grid md:grid-cols-2 grid-cols-1 max-w-md gap-2 mt-2">
+                      <div className="grid md:grid-cols-4 grid-cols-2 gap-2 mt-3">
                         {clientServiceOffers.map(service => {
                           const isChecked = selected.includes(service.id as string);
                           return (
                             <label
                               key={service.id}
-                              className="flex items-center gap-2 cursor-pointer"
+                              className="flex items-center gap-2 text-sm cursor-pointer"
                             >
                               <CheckboxSquare
                                 checked={isChecked}
