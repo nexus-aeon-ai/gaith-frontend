@@ -49,7 +49,7 @@ export default function FilterSheet({
   const { theme } = useTheme();
   const { data: employees } = useQuery({ queryKey: ["employees"], queryFn: getAllEmployees });
   const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
-  const { data: leadSources, isLoading, error } = useLeadSources();
+  const { data: leadSources, isLoading } = useLeadSources();
 
   const assigneeOptions = useMemo(
     () => (Array.isArray(employees) ? employees.map(e => ({ 

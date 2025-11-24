@@ -107,8 +107,11 @@ export const createLeadSchema = z.object({
 
   // Products & Services
   productServiceIds: z.array(z.string()).default([]),
+  serviceOfferingIds: z.array(z.string()).default([]),
   // Team Roles/Additional Team Members
   teamRoleIds: z.array(z.string()).default([]),
+  // Assigned Users
+  assignedToUserIds: z.array(z.string()).default([]),
 
   //company logo
   companyLogo: z

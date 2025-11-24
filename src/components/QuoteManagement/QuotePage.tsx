@@ -97,6 +97,13 @@ const data = {
 
 const QuotesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [quotationFilters, setQuotationFilters] = useState<{
+    startDate?: string;
+    endDate?: string;
+    status?: string | string[];
+    minAmount?: number;
+    maxAmount?: number;
+  }>({});
   const {
     data: quotationsResponse,
     isLoading,
@@ -108,8 +115,14 @@ const QuotesPage = () => {
     },
     Error
   >({
-    queryKey: ["quotations"],
-    queryFn: getQuotations,
+    queryKey: ["quotations", quotationFilters],
+    queryFn: async () => getQuotations({
+      startDate: quotationFilters.startDate,
+      endDate: quotationFilters.endDate,
+      status: quotationFilters.status,
+      minAmount: quotationFilters.minAmount,
+      maxAmount: quotationFilters.maxAmount,
+    }),
     initialData: { status: 200, data: { results: [], count: 0 } },
   });
   const quotations: Quotation[] = quotationsResponse?.data.results || [];
@@ -707,7 +720,20 @@ const QuotesPage = () => {
           </div>
         </div>
       </div>
-      <QuotationFilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      <QuotationFilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        onApplyFilters={filters => {
+          // Map payload to API expected param names
+          setQuotationFilters({
+            startDate: filters.startDate,
+            endDate: filters.endDate,
+            status: filters.statuses && filters.statuses.length === 1 ? filters.statuses[0] : filters.statuses,
+            minAmount: filters.minAmount,
+            maxAmount: filters.maxAmount,
+          });
+        }}
+      />
       <InvoiceSheet open={isInvoiceSheetOpen} onOpenChange={setIsInvoiceSheetOpen} />
       <SendToClientSheet open={showSendToClientSheet} onOpenChange={setShowSendToClientSheet} />
       {/* Delete Single Quotation Popup */}

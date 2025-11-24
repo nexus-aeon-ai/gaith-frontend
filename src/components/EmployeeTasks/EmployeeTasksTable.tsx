@@ -332,9 +332,7 @@ export default function EmployeeTasksTable({
                   <TableCell>
                     <CheckboxSquare
                       checked={selectedTasks.includes(task.id)}
-                      onCheckedChange={checked =>
-                        handleSelectCampaign(task.id, checked as boolean)
-                      }
+                      onCheckedChange={checked => handleSelectCampaign(task.id, checked as boolean)}
                     />
                   </TableCell>
                   <TableCell>
@@ -342,7 +340,7 @@ export default function EmployeeTasksTable({
                       <div className="font-semibold text-gray-900 dark:text-white">
                         {task.title}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[250px]">
                         {task.description}
                       </div>
                     </div>

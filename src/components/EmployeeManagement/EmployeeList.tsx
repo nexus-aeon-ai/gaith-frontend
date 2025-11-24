@@ -42,6 +42,7 @@ import EditEmployee from "./EditEmployee";
 const EmployeeList = () => {
   const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [employeeFilters, setEmployeeFilters] = useState<Record<string, any>>({});
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -56,9 +57,9 @@ const EmployeeList = () => {
   const pathname = usePathname();
 
   const { data } = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees", employeeFilters],
     queryFn: async () => {
-      const res = await getEmployees();
+      const res = await getEmployees(employeeFilters);
       return res.data?.results ?? [];
     },
     initialData: [],
@@ -118,6 +119,16 @@ const EmployeeList = () => {
       (employee.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const handleApplyFilters = (filters: { dateFrom: string; dateTo: string; statuses: string[] }) => {
+    const { dateFrom, dateTo, statuses } = filters;
+    let statusParam: string | string[] | undefined = undefined;
+    if (statuses && statuses.length > 0) {
+      statusParam = statuses.length === 1 ? statuses[0] : statuses;
+    }
+    setEmployeeFilters({ status: statusParam, dateFrom: dateFrom || undefined, dateTo: dateTo || undefined });
+    setIsFilterSheetOpen(false);
+  };
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -551,7 +562,11 @@ const EmployeeList = () => {
         </div>
       </div>
 
-      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+      <FilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        onApplyFilters={handleApplyFilters}
+      />
     </div>
   );
 };

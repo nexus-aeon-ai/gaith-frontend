@@ -22,14 +22,22 @@ interface FilterState {
   clients: string[];
 }
 
-const statusOptions = ["Draft", "Pending", "Accepted", "Rejected"];
+const statusOptions = ["DRAFT", "SENT", "ACCEPTED", "REJECTED", "EXPIRED"];
 
 export default function FilterSheet({
   open,
   onOpenChange,
+  onApplyFilters,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onApplyFilters?: (filters: {
+    startDate?: string;
+    endDate?: string;
+    statuses?: string[];
+    minAmount?: number;
+    maxAmount?: number;
+  }) => void;
 }) {
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
@@ -125,11 +133,16 @@ export default function FilterSheet({
     });
 
     // Close the sheet and apply filters
-    console.log("Applying filters:", filters);
+    // Close the sheet and apply filters
+    const payload = {
+      startDate: filters.dateFrom || undefined,
+      endDate: filters.dateTo || undefined,
+      statuses: filters.statuses.length > 0 ? filters.statuses : undefined,
+      minAmount: filters.minAmount,
+      maxAmount: filters.maxAmount,
+    };
+    if (onApplyFilters) onApplyFilters(payload);
     onOpenChange(false);
-
-    // Here you would typically call your filter application logic
-    // onApply?.(filters);
   };
 
   const handleDateFromClick = () => {
@@ -149,11 +162,11 @@ export default function FilterSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="dark:bg-[#212945] bg-card w-[400px] sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
-        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 sm:p-4 p-2">
+        <div className="space-y-6 sm:p-4 p-2 sm:pt-0">
           {/* Date Section */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Due Date</Label>
@@ -276,8 +289,8 @@ export default function FilterSheet({
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm">
-                    {status}
+                  <Label htmlFor={`status-${status}`} className="text-sm capitalize font-normal">
+                    {status.toLowerCase()}
                   </Label>
                 </div>
               ))}
@@ -290,7 +303,7 @@ export default function FilterSheet({
             <div className="space-y-3 grid grid-cols-2 gap-2">
               {/* Min Amount */}
               <div>
-                <Label className="mb-1">Min</Label>
+                <Label className="mb-1 font-normal">Min</Label>
                 <Input
                   type="number"
                   min="0"
@@ -316,7 +329,7 @@ export default function FilterSheet({
 
               {/* Max Amount */}
               <div>
-                <Label className="mb-1">Max</Label>
+                <Label className="mb-1 font-normal">Max</Label>
                 <Input
                   type="number"
                   value={filters.maxAmount ?? ""}

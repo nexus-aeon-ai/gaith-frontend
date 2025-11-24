@@ -195,8 +195,9 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
+    serviceOfferingIds: formData.serviceOfferingIds,
     teamRoleIds: formData.teamRoleIds,
-    assignedToUserId: "a4a5bc80-c882-4ef9-8134-fe7affb08a0a",
+    assignedToUserIds: formData.assignedToUserIds,
     leadSourceId: formData.leadSource,
     status: "NEW",
   };
@@ -246,8 +247,9 @@ export const editLead = async (
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
+    serviceOfferingIds: formData.serviceOfferingIds,
     teamRoleIds: formData.teamRoleIds,
-    assignedToUserId: "a4a5bc80-c882-4ef9-8134-fe7affb08a0a",
+    assignedToUserIds: formData.assignedToUserIds,
   };
   Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
   try {
