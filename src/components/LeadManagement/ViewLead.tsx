@@ -20,9 +20,10 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
 import Linkedin from "@/components/ui/icons/social/linkedin";
+import TikTok from "@/components/ui/icons/social/tiktok";
 import Twitterx from "@/components/ui/icons/social/twitterx";
 import Youtube from "@/components/ui/icons/socials/youtube";
-import { LeadByIdResponse } from "@/lib/api/leads";
+import { LeadByIdResponse, SocialMediaUrls } from "@/lib/api/leads";
 import { cn } from "@/lib/utils";
 
 interface ViewLeadProps {
@@ -38,9 +39,23 @@ const COLORS = [
   "bg-pink-500",
 ];
 
+// Helper function to parse socialMediaUrls
+function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls | null {
+  if (!socialMediaUrls) return null;
+  if (typeof socialMediaUrls === "string") {
+    try {
+      return JSON.parse(socialMediaUrls) as SocialMediaUrls;
+    } catch {
+      return null;
+    }
+  }
+  return socialMediaUrls;
+}
+
 export default function ViewLead({ initialData }: ViewLeadProps) {
   const router = useRouter();
   const lead = initialData;
+  const socialMediaUrls = parseSocialMediaUrls(lead.socialMediaUrls);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -160,9 +175,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
               <div className="flex items-center gap-3 flex-wrap">
-                {lead.linkedinUrl && (
+                {socialMediaUrls?.linkedin && (
                   <a
-                    href={lead.linkedinUrl}
+                    href={socialMediaUrls.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
@@ -170,9 +185,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     <Linkedin />
                   </a>
                 )}
-                {lead.twitterUrl && (
+                {socialMediaUrls?.twitter && (
                   <a
-                    href={lead.twitterUrl}
+                    href={socialMediaUrls.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
@@ -180,9 +195,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     <Twitterx />
                   </a>
                 )}
-                {lead.instagramUrl && (
+                {socialMediaUrls?.instagram && (
                   <a
-                    href={lead.instagramUrl}
+                    href={socialMediaUrls.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
@@ -190,9 +205,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     <Instagram />
                   </a>
                 )}
-                {lead.facebookUrl && (
+                {socialMediaUrls?.facebook && (
                   <a
-                    href={lead.facebookUrl}
+                    href={socialMediaUrls.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
@@ -200,9 +215,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     <Facebook />
                   </a>
                 )}
-                {lead.youtubeUrl && (
+                {socialMediaUrls?.youtube && (
                   <a
-                    href={lead.youtubeUrl}
+                    href={socialMediaUrls.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
@@ -210,11 +225,26 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     <Youtube />
                   </a>
                 )}
-                {!lead.linkedinUrl &&
-                  !lead.twitterUrl &&
-                  !lead.instagramUrl &&
-                  !lead.facebookUrl &&
-                  !lead.youtubeUrl && <span className="text-muted-foreground text-sm">No social media links</span>}
+                {socialMediaUrls?.tiktok && (
+                  <a
+                    href={socialMediaUrls.tiktok}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                    title="TikTok"
+                  >
+                    <TikTok />
+                  </a>
+                )}
+                {!socialMediaUrls ||
+                  (!socialMediaUrls.linkedin &&
+                    !socialMediaUrls.twitter &&
+                    !socialMediaUrls.instagram &&
+                    !socialMediaUrls.facebook &&
+                    !socialMediaUrls.youtube &&
+                    !socialMediaUrls.tiktok && (
+                      <span className="text-muted-foreground text-sm">No social media links</span>
+                    ))}
               </div>
             </CardContent>
           </Card>
@@ -397,9 +427,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
               <h2 className="font-semibold text-lg mb-3">Service Offerings</h2>
               {lead.serviceOfferings && lead.serviceOfferings.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {lead.serviceOfferings.map((service, index) => (
+                  {lead.serviceOfferings.map((service) => (
                     <Badge
-                      key={`${service.serviceOfferingId}-${index}`}
+                      key={service.serviceOfferingId}
                       variant="secondary"
                       className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                     >
@@ -432,13 +462,13 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <h2 className="font-semibold text-lg mb-3">Team Roles</h2>
               <div className="flex flex-wrap gap-2">
-                {lead.teamRoles.map((role, index) => (
+                {lead.teamRoles.map((role) => (
                   <Badge
-                    key={`${role.teamRoleId}-${index}`}
+                    key={role.teamRoleId}
                     variant="outline"
                     className="text-xs"
                   >
-                    {role.teamRole?.name || `Role ${index + 1}`}
+                    {role.teamRole?.name || role.teamRoleId}
                   </Badge>
                 ))}
               </div>

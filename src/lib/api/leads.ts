@@ -238,6 +238,14 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
   status: number;
   data: Lead | null;
 }> => {
+  // Build socialMediaUrls object from individual URL fields
+  const socialMediaUrls: SocialMediaUrls = {};
+  if (formData.linkedinUrl) socialMediaUrls.linkedin = formData.linkedinUrl;
+  if (formData.facebookUrl) socialMediaUrls.facebook = formData.facebookUrl;
+  if (formData.twitterUrl) socialMediaUrls.twitter = formData.twitterUrl;
+  if (formData.instagramUrl) socialMediaUrls.instagram = formData.instagramUrl;
+  if (formData.youtubeUrl) socialMediaUrls.youtube = formData.youtubeUrl;
+
   const body: Record<string, unknown> = {
     fullName: formData.fullName,
     nationality: formData.nationality,
@@ -249,11 +257,7 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
     missionStatement: formData.missionStatement,
-    linkedinUrl: formData.linkedinUrl,
-    twitterUrl: formData.twitterUrl,
-    instagramUrl: formData.instagramUrl,
-    facebookUrl: formData.facebookUrl,
-    youtubeUrl: formData.youtubeUrl,
+    socialMediaUrls: Object.keys(socialMediaUrls).length > 0 ? socialMediaUrls : null,
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
@@ -290,6 +294,14 @@ export const editLead = async (
   id: string,
   formData: CreateLeadFormData,
 ): Promise<{ status: number; data: Lead | null }> => {
+  // Build socialMediaUrls object from individual URL fields
+  const socialMediaUrls: SocialMediaUrls = {};
+  if (formData.linkedinUrl) socialMediaUrls.linkedin = formData.linkedinUrl;
+  if (formData.facebookUrl) socialMediaUrls.facebook = formData.facebookUrl;
+  if (formData.twitterUrl) socialMediaUrls.twitter = formData.twitterUrl;
+  if (formData.instagramUrl) socialMediaUrls.instagram = formData.instagramUrl;
+  if (formData.youtubeUrl) socialMediaUrls.youtube = formData.youtubeUrl;
+
   const body: Record<string, unknown> = {
     fullName: formData.fullName,
     nationality: formData.nationality,
@@ -301,11 +313,7 @@ export const editLead = async (
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
     missionStatement: formData.missionStatement,
-    linkedinUrl: formData.linkedinUrl,
-    twitterUrl: formData.twitterUrl,
-    instagramUrl: formData.instagramUrl,
-    facebookUrl: formData.facebookUrl,
-    youtubeUrl: formData.youtubeUrl,
+    socialMediaUrls: Object.keys(socialMediaUrls).length > 0 ? socialMediaUrls : null,
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
@@ -447,6 +455,17 @@ export interface Attachment {
   updatedAt: string;
 }
 
+// Social Media URLs structure - JSON object with platform names as keys
+export interface SocialMediaUrls {
+  linkedin?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  youtube?: string;
+  tiktok?: string;
+  [key: string]: string | undefined;
+}
+
 // LeadByIdResponse type matching the actual API response
 export interface LeadByIdResponse {
   id: string;
@@ -463,7 +482,7 @@ export interface LeadByIdResponse {
   missionStatement: string;
   companyLogoUrl: string | null;
   languagePreferences: string | null;
-  socialMediaUrls: string | null;
+  socialMediaUrls: SocialMediaUrls | string | null; // Can be JSON object, JSON string, or null
   websiteUrl: string | null;
   leadSourceId: string;
   accountManagerId: string | null;

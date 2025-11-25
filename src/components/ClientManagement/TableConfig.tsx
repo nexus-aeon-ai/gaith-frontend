@@ -1,5 +1,8 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,10 +16,8 @@ import {
 import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const useTableColumns = (
-  onViewDetails?: (client: Client) => void,
-  onEditClientToggle?: (arg: boolean) => void,
-) => {
+const useTableColumns = () => {
+  const router = useRouter();
   const columns: ColumnDef<Client>[] = [
     {
       id: "select",
@@ -128,9 +129,9 @@ const useTableColumns = (
         const assignedTo = row.original.assignedTo;
         return (
           <div className="flex -space-x-3">
-            {assignedTo.map((person, index) => (
+            {assignedTo.map((person) => (
               <div
-                key={index}
+                key={person.name}
                 className={cn(
                   "w-8 h-8 rounded-full capitalize flex items-center justify-center text-sm font-medium text-white border-2 border-white dark:border-gray-800",
                 )}
@@ -162,17 +163,14 @@ const useTableColumns = (
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => onViewDetails?.(client)}
+                onClick={() => router.push(`/client-management/${client.id}`)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
                 <span>View Details</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  onViewDetails?.(client);
-                  onEditClientToggle?.(true);
-                }}
+                onClick={() => router.push(`/client-management/${client.id}/edit`)}
               >
                 <Edit className="h-4 w-4 text-green-500" />
                 <span>Edit</span>

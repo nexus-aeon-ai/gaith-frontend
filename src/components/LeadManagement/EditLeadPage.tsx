@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { editLead, type LeadByIdResponse } from "@/lib/api/leads";
+import { editLead, type LeadByIdResponse, type SocialMediaUrls } from "@/lib/api/leads";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
 interface EditLeadPageProps {
@@ -25,8 +25,23 @@ interface EditLeadPageProps {
   leadId: string;
 }
 
+// Helper function to parse socialMediaUrls
+function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls | null {
+  if (!socialMediaUrls) return null;
+  if (typeof socialMediaUrls === "string") {
+    try {
+      return JSON.parse(socialMediaUrls) as SocialMediaUrls;
+    } catch {
+      return null;
+    }
+  }
+  return socialMediaUrls;
+}
+
 // Helper function to map API response to form data
 function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
+  const socialMediaUrls = parseSocialMediaUrls(lead.socialMediaUrls);
+  
   return {
     fullName: lead.fullName || "",
     nationality: lead.nationality || "",
@@ -38,11 +53,11 @@ function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
     fullAddress: lead.fullAddress || "",
     visionStatement: lead.visionStatement || "",
     missionStatement: lead.missionStatement || "",
-    linkedinUrl: lead.linkedinUrl || "",
-    facebookUrl: lead.facebookUrl || "",
-    youtubeUrl: lead.youtubeUrl || "",
-    twitterUrl: lead.twitterUrl || "",
-    instagramUrl: lead.instagramUrl || "",
+    linkedinUrl: socialMediaUrls?.linkedin || "",
+    facebookUrl: socialMediaUrls?.facebook || "",
+    youtubeUrl: socialMediaUrls?.youtube || "",
+    twitterUrl: socialMediaUrls?.twitter || "",
+    instagramUrl: socialMediaUrls?.instagram || "",
     websiteUrl: lead.websiteUrl || "",
     additionalNotes: lead.additionalNotes || "",
     leadSource: lead.leadSourceId || "",

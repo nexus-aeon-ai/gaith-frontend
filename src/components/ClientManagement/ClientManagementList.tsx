@@ -37,10 +37,8 @@ type ApiClientWithAssigned = ApiClient & {
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [editClientToggle, setEditClientToggle] = useState<boolean>(false);
   const [newClientToggle, setNewClientToggle] = useState<boolean>(false);
-  const columns = useTableColumns(setSelectedClient, setEditClientToggle);
+  const columns = useTableColumns();
   const [deleteClientToggle, setDeleteClientToggle] = useState<boolean>(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const queryClient = useQueryClient();
@@ -156,17 +154,9 @@ const ClientManagementClient = () => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  // If a client is selected, show the details view
-  if (selectedClient && !editClientToggle) {
-    return <ClientDetailsView client={selectedClient} onBack={() => setSelectedClient(null)} />;
-  }
+  // If new client form is open, show it
   if (newClientToggle) {
     return <NewClient closeNewClientForm={() => setNewClientToggle(false)} />;
-  }
-  if (editClientToggle) {
-    return (
-      <EditClient client={selectedClient} closeEditClientForm={() => setEditClientToggle(false)} />
-    );
   }
 
   return (
