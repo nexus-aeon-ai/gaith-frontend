@@ -78,7 +78,10 @@ const EmployeeList = () => {
         // UI expects these fields differently
         role: emp.role?.title,
         status: emp.status === "Active" ? "active" : "inactive",
-        department: { name: emp.department.name, team: emp.department.subTeam || "" },
+        department: {
+          name: emp.department?.name || "",
+          team: emp.department?.subTeam || "",
+        },
         contactInfo: { email: emp.email, number: emp.phone },
         performance: `${emp.performance}%`,
         permissions: { view: true, edit: true, approve: false, delete: false },
@@ -426,8 +429,8 @@ const EmployeeList = () => {
                             parseInt(employee.performance) >= 80
                               ? "bg-green-500"
                               : parseInt(employee.performance) >= 60
-                              ? "bg-yellow-500"
-                              : "bg-red-500",
+                                ? "bg-yellow-500"
+                                : "bg-red-500",
                           )}
                           style={{ width: employee.performance }}
                         />
@@ -529,15 +532,15 @@ const EmployeeList = () => {
                     "h-8 w-8 p-0 transition-all duration-200",
                     currentPage === page
                       ? cn(
-                          "bg-[#3072C0] text-white border border-[#3072C0]",
-                          "hover:bg-blue-700 hover:border-blue-700",
-                          "dark:bg-blue-600 dark:border-blue-600",
-                          "dark:hover:bg-blue-700 dark:hover:border-blue-700",
-                        )
+                        "bg-[#3072C0] text-white border border-[#3072C0]",
+                        "hover:bg-blue-700 hover:border-blue-700",
+                        "dark:bg-blue-600 dark:border-blue-600",
+                        "dark:hover:bg-blue-700 dark:hover:border-blue-700",
+                      )
                       : cn(
-                          "text-gray-500 dark:text-gray-400",
-                          "hover:text-gray-700 dark:hover:text-gray-200",
-                        ),
+                        "text-gray-500 dark:text-gray-400",
+                        "hover:text-gray-700 dark:hover:text-gray-200",
+                      ),
                   )}
                 >
                   {page}
