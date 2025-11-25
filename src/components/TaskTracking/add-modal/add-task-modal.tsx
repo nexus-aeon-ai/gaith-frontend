@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { CirclePlus } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -15,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getUsers, getClients } from "@/lib/api";
+import { SimpleCategory } from "@/lib/api/tasks";
 import { cn } from "@/lib/utils";
 
 import { Category } from "../data/taskData";
@@ -24,11 +27,14 @@ const taskSchema = z.object({
   title: z.string().min(1, "Task title is required"),
   description: z.string(),
   dueDate: z.string().min(1, "Due date is required"),
-  assignee: z.string().min(1, "Assignee is required"),
+  assignedTo: z.string().min(1, "Assigned To is required"),
   client: z.string().min(1, "Client is required"),
-  priority: z.enum(["High", "Medium", "Low"]),
-  status: z.enum(["Not Started", "In Progress", "Completed"]),
+  priority: z.enum(["High", "Medium", "Low", "Urgent"]),
+  status: z.enum(["NotStarted", "InProgress", "Completed", "AwaitingFeedback"]),
+  populationStatus: z.enum(["Draft", "Review", "SentToClient", "ApprovedByClient"]),
   category: z.string().min(1, "Category is required"),
+  estimatedHours: z.coerce.number().optional(),
+  additionalComments: z.string().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -37,7 +43,7 @@ interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddTask: (task: TaskFormData) => void;
-  categories: Category[];
+  categories: Category[] | SimpleCategory[];
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, categories }) => {
@@ -53,14 +59,35 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
       title: "",
       description: "",
       dueDate: "",
-      assignee: "",
+      assignedTo: "",
       client: "",
       priority: "Medium",
-      status: "Not Started",
+      status: "NotStarted",
+      populationStatus: "Draft",
       category: "",
+      estimatedHours: undefined,
+      additionalComments: "",
     },
   });
 
+  const { data: usersList } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await getUsers();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+  const { data: clientsList } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  console.log("Categories in AddTaskModal:", categories);
   const onSubmit = (data: TaskFormData) => {
     onAddTask(data);
     reset();
@@ -159,7 +186,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
             </SelectTrigger>
             <SelectContent>
               {categories.map(category => (
-                <SelectItem key={category.name} value={category.name}>
+                <SelectItem key={category.id} value={category.id as string}>
                   {category.name}
                 </SelectItem>
               ))}
@@ -167,31 +194,6 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
           </Select>
           {errors.category && (
             <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>
-          )}
-        </div>
-
-        {/* Assignee */}
-        <div>
-          <Label htmlFor="assignee" className="text-primary-text text-xs sm:text-sm">
-            Assignee <span className="text-red-500">*</span>
-          </Label>
-          <Select onValueChange={value => setValue("assignee", value)}>
-            <SelectTrigger
-              className={cn(
-                "bg-input mt-1 sm:mt-2 text-[#94A2AB] py-2 sm:py-3 rounded-lg h-8 sm:h-10 text-xs sm:text-sm",
-                errors.assignee ? "border-red-500" : "",
-              )}
-            >
-              <SelectValue placeholder="Select assignee" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Emily Johnson">Emily Johnson</SelectItem>
-              <SelectItem value="John Doe">John Doe</SelectItem>
-              <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.assignee && (
-            <p className="text-red-500 text-xs mt-1">{errors.assignee.message}</p>
           )}
         </div>
 
@@ -210,47 +212,24 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
               <SelectValue placeholder="Select client" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Fashion Brand">Fashion Brand</SelectItem>
-              <SelectItem value="Tech Startup">Tech Startup</SelectItem>
-              <SelectItem value="Restaurant Chain">Restaurant Chain</SelectItem>
+              {clientsList.map(client => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.clientName}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.client && <p className="text-red-500 text-xs mt-1">{errors.client.message}</p>}
         </div>
 
-        {/* Priority */}
-        <div>
-          <Label htmlFor="priority" className="text-primary-text text-xs sm:text-sm">
-            Priority <span className="text-red-500">*</span>
-          </Label>
-          <Select onValueChange={value => setValue("priority", value as "High" | "Medium" | "Low")}>
-            <SelectTrigger
-              className={cn(
-                "bg-input mt-1 sm:mt-2 text-[#94A2AB] py-2 sm:py-3 rounded-lg h-8 sm:h-10 text-xs sm:text-sm",
-                errors.priority ? "border-red-500" : "",
-              )}
-            >
-              <SelectValue placeholder="Select priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="High">High</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="Low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.priority && (
-            <p className="text-red-500 text-xs mt-1">{errors.priority.message}</p>
-          )}
-        </div>
-
         {/* Status */}
         <div>
           <Label htmlFor="initial-status" className="text-primary-text text-xs sm:text-sm">
-            Initial Status <span className="text-red-500">*</span>
+            Status <span className="text-red-500">*</span>
           </Label>
           <Select
             onValueChange={value =>
-              setValue("status", value as "Not Started" | "In Progress" | "Completed")
+              setValue("status", value as "NotStarted" | "InProgress" | "Completed" | "AwaitingFeedback")
             }
           >
             <SelectTrigger
@@ -262,12 +241,123 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Not Started">Not Started</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="NotStarted">Not Started</SelectItem>
+              <SelectItem value="InProgress">In Progress</SelectItem>
+              <SelectItem value="AwaitingFeedback">Awaiting Feedback</SelectItem>
               <SelectItem value="Completed">Completed</SelectItem>
             </SelectContent>
           </Select>
           {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
+        </div>
+
+        {/* Population Status */}
+        <div>
+          <Label htmlFor="population-status" className="text-primary-text text-xs sm:text-sm">
+            Population Status <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            onValueChange={value =>
+              setValue("populationStatus", value as "Draft" | "Review" | "SentToClient" | "ApprovedByClient")
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "bg-input mt-1 sm:mt-2 text-[#94A2AB] py-2 sm:py-3 rounded-lg h-8 sm:h-10 text-xs sm:text-sm",
+                errors.populationStatus ? "border-red-500" : "",
+              )}
+            >
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Draft">Draft</SelectItem>
+              <SelectItem value="Review">Review</SelectItem>
+              <SelectItem value="SentToClient">Sent To Client</SelectItem>
+              <SelectItem value="ApprovedByClient">Approved By Client</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.populationStatus && (
+            <p className="text-red-500 text-xs mt-1">{errors.populationStatus.message}</p>
+          )}
+        </div>
+
+        {/* Assignee */}
+        <div>
+          <Label htmlFor="assignee" className="text-primary-text text-xs sm:text-sm">
+            Assign To<span className="text-red-500">*</span>
+          </Label>
+          <Select onValueChange={value => setValue("assignedTo", value)}>
+            <SelectTrigger
+              className={cn(
+                "bg-input mt-1 sm:mt-2 text-[#94A2AB] py-2 sm:py-3 rounded-lg h-8 sm:h-10 text-xs sm:text-sm",
+                errors.assignedTo ? "border-red-500" : "",
+              )}
+            >
+              <SelectValue placeholder="Select assignee" />
+            </SelectTrigger>
+            <SelectContent>
+              {usersList.map(user => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.fullName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.assignedTo && (
+            <p className="text-red-500 text-xs mt-1">{errors.assignedTo.message}</p>
+          )}
+        </div>
+
+        {/* Priority */}
+        <div>
+          <Label htmlFor="priority" className="text-primary-text text-xs sm:text-sm">
+            Priority <span className="text-red-500">*</span>
+          </Label>
+          <Select onValueChange={value => setValue("priority", value as "High" | "Medium" | "Low" | "Urgent")}>
+            <SelectTrigger
+              className={cn(
+                "bg-input mt-1 sm:mt-2 text-[#94A2AB] py-2 sm:py-3 rounded-lg h-8 sm:h-10 text-xs sm:text-sm",
+                errors.priority ? "border-red-500" : "",
+              )}
+            >
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Low">Low</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="High">High</SelectItem>
+              <SelectItem value="Urgent">Urgent</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.priority && (
+            <p className="text-red-500 text-xs mt-1">{errors.priority.message}</p>
+          )}
+        </div>
+
+        {/* Estimated Hours */}
+        <div>
+          <Label htmlFor="estimated-hours" className="text-primary-text text-xs sm:text-sm">
+            Estimated Hours
+          </Label>
+          <Input
+            type="number"
+            id="estimated-hours"
+            placeholder="Enter estimated hours"
+            className="bg-input mt-1 sm:mt-2 text-xs sm:text-sm h-8 sm:h-10"
+            {...register("estimatedHours")}
+          />
+        </div>
+
+        {/* Additional Comments */}
+        <div>
+          <Label htmlFor="additional-comments" className="text-primary-text text-xs sm:text-sm">
+            Additional Comments
+          </Label>
+          <textarea
+            id="additional-comments"
+            placeholder="Add any additional comments or notes..."
+            className="bg-input border border-border rounded-lg mt-1 sm:mt-2 p-2 sm:p-3 text-xs sm:text-sm w-full h-20 sm:h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#508CD3]"
+            {...register("additionalComments")}
+          />
         </div>
 
         {/* AI Task Input */}

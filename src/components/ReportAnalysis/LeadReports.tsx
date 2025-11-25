@@ -60,7 +60,7 @@ export default function LeadReportsTable() {
         <Table>
           <TableHeader>
             <TableRow className="dark:border-[#404663]">
-              <TableHead className="w-[200px]">Client</TableHead>
+              <TableHead className="w-[200px]">Leads</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Value</TableHead>

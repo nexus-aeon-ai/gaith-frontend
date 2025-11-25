@@ -58,6 +58,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       languagePreference: "EN",
       startDate: data.accStartDate,
       profilePhotoURL: data.profilePhotoURL as string,
+      notes: data.notes,
     };
   };
 
@@ -65,6 +66,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
     mutationKey: ["employees", "create"],
     mutationFn: async (payload: EmployeeFormData) => {
       const res = await createEmployee(payload);
+      if (res.status === 409) toast.error("Employee with this email already exists.");
       if (!res.data) throw new Error("Create failed");
       if (res.status !== 201) throw new Error(JSON.stringify(res.data) || "Create failed");
       return res.data as ApiEmployee;
@@ -73,8 +75,11 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast.success("Employee created successfully");
     },
-    onError: error => {
-      console.error("Error creating employee:", error);
+    onError: (error: { message: string; status: number }) => {
+      if (error.status === 409) {
+        toast.error("Employee with this email already exists.");
+        return;
+      }
       toast.error(error.message || "Failed to create employee");
     },
   });
@@ -85,7 +90,6 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
     try {
       // Validate form data
       const result = createEmpSchema.safeParse(data);
-
 
       if (!result.success) {
         // Extract validation errors
@@ -104,7 +108,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
           const res = await uploadImage(data.profilePhoto);
           console.log("Primary image upload response:", res);
           if (res?.data) {
-            result.data.profilePhotoURL = res.data.url ;
+            result.data.profilePhotoURL = res.data.url;
           }
         } catch (err) {
           console.error("Primary image upload failed:", err);

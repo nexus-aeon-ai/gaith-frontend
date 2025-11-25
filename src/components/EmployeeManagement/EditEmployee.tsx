@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { getEmployeeById, updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
+import { uploadImage } from "@/lib/api/storage";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
 const EditEmployee = ({
@@ -65,6 +66,9 @@ const EditEmployee = ({
       accountRoleId: data.userRole,
       languagePreference: "EN",
       startDate: data.accStartDate,
+      profilePhotoURL: data.profilePhotoURL as string,
+      skills: data.skills,
+      notes: data.notes
     };
   };
 
@@ -150,6 +154,20 @@ const EditEmployee = ({
           errors[field] = issue.message;
         });
         return;
+      }
+
+      // Upload primary image if present and is a File (same behavior as AddEmployee)
+      if (result.data.profilePhoto && result.data.profilePhoto instanceof File) {
+        try {
+          const res = await uploadImage(result.data.profilePhoto);
+          if (res?.data) {
+            result.data.profilePhotoURL = res.data.url;
+          }
+        } catch (err) {
+          console.error("Primary image upload failed:", err);
+          toast.error("Failed to upload primary image. Please try again.");
+          return;
+        }
       }
 
       // If validation passes, proceed with update employee api

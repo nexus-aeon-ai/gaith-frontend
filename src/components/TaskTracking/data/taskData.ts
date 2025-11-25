@@ -1,9 +1,3 @@
-import { BlogArticlesIcon } from "@/components/ui/icons/sidebar/BlogArticles";
-import { ReportIcon } from "@/components/ui/icons/sidebar/Report";
-import { SettingsIcon } from "@/components/ui/icons/sidebar/settings";
-import { SocialMediaCalenderIcon } from "@/components/ui/icons/sidebar/socialMediaCalender";
-import { TaskTrackingIcon } from "@/components/ui/icons/sidebar/TaskTracking";
-
 export interface Task {
   id: number;
   title: string;
@@ -23,6 +17,8 @@ export interface Category {
   count: number;
   icon: React.ComponentType<{ className?: string }>;
   color: string;
+  pillColor: string;
+  stages: Record<string, number>;
 }
 
 export interface Status {
@@ -46,13 +42,22 @@ export interface NewCategory {
   name: string;
   description?: string;
   color: string;
+  pillColor: string;
+}
+
+export interface Subcategories {
+  draft: number;
+  review: number;
+  sendToClient: number;
+  clientApproved: number;
 }
 
 export const mockTasks: Task[] = [
   {
     id: 1,
     title: "Instagram Carousel: Summer Collection",
-    description: "Create a 5-slide carousel showcasing the new summer collection with product details and pricing.",
+    description:
+      "Create a 5-slide carousel showcasing the new summer collection with product details and pricing.",
     dueDate: "2025-07-05",
     assignee: "Emily Johnson",
     client: "Fashion Brand",
@@ -64,7 +69,8 @@ export const mockTasks: Task[] = [
   {
     id: 2,
     title: "Facebook Ad Campaign: Holiday Sale",
-    description: "Design and launch Facebook ad campaign for the upcoming holiday season with special offers.",
+    description:
+      "Design and launch Facebook ad campaign for the upcoming holiday season with special offers.",
     dueDate: "2025-07-10",
     assignee: "Emily Johnson",
     client: "Fashion Brand",
@@ -76,7 +82,8 @@ export const mockTasks: Task[] = [
   {
     id: 3,
     title: "Twitter Thread: Product Launch",
-    description: "Create an engaging Twitter thread announcing the new product line with behind-the-scenes content.",
+    description:
+      "Create an engaging Twitter thread announcing the new product line with behind-the-scenes content.",
     dueDate: "2025-07-15",
     assignee: "Emily Johnson",
     client: "Fashion Brand",
@@ -100,7 +107,8 @@ export const mockTasks: Task[] = [
   {
     id: 5,
     title: "Email Newsletter: Monthly Update",
-    description: "Create and send monthly newsletter to subscribers with company updates and promotions.",
+    description:
+      "Create and send monthly newsletter to subscribers with company updates and promotions.",
     dueDate: "2025-07-25",
     assignee: "Emily Johnson",
     client: "Fashion Brand",
@@ -112,7 +120,8 @@ export const mockTasks: Task[] = [
   {
     id: 6,
     title: "Instagram Carousel: Summer Collection",
-    description: "Create a 5-slide carousel showcasing the new summer collection with product details and pricing.",
+    description:
+      "Create a 5-slide carousel showcasing the new summer collection with product details and pricing.",
     dueDate: "2025-08-05",
     assignee: "Emily Johnson",
     client: "Fashion Brand",
@@ -147,13 +156,7 @@ export const mockTasks: Task[] = [
   },
 ];
 
-export const categories: Category[] = [
-  { name: "Social Media Calendar", count: 19, icon: SocialMediaCalenderIcon, color: "text-[#508CD3]" },
-  { name: "Blog Creation", count: 12, icon: BlogArticlesIcon, color: "text-[#2BAE82]" },
-  { name: "Marketing Plan", count: 12, icon: TaskTrackingIcon, color: "text-[#ECA338]" },
-  { name: "Media Buying Plan", count: 6, icon: ReportIcon, color: "text-[#FBDAE7]" },
-  { name: "Graphic Designs", count: 6, icon: SettingsIcon, color: "text-[#C99DDD]" },
-];
+export const categories: Category[] = [];
 
 export const statuses: Status[] = [
   { name: "Not Started", count: 19, color: "bg-[#A0AEBA] " },
@@ -173,8 +176,9 @@ export const getNextCategoryId = (categories: Category[]): number => {
 
 // Helper function to update category counts
 export const updateCategoryCounts = (tasks: Task[], categories: Category[]): Category[] => {
+  console.log("Updating category counts...", " tasks:", tasks, "categories:", categories);
   return categories.map(category => ({
     ...category,
-    count: tasks.filter((task) => task.category === category.name).length,
+    count: tasks.filter(task => task.category === category.name).length,
   }));
 };

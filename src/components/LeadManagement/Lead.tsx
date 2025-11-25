@@ -182,7 +182,7 @@ const LeadsPage = () => {
     <div
       className={cn(
         "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
-        "bg-background overflow-x-hidden",
+        " overflow-x-hidden",
       )}
     >
       {/* Header Section */}
