@@ -25,9 +25,10 @@ export type MarketingPlanGenerationFormData = z.infer<typeof generationSchema>;
 interface MarketingPlanGenerationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: MarketingPlanGenerationFormData) => void;
+  onSubmit: (data: MarketingPlanGenerationFormData & { clientId?: string }) => void;
   defaultWebsite?: string;
   isSubmitting?: boolean;
+  clientId?: string;
 }
 
 const MarketingPlanGenerationModal = ({
@@ -36,6 +37,7 @@ const MarketingPlanGenerationModal = ({
   onSubmit,
   defaultWebsite = "",
   isSubmitting = false,
+  clientId,
 }: MarketingPlanGenerationModalProps) => {
   const form = useForm<MarketingPlanGenerationFormData>({
     resolver: zodResolver(generationSchema),
@@ -45,7 +47,7 @@ const MarketingPlanGenerationModal = ({
   });
 
   const handleSubmit = (data: MarketingPlanGenerationFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, clientId });
   };
 
   return (

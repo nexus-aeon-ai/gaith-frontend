@@ -42,9 +42,10 @@ type BlogFormData = z.infer<typeof blogFormSchema>;
 interface BlogGenerationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: BlogFormData) => void;
+  onSubmit: (data: BlogFormData & { clientId?: string }) => void;
   defaultWebsite?: string;
   initialData?: BlogFormData;
+  clientId?: string;
 }
 
 const platforms = [
@@ -60,6 +61,7 @@ export default function BlogGenerationModal({
   onSubmit,
   defaultWebsite = "",
   initialData,
+  clientId,
 }: BlogGenerationModalProps) {
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
@@ -82,7 +84,7 @@ export default function BlogGenerationModal({
   }, [open, initialData, defaultWebsite, form]);
 
   const handleSubmit = (data: BlogFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, clientId });
     form.reset();
     onOpenChange(false);
   };

@@ -44,8 +44,9 @@ type CalendarFormData = z.infer<typeof calendarFormSchema>;
 interface CalendarGenerationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CalendarFormData) => void;
+  onSubmit: (data: CalendarFormData & { clientId?: string }) => void;
   initialData?: CalendarFormData;
+  clientId?: string;
 }
 
 export default function CalendarGenerationModal({
@@ -53,6 +54,7 @@ export default function CalendarGenerationModal({
   onOpenChange,
   onSubmit,
   initialData,
+  clientId,
 }: CalendarGenerationModalProps) {
   const { theme } = useTheme();
   
@@ -77,7 +79,7 @@ export default function CalendarGenerationModal({
   }, [open, initialData, form]);
 
   const handleSubmit = (data: CalendarFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, clientId });
     form.reset();
     onOpenChange(false);
   };

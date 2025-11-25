@@ -1,21 +1,21 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Tag } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import MagicStarIcon from "@/components/ui/icons/magic-star";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getClients } from "@/lib/api/client/client";
 
 import MediaBuyingPlanSheet from "../../sheet/BuyingPlanPreview";
 import GeneratedAssetsSheet from "../../sheet/GenerateSelected";
@@ -29,46 +29,47 @@ import CalendarGenerationModal from "./CalendarGenerationModal";
 import GeneratePricing from "./GeneratePricing";
 import MediaBuyingModal from "./MediaBuyingModal";
 
-interface GeneratedResults {
-  blog?: unknown;
-  calendar?: unknown;
-  marketingPlan?: unknown;
-  mediaBuying?: unknown;
-}
-
-const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
+const GenerateMarketingAssets = () => {
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [showMediaBuyingSheet, setShowMediaBuyingSheet] = useState(false);
   const [showGeneratedAssetsSheet, setShowGeneratedAssetsSheet] = useState(false);
   const [showPricingForm, setShowPricingForm] = useState(false);
   const [selectedAssets, setSelectedAssets] = useState<Record<string, boolean>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedResults, setGeneratedResults] = useState<GeneratedResults>({});
+  const [isGenerating] = useState(false);
   
   // Modal states
   const [showBlogModal, setShowBlogModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showMediaBuyingModal, setShowMediaBuyingModal] = useState(false);
   
+  // Fetch clients
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+  });
+
+  // Get selected client
+  const selectedClient = clients.find(c => c.id === selectedClientId);
+  
   // Store collected data from modals
   const [blogData, setBlogData] = useState<{ platform: string; topic: string; company_website: string } | null>(null);
   const [calendarData, setCalendarData] = useState<{ start_date: Date; end_date: Date; post_per_week: number } | null>(null);
   const [mediaBuyingData, setMediaBuyingData] = useState<{ platform: string } | null>(null);
   
-  // Try to get website URL from localStorage (saved from previous step)
+  // Get website URL from selected client
   const getStoredWebsiteUrl = () => {
-    try {
-      const storedData = localStorage.getItem("clientFormData");
-      if (storedData) {
-        const data = JSON.parse(storedData);
-        return data.websiteUrl || "";
-      }
-    } catch (error) {
-      console.error("Error reading stored form data:", error);
-    }
-    return "";
+    return selectedClient?.websiteUrl || "";
   };
 
   const handleGenerateSelected = () => {
+    if (!selectedClientId) {
+      toast.warning("Please select a client first");
+      return;
+    }
+
     const selected = Object.entries(selectedAssets).filter(([_, isSelected]) => isSelected);
     
     if (selected.length === 0) {
@@ -80,20 +81,20 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
     setShowGeneratedAssetsSheet(true);
   };
 
-  const handleBlogSubmit = (data: { platform: string; topic: string; company_website: string }) => {
-    setBlogData(data);
+  const handleBlogSubmit = (data: { platform: string; topic: string; company_website: string; clientId?: string }) => {
+    setBlogData({ platform: data.platform, topic: data.topic, company_website: data.company_website });
     setShowBlogModal(false);
     toast.success("Blog information saved");
   };
 
-  const handleCalendarSubmit = (data: { start_date: Date; end_date: Date; post_per_week: number }) => {
-    setCalendarData(data);
+  const handleCalendarSubmit = (data: { start_date: Date; end_date: Date; post_per_week: number; clientId?: string }) => {
+    setCalendarData({ start_date: data.start_date, end_date: data.end_date, post_per_week: data.post_per_week });
     setShowCalendarModal(false);
     toast.success("Calendar information saved");
   };
 
-  const handleMediaBuyingSubmit = (data: { platform: string }) => {
-    setMediaBuyingData(data);
+  const handleMediaBuyingSubmit = (data: { platform: string; clientId?: string }) => {
+    setMediaBuyingData({ platform: data.platform });
     setShowMediaBuyingModal(false);
     toast.success("Media buying information saved");
   };
@@ -108,35 +109,6 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
 
   return (
     <div className="w-full mx-auto p-6">
-      {/* Breadcrumb */}
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard">
-                <DashboardListIcon className="dark:text-[#E6EFF9]" />
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link
-                href="/client-management"
-                className="text-blue-600 font-medium text-md"
-                onClick={closePage}
-              >
-                Client Management
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>New Client</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
@@ -156,7 +128,7 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
           </Button>
           <Button
             onClick={handleGenerateSelected}
-            disabled={isGenerating}
+            disabled={isGenerating || !selectedClientId}
             variant={"outline"}
             className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -164,6 +136,23 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
             {isGenerating ? "Generating..." : "Generate Selected"}
           </Button>
         </div>
+      </div>
+
+      {/* Client Selection */}
+      <div className="mb-6">
+        <Label htmlFor="client-select" className="text-sm font-medium mb-2 block">Select Client *</Label>
+        <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+          <SelectTrigger id="client-select" className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6 w-full max-w-md">
+            <SelectValue placeholder="Select a client" />
+          </SelectTrigger>
+          <SelectContent>
+            {clients.map(client => (
+              <SelectItem key={client.id} value={client.id}>
+                {client.fullName || client.companyName || client.clientName || `Client ${client.id}`}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* main component  */}
@@ -233,16 +222,22 @@ const GenerateMarketingAssets = ({ closePage }: { closePage: () => void }) => {
         onOpenChange={setShowBlogModal}
         onSubmit={handleBlogSubmit}
         defaultWebsite={getStoredWebsiteUrl()}
+        initialData={blogData || undefined}
+        clientId={selectedClientId}
       />
       <CalendarGenerationModal
         open={showCalendarModal}
         onOpenChange={setShowCalendarModal}
         onSubmit={handleCalendarSubmit}
+        initialData={calendarData || undefined}
+        clientId={selectedClientId}
       />
       <MediaBuyingModal
         open={showMediaBuyingModal}
         onOpenChange={setShowMediaBuyingModal}
         onSubmit={handleMediaBuyingSubmit}
+        initialData={mediaBuyingData || undefined}
+        clientId={selectedClientId}
       />
     </div>
   );

@@ -150,6 +150,7 @@ const BlogArticlesPage = ({ initialArticles = [], pagination }: BlogArticlesPage
     platform: string;
     topic: string;
     company_website: string;
+    clientId?: string;
   }) => {
     try {
       const response = await generateBlog(data);

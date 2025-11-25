@@ -5,20 +5,24 @@ export interface GenerateBlogRequest {
   platform: string;
   topic: string;
   company_website: string;
+  clientId?: string;
 }
 
 export interface GenerateCalendarRequest {
   start_date: string; // DD-MM-YYYY format
   end_date: string; // DD-MM-YYYY format
   post_per_week: number;
+  clientId?: string;
 }
 
 export interface GenerateMarketingPlanRequest {
   company_website: string;
+  clientId?: string;
 }
 
 export interface GenerateMediaBuyingRequest {
   platform: string;
+  clientId?: string;
 }
 
 // Response types (generic for now, can be refined based on actual API responses)

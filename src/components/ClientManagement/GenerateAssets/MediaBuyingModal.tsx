@@ -39,8 +39,9 @@ type MediaBuyingFormData = z.infer<typeof mediaBuyingFormSchema>;
 interface MediaBuyingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: MediaBuyingFormData) => void;
+  onSubmit: (data: MediaBuyingFormData & { clientId?: string }) => void;
   initialData?: MediaBuyingFormData;
+  clientId?: string;
 }
 
 const platforms = [
@@ -56,6 +57,7 @@ export default function MediaBuyingModal({
   onOpenChange,
   onSubmit,
   initialData,
+  clientId,
 }: MediaBuyingModalProps) {
   const form = useForm<MediaBuyingFormData>({
     resolver: zodResolver(mediaBuyingFormSchema),
@@ -74,7 +76,7 @@ export default function MediaBuyingModal({
   }, [open, initialData, form]);
 
   const handleSubmit = (data: MediaBuyingFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, clientId });
     form.reset();
     onOpenChange(false);
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { Quote, ShoppingBag, Target, Ticket } from "lucide-react";
+import { Quote, ShoppingBag, Sparkles, Target, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -125,6 +125,12 @@ const SidebarUI  = () => {
   ];
 
   const aiToolsItems = [
+    {
+      label: "Generate Marketing Assets",
+      icon: <Sparkles className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Sparkles className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/generate-marketing-assets",
+    },
     {
       label: "Generate Pricing",
       icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
