@@ -80,7 +80,6 @@ const defaultFormData: CreateClientFormData = {
 
 const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
   const { theme } = useTheme();
-  console.log("initialData", initialData);
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),
     defaultValues: initialData || defaultFormData,

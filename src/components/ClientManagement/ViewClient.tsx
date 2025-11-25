@@ -4,6 +4,7 @@ import { Calendar, Globe, Mail, Phone, MapPin, Building2, Users, FileText, Paper
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,9 +24,17 @@ import Linkedin from "@/components/ui/icons/social/linkedin";
 import TikTok from "@/components/ui/icons/social/tiktok";
 import Twitterx from "@/components/ui/icons/social/twitterx";
 import Youtube from "@/components/ui/icons/socials/youtube";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClientByIdResponse } from "@/lib/api/client/client";
 import { SocialMediaUrls } from "@/lib/api/leads";
+import type { Client } from "@/lib/types/client-management";
 import { cn } from "@/lib/utils";
+
+import {
+  CampaignTasksTab,
+  HistoricalPerformanceTab,
+  IntegrationsTab,
+} from "./tabs";
 
 interface ViewClientProps {
   initialData: ClientByIdResponse;
@@ -54,9 +63,47 @@ function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null):
   return Array.isArray(socialMediaUrls) ? socialMediaUrls : [];
 }
 
+// Helper function to map ClientByIdResponse to Client type for tabs
+function mapClientToTabType(client: ClientByIdResponse): Client {
+  return {
+    id: client.id,
+    name: client.fullName || client.clientName || "",
+    email: client.emailAddress || "",
+    clientName: client.clientName || "",
+    status: client.isActive ? "Active" : "Inactive",
+    agreementPeriod: {
+      start: client.agreementStartDate
+        ? new Date(client.agreementStartDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "N/A",
+      end: client.agreementEndDate
+        ? new Date(client.agreementEndDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "N/A",
+    },
+    marketRegion: client.primaryMarketRegion?.name || "N/A",
+    industrySector: client.industrySector?.name || "N/A",
+    services: client.serviceOfferings?.map(so => so.name).join(", ") || "N/A",
+    contactInfo: client.phoneNumber || "N/A",
+    assignedTo: client.assignedUsers?.map((u, index) => ({
+      name: u.fullName,
+      initial: u.fullName[0] || "",
+      color: COLORS[index % COLORS.length],
+    })) || [],
+  };
+}
+
 export default function ViewClient({ initialData }: ViewClientProps) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("main-info");
   const client = initialData;
+  const clientForTabs = mapClientToTabType(client);
   const socialMediaUrls = parseSocialMediaUrls(client.socialMediaUrls);
 
   const getStatusColor = (isActive: boolean) => {
@@ -152,7 +199,113 @@ export default function ViewClient({ initialData }: ViewClientProps) {
         </div>
       </div>
 
-      <div className="grid gap-4">
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full bg-card rounded-xl"
+        defaultValue="main-info"
+      >
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-16 sm:mb-4 h-16 bg-card p-0 rounded rounded-t-[16px] overflow-hidden relative">
+          <TabsTrigger
+            value="main-info"
+            className={cn(
+              "flex items-center gap-2 text-sm font-medium transition-all duration-200 h-full border-border border-b-1 rounded-none",
+              "data-[state=active]:bg-[#3072C014] data-[state=active]:text-[#78A7DD] data-[state=active]:rounded-none",
+              "data-[state=active]:border-b-2 data-[state=active]:border-[#78A7DD]",
+              "hover:bg-card/50 hover:text-blue-500",
+              "text-gray-600 text-xs sm:text-sm px-2 py-3",
+            )}
+          >
+            {activeTab === "main-info" ? (
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  opacity="0.4"
+                  d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                  fill="#3072C0"
+                />
+                <path
+                  d="M12 13.75C12.41 13.75 12.75 13.41 12.75 13V8C12.75 7.59 12.41 7.25 12 7.25C11.59 7.25 11.25 7.59 11.25 8V13C11.25 13.41 11.59 13.75 12 13.75Z"
+                  fill="#3072C0"
+                />
+                <path
+                  d="M12.92 15.6199C12.87 15.4999 12.8 15.3899 12.71 15.2899C12.61 15.1999 12.5 15.1299 12.38 15.0799C12.14 14.9799 11.86 14.9799 11.62 15.0799C11.5 15.1299 11.39 15.1999 11.29 15.2899C11.2 15.3899 11.13 15.4999 11.08 15.6199C11.03 15.7399 11 15.8699 11 15.9999C11 16.1299 11.03 16.2599 11.08 16.3799C11.13 16.5099 11.2 16.6099 11.29 16.7099C11.39 16.7999 11.5 16.8699 11.62 16.9199C11.74 16.9699 11.87 16.9999 12 16.9999C12.13 16.9999 12.26 16.9699 12.38 16.9199C12.5 16.8699 12.61 16.7999 12.71 16.7099C12.8 16.6099 12.87 16.5099 12.92 16.3799C12.97 16.2599 13 16.1299 13 15.9999C13 15.8699 12.97 15.7399 12.92 15.6199Z"
+                  fill="#3072C0"
+                />
+              </svg>
+            ) : (
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 22.75C6.07 22.75 1.25 17.93 1.25 12C1.25 6.07 6.07 1.25 12 1.25C17.93 1.25 22.75 6.07 22.75 12C22.75 17.93 17.93 22.75 12 22.75ZM12 2.75C6.9 2.75 2.75 6.9 2.75 12C2.75 17.1 6.9 21.25 12 21.25C17.1 21.25 21.25 17.1 21.25 12C21.25 6.9 17.1 2.75 12 2.75Z"
+                  fill="#303444"
+                />
+                <path
+                  d="M12 13.75C11.59 13.75 11.25 13.41 11.25 13V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V13C12.75 13.41 12.41 13.75 12 13.75Z"
+                  fill="#303444"
+                />
+                <path
+                  d="M12 16.9999C11.87 16.9999 11.74 16.9699 11.62 16.9199C11.5 16.8699 11.39 16.7999 11.29 16.7099C11.2 16.6099 11.13 16.5099 11.08 16.3799C11.03 16.2599 11 16.1299 11 15.9999C11 15.8699 11.03 15.7399 11.08 15.6199C11.13 15.4999 11.2 15.3899 11.29 15.2899C11.39 15.1999 11.5 15.1299 11.62 15.0799C11.86 14.9799 12.14 14.9799 12.38 15.0799C12.5 15.1299 12.61 15.1999 12.71 15.2899C12.8 15.3899 12.87 15.4999 12.92 15.6199C12.97 15.7399 13 15.8699 13 15.9999C13 16.1299 12.97 16.2599 12.92 16.3799C12.87 16.5099 12.8 16.6099 12.71 16.7099C12.61 16.7999 12.5 16.8699 12.38 16.9199C12.26 16.9699 12.13 16.9999 12 16.9999Z"
+                  fill="#303444"
+                />
+              </svg>
+            )}
+            <span className="hidden sm:inline">Main Information</span>
+            <span className="sm:hidden">Main</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="campaign-tasks"
+            className={cn(
+              "flex items-center gap-2 text-sm font-medium transition-all duration-200 h-14 rounded-none border-border border-b-1",
+              "data-[state=active]:bg-[#3072C014] data-[state=active]:text-[#78A7DD] data-[state=active]:rounded-none",
+              "data-[state=active]:border-b-2 data-[state=active]:border-[#78A7DD]",
+              "hover:bg-card/50 hover:text-blue-500",
+              "text-gray-600 text-xs sm:text-sm px-2 py-3",
+            )}
+          >
+            <span className="hidden sm:inline">Campaign & Tasks</span>
+            <span className="sm:hidden">Campaign</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="historical-performance"
+            className={cn(
+              "flex items-center gap-2 text-sm font-medium transition-all duration-200 h-14 rounded-none border-border border-b-1",
+              "data-[state=active]:bg-[#3072C014] data-[state=active]:text-[#78A7DD] data-[state=active]:rounded-none",
+              "data-[state=active]:border-b-2 data-[state=active]:border-[#78A7DD]",
+              "hover:bg-card/50 hover:text-blue-500",
+              "text-gray-600 text-xs sm:text-sm px-2 py-3",
+            )}
+          >
+            <span className="hidden sm:inline">Historical Performance</span>
+            <span className="sm:hidden">Performance</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="integrations"
+            className={cn(
+              "flex items-center gap-2 text-sm font-medium transition-all duration-200 h-14 rounded-none border-border border-b-1",
+              "data-[state=active]:bg-[#3072C014] data-[state=active]:text-[#78A7DD] data-[state=active]:rounded-none",
+              "data-[state=active]:border-b-2 data-[state=active]:border-[#78A7DD]",
+              "hover:bg-card/50 hover:text-blue-500",
+              "text-gray-600 text-xs sm:text-sm px-2 py-3",
+            )}
+          >
+            Integrations
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="main-info" className="mt-0 p-4 pt-0">
+          <div className="grid gap-4">
         {/* Top Section - Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Contact Information */}
@@ -834,7 +987,24 @@ export default function ViewClient({ initialData }: ViewClientProps) {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="campaign-tasks" className="mt-0">
+          <CampaignTasksTab
+            setShowPendingTasks={() => {}}
+            setShowCampaignOverview={() => {}}
+          />
+        </TabsContent>
+
+        <TabsContent value="historical-performance" className="mt-0">
+          <HistoricalPerformanceTab client={clientForTabs} />
+        </TabsContent>
+
+        <TabsContent value="integrations" className="mt-0">
+          <IntegrationsTab client={clientForTabs} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

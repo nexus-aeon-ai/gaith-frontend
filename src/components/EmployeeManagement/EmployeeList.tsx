@@ -58,7 +58,7 @@ const EmployeeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["employees", employeeFilters],
     queryFn: async () => {
       const res = await getEmployees(employeeFilters);
