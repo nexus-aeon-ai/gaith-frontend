@@ -218,7 +218,7 @@ export default function CalendarGenerationModal({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="rounded-[12px] dark:bg-[#0F1B29] bg-[#F3F5F7]"
+                className="rounded-[12px] dark:bg-[#0F1B29] bg-[#F3F5F7] text-black dark:text-white"
               >
                 Cancel
               </Button>

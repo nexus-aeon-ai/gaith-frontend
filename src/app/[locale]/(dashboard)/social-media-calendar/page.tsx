@@ -1,46 +1,75 @@
 import React from "react";
 
 import SocialCalendarPage from "@/components/SocialCalendar";
-import { CalendarListItem, getSocialMediaCalendars } from "@/lib/api/reports";
+import {
+  CalendarListItem,
+  type SocialMediaCalendarListResponse,
+  getSocialMediaCalendars,
+  type SocialMediaCalendarData,
+} from "@/lib/api/reports";
+
+const isPaginatedCalendarList = (
+  message: unknown,
+): message is SocialMediaCalendarListResponse["details"]["message"] => {
+  return typeof message === "object" && message !== null && "results" in message;
+};
 
 export default async function SocialMediaCalendarServerPage() {
   let calendarsList: CalendarListItem[] = [];
   let initialCalendarData = null;
   let selectedCalendarId: number | null = null;
-  
+  let pagination:
+    | {
+        count: number;
+        num_pages: number;
+        current_page: number;
+        has_next: boolean;
+        has_previous: boolean;
+        next_page: number | null;
+        previous_page: number | null;
+      }
+    | null = null;
+
   try {
-    // First, fetch the list of calendars (without calendar_id)
-    const listResponse = await getSocialMediaCalendars();
-    
+    const listResponse = await getSocialMediaCalendars(undefined, 1);
+
     if (listResponse.status === 200 && listResponse.data?.details?.message) {
       const message = listResponse.data.details.message;
-      
-      // Check if message is an array (list response)
+
       if (Array.isArray(message)) {
-        // Sort calendars: completed > failed > draft
-        const statusPriority = { completed: 1, failed: 2, draft: 3 };
-        calendarsList = message.sort((a, b) => {
-          return statusPriority[a.status] - statusPriority[b.status];
-        });
-        
-        // Default to first calendar (which is now the highest priority completed one)
+        calendarsList = message;
+      } else if (isPaginatedCalendarList(message)) {
+        calendarsList = message.results || [];
+        pagination = {
+          count: message.count,
+          num_pages: message.num_pages,
+          current_page: message.current_page,
+          has_next: message.has_next,
+          has_previous: message.has_previous,
+          next_page: message.next_page,
+          previous_page: message.previous_page,
+        };
+      }
+
+      if (calendarsList.length) {
+        const statusPriority: Record<CalendarListItem["status"], number> = { completed: 1, failed: 2, draft: 3 };
+        calendarsList = calendarsList
+          .slice()
+          .sort(
+            (a: CalendarListItem, b: CalendarListItem) =>
+              statusPriority[a.status] - statusPriority[b.status],
+          );
+
         const defaultCalendar = calendarsList[0];
-        
+
         if (defaultCalendar) {
           selectedCalendarId = defaultCalendar.id;
-          
-          // Fetch the full calendar data for the selected calendar
+
           const calendarResponse = await getSocialMediaCalendars(selectedCalendarId);
-          
+
           if (calendarResponse.status === 200 && calendarResponse.data?.details?.message) {
-            const apiData = calendarResponse.data.details.message as {
-              calendar?: { calendar: any[] };
-              created_at: string;
-              updated_at: string;
-              status: "draft" | "completed" | "failed";
-            };
-            
-            // Transform API structure to match component expectations
+            const apiData = calendarResponse.data.details.message as SocialMediaCalendarData;
+
             if (apiData.calendar?.calendar) {
               initialCalendarData = {
                 calendar: apiData.calendar.calendar,
@@ -58,10 +87,11 @@ export default async function SocialMediaCalendarServerPage() {
   }
 
   return (
-    <SocialCalendarPage 
+    <SocialCalendarPage
       calendarsList={calendarsList}
       initialCalendarData={initialCalendarData}
       initialSelectedCalendarId={selectedCalendarId}
+      initialPagination={pagination}
     />
   );
 }

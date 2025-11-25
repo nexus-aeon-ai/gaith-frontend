@@ -126,6 +126,14 @@ export interface BackendLead {
   createdAt?: string;
   leadSource?: { name: string };
   productServices?: Array<{ productService: { name: string } }>;
+  serviceOfferings?: Array<{
+    leadId: string;
+    serviceOfferingId: string;
+    serviceOffering: {
+      id: string;
+      name: string;
+    };
+  }>;
   assignedToUser?: { fullName: string };
   assignedUsers?: Array<{
     leadId: string;
@@ -171,6 +179,11 @@ function transformLead(lead: BackendLead, idx: number): Lead {
     };
   });
 
+  // Get services from serviceOfferings first, fallback to productServices
+  const services = lead.serviceOfferings?.map(s => s.serviceOffering.name).join(", ") 
+    || lead.productServices?.map(s => s.productService.name).join(", ") 
+    || "-";
+
   return {
     id: lead.id,
     name: lead.fullName,
@@ -179,7 +192,7 @@ function transformLead(lead: BackendLead, idx: number): Lead {
     status: getStatus(lead.isActive, lead.status),
     agreementPeriod: { start: "-", end: "-" },
     marketRegion: "-",
-    services: lead.productServices?.map(s => s.productService.name).join(", ") || "-",
+    services,
     contactInfo: lead.phoneNumber || "-",
     assignedTo,
     createdAt: lead.createdAt || undefined,

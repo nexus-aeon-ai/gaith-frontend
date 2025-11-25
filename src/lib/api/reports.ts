@@ -138,7 +138,16 @@ export interface MarketingPlanListItem {
 
 export interface MarketingPlanListResponse {
   details: {
-    message: MarketingPlanListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: MarketingPlanListItem[];
+    };
   };
 }
 
@@ -184,7 +193,16 @@ export interface MediaBuyingListItem {
 
 export interface MediaBuyingListResponse {
   details: {
-    message: MediaBuyingListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: MediaBuyingListItem[];
+    };
   };
 }
 
@@ -280,7 +298,16 @@ export interface SocialMediaCalendarData {
 // Response for list of calendars
 export interface SocialMediaCalendarListResponse {
   details: {
-    message: CalendarListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: CalendarListItem[];
+    };
   };
 }
 
@@ -546,7 +573,16 @@ export interface BlogPostResponse {
 
 export interface BlogPostListResponse {
   details: {
-    message: BlogPostListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: BlogPostListItem[];
+    };
   };
 }
 
@@ -580,7 +616,6 @@ export const getBlogs = async (
       "Content-Type": "application/json",
     },
   });
-
   return response;
 };
 

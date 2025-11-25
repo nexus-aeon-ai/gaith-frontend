@@ -136,7 +136,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                     variant="outline"
                     size="icon"
                     onClick={() => setShowCreateCategory(true)}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 dark:bg-[#0F1B29] bg-[#F3F5F7] text-black dark:text-white"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>

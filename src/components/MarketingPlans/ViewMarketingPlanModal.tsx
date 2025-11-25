@@ -117,7 +117,7 @@ const ViewMarketingPlanModal = ({ open, onOpenChange, data, isLoading = false }:
             <div className="flex justify-end">
               <Button
                 onClick={() => onOpenChange(false)}
-                className="bg-[#3072C0] hover:bg-[#184a86] text-white rounded-[12px]"
+                className="bg-[#3072C0] hover:bg-[#184a86] text-white rounded-[12px] dark:bg-[#0F1B29] bg-[#F3F5F7] text-black dark:text-white"
               >
                 Close
               </Button>

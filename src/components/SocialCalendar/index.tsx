@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 
 import BulkPostSheet from "@/components/sheet/AiCalendar/BulkPostsSheet";
@@ -20,7 +20,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AnalyticsIcon } from "@/components/ui/icons/analytics/analytics";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarListItem, getSocialMediaCalendars, updateSocialMediaCalendar } from "@/lib/api/reports";
+import {
+  CalendarListItem,
+  getSocialMediaCalendars,
+  updateSocialMediaCalendar,
+} from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
 
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "../Dashboard/AnalyticsCard";
@@ -30,6 +34,15 @@ import { CampaignsIcon } from "../ui/icons/analytics/campaigns";
 import { ContentPiecesIcon } from "../ui/icons/analytics/contentPieces";
 
 import Calendar from "./Calendar";
+
+const isPaginatedCalendarList = (
+  message: unknown,
+): message is import("@/lib/api/reports").SocialMediaCalendarListResponse["details"]["message"] => {
+  return typeof message === "object" && message !== null && "results" in message;
+};
+
+// Sort calendars by status: completed > failed > draft
+const statusPriority = { completed: 1, failed: 2, draft: 3 };
 
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
@@ -72,18 +85,26 @@ interface SocialCalendarPageProps {
     status: "draft" | "completed" | "failed";
   } | null;
   initialSelectedCalendarId: number | null;
+  initialPagination?: {
+    count: number;
+    num_pages: number;
+    current_page: number;
+    has_next: boolean;
+    has_previous: boolean;
+    next_page: number | null;
+    previous_page: number | null;
+  } | null;
 }
 
 const SocialCalendarPage = ({ 
   calendarsList: initialCalendarsList = [],
   initialCalendarData,
   initialSelectedCalendarId,
+  initialPagination = null,
 }: SocialCalendarPageProps) => {
-  // Sort calendars by status: completed > failed > draft
-  const statusPriority = { completed: 1, failed: 2, draft: 3 };
-  const calendarsList = [...initialCalendarsList].sort((a, b) => {
-    return statusPriority[a.status] - statusPriority[b.status];
-  });
+  const [calendarsList, setCalendarsList] = useState(
+    [...initialCalendarsList].sort((a, b) => statusPriority[a.status] - statusPriority[b.status]),
+  );
 
   const [showNewPostSheet, setShowNewPostSheet] = useState(false);
   const [showBulkPostSheet, setShowBulkPostSheet] = useState(false);
@@ -93,6 +114,84 @@ const SocialCalendarPage = ({
   const [selectedCalendarId, setSelectedCalendarId] = useState<number | null>(initialSelectedCalendarId);
   const [currentCalendarData, setCurrentCalendarData] = useState(initialCalendarData);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  const [pagination, setPagination] = useState(initialPagination);
+  const [isLoadingMoreCalendars, setIsLoadingMoreCalendars] = useState(false);
+  const tabsListRef = useRef<HTMLDivElement>(null);
+  
+  const handleLoadMoreCalendars = useCallback(async () => {
+    if (!pagination?.has_next || !pagination.next_page || isLoadingMoreCalendars) return;
+    
+    setIsLoadingMoreCalendars(true);
+    try {
+      const response = await getSocialMediaCalendars(undefined, pagination.next_page);
+      if (response.status === 200 && response.data?.details?.message) {
+        const message = response.data.details.message;
+        let newCalendars: CalendarListItem[] = [];
+        let newPagination: {
+          count: number;
+          num_pages: number;
+          current_page: number;
+          has_next: boolean;
+          has_previous: boolean;
+          next_page: number | null;
+          previous_page: number | null;
+        } | null = pagination;
+
+        if (Array.isArray(message)) {
+          newCalendars = message;
+          newPagination = null;
+        } else if (isPaginatedCalendarList(message)) {
+          newCalendars = message.results || [];
+          newPagination = {
+            count: message.count,
+            num_pages: message.num_pages,
+            current_page: message.current_page,
+            has_next: message.has_next,
+            has_previous: message.has_previous,
+            next_page: message.next_page,
+            previous_page: message.previous_page,
+          };
+        }
+
+        setCalendarsList((prev) => {
+          const existingIds = new Set(prev.map((item) => item.id));
+          const merged = [...prev];
+          newCalendars.forEach((calendar) => {
+            if (!existingIds.has(calendar.id)) {
+              merged.push(calendar);
+            }
+          });
+          return merged.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
+        });
+        setPagination(newPagination);
+      }
+    } catch (error) {
+      console.error("Error loading more calendars:", error);
+      toast.error("Failed to load more calendars");
+    } finally {
+      setIsLoadingMoreCalendars(false);
+    }
+  }, [pagination, isLoadingMoreCalendars]);
+
+  // Auto-load more calendars when scrolling to the end
+  useEffect(() => {
+    const tabsListElement = tabsListRef.current;
+    if (!tabsListElement || !pagination?.has_next || isLoadingMoreCalendars) return;
+
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = tabsListElement;
+      // Load more when user is within 100px of the end
+      if (scrollLeft + clientWidth >= scrollWidth - 100) {
+        handleLoadMoreCalendars();
+      }
+    };
+
+    tabsListElement.addEventListener("scroll", handleScroll);
+    return () => {
+      tabsListElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [pagination?.has_next, isLoadingMoreCalendars, handleLoadMoreCalendars]);
+
   const queryClient = useQueryClient();
 
   // Handle calendar tab change
@@ -324,7 +423,11 @@ const SocialCalendarPage = ({
             onValueChange={handleCalendarChange}
             className="w-full bg-card rounded-xl"
           >
-            <TabsList className="w-full justify-start overflow-x-auto flex-nowrap h-auto p-0 bg-card rounded-t-xl border-b border-border">
+            <div className="flex items-center gap-2 w-full">
+              <TabsList 
+                ref={tabsListRef}
+                className="flex-1 justify-start overflow-x-auto flex-nowrap h-auto p-0 bg-card rounded-t-xl border-b border-border"
+              >
               {calendarsList.map((calendar) => (
                 <TabsTrigger 
                   key={calendar.id} 
@@ -348,7 +451,13 @@ const SocialCalendarPage = ({
                   </span>
                 </TabsTrigger>
               ))}
-            </TabsList>
+              {isLoadingMoreCalendars && (
+                <div className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                  Loading...
+                </div>
+              )}
+              </TabsList>
+            </div>
           </Tabs>
         )}
 

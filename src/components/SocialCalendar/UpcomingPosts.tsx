@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
+import Linkedin from "@/components/ui/icons/social/linkedin";
+import TikTok from "@/components/ui/icons/social/tiktok";
 import XIcon from "@/components/ui/icons/social/twitterx";
 
 interface CalendarEntry {
@@ -30,10 +32,11 @@ const PlatformIcon = ({ platform }: { platform: string }) => {
       return <Instagram />;
     case "x":
     case "twitter":
-    case "tiktok":
       return <XIcon />;
+    case "tiktok":
+      return <TikTok />;
     case "linkedin":
-      return <Facebook />; // Use Facebook icon as placeholder for LinkedIn
+      return <Linkedin />;
     default:
       return null;
   }

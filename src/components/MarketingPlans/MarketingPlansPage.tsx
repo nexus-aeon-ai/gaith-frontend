@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreVertical, Plus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -37,9 +38,18 @@ import { cn } from "@/lib/utils";
 interface MarketingPlansPageProps {
   initialPlans?: MarketingPlanListItem[];
   defaultWebsite?: string;
+  pagination?: {
+    count: number;
+    num_pages: number;
+    current_page: number;
+    has_next: boolean;
+    has_previous: boolean;
+    next_page: number | null;
+    previous_page: number | null;
+  };
 }
 
-const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: MarketingPlansPageProps) => {
+const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "", pagination }: MarketingPlansPageProps) => {
   const [plans, setPlans] = useState<MarketingPlanListItem[]>(initialPlans);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -47,9 +57,17 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
   const [editingPlanId, setEditingPlanId] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<MarketingPlanData | undefined>();
   const [viewingData, setViewingData] = useState<MarketingPlanData | undefined>();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPage = pagination?.current_page || 1;
+  const totalPages = pagination?.num_pages || 1;
   const queryClient = useQueryClient();
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    router.push(`?${params.toString()}`);
+  };
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -187,12 +205,6 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
     updatePlanMutation.mutate({ planId: editingPlanId, planData: data });
   };
 
-  // Pagination
-  const totalPages = Math.ceil(plans.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentPlans = plans.slice(startIndex, endIndex);
-
   return (
     <>
       <div className="flex flex-col gap-6 w-full p-4 font-inter">
@@ -234,14 +246,14 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentPlans.length === 0 ? (
+              {plans.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     No marketing plans found. Click &quot;Generate Plan&quot; to create one.
                   </TableCell>
                 </TableRow>
               ) : (
-                currentPlans.map((plan) => (
+                plans.map((plan) => (
                   <TableRow key={plan.id}>
                     <TableCell className="font-medium">#{plan.id}</TableCell>
                     <TableCell>
@@ -296,17 +308,27 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
             </TableBody>
           </Table>
 
-          {totalPages > 1 && (
+          {pagination && pagination.num_pages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-6 py-4">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {startIndex + 1}-{Math.min(endIndex, plans.length)} of {plans.length}
+                {plans.length > 0 ? (
+                  <>
+                    Page {currentPage} of {totalPages} ({pagination.count} total)
+                  </>
+                ) : (
+                  <>No results</>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => {
+                    if (pagination.previous_page) {
+                      handlePageChange(pagination.previous_page);
+                    }
+                  }}
+                  disabled={!pagination.has_previous}
                   className={cn(
                     "cursor-pointer",
                     "flex items-center gap-1 sm:gap-2",
@@ -321,7 +343,7 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={cn(
                       "w-10",
                       "cursor-pointer",
@@ -337,8 +359,12 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "" }: Marketin
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    if (pagination.next_page) {
+                      handlePageChange(pagination.next_page);
+                    }
+                  }}
+                  disabled={!pagination.has_next}
                   className={cn(
                     "cursor-pointer",
                     "flex items-center gap-1 sm:gap-2",

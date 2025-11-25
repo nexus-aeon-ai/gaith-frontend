@@ -14,6 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import FolderIcon from "@/components/ui/icons/folder";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
@@ -417,8 +424,51 @@ const LeadsPage = () => {
                         {lead.source}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                      {lead.services}
+                    <td className="px-4 py-3">
+                      {lead.services && lead.services !== "-" ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex flex-wrap gap-1 justify-center max-w-[300px] mx-auto">
+                                {lead.services.split(", ").slice(0, 2).map((service, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                  >
+                                    {service}
+                                  </Badge>
+                                ))}
+                                {lead.services.split(", ").length > 2 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                                  >
+                                    +{lead.services.split(", ").length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            {lead.services.split(", ").length > 2 && (
+                              <TooltipContent className="max-w-[300px]">
+                                <div className="flex flex-wrap gap-1">
+                                  {lead.services.split(", ").map((service, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="secondary"
+                                      className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    >
+                                      {service}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
                       {lead.contactInfo}

@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { marked } from "marked";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,8 @@ export default function ViewBlogPostModal({
   blogPostData,
   isLoading = false,
 }: ViewBlogPostModalProps) {
+  const renderHtml = (value?: string) => ({ __html: marked.parse(value || "") });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] dark:bg-[#212945] w-full bg-card font-inter rounded-[16px] max-h-[90vh] overflow-y-auto">
@@ -46,29 +48,31 @@ export default function ViewBlogPostModal({
           <div className="space-y-6">
             {/* Title */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Title</label>
-              <div className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3 text-foreground">
-                {blogPostData.title}
-              </div>
+              <p className="text-sm font-medium">Title</p>
+              <div
+                className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3 text-foreground"
+                dangerouslySetInnerHTML={renderHtml(blogPostData.title)}
+              />
             </div>
 
             {/* Content */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Content</label>
-              <div className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3 min-h-[200px] text-foreground whitespace-pre-wrap">
-                {blogPostData.content}
-              </div>
+              <p className="text-sm font-medium">Content</p>
+              <div
+                className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3 min-h-[200px] text-foreground prose prose-sm max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={renderHtml(blogPostData.content)}
+              />
             </div>
 
             {/* Keywords */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Keywords</label>
+              <p className="text-sm font-medium">Keywords</p>
               <div className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3">
                 {blogPostData.keywords && blogPostData.keywords.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {blogPostData.keywords.map((keyword, index) => (
+                    {blogPostData.keywords.map((keyword) => (
                       <span
-                        key={index}
+                        key={keyword}
                         className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-sm"
                       >
                         {keyword}
@@ -83,13 +87,13 @@ export default function ViewBlogPostModal({
 
             {/* Reference Links */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Reference Links</label>
+              <p className="text-sm font-medium">Reference Links</p>
               <div className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] px-4 py-3">
                 {blogPostData.reference_links && blogPostData.reference_links.length > 0 ? (
                   <div className="space-y-2">
-                    {blogPostData.reference_links.map((link, index) => (
+                    {blogPostData.reference_links.map((link) => (
                       <a
-                        key={index}
+                        key={link}
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"

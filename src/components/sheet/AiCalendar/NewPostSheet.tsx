@@ -17,6 +17,8 @@ import {
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
+import Linkedin from "@/components/ui/icons/social/linkedin";
+import TikTok from "@/components/ui/icons/social/tiktok";
 import XIcon from "@/components/ui/icons/social/twitterx";
 import { Input } from "@/components/ui/input";
 import {
@@ -51,10 +53,10 @@ interface CreatePostSheetProps {
 }
 
 const platforms = [
-  { id: "LinkedIn", name: "LinkedIn", icon: <Facebook /> },
+  { id: "LinkedIn", name: "LinkedIn", icon: <Linkedin /> },
   { id: "Instagram", name: "Instagram", icon: <Instagram /> },
   { id: "Facebook", name: "Facebook", icon: <Facebook /> },
-  { id: "TikTok", name: "TikTok", icon: <XIcon /> },
+  { id: "TikTok", name: "TikTok", icon: <TikTok /> },
   { id: "Twitter", name: "Twitter/X", icon: <XIcon /> },
 ];
 
