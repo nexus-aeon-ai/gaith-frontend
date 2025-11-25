@@ -235,7 +235,7 @@ export default function FilterSheet({
             </div>
             <div className="space-y-2">
               {levelOptions.map(level => (
-                <div key={status} className="flex items-center space-x-2">
+                <div key={level} className="flex items-center space-x-2">
                   <CheckboxSquare
                     id={`level-${level}`}
                     checked={filters.levels.includes(level)}

@@ -56,22 +56,39 @@ export interface BackendEmployeeResponse {
 export interface BackendEmployee {
   id: string;
   employeeId: string;
-  status: string;
-  employmentType: string;
+  userId?: string;
+  organizationId?: string;
+  employmentType: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERN";
+  status: "ACTIVE" | "INACTIVE" | "ON_LEAVE" | "TERMINATED";
   salary: string;
-  performanceRating: number;
+  performanceRating: number | null;
+  profilePicture: string | null;
+  notes: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+  fullAddress: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  createdAt: string;
+  updatedAt: string;
   user?: {
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
-    jobTitle?: string;
+    id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    jobTitle: string;
+    profilePic: string | null;
+    departmentId: string | null;
   };
-  skills?: Array<{ skill: string }>;
-  notes?: string;
-  street?: string;
-  fullAddress?: string;
-  profilePicture?: string;
-  createdAt?: string;
+  skills?: Array<{
+    id: string;
+    employeeId: string;
+    skill: string;
+    createdAt: string;
+  }>;
 }
 
 // Transform backend employee to frontend employee
@@ -194,6 +211,25 @@ export const getEmployeeById = async (
   };
 };
 
+// Server-side function to get raw backend employee data
+export const getEmployeeByIdRaw = async (
+  id: string,
+): Promise<{
+  status: number;
+  data: BackendEmployee | null;
+}> => {
+  const response = await fetchInstance<BackendEmployee>(`${employeesEndpoint}/${id}`);
+
+  if (!response.data) {
+    return { status: response.status, data: null };
+  }
+
+  return {
+    status: response.status,
+    data: response.data as BackendEmployee,
+  };
+};
+
 // Transform frontend form data to backend API format
 export interface EmployeeFormData {
   fullName: string;
@@ -211,16 +247,24 @@ export interface EmployeeFormData {
   notes?: string;
   address?: string;
   skills: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zipCode?: string;
+  fullAddress?: string;
+  performanceRating?: number;
+  endDate?: Date | string;
+  departmentId?: string;
+  startDate?: Date | string;
 }
 
-const transformFormDataToBackend = (formData: EmployeeFormData) => {
-  return {
+const transformFormDataToBackend = (formData: EmployeeFormData, isCreate: boolean = false) => {
+  const payload: any = {
     fullName: formData.fullName,
     email: formData.primaryEmail,
-    profilePicture: formData.profilePhotoURL,
     phoneNumber: formData.phone,
     jobTitle: formData.jobTitle,
-    employeeId: formData.employeeId,
     status:
       formData.status === "Active"
         ? "ACTIVE"
@@ -228,21 +272,52 @@ const transformFormDataToBackend = (formData: EmployeeFormData) => {
           ? "INACTIVE"
           : "ON_LEAVE",
     employmentType: formData.employmentType,
-    salary: formData.salary || "0",
-    password: formData.password || "Temp1234",
-    accountRoleId: formData.accountRoleId || "EMPLOYEE",
+    salary: String(formData.salary || "0"),
+    password: formData.password,
+    accountRoleId: formData.accountRoleId || "",
     languagePreference: formData.languagePreference || "EN",
     notes: formData.notes || "",
     skills:
-      formData.skills?.split(",").map(skill => skill.trim()) ||
-      formData.skills?.split(" ").map(skill => skill.trim()) ||
+      formData.skills
+        ?.split(",")
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0) ||
+      formData.skills
+        ?.split(" ")
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0) ||
       [],
-    street: formData.address || "",
-    city: "",
-    state: "",
-    country: "",
-    zipCode: "",
+    street: formData.street || "",
+    city: formData.city || "",
+    state: formData.state || "",
+    country: formData.country || "",
+    zipCode: formData.zipCode || "",
+    fullAddress: formData.fullAddress || "",
+    performanceRating: formData.performanceRating || null,
+    startDate: formData.startDate
+      ? typeof formData.startDate === "string"
+        ? formData.startDate
+        : formData.startDate.toISOString()
+      : null,
+    endDate: formData.endDate
+      ? typeof formData.endDate === "string"
+        ? formData.endDate
+        : formData.endDate.toISOString()
+      : null,
+    departmentId: formData.departmentId || null,
   };
+
+  // Only include profilePicture if it's not empty
+  if (formData.profilePhotoURL && formData.profilePhotoURL.trim() !== "") {
+    payload.profilePicture = formData.profilePhotoURL;
+  }
+
+  // Only include employeeId for update operations, not create
+  if (!isCreate && formData.employeeId) {
+    payload.employeeId = formData.employeeId;
+  }
+
+  return payload;
 };
 
 export const createEmployee = async (
@@ -251,7 +326,7 @@ export const createEmployee = async (
   status: number;
   data: Employee | null;
 }> => {
-  const backendData = transformFormDataToBackend(formData);
+  const backendData = transformFormDataToBackend(formData, true);
 
   console.log("👤 Creating employee:", backendData);
 

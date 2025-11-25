@@ -36,8 +36,8 @@ export const employementTypes = [
   "Other",
 ] as const;
 
-// Main User Form Validation Schema
-export const createEmpSchema = z.object({
+// Base schema object (before refinements)
+const baseEmpSchema = z.object({
   // Basic Information
   profilePhoto: z.instanceof(File, { message: "Please upload a photo" }).optional(),
   profilePhotoURL: z.string().optional(),
@@ -47,7 +47,20 @@ export const createEmpSchema = z.object({
     .max(100, "Full name must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
 
-  department: z.enum(departments, { required_error: "Department is required" }),
+    department: z.enum(departments, { required_error: "Department is required" }).optional(), // Legacy field, kept for backward compatibility
+    departmentId: z
+      .string()
+      .refine(
+        val => {
+          // Allow empty string, undefined, or valid UUID
+          if (!val || val === "") return true;
+          return z.string().uuid().safeParse(val).success;
+        },
+        {
+          message: "Invalid uuid",
+        }
+      )
+      .optional(),
 
   // Accept dynamic roles from backend instead of fixed enum
   // empRole: z.string().min(1, "Employee role is required"),
@@ -58,9 +71,7 @@ export const createEmpSchema = z.object({
     .max(100, "Job title must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Job title can only contain letters and spaces"),
 
-  employeeID: z
-    .string()
-    .optional(),
+  employeeID: z.string().optional(),
 
   userRole: z.string().min(1, "User role is required"),
 
@@ -81,6 +92,24 @@ export const createEmpSchema = z.object({
   }),
   address: z.string().optional(),
 
+  // Password fields (required for create mode, optional for edit)
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional(),
+  confirmPassword: z
+    .string()
+    .min(8, "Confirm password must be at least 8 characters")
+    .optional(),
+
+  // Detailed address fields
+  street: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  zipCode: z.string().optional(),
+  fullAddress: z.string().optional(),
+
   //Skills
   skills: z.string().optional(),
 
@@ -91,15 +120,86 @@ export const createEmpSchema = z.object({
   }),
 
   accStartDate: z.date().optional(),
+  endDate: z.date().optional(),
+
+  // Performance and department
+  performanceRating: z.coerce.number().min(0).max(5).optional(),
+  departmentId: z
+    .string()
+    .refine(
+      val => {
+        // Allow empty string, undefined, or valid UUID
+        if (!val || val === "") return true;
+        return z.string().uuid().safeParse(val).success;
+      },
+      {
+        message: "Invalid uuid",
+      }
+    )
+    .optional(),
 
   notes: z.string().max(500, "Notes must be less than 500 characters").optional(),
 });
 
+// Main User Form Validation Schema with refinements
+export const createEmpSchema = baseEmpSchema
+  .refine(
+    data => {
+      // Only validate password match if both passwords are provided
+      if (data.password || data.confirmPassword) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    },
+  )
+  .refine(
+    data => {
+      if (data.endDate && data.accStartDate) {
+        return data.endDate > data.accStartDate;
+      }
+      return true;
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    },
+  );
+
 // Type inference from schema
 export type CreateEmpFormData = z.infer<typeof createEmpSchema>;
 
-// Partial schema for updates (all fields optional)
-export const updateEmpSchema = createEmpSchema.partial();
+// Partial schema for updates (all fields optional) with same refinements
+export const updateEmpSchema = baseEmpSchema
+  .partial()
+  .refine(
+    data => {
+      // Only validate password match if both passwords are provided
+      if (data.password || data.confirmPassword) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    },
+  )
+  .refine(
+    data => {
+      if (data.endDate && data.accStartDate) {
+        return data.endDate > data.accStartDate;
+      }
+      return true;
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    },
+  );
 
 // Type for update operations
 export type UpdateEmpFormData = z.infer<typeof updateEmpSchema>;
@@ -133,7 +233,7 @@ export const defaultFormData: CreateEmpFormData = {
   // Basic Information
   profilePhoto: undefined,
   fullName: "",
-  department: departments[0], // default first option
+  department: departments[0], // Legacy field, kept for backward compatibility
   // empRole: "",
   jobTitle: "",
   employeeID: "",
@@ -152,6 +252,18 @@ export const defaultFormData: CreateEmpFormData = {
   employementType: employementTypes[0], // default first option
   address: "",
 
+  // Password fields
+  password: "",
+  confirmPassword: "",
+
+  // Detailed address fields
+  street: "",
+  city: "",
+  state: "",
+  country: "",
+  zipCode: "",
+  fullAddress: "",
+
   // Skills
   skills: "",
 
@@ -159,4 +271,11 @@ export const defaultFormData: CreateEmpFormData = {
   employeeStatus: "active", // default to "active"
 
   accStartDate: undefined,
+  endDate: undefined,
+
+  // Performance and department
+  performanceRating: undefined,
+  departmentId: "",
+
+  notes: "",
 };

@@ -27,7 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { PasswordInput } from "@/components/ui/password-input";
 import { getRoles } from "@/lib/api/roles";
+import { getDepartments } from "@/lib/api/departments";
 import {
   analyticsPerms,
   contentPerms,
@@ -58,6 +60,20 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
     queryFn: async () => {
       const res = await getRoles();
       return res.data ?? [];
+    },
+    initialData: [],
+  });
+
+  const { data: departmentsData } = useQuery({
+    queryKey: ["departments"],
+    queryFn: async () => {
+      try {
+        const res = await getDepartments();
+        return res.data ?? [];
+      } catch (error) {
+        console.error("Failed to fetch departments:", error);
+        return [];
+      }
     },
     initialData: [],
   });
@@ -188,21 +204,34 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                 />
                 <FormField
                   control={form.control}
-                  name="department"
+                  name="departmentId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Department</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select 
+                          value={field.value || ""} 
+                          onValueChange={(value) => {
+                            field.onChange(value === "" ? undefined : value);
+                          }}
+                        >
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                             <SelectValue placeholder="Select department" />
                           </SelectTrigger>
                           <SelectContent>
-                            {departments.map(option => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
+                            {departmentsData && departmentsData.length > 0 ? (
+                              departmentsData.map(dept => (
+                                <SelectItem key={dept.id} value={dept.id}>
+                                  {dept.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              departments.map(option => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -222,30 +251,6 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                           className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="userRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>User Role</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {rolesData.map(option => (
-                              <SelectItem className="capitalize" key={option.id} value={option.id}>
-                                {option.code.replace("_", " ")}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -401,6 +406,25 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
+                {mode === "create" && (
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <PasswordInput
+                            placeholder="Enter Password"
+                            className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="salary"
@@ -438,6 +462,25 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
+                {mode === "create" && (
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <PasswordInput
+                            placeholder="Confirm Password"
+                            className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="employementType"
@@ -472,6 +515,119 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                     <FormControl>
                       <Textarea
                         placeholder="Address"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Address Information */}
+        <Card className="pt-3 rounded-[16px] shadow-none">
+          <CardHeader className="px-3">
+            <CardTitle className="text-[16px] font-medium">Address Information</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Street Address"
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="City"
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="State"
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Country"
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Zip Code</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Zip Code"
+                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fullAddress"
+                render={({ field }) => (
+                  <FormItem className="lg:col-span-2">
+                    <FormLabel>Full Address</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Full Address"
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -586,7 +742,7 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                       <FormControl>
                         <div className="relative w-full">
                           <Input
-                            id="date-expiry"
+                            id="date-start"
                             type="date"
                             value={
                               value instanceof Date && !isNaN(value.getTime())
@@ -622,8 +778,85 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field: { value, onChange } }) => (
+                    <FormItem>
+                      <FormLabel>End Date (Optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative w-full">
+                          <Input
+                            id="date-end"
+                            type="date"
+                            value={
+                              value instanceof Date && !isNaN(value.getTime())
+                                ? value.toISOString().split("T")[0]
+                                : ""
+                            }
+                            onChange={e => {
+                              const dateString = e.target.value;
+                              const date = dateString ? new Date(dateString) : undefined;
+                              onChange(date);
+                            }}
+                            className="
+                            dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
+                              pr-10
+                              [&::-webkit-calendar-picker-indicator]:opacity-0 
+                              [&::-webkit-calendar-picker-indicator]:absolute 
+                              [&::-webkit-calendar-picker-indicator]:w-full 
+                              [&::-webkit-calendar-picker-indicator]:h-full
+                            "
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById("date-end") as HTMLInputElement & {
+                                showPicker?: () => void;
+                              };
+                              input?.showPicker?.();
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          >
+                            <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-               <FormField
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-4 lg:col-span-2 col-span-5">
+                <FormField
+                  control={form.control}
+                  name="performanceRating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Performance Rating (0-5)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="5"
+                          step="0.1"
+                          placeholder="0.0 - 5.0"
+                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={e => {
+                            const value = e.target.value;
+                            field.onChange(value === "" ? undefined : parseFloat(value));
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
                 control={form.control}
                 name="notes"
                 render={({ field }) => (

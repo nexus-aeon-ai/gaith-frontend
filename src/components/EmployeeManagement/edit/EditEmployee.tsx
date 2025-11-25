@@ -1,9 +1,9 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 import EmployeeForm from "@/components/Forms/EmployeeForm";
@@ -17,19 +17,19 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { getEmployeeById, updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
+import { updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
 import { uploadImage } from "@/lib/api/storage";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
+import type { BackendEmployee } from "@/lib/api/employee";
 
-const EditEmployee = ({
-  employeeId,
-  closeEmployeeForm,
-}: {
+interface EditEmployeeProps {
   employeeId: string;
+  initialData?: BackendEmployee;
   closeEmployeeForm?: () => void;
-}) => {
+}
+
+const EditEmployee = ({ employeeId, initialData: serverData, closeEmployeeForm }: EditEmployeeProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [initialData, setInitialData] = useState<CreateEmpFormData | undefined>(undefined);
   const queryClient = useQueryClient();
   const router = useRouter();
   const onClose = () => {
@@ -62,13 +62,21 @@ const EditEmployee = ({
       status,
       employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
       salary: data.salary ?? 0,
-      address: data.address,
+      street: data.street,
+      city: data.city,
+      state: data.state,
+      country: data.country,
+      zipCode: data.zipCode,
+      fullAddress: data.fullAddress,
       accountRoleId: data.userRole,
       languagePreference: "EN",
       startDate: data.accStartDate,
+      endDate: data.endDate,
       profilePhotoURL: data.profilePhotoURL as string,
       skills: data.skills,
-      notes: data.notes
+      notes: data.notes,
+      performanceRating: data.performanceRating,
+      departmentId: data.departmentId,
     };
   };
 
@@ -88,56 +96,55 @@ const EditEmployee = ({
     },
   });
 
-  const { data: employeeData } = useQuery({
-    queryKey: ["employees", employeeId],
-    queryFn: async () => {
-      const res = await getEmployeeById(employeeId);
-      return res.data;
-    },
-    enabled: !!employeeId,
-  });
+  // Transform server-fetched data to form format
+  const transformServerDataToForm = (data: BackendEmployee): CreateEmpFormData => {
+    const employmentTypeMap: Record<string, string> = {
+      FULL_TIME: "Full-time",
+      PART_TIME: "Part-time",
+      CONTRACT: "Contract",
+      INTERN: "Internship",
+    };
 
-  useEffect(() => {
-    if (employeeData) {
-      console.log(employeeData);
-      const initialData = employeeData
-        ? ({
-          fullName: employeeData.fullName,
-          email: employeeData.email,
-          department: "Other",
-          empRole: "Employee",
-          profilePhotoURL: employeeData.profilePicture,
-          profilePhoto: undefined,
-          userRole: "",
-          jobTitle: employeeData.jobTitle || "",
-          employeeID: employeeData.employeeId,
-          userManagement: [],
-          contentManagement: [],
-          analyticsAndReports: [],
-          primaryEmail: employeeData.email,
-          primaryPhone: employeeData.phone,
-          salary: employeeData.salary,
-          employementType: "Full-time",
-          address: employeeData.address || "",
-          skills: employeeData.skills?.join(", ") || "",
-          employeeStatus:
-            employeeData.status === "Active"
-              ? "active"
-              : employeeData.status === "Inactive"
-                ? "inactive"
-                : "onleave",
-          accountActive: true,
-          emailVerification: false,
-          forcePassChange: false,
-          accExpiryDate: undefined,
-          tempPassword: undefined,
-          notes: employeeData.notes || "",
-        } as CreateEmpFormData)
-        : undefined;
+    return {
+      fullName: data.user?.fullName || "",
+      primaryEmail: data.user?.email || "",
+      primaryPhone: data.user?.phoneNumber || "",
+      jobTitle: data.user?.jobTitle || "",
+      employeeID: data.employeeId,
+      departmentId: data.user?.departmentId || "",
+      userRole: "", // Will need to be fetched separately or mapped
+      profilePhotoURL: data.profilePicture || "",
+      profilePhoto: undefined,
+      userManagement: [],
+      contentManagement: [],
+      analyticsAndReports: [],
+      salary: data.salary ? parseFloat(data.salary) : undefined,
+      employementType: employmentTypeMap[data.employmentType] || "Full-time",
+      street: data.street || "",
+      city: data.city || "",
+      state: data.state || "",
+      country: data.country || "",
+      zipCode: data.zipCode || "",
+      fullAddress: data.fullAddress || "",
+      skills: data.skills?.map(s => s.skill).join(", ") || "",
+      employeeStatus:
+        data.status === "ACTIVE"
+          ? "active"
+          : data.status === "INACTIVE"
+            ? "inactive"
+            : data.status === "TERMINATED"
+              ? "inactive"
+              : "onleave",
+      accStartDate: data.startDate ? new Date(data.startDate) : undefined,
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      notes: data.notes || "",
+      performanceRating: data.performanceRating || undefined,
+      password: "",
+      confirmPassword: "",
+    };
+  };
 
-      setInitialData(initialData);
-    }
-  }, [employeeData]);
+  const formInitialData = serverData ? transformServerDataToForm(serverData) : undefined;
 
   const handleSave = async (data: CreateEmpFormData) => {
     setIsSubmitting(true);
@@ -185,6 +192,10 @@ const EditEmployee = ({
     // Handle cancel action
     onClose();
   };
+
+  if (!formInitialData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full mx-auto p-6">
@@ -244,10 +255,11 @@ const EditEmployee = ({
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
-        initialData={initialData}
+        initialData={formInitialData}
       />
     </div>
   );
 };
 
 export default EditEmployee;
+

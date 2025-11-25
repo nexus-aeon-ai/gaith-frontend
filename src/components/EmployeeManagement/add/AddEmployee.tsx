@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -24,9 +25,21 @@ import {
 import { uploadImage } from "@/lib/api/storage";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
 
-const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }) => {
+const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm?: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleClose = () => {
+    if (closeEmployeeForm) {
+      closeEmployeeForm();
+    } else {
+      // Navigate back to employees list
+      const base = pathname?.split("/employees")[0] || "";
+      router.push(`${base}/employees`);
+    }
+  };
 
   const mapToApi = (data: CreateEmpFormData) => {
     const status: EmployeeFormData["status"] =
@@ -45,21 +58,36 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
       Other: "CONTRACT",
     };
 
-    return {
+    const payload: any = {
       fullName: data.fullName,
       phone: data.primaryPhone || "",
       primaryEmail: data.primaryEmail,
       jobTitle: data.jobTitle,
-      employeeId: data.employeeID,
       status,
       employmentType: employmentTypeMap[data.employementType] ?? "FULL_TIME",
       salary: data.salary ?? 0,
       accountRoleId: data.userRole,
       languagePreference: "EN",
       startDate: data.accStartDate,
-      profilePhotoURL: data.profilePhotoURL as string,
       notes: data.notes,
+      password: data.password,
+      street: data.street,
+      city: data.city,
+      state: data.state,
+      country: data.country,
+      zipCode: data.zipCode,
+      fullAddress: data.fullAddress,
+      performanceRating: data.performanceRating,
+      endDate: data.endDate,
+      departmentId: data.departmentId,
     };
+
+    // Only include profilePhotoURL if it's not empty
+    if (data.profilePhotoURL && data.profilePhotoURL.trim() !== "") {
+      payload.profilePhotoURL = data.profilePhotoURL;
+    }
+
+    return payload;
   };
 
   const { mutateAsync } = useMutation({
@@ -88,6 +116,13 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
     setIsSubmitting(true);
 
     try {
+      // Validate password is provided in create mode
+      if (!data.password || data.password.trim() === "") {
+        toast.error("Password is required");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Validate form data
       const result = createEmpSchema.safeParse(data);
 
@@ -119,7 +154,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
 
       // If validation passes, proceed with create employee api
       await mutateAsync(mapToApi(result.data));
-      closeEmployeeForm();
+      handleClose();
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
@@ -129,7 +164,7 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
 
   const handleCancel = () => {
     // Handle cancel action
-    closeEmployeeForm();
+    handleClose();
   };
 
   return (
@@ -150,7 +185,10 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
               <Link
                 href="#"
                 className="text-blue-600 font-medium text-md"
-                onClick={closeEmployeeForm}
+                onClick={e => {
+                  e.preventDefault();
+                  handleClose();
+                }}
               >
                 Employee Management
               </Link>
@@ -200,3 +238,4 @@ const AddNewEmployee = ({ closeEmployeeForm }: { closeEmployeeForm: () => void }
 };
 
 export default AddNewEmployee;
+

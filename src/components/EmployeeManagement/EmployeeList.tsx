@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 
-import EmployeeDetail from "@/components/EmployeeManagement/EmployeeDetail";
+import ViewEmployee from "@/components/EmployeeManagement/view/ViewEmployee";
 import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -38,8 +38,7 @@ import { deleteEmployee, getEmployees, type Employee as ApiEmployee } from "@/li
 import type { Employee as UiEmployee } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import AddNewEmployee from "./AddEmployee";
-import EditEmployee from "./EditEmployee";
+import AddNewEmployee from "./add/AddEmployee";
 
 const EmployeeList = () => {
   const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
@@ -177,34 +176,25 @@ const EmployeeList = () => {
   };
 
   if (showAddEmployeeForm) {
-    return <AddNewEmployee closeEmployeeForm={() => setShowAddEmployeeForm(false)} />;
+    const base = pathname?.split("/employees")[0] || "";
+    router.push(`${base}/employees/add`);
+    return null;
   }
 
-  if (showEmpDetailPage) {
-    return (
-      <EmployeeDetail
-        employeeId={selectedEmployeeId as string}
-        closeEmployeeDetails={() => {
-          setShowEmpDetailPage(false);
-        }}
-      />
-    );
+  if (showEmpDetailPage && selectedEmployeeId) {
+    const base = pathname?.split("/employees")[0] || "";
+    router.push(`${base}/employees/${selectedEmployeeId}`);
+    return null;
   }
 
-  if(isLoading){
+  if (isLoading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
 
   if (showEditEmployeeForm && selectedEmployeeId) {
-    return (
-      <EditEmployee
-        employeeId={selectedEmployeeId}
-        closeEmployeeForm={() => {
-          setshowEditEmployeeForm(false);
-          setSelectedEmployeeId(null);
-        }}
-      />
-    );
+    const base = pathname?.split("/employees")[0] || "";
+    router.push(`${base}/employees/${selectedEmployeeId}/edit`);
+    return null;
   }
 
   return (
@@ -475,8 +465,8 @@ const EmployeeList = () => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => {
-                            setSelectedEmployeeId(employee.id);
-                            setShowEmpDetailPage(true);
+                            const base = pathname?.split("/employees")[0] || "";
+                            router.push(`${base}/employees/${employee.id}`);
                           }}
                         >
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -488,7 +478,7 @@ const EmployeeList = () => {
                           onClick={() => {
                             // Navigate to server-rendered edit page preserving locale and segment
                             const base = pathname?.split("/employees")[0] || "";
-                            router.push(`${base}/employees/${employee.id}`);
+                            router.push(`${base}/employees/${employee.id}/edit`);
                           }}
                         >
                           <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
