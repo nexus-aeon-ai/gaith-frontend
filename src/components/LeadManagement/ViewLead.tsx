@@ -109,17 +109,17 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         </div>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {/* Top Section - Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Contact Information */}
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Mail className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Contact Information</h2>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Mail className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Contact Information</h2>
               </div>
-              <div className="space-y-1.5 text-muted-foreground text-sm">
+              <div className="space-y-2 text-muted-foreground text-sm">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-blue-600" />
                   <a href={`mailto:${lead.emailAddress}`} className="hover:underline">
@@ -157,9 +157,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
 
           {/* Social Media */}
           <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold text-base mb-2">Social Media Accounts</h2>
-              <div className="flex items-center gap-2 flex-wrap">
+            <CardContent className="p-5">
+              <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
+              <div className="flex items-center gap-3 flex-wrap">
                 {lead.linkedinUrl && (
                   <a
                     href={lead.linkedinUrl}
@@ -221,9 +221,9 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
 
           {/* Lead Details */}
           <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold text-base mb-2">Lead Details</h2>
-              <div className="space-y-2 text-sm">
+            <CardContent className="p-5">
+              <h2 className="font-semibold text-lg mb-3">Lead Details</h2>
+              <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Source</span>
                   {lead.leadSource ? (
@@ -261,15 +261,15 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         </div>
 
         {/* Second Section - Location & Company */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Location Details */}
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Location Details</h2>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Location Details</h2>
               </div>
-              <div className="space-y-1.5 text-sm text-muted-foreground mb-3">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 {lead.countryType && (
                   <div className="flex justify-between">
                     <span className="font-medium text-foreground">Country:</span>
@@ -296,13 +296,13 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                 )}
               </div>
               {lead.countryType && (
-                <div className="mt-2">
+                <div className="mt-3">
                   <Image
                     src="/images/maps.png"
                     width={500}
-                    height={200}
+                    height={150}
                     alt="Map"
-                    className="rounded-lg w-full h-auto"
+                    className="rounded-lg w-full h-auto object-cover"
                   />
                 </div>
               )}
@@ -310,52 +310,52 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
           </Card>
 
           {/* Company Profile */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Company Profile</h2>
+          <div className="flex flex-col gap-4">
+          <Card className="flex flex-col">
+            <CardContent className="p-5 flex flex-col flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Company Profile</h2>
               </div>
               {lead.companyLogoUrl && (
                 <div className="mb-3">
                   <Image
                     src={lead.companyLogoUrl}
-                    width={150}
-                    height={150}
+                    width={200}
+                    height={200}
                     alt="Company Logo"
-                    className="rounded-lg max-w-[150px] h-auto"
+                    className="rounded-lg max-w-[200px] h-auto"
                   />
                 </div>
               )}
-              <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="space-y-3 text-sm text-muted-foreground flex-1">
                 {lead.visionStatement && (
                   <div>
-                    <h3 className="font-medium text-foreground mb-0.5 text-xs">Vision Statement</h3>
-                    <p className="text-sm leading-relaxed">{lead.visionStatement}</p>
+                    <h3 className="font-medium text-foreground mb-1">Vision Statement</h3>
+                    <p className="text-sm">{lead.visionStatement}</p>
                   </div>
                 )}
                 {lead.missionStatement && (
                   <div>
-                    <h3 className="font-medium text-foreground mb-0.5 text-xs">Mission Statement</h3>
-                    <p className="text-sm leading-relaxed">{lead.missionStatement}</p>
+                    <h3 className="font-medium text-foreground mb-1">Mission Statement</h3>
+                    <p className="text-sm">{lead.missionStatement}</p>
                   </div>
                 )}
+                {!lead.visionStatement && !lead.missionStatement && (
+                  <p className="text-sm text-muted-foreground">No company profile information available.</p>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Third Section - Team & Services */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Assigned Users */}
+              </CardContent>
+            </Card>
+             {/* Assigned Users */}
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Assigned Team Members</h2>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Assigned Team Members</h2>
               </div>
               {lead.assignedUsers && lead.assignedUsers.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {lead.assignedUsers.map((assignedUser, index) => {
                     const color = COLORS[index % COLORS.length];
                     const initials = assignedUser.user.fullName
@@ -387,11 +387,14 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
               )}
             </CardContent>
           </Card>
+          </div>
+        </div>
 
-          {/* Service Offerings */}
+        {/* Third Section - Team & Services */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold text-base mb-2">Service Offerings</h2>
+            <CardContent className="p-5">
+              <h2 className="font-semibold text-lg mb-3">Service Offerings</h2>
               {lead.serviceOfferings && lead.serviceOfferings.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {lead.serviceOfferings.map((service, index) => (
@@ -409,13 +412,25 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
               )}
             </CardContent>
           </Card>
+
+        {/* Additional Notes */}
+        <Card>
+          <CardContent className="p-5">
+            <h2 className="font-semibold text-lg mb-3">Additional Notes</h2>
+            <div className="flex items-start w-full p-4 border rounded-lg bg-[#E4E9F1] dark:bg-[#0F1B29]">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {lead.additionalNotes || "No additional notes provided."}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
         </div>
 
         {/* Team Roles */}
         {lead.teamRoles && lead.teamRoles.length > 0 && (
           <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold text-base mb-2">Team Roles</h2>
+            <CardContent className="p-5">
+              <h2 className="font-semibold text-lg mb-3">Team Roles</h2>
               <div className="flex flex-wrap gap-2">
                 {lead.teamRoles.map((role, index) => (
                   <Badge
@@ -434,12 +449,12 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         {/* Communications */}
         {lead.communications && lead.communications.length > 0 && (
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Communications</h2>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Communications</h2>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {lead.communications.map((communication) => (
                   <div key={communication.id} className="border rounded-lg p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -461,10 +476,10 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         {/* Attachments */}
         {lead.attachments && lead.attachments.length > 0 && (
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Paperclip className="h-4 w-4 text-blue-600" />
-                <h2 className="font-semibold text-base">Attachments</h2>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Paperclip className="h-5 w-5 text-blue-600" />
+                <h2 className="font-semibold text-lg">Attachments</h2>
               </div>
               <div className="space-y-2">
                 {lead.attachments.map((attachment) => (
@@ -485,17 +500,6 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
           </Card>
         )}
 
-        {/* Additional Notes */}
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="font-semibold text-base mb-2">Additional Notes</h2>
-            <div className="flex items-start w-full p-3 border rounded-lg bg-[#E4E9F1] dark:bg-[#0F1B29]">
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {lead.additionalNotes || "No additional notes provided."}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
