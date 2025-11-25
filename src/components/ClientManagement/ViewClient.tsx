@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Globe, Mail, Phone, MapPin, Building2, Users, FileText, Paperclip, Briefcase, Target, Languages, TrendingUp } from "lucide-react";
+import { Calendar, Globe, Mail, Phone, MapPin, Building2, Users, FileText, Paperclip, Briefcase, Target, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -370,7 +370,21 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                   </div>
                 )}
               </div>
-              {client.countryType && (
+              {(client.latitude !== null && client.longitude !== null) ? (
+                <div className="mt-3">
+                  <iframe
+                    width="100%"
+                    height="200"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${client.longitude - 0.01},${client.latitude - 0.01},${client.longitude + 0.01},${client.latitude + 0.01}&layer=mapnik&marker=${client.latitude},${client.longitude}`}
+                    className="rounded-lg w-full"
+                    title="Location Map"
+                  />
+                </div>
+              ) : client.countryType ? (
                 <div className="mt-3">
                   <Image
                     src="/images/maps.png"
@@ -380,7 +394,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                     className="rounded-lg w-full h-auto object-cover"
                   />
                 </div>
-              )}
+              ) : null}
             </CardContent>
           </Card>
 

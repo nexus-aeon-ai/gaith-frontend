@@ -1,8 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
+
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getUsers, type IUser } from "@/lib/api/user";
 import {
   companySizeOptions,
   createClientSchema,
@@ -77,11 +80,20 @@ const defaultFormData: CreateClientFormData = {
 
 const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
   const { theme } = useTheme();
-
+  console.log("initialData", initialData);
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
+  });
+
+  // Fetch users for account manager dropdown
+  const { data: users = [], isLoading: loadingUsers } = useQuery<IUser[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await getUsers();
+      return response.data || [];
+    },
   });
 
   const handleStartDateClick = () => {
@@ -482,11 +494,25 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                     <FormItem>
                       <FormLabel>Account Manager</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Sarah"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
+                        <Select
+                          value={field.value || "none"}
+                          onValueChange={(value) => {
+                            field.onChange(value === "none" ? "" : value);
+                          }}
+                          disabled={loadingUsers}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder={loadingUsers ? "Loading users..." : "Select account manager"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {users.map((user) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                {user.fullName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
