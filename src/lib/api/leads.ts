@@ -238,13 +238,14 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
   status: number;
   data: Lead | null;
 }> => {
-  // Build socialMediaUrls object from individual URL fields
-  const socialMediaUrls: SocialMediaUrls = {};
-  if (formData.linkedinUrl) socialMediaUrls.linkedin = formData.linkedinUrl;
-  if (formData.facebookUrl) socialMediaUrls.facebook = formData.facebookUrl;
-  if (formData.twitterUrl) socialMediaUrls.twitter = formData.twitterUrl;
-  if (formData.instagramUrl) socialMediaUrls.instagram = formData.instagramUrl;
-  if (formData.youtubeUrl) socialMediaUrls.youtube = formData.youtubeUrl;
+  // Build socialMediaUrls array from individual URL fields
+  const socialMediaUrls: SocialMediaUrls = [];
+  if (formData.linkedinUrl) socialMediaUrls.push({ platform: "LinkedIn", url: formData.linkedinUrl });
+  if (formData.facebookUrl) socialMediaUrls.push({ platform: "Facebook", url: formData.facebookUrl });
+  if (formData.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: formData.twitterUrl });
+  if (formData.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: formData.instagramUrl });
+  if (formData.youtubeUrl) socialMediaUrls.push({ platform: "YouTube", url: formData.youtubeUrl });
+  if (formData.tiktokUrl) socialMediaUrls.push({ platform: "TikTok", url: formData.tiktokUrl });
 
   const body: Record<string, unknown> = {
     fullName: formData.fullName,
@@ -257,7 +258,7 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
     missionStatement: formData.missionStatement,
-    socialMediaUrls: Object.keys(socialMediaUrls).length > 0 ? socialMediaUrls : null,
+    socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
@@ -294,13 +295,14 @@ export const editLead = async (
   id: string,
   formData: CreateLeadFormData,
 ): Promise<{ status: number; data: Lead | null }> => {
-  // Build socialMediaUrls object from individual URL fields
-  const socialMediaUrls: SocialMediaUrls = {};
-  if (formData.linkedinUrl) socialMediaUrls.linkedin = formData.linkedinUrl;
-  if (formData.facebookUrl) socialMediaUrls.facebook = formData.facebookUrl;
-  if (formData.twitterUrl) socialMediaUrls.twitter = formData.twitterUrl;
-  if (formData.instagramUrl) socialMediaUrls.instagram = formData.instagramUrl;
-  if (formData.youtubeUrl) socialMediaUrls.youtube = formData.youtubeUrl;
+  // Build socialMediaUrls array from individual URL fields
+  const socialMediaUrls: SocialMediaUrls = [];
+  if (formData.linkedinUrl) socialMediaUrls.push({ platform: "LinkedIn", url: formData.linkedinUrl });
+  if (formData.facebookUrl) socialMediaUrls.push({ platform: "Facebook", url: formData.facebookUrl });
+  if (formData.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: formData.twitterUrl });
+  if (formData.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: formData.instagramUrl });
+  if (formData.youtubeUrl) socialMediaUrls.push({ platform: "YouTube", url: formData.youtubeUrl });
+  if (formData.tiktokUrl) socialMediaUrls.push({ platform: "TikTok", url: formData.tiktokUrl });
 
   const body: Record<string, unknown> = {
     fullName: formData.fullName,
@@ -313,7 +315,7 @@ export const editLead = async (
     fullAddress: formData.fullAddress,
     visionStatement: formData.visionStatement,
     missionStatement: formData.missionStatement,
-    socialMediaUrls: Object.keys(socialMediaUrls).length > 0 ? socialMediaUrls : null,
+    socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
     websiteUrl: formData.websiteUrl,
     additionalNotes: formData.additionalNotes,
     productServiceIds: formData.productServiceIds,
@@ -455,16 +457,13 @@ export interface Attachment {
   updatedAt: string;
 }
 
-// Social Media URLs structure - JSON object with platform names as keys
-export interface SocialMediaUrls {
-  linkedin?: string;
-  facebook?: string;
-  twitter?: string;
-  instagram?: string;
-  youtube?: string;
-  tiktok?: string;
-  [key: string]: string | undefined;
+// Social Media URLs structure - Array of objects with platform and url
+export interface SocialMediaUrl {
+  platform: string;
+  url: string;
 }
+
+export type SocialMediaUrls = SocialMediaUrl[];
 
 // LeadByIdResponse type matching the actual API response
 export interface LeadByIdResponse {
@@ -482,7 +481,7 @@ export interface LeadByIdResponse {
   missionStatement: string;
   companyLogoUrl: string | null;
   languagePreferences: string | null;
-  socialMediaUrls: SocialMediaUrls | string | null; // Can be JSON object, JSON string, or null
+  socialMediaUrls: SocialMediaUrls | string | null; // Can be array, JSON string, or null
   websiteUrl: string | null;
   leadSourceId: string;
   accountManagerId: string | null;

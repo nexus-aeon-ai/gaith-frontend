@@ -27,21 +27,30 @@ interface EditClientPageProps {
 }
 
 // Helper function to parse socialMediaUrls
-function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls | null {
-  if (!socialMediaUrls) return null;
+function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls {
+  if (!socialMediaUrls) return [];
   if (typeof socialMediaUrls === "string") {
     try {
-      return JSON.parse(socialMediaUrls) as SocialMediaUrls;
+      const parsed = JSON.parse(socialMediaUrls);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      return null;
+      return [];
     }
   }
-  return socialMediaUrls;
+  return Array.isArray(socialMediaUrls) ? socialMediaUrls : [];
 }
 
 // Helper function to map API response to form data
 function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
   const socialMediaUrls = parseSocialMediaUrls(client.socialMediaUrls);
+  
+  // Extract URLs by platform name (case-insensitive)
+  const getUrlByPlatform = (platform: string): string => {
+    const item = socialMediaUrls.find(
+      (item) => item.platform.toLowerCase() === platform.toLowerCase()
+    );
+    return item?.url || "";
+  };
   
   // Helper to safely parse dates
   const safeParseDate = (val: string | null | undefined): Date => {
@@ -61,7 +70,7 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
     phoneNumber: client.phoneNumber || "",
     location: client.area?.name || client.cityType?.name || "",
     fullAddress: client.fullAddress || "",
-    linkedinProfile: socialMediaUrls?.linkedin || "",
+    linkedinProfile: getUrlByPlatform("LinkedIn"),
     department: "",
     accountManager: client.accountManagerId || "",
     clientSince: safeParseDate(client.agreementStartDate),
@@ -84,9 +93,9 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
 
   const mutation = useMutation({
     mutationFn: async (data: CreateClientFormData) => {
-      // Map form data to API request format
-      const socialMediaUrls: SocialMediaUrls = {};
-      if (data.linkedinProfile) socialMediaUrls.linkedin = data.linkedinProfile;
+      // Map form data to API request format - build socialMediaUrls array
+      const socialMediaUrls: SocialMediaUrls = [];
+      if (data.linkedinProfile) socialMediaUrls.push({ platform: "LinkedIn", url: data.linkedinProfile });
 
       const payload: Parameters<typeof updateClient>[1] = {
         clientName: data.fullName,
@@ -103,7 +112,7 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
         languagesSupported: initialData.languagesSupported?.map(l => l.code) || [],
         visionStatement: initialData.visionStatement || undefined,
         missionStatement: initialData.missionStatement || undefined,
-        socialMediaUrls: Object.keys(socialMediaUrls).length > 0 ? socialMediaUrls : null,
+        socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
         websiteUrl: data.websiteUrl || undefined,
         fullAddress: data.fullAddress || undefined,
         countryId: initialData.countryId || undefined,

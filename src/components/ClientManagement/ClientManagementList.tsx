@@ -32,6 +32,7 @@ type AssignedUser = {
 
 type ApiClientWithAssigned = ApiClient & {
   assignedUsers?: AssignedUser[];
+  serviceOfferings?: Array<{ id: string; name: string }>;
 };
 
 const ClientManagementClient = () => {
@@ -73,39 +74,47 @@ const ClientManagementClient = () => {
   // Transform API data to UI Client format
   const clients: Client[] = useMemo(() => {
     return apiClientsData.map(
-      (apiClient: ApiClientWithAssigned): Client => ({
-        id: apiClient.id,
-        name: apiClient.fullName || apiClient.companyName,
-        email: apiClient.emailAddress || "",
-        clientName: apiClient.clientName || "",
-        status: apiClient.isActive ? "Active" : "Inactive",
-        agreementPeriod: {
-          start: apiClient.agreementStartDate
-            ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })
-            : "N/A",
-          end: apiClient.agreementEndDate
-            ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })
-            : "N/A",
-        },
-        marketRegion: apiClient.country || "N/A",
-        services: apiClient.industry || "N/A",
-        contactInfo: apiClient.phoneNumber || "N/A",
-        assignedTo: apiClient.assignedUsers
-          ? apiClient.assignedUsers.map(u => ({
-              name: u.fullName,
-              initial: u.fullName[0] || "",
-              color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            }))
-          : [],
-      }),
+      (apiClient: ApiClientWithAssigned): Client => {
+        // Extract service offerings names
+        const serviceNames = apiClient.serviceOfferings
+          ? apiClient.serviceOfferings.map(so => so.name).join(", ")
+          : "N/A";
+
+        return {
+          id: apiClient.id,
+          name: apiClient.fullName || apiClient.companyName,
+          email: apiClient.emailAddress || "",
+          clientName: apiClient.clientName || "",
+          status: apiClient.isActive ? "Active" : "Inactive",
+          agreementPeriod: {
+            start: apiClient.agreementStartDate
+              ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "N/A",
+            end: apiClient.agreementEndDate
+              ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "N/A",
+          },
+          marketRegion: apiClient.country || "N/A",
+          industrySector: apiClient.industrySector?.name || "N/A",
+          services: serviceNames,
+          contactInfo: apiClient.phoneNumber || "N/A",
+          assignedTo: apiClient.assignedUsers
+            ? apiClient.assignedUsers.map(u => ({
+                name: u.fullName,
+                initial: u.fullName[0] || "",
+                color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+              }))
+            : [],
+        };
+      },
     );
   }, [apiClientsData]);
 

@@ -40,16 +40,17 @@ const COLORS = [
 ];
 
 // Helper function to parse socialMediaUrls
-function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls | null {
-  if (!socialMediaUrls) return null;
+function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls {
+  if (!socialMediaUrls) return [];
   if (typeof socialMediaUrls === "string") {
     try {
-      return JSON.parse(socialMediaUrls) as SocialMediaUrls;
+      const parsed = JSON.parse(socialMediaUrls);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      return null;
+      return [];
     }
   }
-  return socialMediaUrls;
+  return Array.isArray(socialMediaUrls) ? socialMediaUrls : [];
 }
 
 export default function ViewLead({ initialData }: ViewLeadProps) {
@@ -175,76 +176,99 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
               <div className="flex items-center gap-3 flex-wrap">
-                {socialMediaUrls?.linkedin && (
-                  <a
-                    href={socialMediaUrls.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <Linkedin />
-                  </a>
+                {socialMediaUrls.length > 0 ? (
+                  socialMediaUrls.map((item) => {
+                    console.log(initialData);
+                    const platform = item.platform.toLowerCase();
+                    if (platform === "linkedin") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="LinkedIn"
+                        >
+                          <Linkedin />
+                        </a>
+                      );
+                    }
+                    if (platform === "twitter") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="Twitter"
+                        >
+                          <Twitterx />
+                        </a>
+                      );
+                    }
+                    if (platform === "instagram") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="Instagram"
+                        >
+                          <Instagram />
+                        </a>
+                      );
+                    }
+                    if (platform === "facebook") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="Facebook"
+                        >
+                          <Facebook />
+                        </a>
+                      );
+                    }
+                    if (platform === "youtube") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="YouTube"
+                        >
+                          <Youtube />
+                        </a>
+                      );
+                    }
+                    if (platform === "tiktok") {
+                      return (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          title="TikTok"
+                        >
+                          <TikTok />
+                        </a>
+                      );
+                    }
+                    return null;
+                  })
+                ) : (
+                  <span className="text-muted-foreground text-sm">No social media links</span>
                 )}
-                {socialMediaUrls?.twitter && (
-                  <a
-                    href={socialMediaUrls.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <Twitterx />
-                  </a>
-                )}
-                {socialMediaUrls?.instagram && (
-                  <a
-                    href={socialMediaUrls.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <Instagram />
-                  </a>
-                )}
-                {socialMediaUrls?.facebook && (
-                  <a
-                    href={socialMediaUrls.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <Facebook />
-                  </a>
-                )}
-                {socialMediaUrls?.youtube && (
-                  <a
-                    href={socialMediaUrls.youtube}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <Youtube />
-                  </a>
-                )}
-                {socialMediaUrls?.tiktok && (
-                  <a
-                    href={socialMediaUrls.tiktok}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                    title="TikTok"
-                  >
-                    <TikTok />
-                  </a>
-                )}
-                {!socialMediaUrls ||
-                  (!socialMediaUrls.linkedin &&
-                    !socialMediaUrls.twitter &&
-                    !socialMediaUrls.instagram &&
-                    !socialMediaUrls.facebook &&
-                    !socialMediaUrls.youtube &&
-                    !socialMediaUrls.tiktok && (
-                      <span className="text-muted-foreground text-sm">No social media links</span>
-                    ))}
               </div>
             </CardContent>
           </Card>

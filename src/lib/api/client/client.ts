@@ -296,6 +296,8 @@ export type ApiClient = {
   createdAt: string;
   updatedAt: string;
   organizationId: string;
+  serviceOfferings?: ServiceOffering[];
+  industrySector?: IndustrySector | null;
 };
 
 interface ResponseT {

@@ -26,21 +26,30 @@ interface EditLeadPageProps {
 }
 
 // Helper function to parse socialMediaUrls
-function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls | null {
-  if (!socialMediaUrls) return null;
+function parseSocialMediaUrls(socialMediaUrls: SocialMediaUrls | string | null): SocialMediaUrls {
+  if (!socialMediaUrls) return [];
   if (typeof socialMediaUrls === "string") {
     try {
-      return JSON.parse(socialMediaUrls) as SocialMediaUrls;
+      const parsed = JSON.parse(socialMediaUrls);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      return null;
+      return [];
     }
   }
-  return socialMediaUrls;
+  return Array.isArray(socialMediaUrls) ? socialMediaUrls : [];
 }
 
 // Helper function to map API response to form data
 function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
   const socialMediaUrls = parseSocialMediaUrls(lead.socialMediaUrls);
+  
+  // Extract URLs by platform name (case-insensitive)
+  const getUrlByPlatform = (platform: string): string => {
+    const item = socialMediaUrls.find(
+      (item) => item.platform.toLowerCase() === platform.toLowerCase()
+    );
+    return item?.url || "";
+  };
   
   return {
     fullName: lead.fullName || "",
@@ -53,11 +62,12 @@ function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
     fullAddress: lead.fullAddress || "",
     visionStatement: lead.visionStatement || "",
     missionStatement: lead.missionStatement || "",
-    linkedinUrl: socialMediaUrls?.linkedin || "",
-    facebookUrl: socialMediaUrls?.facebook || "",
-    youtubeUrl: socialMediaUrls?.youtube || "",
-    twitterUrl: socialMediaUrls?.twitter || "",
-    instagramUrl: socialMediaUrls?.instagram || "",
+    linkedinUrl: getUrlByPlatform("LinkedIn"),
+    facebookUrl: getUrlByPlatform("Facebook"),
+    youtubeUrl: getUrlByPlatform("YouTube"),
+    twitterUrl: getUrlByPlatform("Twitter"),
+    instagramUrl: getUrlByPlatform("Instagram"),
+    tiktokUrl: getUrlByPlatform("TikTok"),
     websiteUrl: lead.websiteUrl || "",
     additionalNotes: lead.additionalNotes || "",
     leadSource: lead.leadSourceId || "",
