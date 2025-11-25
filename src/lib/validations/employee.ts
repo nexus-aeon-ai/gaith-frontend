@@ -91,6 +91,8 @@ export const createEmpSchema = z.object({
   }),
 
   accStartDate: z.date().optional(),
+
+  notes: z.string().max(500, "Notes must be less than 500 characters").optional(),
 });
 
 // Type inference from schema

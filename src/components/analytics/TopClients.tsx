@@ -1,33 +1,39 @@
 "use client";
 
+import { useTheme } from "next-themes";
+import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Data
 const engagementClients = [
   { name: "Nexus", percent: 12.4 },
-  { name: "Acme Corp", percent: 7.9 },
-  { name: "Globex", percent: 6.8 },
-  { name: "Umbrella", percent: 4.9 },
-  { name: "Initech", percent: 4.4 },
-  { name: "Hooli", percent: 3.3 },
-  { name: "Soylent", percent: 2.5 },
+  { name: "Nexus", percent: 7.9 },
+  { name: "Nexus", percent: 6.8 },
+  { name: "Nexus", percent: 4.9 },
+  { name: "Nexus", percent: 4.4 },
+  { name: "Nexus", percent: 3.3 },
+  { name: "Nexus", percent: 2.5 },
 ];
 
 const roiClients = [
   { name: "Nexus", percent: 10.2 },
-  { name: "Acme Corp", percent: 8.7 },
-  { name: "Globex", percent: 7.1 },
-  { name: "Umbrella", percent: 5.6 },
-  { name: "Initech", percent: 4.2 },
-  { name: "Hooli", percent: 3.8 },
-  { name: "Soylent", percent: 2.1 },
+  { name: "Nexus", percent: 8.7 },
+  { name: "Nexus", percent: 7.1 },
+  { name: "Nexus", percent: 5.6 },
+  { name: "Nexus", percent: 4.2 },
+  { name: "Nexus", percent: 3.8 },
+  { name: "Nexus", percent: 2.1 },
 ];
 
 const barColor = "#3072C0";
 
-const renderBarChart = (clients: { name: string; percent: number }[]) => (
+// Bar chart reusable renderer
+const renderBarChart = (clients: { name: string; percent: number }[], theme: string) => (
   <ChartContainer
     className="h-[400px] w-full"
     config={{
@@ -42,34 +48,44 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
       layout="vertical"
       barGap={18}
       barCategoryGap={18}
-      margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+      margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
     >
-      <CartesianGrid vertical={true} horizontal={false} strokeDasharray="5 5" strokeOpacity={0.3} />
+      <CartesianGrid
+        vertical={true}
+        horizontal={false}
+        strokeDasharray="5 5"
+        stroke={theme === "dark" ? "#404663" : "#DCE0E4"}
+      />
+
       <XAxis
-        domain={[-0.2, 20]}
+        domain={[0, 20]}
+        ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]}
         type="number"
-        axisLine={{ stroke: "#DCE0E4", strokeWidth: 1 }}
+        axisLine={{ stroke: theme == "dark" ? "#404663" : "#DCE0E4", strokeWidth: 1 }}
         tickLine={false}
         fontSize={13}
         tick={{ fill: "var(--secondary-text)" }}
       />
+
       <YAxis
         type="category"
         dataKey="name"
         width={70}
         tick={{ fontSize: 15, fill: "var(--secondary-text)", fontWeight: 500 }}
-        axisLine={{ stroke: "#DCE0E4", strokeWidth: 1 }}
+        axisLine={{ stroke: theme == "dark" ? "#404663" : "#DCE0E4", strokeWidth: 1 }}
         tickLine={false}
       />
+
       <ChartTooltip
         cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
-        content={<ChartTooltipContent formatter={value => `${value}%`} />}
+        content={<ChartTooltipContent formatter={v => `${v}%`} />}
       />
+
       <Bar dataKey="percent" radius={[5, 5, 5, 5]} minPointSize={20}>
         <LabelList
           dataKey="percent"
           position="right"
-          formatter={label => (typeof label === "number" ? `${label}%` : label)}
+          formatter={(val: number) => `${val}%`}
           style={{
             fill: "var(--secondary-text)",
             fontWeight: 600,
@@ -77,8 +93,9 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
             paddingLeft: 4,
           }}
         />
-        {clients.map((_, index) => (
-          <Cell key={`cell-${clients[index].name}`} height={25} fill={barColor} />
+
+        {clients.map((client, index) => (
+          <Cell key={index} fill={barColor} height={25} />
         ))}
       </Bar>
     </BarChart>
@@ -86,32 +103,60 @@ const renderBarChart = (clients: { name: string; percent: number }[]) => (
 );
 
 const TopClients = () => {
+  const { theme } = useTheme();
+  const [tab, setTab] = useState("engagement");
+  const chartData = tab === "engagement" ? engagementClients : roiClients;
+
   return (
-    <div className="bg-card lg:col-span-6 col-span-1 rounded-2xl border border-border shadow-lg py-4 w-full text-card-foreground">
-      <div className="flex items-center justify-between mb-2 px-3">
-        <h2 className="font-semibold text-lg text-card-foreground">Top Performing Clients</h2>
-        <Tabs defaultValue="engagement" className="min-w-[200px]">
+    <Card className="w-full lg:col-span-6 col-span-1">
+      <CardHeader className="flex flex-row items-center justify-between p-3 pt-4">
+        <CardTitle className="font-bold text-lg text-card-foreground ">
+          Top Performing Clients
+        </CardTitle>
+
+        <Tabs
+          defaultValue="engagement"
+          onValueChange={setTab}
+          value={tab}
+          className="min-w-[200px]"
+        >
           <TabsList className="bg-transparent rounded-lg p-1 h-9 gap-3">
             <TabsTrigger
               value="engagement"
-              className="px-5 py-1.5 text-sm font-semibold cursor-pointer border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors "
+              className="px-5 py-1.5 text-sm font-medium cursor-pointer border-1 rounded-[12px]
+              data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black
+              data-[state=active]:border-[#F7C649]
+              data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
+              data-[state=inactive]:border-[#DCE0E4]
+              dark:data-[state=active]:bg-[#1E1405] dark:data-[state=active]:text-white transition-colors"
             >
               Engagement
             </TabsTrigger>
+
             <TabsTrigger
               value="roi"
-              className="px-5 py-1.5 text-sm font-semibold cursor-pointer border-1 rounded-md data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black data-[state=active]:border-[#F7C649] data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground  data-[state=inactive]:border-[#DCE0E4] data-[state=active]:dark:bg-[#1E1405] data-[state=active]:dark:text-white  transition-colors"
+              onChange={() => setTab("roi")}
+              className="px-5 py-1.5 text-sm font-medium cursor-pointer border-1 rounded-[12px]
+              data-[state=active]:bg-[#FEF9F1] data-[state=active]:text-black
+              data-[state=active]:border-[#F7C649]
+              data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
+              data-[state=inactive]:border-[#DCE0E4]
+              dark:data-[state=active]:bg-[#1E1405] dark:data-[state=active]:text-white transition-colors"
             >
               ROI
             </TabsTrigger>
           </TabsList>
         </Tabs>
-      </div>
-      <Tabs defaultValue="engagement" className="w-full px-4">
-        <TabsContent value="engagement">{renderBarChart(engagementClients)}</TabsContent>
-        <TabsContent value="roi">{renderBarChart(roiClients)}</TabsContent>
-      </Tabs>
-    </div>
+      </CardHeader>
+
+      <Separator />
+
+      <CardContent className="px-4">
+        <Tabs defaultValue="engagement" className="w-full">
+          <TabsContent value="engagement">{renderBarChart(chartData, theme as string)}</TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

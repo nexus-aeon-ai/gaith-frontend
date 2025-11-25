@@ -130,7 +130,6 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("An error occurred while creating the client. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

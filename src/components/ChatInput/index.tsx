@@ -1,6 +1,7 @@
 "use client";
 
 import { AudioLines, CirclePlus, Mic } from "lucide-react";
+import { usePathname } from "next/navigation";
 import React, { useRef, useState } from "react";
 
 import { Input } from "../ui/input";
@@ -42,6 +43,13 @@ export function AiChatInput({ disabled = false }: AiChatInputProps) {
       console.log("[v0] Files selected:", files);
     }
   };
+
+  // if we are in a chatbot page then we should not show the chat input
+  const pathname = usePathname();
+  const isChatbotPage = pathname.includes("/ai-chatbot");
+  if (isChatbotPage) {
+    return null;
+  }
 
   return (
     <div className="w-full px-2 mx-auto">

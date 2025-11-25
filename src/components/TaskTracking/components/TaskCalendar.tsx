@@ -4,6 +4,7 @@ import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { Button } from "@/components/ui/button";
+import { SimpleCategory } from "@/lib/api/tasks";
 
 interface Task {
   id: number;
@@ -27,7 +28,7 @@ interface Category {
 
 interface TaskCalendarProps {
   tasks: Task[];
-  categories: Category[];
+  categories: Category[] | SimpleCategory[];
   currentDate: Date;
   onNavigate: (newDate: Date) => void;
   onSelectEvent: (event: any) => void;

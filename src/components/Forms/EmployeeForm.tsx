@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -143,10 +144,19 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                           className="hidden"
                           onChange={e => {
                             const file = e.target.files?.[0];
-                            if (file) {
-                              field.onChange(file); // update form value
-                              setPreview(URL.createObjectURL(file)); // preview image
+                            if (!file) return;
+
+                            // 2 MB limit (2 * 1024 * 1024 bytes)
+                            const maxSize = 2 * 1024 * 1024;
+
+                            if (file.size > maxSize) {
+                              toast.error("File size exceeds 2MB limit.");
+                              e.target.value = ""; // Clear file input
+                              return;
                             }
+
+                            field.onChange(file); // update form value
+                            setPreview(URL.createObjectURL(file)); // preview image
                           }}
                         />
                       </FormControl>
@@ -613,6 +623,24 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                   )}
                 />
               </div>
+               <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Notes</FormLabel>
+
+                    <FormControl>
+                      <Textarea
+                        placeholder="Notes"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
