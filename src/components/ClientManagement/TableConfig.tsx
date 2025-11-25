@@ -49,9 +49,9 @@ const useTableColumns = (
                 <span className="text-xs font-medium text-blue-600">
                   {client?.clientName
                     ? client.clientName
-                      .split(" ")
-                      .map(n => n[0])
-                      .join("")
+                        .split(" ")
+                        .map(n => n[0])
+                        .join("")
                     : ""}
                 </span>
               </div>
@@ -124,16 +124,19 @@ const useTableColumns = (
       accessorKey: "assignedTo",
       header: "Assigned To",
       cell: ({ row }) => {
+        console.log("row original", row.original);
         const assignedTo = row.original.assignedTo;
         return (
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-3">
             {assignedTo.map((person, index) => (
               <div
                 key={index}
                 className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
-                  person.color,
+                  "w-8 h-8 rounded-full capitalize flex items-center justify-center text-sm font-medium text-white border-2 border-white dark:border-gray-800",
                 )}
+                style={{
+                  backgroundColor: person.color,
+                }}
                 title={person.name}
               >
                 {person.initial}

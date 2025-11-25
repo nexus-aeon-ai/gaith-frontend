@@ -23,6 +23,16 @@ import NewClient from "./NewClient";
 import SearchAndActionsSection from "./SearchAndActionsSection";
 import useTableColumns from "./TableConfig";
 
+type AssignedUser = {
+  id: string;
+  fullName: string;
+  email: string;
+  departmentId: string | null;
+};
+
+type ApiClientWithAssigned = ApiClient & {
+  assignedUsers?: AssignedUser[];
+};
 
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -45,7 +55,6 @@ const ClientManagementClient = () => {
     initialData: [],
   });
 
-
   // Delete client mutation
   const { mutate: deleteClientMutate } = useMutation({
     mutationKey: ["clients", "delete"],
@@ -63,11 +72,10 @@ const ClientManagementClient = () => {
     },
   });
 
-
   // Transform API data to UI Client format
   const clients: Client[] = useMemo(() => {
     return apiClientsData.map(
-      (apiClient: ApiClient): Client => ({
+      (apiClient: ApiClientWithAssigned): Client => ({
         id: apiClient.id,
         name: apiClient.fullName || apiClient.companyName,
         email: apiClient.emailAddress || "",
@@ -76,23 +84,29 @@ const ClientManagementClient = () => {
         agreementPeriod: {
           start: apiClient.agreementStartDate
             ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
             : "N/A",
           end: apiClient.agreementEndDate
             ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
             : "N/A",
         },
         marketRegion: apiClient.country || "N/A",
         services: apiClient.industry || "N/A",
         contactInfo: apiClient.phoneNumber || "N/A",
-        assignedTo: [],
+        assignedTo: apiClient.assignedUsers
+          ? apiClient.assignedUsers.map(u => ({
+              name: u.fullName,
+              initial: u.fullName[0] || "",
+              color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+            }))
+          : [],
       }),
     );
   }, [apiClientsData]);
@@ -140,8 +154,7 @@ const ClientManagementClient = () => {
     });
   };
 
-  if(isLoading) return <div>Loading...</div>;
-
+  if (isLoading) return <div>Loading...</div>;
 
   // If a client is selected, show the details view
   if (selectedClient && !editClientToggle) {
@@ -157,12 +170,7 @@ const ClientManagementClient = () => {
   }
 
   return (
-    <div
-      className={cn(
-        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
-        "overflow-x-hidden",
-      )}
-    >
+    <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6", "overflow-x-hidden")}>
       <HeaderSection setNewClientToggle={setNewClientToggle} />
       <SearchAndActionsSection globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       <ClientTableSection
@@ -175,9 +183,7 @@ const ClientManagementClient = () => {
         open={deleteClientToggle}
         onOpenChange={setDeleteClientToggle}
         title="Delete Client?"
-        iconComponent={
-          <DeleteIcon  width={70} height={70} color="#EA3B1F" />
-        }
+        iconComponent={<DeleteIcon width={70} height={70} color="#EA3B1F" />}
         description="Are you sure you want to Delete Client? This action cannot be undone."
         cancelButton={{
           label: "Yes, Delete",
