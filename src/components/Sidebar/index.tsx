@@ -37,7 +37,6 @@ import { EmployeeTasksIcon } from "../ui/icons/sidebar/employeeTasks";
 import { LeadsIcon } from "../ui/icons/sidebar/Leads";
 import LeadsFilled from "../ui/icons/sidebar/leads-filled";
 import { LogoutIcon } from "../ui/icons/sidebar/logout";
-import { PricingIcon } from "../ui/icons/sidebar/pricing";
 import QuotationsFilled from "../ui/icons/sidebar/quotation-filled";
 import { QuotationsIcon } from "../ui/icons/sidebar/quotations";
 import { ReportIcon } from "../ui/icons/sidebar/Report";
@@ -130,12 +129,6 @@ const SidebarUI  = () => {
       icon: <Sparkles className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Sparkles className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/generate-marketing-assets",
-    },
-    {
-      label: "Generate Pricing",
-      icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      iconFilled: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      href: "/generate-pricing",
     },
     {
       label: "Social Media Calendar",

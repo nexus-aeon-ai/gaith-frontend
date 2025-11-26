@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -15,12 +16,23 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getClients } from "@/lib/api/client/client";
 
-const generationSchema = z.object({
+const createGenerationSchema = (clientIdProvided: boolean) => z.object({
   company_website: z.string().min(1, "Company website is required").url("Please enter a valid URL"),
+  clientId: clientIdProvided 
+    ? z.string().optional() 
+    : z.string().min(1, "Client is required"),
 });
 
-export type MarketingPlanGenerationFormData = z.infer<typeof generationSchema>;
+export type MarketingPlanGenerationFormData = z.infer<ReturnType<typeof createGenerationSchema>>;
 
 interface MarketingPlanGenerationModalProps {
   open: boolean;
@@ -37,17 +49,30 @@ const MarketingPlanGenerationModal = ({
   onSubmit,
   defaultWebsite = "",
   isSubmitting = false,
-  clientId,
+  clientId: providedClientId,
 }: MarketingPlanGenerationModalProps) => {
+  // Fetch clients
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    enabled: open,
+  });
+
+  const generationSchema = createGenerationSchema(!!providedClientId);
+
   const form = useForm<MarketingPlanGenerationFormData>({
     resolver: zodResolver(generationSchema),
     defaultValues: {
       company_website: defaultWebsite,
+      clientId: providedClientId || undefined,
     },
   });
 
   const handleSubmit = (data: MarketingPlanGenerationFormData) => {
-    onSubmit({ ...data, clientId });
+    onSubmit({ ...data, clientId: providedClientId || data.clientId });
   };
 
   return (
@@ -80,6 +105,38 @@ const MarketingPlanGenerationModal = ({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Client {providedClientId ? "(Pre-selected)" : "*"}</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(value === "__none__" ? undefined : value)} 
+                    value={field.value || "__none__"}
+                    disabled={!!providedClientId}
+                  >
+                    <FormControl>
+                      <SelectTrigger 
+                        className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6"
+                        disabled={!!providedClientId}
+                      >
+                        <SelectValue placeholder="Select a client" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {!providedClientId && <SelectItem value="__none__">None</SelectItem>}
+                      {clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.fullName || client.companyName || client.clientName || `Client ${client.id}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

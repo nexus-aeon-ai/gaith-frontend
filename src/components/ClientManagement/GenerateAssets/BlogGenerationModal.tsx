@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,14 +31,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getClients } from "@/lib/api/client/client";
 
-const blogFormSchema = z.object({
+const createBlogFormSchema = (clientIdProvided: boolean) => z.object({
   platform: z.string().min(1, "Platform is required"),
   topic: z.string().min(1, "Topic is required"),
   company_website: z.string().url("Please enter a valid URL"),
+  clientId: clientIdProvided 
+    ? z.string().optional() 
+    : z.string().min(1, "Client is required"),
 });
 
-type BlogFormData = z.infer<typeof blogFormSchema>;
+type BlogFormData = z.infer<ReturnType<typeof createBlogFormSchema>>;
 
 interface BlogGenerationModalProps {
   open: boolean;
@@ -61,14 +66,27 @@ export default function BlogGenerationModal({
   onSubmit,
   defaultWebsite = "",
   initialData,
-  clientId,
+  clientId: providedClientId,
 }: BlogGenerationModalProps) {
+  // Fetch clients
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    enabled: open,
+  });
+
+  const blogFormSchema = createBlogFormSchema(!!providedClientId);
+
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
     defaultValues: {
       platform: initialData?.platform || "Website",
       topic: initialData?.topic || "",
       company_website: initialData?.company_website || defaultWebsite,
+      clientId: providedClientId || initialData?.clientId || undefined,
     },
   });
 
@@ -79,12 +97,13 @@ export default function BlogGenerationModal({
         platform: initialData?.platform || "Website",
         topic: initialData?.topic || "",
         company_website: initialData?.company_website || defaultWebsite,
+        clientId: providedClientId || initialData?.clientId || undefined,
       });
     }
-  }, [open, initialData, defaultWebsite, form]);
+  }, [open, initialData, defaultWebsite, providedClientId, form]);
 
   const handleSubmit = (data: BlogFormData) => {
-    onSubmit({ ...data, clientId });
+    onSubmit({ ...data, clientId: providedClientId || data.clientId });
     form.reset();
     onOpenChange(false);
   };
@@ -156,6 +175,39 @@ export default function BlogGenerationModal({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Client {providedClientId ? "(Pre-selected)" : "*"}</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(value === "__none__" ? undefined : value)} 
+                    value={field.value || "__none__"}
+                    disabled={!!providedClientId}
+                  >
+                    <FormControl>
+                      <SelectTrigger 
+                        className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6"
+                        disabled={!!providedClientId}
+                      >
+                        <SelectValue placeholder="Select a client" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {!providedClientId && <SelectItem value="__none__">None</SelectItem>}
+                      {clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.fullName || client.companyName || client.clientName || `Client ${client.id}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

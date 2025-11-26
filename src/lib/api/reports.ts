@@ -556,6 +556,7 @@ export const publishSocialMediaCalendar = async (
 // Blog Post Types
 export interface BlogPostListItem {
   id: number;
+  title?: string;
   created_at: string;
   updated_at: string;
   status: "draft" | "completed" | "failed";

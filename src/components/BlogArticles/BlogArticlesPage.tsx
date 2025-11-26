@@ -265,10 +265,10 @@ const BlogArticlesPage = ({ initialArticles = [], pagination }: BlogArticlesPage
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Updated At</TableHead>
-                <TableHead>Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -283,6 +283,11 @@ const BlogArticlesPage = ({ initialArticles = [], pagination }: BlogArticlesPage
                 articles.map((article) => (
                   <TableRow key={article.id}>
                     <TableCell className="font-medium">{article.id}</TableCell>
+                    <TableCell className="max-w-[300px]">
+                      <span className="truncate block" title={article.title || "No title"}>
+                        {article.title || "No title"}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <span
                         className={cn(
@@ -295,7 +300,6 @@ const BlogArticlesPage = ({ initialArticles = [], pagination }: BlogArticlesPage
                     </TableCell>
                     <TableCell>{formatDate(article.created_at)}</TableCell>
                     <TableCell>{formatDate(article.updated_at)}</TableCell>
-                    <TableCell>{formatDate(article.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

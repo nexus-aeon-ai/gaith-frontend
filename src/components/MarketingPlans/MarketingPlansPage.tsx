@@ -148,7 +148,7 @@ const MarketingPlansPage = ({ initialPlans = [], defaultWebsite = "", pagination
     },
   });
 
-  const handleGenerate = async (data: { company_website: string }) => {
+  const handleGenerate = async (data: { company_website: string; clientId?: string }) => {
     try {
       const response = await generateMarketingPlan(data);
       if (response.status === 200 || response.status === 201) {

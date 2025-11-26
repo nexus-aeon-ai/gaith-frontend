@@ -147,7 +147,7 @@ const MediaBuyingPage = ({ initialPlans = [], pagination }: MediaBuyingPageProps
     },
   });
 
-  const handleGenerate = async (data: { platform: string }) => {
+  const handleGenerate = async (data: { platform: string; clientId?: string }) => {
     try {
       const response = await generateMediaBuying(data);
       if (response.status === 200 || response.status === 201) {
