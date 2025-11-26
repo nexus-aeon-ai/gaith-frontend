@@ -58,7 +58,7 @@ const EmployeeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data } = useQuery({
+  const { data,isLoading } = useQuery({
     queryKey: ["employees", employeeFilters],
     queryFn: async () => {
       const res = await getEmployees(employeeFilters);
@@ -189,10 +189,6 @@ const EmployeeList = () => {
         }}
       />
     );
-  }
-
-  if(isLoading){
-    return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
 
   if (showEditEmployeeForm && selectedEmployeeId) {

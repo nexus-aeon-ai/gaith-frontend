@@ -130,6 +130,7 @@ export const getEmployees = async (
       params.append("status", String(status));
     }
   }
+  params.append("take", "100");
 
   const queryString = params.toString();
   const url = queryString ? `${employeesEndpoint}?${queryString}` : employeesEndpoint;
