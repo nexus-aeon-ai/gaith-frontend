@@ -1,6 +1,6 @@
 "use client";
 
-import { Quote, ShoppingBag, Target, Ticket } from "lucide-react";
+import { Quote, ShoppingBag, Sparkles, Target, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -37,7 +37,6 @@ import { EmployeeTasksIcon } from "../ui/icons/sidebar/employeeTasks";
 import { LeadsIcon } from "../ui/icons/sidebar/Leads";
 import LeadsFilled from "../ui/icons/sidebar/leads-filled";
 import { LogoutIcon } from "../ui/icons/sidebar/logout";
-import { PricingIcon } from "../ui/icons/sidebar/pricing";
 import QuotationsFilled from "../ui/icons/sidebar/quotation-filled";
 import { QuotationsIcon } from "../ui/icons/sidebar/quotations";
 import { ReportIcon } from "../ui/icons/sidebar/Report";
@@ -126,10 +125,10 @@ const SidebarUI  = () => {
 
   const aiToolsItems = [
     {
-      label: "Generate Pricing",
-      icon: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      iconFilled: <PricingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      href: "/generate-pricing",
+      label: "Generate Marketing Assets",
+      icon: <Sparkles className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
+      iconFilled: <Sparkles className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
+      href: "/generate-marketing-assets",
     },
     {
       label: "Social Media Calendar",
@@ -201,7 +200,7 @@ const SidebarUI  = () => {
 
   return (
     <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none bg-transparent">
-      <SidebarContent className="h-full bg-background dark:bg-[#06080F] md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
+      <SidebarContent className="h-full bg-background md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
             {mainItems.map(item => (

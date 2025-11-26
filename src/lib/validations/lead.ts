@@ -28,7 +28,12 @@ const clientProductsServicesSchema = z.object({
 // languages for client market/target audience
 const languages = ["English", "Spanish", "French", "German", "Chinese"] as const;
 
-const validURL = z.string().url("Invalid URL");
+const validURL = z
+  .string()
+  .optional()
+  .refine((val) => !val || z.string().url().safeParse(val).success, {
+    message: "Invalid URL",
+  });
 
 // Main Lead Form Validation Schema
 export const createLeadSchema = z.object({
@@ -41,9 +46,11 @@ export const createLeadSchema = z.object({
 
   nationality: z
     .string()
-    .min(2, "Nationality must be at least 2 characters")
-    .max(50, "Nationality must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Nationality can only contain letters and spaces"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 2 && val.length <= 50 && /^[a-zA-Z\s]+$/.test(val)),
+      "Nationality must be 2-50 characters and contain only letters and spaces",
+    ),
 
   // Contact Information - Email is required
   email: z
@@ -76,8 +83,11 @@ export const createLeadSchema = z.object({
 
   fullAddress: z
     .string()
-    .min(10, "Full address must be at least 10 characters")
-    .max(500, "Full address must be less than 500 characters"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 10 && val.length <= 500),
+      "Full address must be 10-500 characters if provided",
+    ),
 
   // Team Assignment
   leadSource: leadSourceSchema,
@@ -86,13 +96,19 @@ export const createLeadSchema = z.object({
   // Company Profile
   visionStatement: z
     .string()
-    .min(10, "Vision statement must be at least 10 characters")
-    .max(1000, "Vision statement must be less than 1000 characters"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 10 && val.length <= 1000),
+      "Vision statement must be 10-1000 characters if provided",
+    ),
 
   missionStatement: z
     .string()
-    .min(10, "Mission statement must be at least 10 characters")
-    .max(1000, "Mission statement must be less than 1000 characters"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 10 && val.length <= 1000),
+      "Mission statement must be 10-1000 characters if provided",
+    ),
 
   // Social Media URLs - Optional but validated if provided
   linkedinUrl: validURL,
@@ -103,7 +119,7 @@ export const createLeadSchema = z.object({
   websiteUrl: validURL,
 
   // Additional Notes
-  additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters"),
+  additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters").optional(),
 
   // Products & Services
   productServiceIds: z.array(z.string()).default([]),

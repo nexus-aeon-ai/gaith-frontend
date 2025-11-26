@@ -11,6 +11,7 @@ export interface Client {
     end: string;
   };
   marketRegion: string;
+  industrySector: string;
   services: string;
   contactInfo: string;
   assignedTo: {

@@ -5,20 +5,24 @@ export interface GenerateBlogRequest {
   platform: string;
   topic: string;
   company_website: string;
+  clientId?: string;
 }
 
 export interface GenerateCalendarRequest {
   start_date: string; // DD-MM-YYYY format
   end_date: string; // DD-MM-YYYY format
   post_per_week: number;
+  clientId?: string;
 }
 
 export interface GenerateMarketingPlanRequest {
   company_website: string;
+  clientId?: string;
 }
 
 export interface GenerateMediaBuyingRequest {
   platform: string;
+  clientId?: string;
 }
 
 // Response types (generic for now, can be refined based on actual API responses)
@@ -138,7 +142,16 @@ export interface MarketingPlanListItem {
 
 export interface MarketingPlanListResponse {
   details: {
-    message: MarketingPlanListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: MarketingPlanListItem[];
+    };
   };
 }
 
@@ -184,7 +197,16 @@ export interface MediaBuyingListItem {
 
 export interface MediaBuyingListResponse {
   details: {
-    message: MediaBuyingListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: MediaBuyingListItem[];
+    };
   };
 }
 
@@ -280,7 +302,16 @@ export interface SocialMediaCalendarData {
 // Response for list of calendars
 export interface SocialMediaCalendarListResponse {
   details: {
-    message: CalendarListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: CalendarListItem[];
+    };
   };
 }
 
@@ -525,6 +556,7 @@ export const publishSocialMediaCalendar = async (
 // Blog Post Types
 export interface BlogPostListItem {
   id: number;
+  title?: string;
   created_at: string;
   updated_at: string;
   status: "draft" | "completed" | "failed";
@@ -546,7 +578,16 @@ export interface BlogPostResponse {
 
 export interface BlogPostListResponse {
   details: {
-    message: BlogPostListItem[];
+    message: {
+      count: number;
+      num_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+      results: BlogPostListItem[];
+    };
   };
 }
 
@@ -580,7 +621,6 @@ export const getBlogs = async (
       "Content-Type": "application/json",
     },
   });
-
   return response;
 };
 

@@ -1,6 +1,10 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -10,13 +14,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const useTableColumns = (
-  onViewDetails?: (client: Client) => void,
-  onEditClientToggle?: (arg: boolean) => void,
-) => {
+const useTableColumns = () => {
+  const router = useRouter();
   const columns: ColumnDef<Client>[] = [
     {
       id: "select",
@@ -100,18 +108,62 @@ const useTableColumns = (
       },
     },
     {
-      accessorKey: "marketRegion",
-      header: "Market Region",
+      accessorKey: "industrySector",
+      header: "Industry Sector",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">{row.original.marketRegion}</span>
+        <span className="text-sm text-gray-900 dark:text-white">{row.original.industrySector}</span>
       ),
     },
     {
       accessorKey: "services",
       header: "Services",
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-900 dark:text-white">{row.original.services}</span>
-      ),
+      cell: ({ row }) => {
+        const services = row.original.services;
+        return services && services !== "N/A" ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-wrap gap-1 justify-start max-w-[300px] mx-auto">
+                  {services.split(", ").slice(0, 2).map((service) => (
+                    <Badge
+                      key={service}
+                      variant="secondary"
+                      className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                    >
+                      {service}
+                    </Badge>
+                  ))}
+                  {services.split(", ").length > 2 && (
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                    >
+                      +{services.split(", ").length - 2}
+                    </Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              {services.split(", ").length > 2 && (
+                <TooltipContent className="max-w-[300px]">
+                  <div className="flex flex-wrap gap-1">
+                    {services.split(", ").map((service) => (
+                      <Badge
+                        key={service}
+                        variant="secondary"
+                        className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      >
+                        {service}
+                      </Badge>
+                    ))}
+                  </div>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+        );
+      },
     },
     {
       accessorKey: "contactInfo",
@@ -128,9 +180,9 @@ const useTableColumns = (
         const assignedTo = row.original.assignedTo;
         return (
           <div className="flex -space-x-3">
-            {assignedTo.map((person, index) => (
+            {assignedTo.map((person) => (
               <div
-                key={index}
+                key={person.name}
                 className={cn(
                   "w-8 h-8 rounded-full capitalize flex items-center justify-center text-sm font-medium text-white border-2 border-white dark:border-gray-800",
                 )}
@@ -162,17 +214,14 @@ const useTableColumns = (
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => onViewDetails?.(client)}
+                onClick={() => router.push(`/client-management/${client.id}`)}
               >
                 <Eye className="h-4 w-4 text-blue-500" />
                 <span>View Details</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  onViewDetails?.(client);
-                  onEditClientToggle?.(true);
-                }}
+                onClick={() => router.push(`/client-management/${client.id}/edit`)}
               >
                 <Edit className="h-4 w-4 text-green-500" />
                 <span>Edit</span>

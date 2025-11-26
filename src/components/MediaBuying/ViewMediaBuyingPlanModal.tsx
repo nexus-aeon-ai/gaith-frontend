@@ -87,31 +87,42 @@ const ViewMediaBuyingPlanModal = ({ open, onOpenChange, data, isLoading = false 
             <section className="space-y-3">
               <h3 className="text-base font-semibold">Budget Breakdown</h3>
               <p>
-                <span className="font-medium">Total Budget:</span> {data.estimated_budget_breakdown.total_budget}
+                <span className="font-medium">Total Budget:</span>{" "}
+                {data.estimated_budget_breakdown?.total_budget ?? "N/A"}
               </p>
               <div className="space-y-3">
-                {data.estimated_budget_breakdown.monthly_breakdown?.map((entry, idx) => (
-                  <div key={`${entry.month}-${idx}`} className="rounded-xl border border-border p-3">
-                    <p className="font-medium">{entry.month}</p>
-                    <p>Amount: {entry.amount}</p>
-                    <p className="text-muted-foreground text-sm">Focus: {entry.focus}</p>
-                  </div>
-                ))}
+                {data.estimated_budget_breakdown?.monthly_breakdown?.length ? (
+                  data.estimated_budget_breakdown.monthly_breakdown.map((entry, idx) => (
+                    <div key={`${entry.month}-${idx}`} className="rounded-xl border border-border p-3">
+                      <p className="font-medium">{entry.month}</p>
+                      <p>Amount: {entry.amount}</p>
+                      <p className="text-muted-foreground text-sm">Focus: {entry.focus}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-sm">No monthly breakdown available</p>
+                )}
               </div>
               <div className="rounded-xl border border-border p-4 space-y-2">
                 <p className="font-medium">Platform Allocation</p>
-                <p>Amount: {data.estimated_budget_breakdown.platform_allocation.amount}</p>
-                <p>Percentage: {data.estimated_budget_breakdown.platform_allocation.percentage}</p>
+                <p>Amount: {data.estimated_budget_breakdown?.platform_allocation?.amount ?? "N/A"}</p>
+                <p>Percentage: {data.estimated_budget_breakdown?.platform_allocation?.percentage ?? "N/A"}</p>
                 <p className="text-muted-foreground text-sm">
-                  Reasoning: {data.estimated_budget_breakdown.platform_allocation.reasoning}
+                  Reasoning: {data.estimated_budget_breakdown?.platform_allocation?.reasoning ?? "N/A"}
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-3">
                 {(["awareness_campaigns", "consideration_campaigns", "conversion_campaigns"] as const).map((key) => (
                   <div key={key} className="rounded-xl border border-border p-3">
                     <p className="font-medium capitalize">{key.replace("_", " ")}</p>
-                    <p>Amount: {data.estimated_budget_breakdown.campaign_type_allocation[key].amount}</p>
-                    <p>Percentage: {data.estimated_budget_breakdown.campaign_type_allocation[key].percentage}</p>
+                    <p>
+                      Amount:{" "}
+                      {data.estimated_budget_breakdown?.campaign_type_allocation?.[key]?.amount ?? "N/A"}
+                    </p>
+                    <p>
+                      Percentage:{" "}
+                      {data.estimated_budget_breakdown?.campaign_type_allocation?.[key]?.percentage ?? "N/A"}
+                    </p>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -25,8 +26,16 @@ import {
 } from "@/components/ui/form";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getClients } from "@/lib/api/client/client";
 
-const calendarFormSchema = z.object({
+const createCalendarFormSchema = (clientIdProvided: boolean) => z.object({
   start_date: z.date({
     required_error: "Start date is required",
   }),
@@ -34,18 +43,22 @@ const calendarFormSchema = z.object({
     required_error: "End date is required",
   }),
   post_per_week: z.number().min(1, "Must be at least 1 post per week").max(7, "Maximum 7 posts per week"),
+  clientId: clientIdProvided 
+    ? z.string().optional() 
+    : z.string().min(1, "Client is required"),
 }).refine(data => data.end_date > data.start_date, {
   message: "End date must be after start date",
   path: ["end_date"],
 });
 
-type CalendarFormData = z.infer<typeof calendarFormSchema>;
+type CalendarFormData = z.infer<ReturnType<typeof createCalendarFormSchema>>;
 
 interface CalendarGenerationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CalendarFormData) => void;
+  onSubmit: (data: CalendarFormData & { clientId?: string }) => void;
   initialData?: CalendarFormData;
+  clientId?: string;
 }
 
 export default function CalendarGenerationModal({
@@ -53,8 +66,21 @@ export default function CalendarGenerationModal({
   onOpenChange,
   onSubmit,
   initialData,
+  clientId: providedClientId,
 }: CalendarGenerationModalProps) {
   const { theme } = useTheme();
+  
+  // Fetch clients
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const res = await getClients();
+      return res.data ?? [];
+    },
+    enabled: open,
+  });
+
+  const calendarFormSchema = createCalendarFormSchema(!!providedClientId);
   
   const form = useForm<CalendarFormData>({
     resolver: zodResolver(calendarFormSchema),
@@ -62,6 +88,7 @@ export default function CalendarGenerationModal({
       start_date: initialData?.start_date || new Date(),
       end_date: initialData?.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       post_per_week: initialData?.post_per_week || 3,
+      clientId: providedClientId || initialData?.clientId || undefined,
     },
   });
 
@@ -72,12 +99,13 @@ export default function CalendarGenerationModal({
         start_date: initialData?.start_date || new Date(),
         end_date: initialData?.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         post_per_week: initialData?.post_per_week || 3,
+        clientId: providedClientId || initialData?.clientId || undefined,
       });
     }
-  }, [open, initialData, form]);
+  }, [open, initialData, providedClientId, form]);
 
   const handleSubmit = (data: CalendarFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, clientId: providedClientId || data.clientId });
     form.reset();
     onOpenChange(false);
   };
@@ -213,12 +241,45 @@ export default function CalendarGenerationModal({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Client {providedClientId ? "(Pre-selected)" : "*"}</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(value === "__none__" ? undefined : value)} 
+                    value={field.value || "__none__"}
+                    disabled={!!providedClientId}
+                  >
+                    <FormControl>
+                      <SelectTrigger 
+                        className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6"
+                        disabled={!!providedClientId}
+                      >
+                        <SelectValue placeholder="Select a client" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {!providedClientId && <SelectItem value="__none__">None</SelectItem>}
+                      {clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.fullName || client.companyName || client.clientName || `Client ${client.id}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="rounded-[12px] dark:bg-[#0F1B29] bg-[#F3F5F7]"
+                className="rounded-[12px] dark:bg-[#0F1B29] bg-[#F3F5F7] text-black dark:text-white"
               >
                 Cancel
               </Button>

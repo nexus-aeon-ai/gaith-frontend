@@ -1,8 +1,8 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, SquarePen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import RejectCampaignSheet from "@/components/sheet/Campaign/RejectCampaignSheet";
@@ -21,36 +21,38 @@ import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import ChecklistIcon from "@/components/ui/icons/task-tracking/checklist";
 import TeacherHatIcon from "@/components/ui/icons/TeacherHat";
-import { getEmployeeById } from "@/lib/api/employee";
+import type { BackendEmployee } from "@/lib/api/employee";
+import EmployeeViewSkeleton from "@/components/EmployeeManagement/skeletons/EmployeeViewSkeleton";
 
-import { cn } from "../../lib/utils";
-import { Badge } from "../ui/badge";
-import { Card } from "../ui/card";
+import { cn } from "../../../lib/utils";
+import { Badge } from "../../ui/badge";
+import { Card } from "../../ui/card";
 
-export type EmployeeDetailsProps = {
-  employeeId: string;
-  closeEmployeeDetails: () => void;
+export type ViewEmployeeProps = {
+  initialData?: BackendEmployee;
+  closeEmployeeDetails?: () => void;
 };
 
-const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsProps) => {
+const ViewEmployee = ({ initialData: employee, closeEmployeeDetails }: ViewEmployeeProps) => {
   const [showRequestChangesSheet, setShowRequestChangesSheet] = useState(false);
   const [showRejectCampaignSheet, setShowRejectCampaignSheet] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  console.log("Employee Details Employee:", employeeId);
+  const handleClose = () => {
+    if (closeEmployeeDetails) {
+      closeEmployeeDetails();
+    } else {
+      // Navigate back to employees list
+      const base = pathname?.split("/employees")[0] || "";
+      router.push(`${base}/employees`);
+    }
+  };
 
-  const { data: employee, isLoading } = useQuery({
-    queryKey: ["employees", employeeId],
-    queryFn: async () => {
-      const res = await getEmployeeById(employeeId);
-      return res.data;
-    },
-    enabled: !!employeeId,
-  });
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (!employee) {
+    return <EmployeeViewSkeleton />;
   }
-  console.log("Fetched Employee Details:", employee);
+
   const skills = [
     {
       name: "Team Leadership",
@@ -74,6 +76,19 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
     },
   ];
 
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  };
+
+  const statusMap: Record<string, string> = {
+    ACTIVE: "Active",
+    INACTIVE: "Inactive",
+    ON_LEAVE: "On Leave",
+    TERMINATED: "Terminated",
+  };
+
   return (
     <div className="w-full mx-auto p-6">
       {/* Breadcrumb */}
@@ -90,9 +105,12 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                href="/en/employees"
+                href="#"
                 className="text-blue-600 font-medium text-md"
-                onClick={closeEmployeeDetails}
+                onClick={e => {
+                  e.preventDefault();
+                  handleClose();
+                }}
               >
                 Employees Management
               </Link>
@@ -109,7 +127,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
       <div className="flex flex-wrap flex-col xl:flex-row xl:gap-0 items-start justify-between mb-8">
         <div className="flex items-center gap-2">
           <Image
-            src={employee?.profilePicture || "/images/default-avatar.jpg"}
+            src={employee.profilePicture || "/images/default-avatar.jpg"}
             alt="avatar"
             width={40}
             height={40}
@@ -117,12 +135,14 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           />
           <div>
             <div className="flex md:gap-2 gap-1 md:items-center items-start">
-              <h1 className="text-2xl font-semibold text-foreground whitespace-nowrap">{employee?.fullName}</h1>
+              <h1 className="text-2xl font-semibold text-foreground whitespace-nowrap">
+                {employee.user?.fullName || "N/A"}
+              </h1>
               <Badge className="md:mt-0 mt-2 rounded-sm bg-yellow-100 pointer-events-none dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-500">
-                {employee?.status}
+                {statusMap[employee.status] || employee.status}
               </Badge>
             </div>
-            <p className="text-muted-foreground capitalize">{employee?.role.title}</p>
+            <p className="text-muted-foreground capitalize">{employee.user?.jobTitle || "N/A"}</p>
           </div>
         </div>
         <div className="flex md:flex-row flex-col gap-2 xl:ml-5 ml-0">
@@ -173,7 +193,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
       <Card
         className={cn("rounded-xl border bg-card ", "p-4")}
         role="region"
-        aria-label="Quotation"
+        aria-label="Employee Details"
       >
         {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -181,10 +201,10 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           <div className="flex flex-col gap-2">
             <section
               className="rounded-lg h-fit border p-4 md:p-5 "
-              aria-labelledby="selected-services-heading"
+              aria-labelledby="employee-details-heading"
             >
               <h3
-                id="selected-services-heading"
+                id="employee-details-heading"
                 className="text-[18px] font-[700] text-[#070913] dark:text-[#E6EFF9]"
               >
                 Employee Details
@@ -194,13 +214,13 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground">Employee ID</span>
                   <span className="font-medium text-foreground text-right break-all">
-                    {employee?.employeeId}
+                    {employee.employeeId}
                   </span>
                 </div>
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground">Department</span>
                   <span className="font-medium text-foreground text-right">
-                    {employee?.department.name}
+                    {employee.user?.departmentId ? "Department ID: " + employee.user.departmentId : "N/A"}
                   </span>
                 </div>
                 <div
@@ -209,7 +229,16 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                 >
                   <span className="text-muted-foreground">Start Date</span>
                   <span className="font-medium text-foreground text-right block">
-                    January 15, 2025
+                    {formatDate(employee.startDate)}
+                  </span>
+                </div>
+                <div
+                  className="flex items-start justify-between gap-4 text-sm sm:col-span-3"
+                  role="listitem"
+                >
+                  <span className="text-muted-foreground">End Date</span>
+                  <span className="font-medium text-foreground text-right block">
+                    {formatDate(employee.endDate)}
                   </span>
                 </div>
                 <div
@@ -218,7 +247,16 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                 >
                   <span className="text-muted-foreground">Employment Type</span>
                   <span className="font-medium text-foreground text-right capitalize block">
-                    {employee?.employmentType.replace("_", " ").toLowerCase()}
+                    {employee.employmentType.replace("_", " ").toLowerCase()}
+                  </span>
+                </div>
+                <div
+                  className="flex items-start justify-between gap-4 text-sm sm:col-span-3"
+                  role="listitem"
+                >
+                  <span className="text-muted-foreground">Performance Rating</span>
+                  <span className="font-medium text-foreground text-right block">
+                    {employee.performanceRating ? `${employee.performanceRating}/5.0` : "N/A"}
                   </span>
                 </div>
               </div>
@@ -226,10 +264,10 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
 
             <section
               className="rounded-lg h-fit border p-4 md:p-5 "
-              aria-labelledby="selected-services-heading"
+              aria-labelledby="performance-metrics-heading"
             >
               <h3
-                id="selected-services-heading"
+                id="performance-metrics-heading"
                 className="text-[18px] font-[700] text-[#070913] dark:text-[#E6EFF9]"
               >
                 Performance Metrics
@@ -237,24 +275,21 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
 
               <div className="flex flex-col gap-2 mt-2" role="list">
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Target Achievement</span>
+                  <span className="text-muted-foreground">Performance Rating</span>
                   <div className="flex gap-2 items-center font-medium text-foreground text-right break-all">
-                    90%
-                    <div className="bg-gray-400 h-[5px] w-[90px] rounded-sm overflow-hidden">
-                      <div style={{ width: "90%", height: "5px", backgroundColor: "#3FD09F" }} />
-                    </div>
+                    {employee.performanceRating ? `${(employee.performanceRating / 5) * 100}%` : "N/A"}
+                    {employee.performanceRating && (
+                      <div className="bg-gray-400 h-[5px] w-[90px] rounded-sm overflow-hidden">
+                        <div
+                          style={{
+                            width: `${(employee.performanceRating / 5) * 100}%`,
+                            height: "5px",
+                            backgroundColor: "#3FD09F",
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
-                  <span className="text-muted-foreground">Overall Performance</span>
-                  <span className="font-medium  text-right text-[#3FD09F]">115%</span>
-                </div>
-                <div
-                  className="flex items-start justify-between gap-4 text-sm sm:col-span-3"
-                  role="listitem"
-                >
-                  <span className="text-muted-foreground">Customer Satisfaction</span>
-                  <span className="font-medium  text-right block text-[#3FD09F]">4.8/5.0</span>
                 </div>
               </div>
             </section>
@@ -263,10 +298,10 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
           <div className="flex flex-col gap-2">
             <section
               className="rounded-lg h-fit border p-4 md:p-5 "
-              aria-labelledby="selected-services-heading"
+              aria-labelledby="contact-info-heading"
             >
               <h3
-                id="selected-services-heading"
+                id="contact-info-heading"
                 className="text-[18px] font-[700] text-[#070913] dark:text-[#E6EFF9]"
               >
                 Contact Information
@@ -292,7 +327,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">{employee?.email}</span>
+                  <span className="text-muted-foreground">{employee.user?.email || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <svg
@@ -321,7 +356,7 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">{employee?.phone}</span>
+                  <span className="text-muted-foreground">{employee.user?.phoneNumber || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <svg
@@ -342,33 +377,44 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
                     />
                   </svg>
 
-                  <span className="text-muted-foreground">{employee?.address}</span>
+                  <span className="text-muted-foreground">
+                    {employee.fullAddress || employee.street || "N/A"}
+                  </span>
                 </div>
+                {employee.street && (
+                  <div className="text-sm text-muted-foreground ml-6">
+                    {employee.street}
+                    {employee.city && `, ${employee.city}`}
+                    {employee.state && `, ${employee.state}`}
+                    {employee.zipCode && ` ${employee.zipCode}`}
+                    {employee.country && `, ${employee.country}`}
+                  </div>
+                )}
               </div>
             </section>
             <section
               className="rounded-lg h-fit border p-4 md:p-5 "
-              aria-labelledby="selected-services-heading"
+              aria-labelledby="skills-heading"
             >
               <h3
-                id="selected-services-heading"
+                id="skills-heading"
                 className="text-[18px] font-[700] text-[#070913] dark:text-[#E6EFF9]"
               >
                 Skills & Competencies
               </h3>
 
               <div className="space-x-1 space-y-1 mt-2" role="list">
-                {employee?.skills && employee.skills.length > 0 ? (
-                  employee.skills.map((skill, index) => (
+                {employee.skills && employee.skills.length > 0 ? (
+                  employee.skills.map((skillItem, index) => (
                     <Badge
-                      key={index}
+                      key={skillItem.id || index}
                       className="rounded-[8px] p-[5px] px-[8px]"
                       style={{
-                        backgroundColor: `${skills[index % employee.skills.length].color}1A`,
-                        color: skills[index % employee.skills.length].color,
+                        backgroundColor: `${skills[index % skills.length].color}1A`,
+                        color: skills[index % skills.length].color,
                       }}
                     >
-                      {skill}
+                      {skillItem.skill}
                     </Badge>
                   ))
                 ) : (
@@ -383,46 +429,18 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
       <Card
         className={cn("rounded-xl mt-3 border bg-card ", "p-4")}
         role="region"
-        aria-label="Quotation"
+        aria-label="Notes"
       >
         <div className="flex flex-col gap-2">
-          <section aria-labelledby="selected-services-heading">
+          <section aria-labelledby="notes-heading">
             <h3
-              id="selected-services-heading"
+              id="notes-heading"
               className="text-[18px] font-[700] text-[#070913] dark:text-[#E6EFF9]"
             >
-              Recent Activity & Notes
+              Notes
             </h3>
-            <div className="flex flex-col gap-2">
-              <div className="flex bg-[#3072C014] justify-between items-center p-4 rounded-xl border transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#3072C014] flex items-center justify-center  rounded-lg shadow-sm">
-                    <CupIcon color="#3072C0" />
-                  </div>
-                  <div>
-                    <p className="font-semibold ">Achievement Unlocked</p>
-                    <p className="text-sm text-muted-foreground">
-                      Exceeded quarterly sales target by 15%. Outstanding performance in Q4 2024.
-                    </p>
-                  </div>
-                </div>
-                <span className="text-sm  font-normal ">1 week ago</span>
-              </div>
-              <div className="flex bg-[#2BAE8214] justify-between items-center p-4 rounded-xl border transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#3072C014] flex items-center justify-center  rounded-lg shadow-sm">
-                    <TeacherHatIcon color="#2BAE82" />
-                  </div>
-                  <div>
-                    <p className="font-semibold ">Training Completed</p>
-                    <p className="text-sm text-muted-foreground">
-                      Completed Advanced Sales Leadership certification program with
-                      distinction.{" "}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-sm  font-normal ">2 weeks ago</span>
-              </div>
+            <div className="mt-2">
+              <p className="text-sm text-muted-foreground">{employee.notes || "No notes available"}</p>
             </div>
           </section>
         </div>
@@ -439,4 +457,5 @@ const EmployeeDetails = ({ employeeId, closeEmployeeDetails }: EmployeeDetailsPr
   );
 };
 
-export default EmployeeDetails;
+export default ViewEmployee;
+

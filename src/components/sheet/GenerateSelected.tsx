@@ -21,16 +21,19 @@ interface BlogData {
   platform: string;
   topic: string;
   company_website: string;
+  clientId?: string;
 }
 
 interface CalendarData {
   start_date: Date;
   end_date: Date;
   post_per_week: number;
+  clientId?: string;
 }
 
 interface MediaBuyingData {
   platform: string;
+  clientId?: string;
 }
 
 interface AssetDataState {
@@ -177,6 +180,7 @@ export default function GeneratedAssetsSheet({
                 start_date: formatDateToDDMMYYYY(calendarData.start_date),
                 end_date: formatDateToDDMMYYYY(calendarData.end_date),
                 post_per_week: calendarData.post_per_week,
+                clientId: calendarData.clientId,
               };
               const response = await generateCalendar(formattedData);
               if (response.status >= 200 && response.status < 300) {
@@ -197,7 +201,10 @@ export default function GeneratedAssetsSheet({
           case "Marketing Strategy":
             const websiteUrl = getStoredWebsiteUrl();
             if (websiteUrl) {
-              const response = await generateMarketingPlan({ company_website: websiteUrl });
+              const response = await generateMarketingPlan({ 
+                company_website: websiteUrl,
+                clientId: blogData?.clientId || calendarData?.clientId || mediaBuyingData?.clientId,
+              });
               if (response.status >= 200 && response.status < 300) {
                 results.marketingPlan = response.data;
               }

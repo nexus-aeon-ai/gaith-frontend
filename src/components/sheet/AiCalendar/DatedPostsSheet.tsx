@@ -11,6 +11,8 @@ import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
 import EditIcon from "@/components/ui/icons/options/edit-icon-v2";
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
+import Linkedin from "@/components/ui/icons/social/linkedin";
+import TikTok from "@/components/ui/icons/social/tiktok";
 import XIcon from "@/components/ui/icons/social/twitterx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { updateSocialMediaCalendar } from "@/lib/api/reports";
@@ -41,8 +43,9 @@ const PlatformIcon = ({ platform }: { platform: string }) => {
   
   if (platformLower === "facebook") return <Facebook />;
   if (platformLower === "instagram") return <Instagram />;
-  if (platformLower === "x" || platformLower === "twitter" || platformLower === "tiktok") return <XIcon />;
-  if (platformLower === "linkedin") return <Facebook />; // Placeholder
+  if (platformLower === "x" || platformLower === "twitter") return <XIcon />;
+  if (platformLower === "tiktok") return <TikTok />;
+  if (platformLower === "linkedin") return <Linkedin />;
   
   return <XIcon />; // Default icon
 };

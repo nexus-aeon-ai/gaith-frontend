@@ -2,9 +2,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import LeadProfile from "@/components/LeadManagement/LeadProfile/LeadProfile";
 import FilterSheet from "@/components/sheet/Filter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,6 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import FolderIcon from "@/components/ui/icons/folder";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
@@ -26,42 +33,11 @@ import { Input } from "@/components/ui/input";
 import { deleteLead, getLeads, LeadsFilters } from "@/lib/api/leads";
 import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
-import { CreateLeadFormData } from "@/lib/validations/lead";
 
-
-import EditLead from "./EditLead";
 import NewLead from "./NewLead";
 
-function leadToFormData(lead: Lead): CreateLeadFormData {
-  return {
-    fullName: lead.name || "",
-    nationality: "", // not available in table Lead, set to blank
-    email: lead.email || "",
-    phoneNumber: lead.contactInfo || "",
-    country: "", // not available, fallback
-    city: "",
-    area: "",
-    fullAddress: "", // not available
-    leadSource: lead.source || "",
-    assignedTo: (lead.assignedTo && lead.assignedTo[0]?.name) || "",
-    visionStatement: "",
-    missionStatement: "",
-    linkedinUrl: "",
-    facebookUrl: "",
-    youtubeUrl: "",
-    twitterUrl: "",
-    instagramUrl: "",
-    websiteUrl: "",
-    additionalNotes: "",
-    productServiceIds: [], // Not in table view
-    serviceOfferingIds: [],
-    teamRoleIds: [], // Not in table view
-    assignedToUserIds: [],
-    companyLogo: undefined,
-  };
-}
-
 const LeadsPage = () => {
+  const router = useRouter();
   // Fetch leads from API
   const [leadFilters, setLeadFilters] = useState<LeadsFilters | undefined>(undefined);
 
@@ -78,14 +54,8 @@ const LeadsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewLeadForm] = useState(false);
-  const [showEditLeadForm, setShowEditLeadForm] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<(CreateLeadFormData & { id: string }) | null>(
-    null,
-  );
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
-  const [showLeadProfile, setShowLeadProfile] = useState(false);
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -157,20 +127,6 @@ const LeadsPage = () => {
 
   if (showNewLeadForm) {
     return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)} />;
-  }
-
-  if (showEditLeadForm && selectedLead) {
-    return (
-      <EditLead
-        initialData={selectedLead}
-        leadId={currentClients.find(l => l.email === selectedLead.email)?.id || ""}
-        closeEditLeadForm={() => setShowEditLeadForm(false)}
-      />
-    );
-  }
-
-  if (showLeadProfile && selectedLeadId) {
-    return <LeadProfile leadId={selectedLeadId} closeLeadProfile={() => setShowLeadProfile(false)} />;
   }
 
   const confirmDeleteLead = (id: string) => {
@@ -417,8 +373,51 @@ const LeadsPage = () => {
                         {lead.source}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                      {lead.services}
+                    <td className="px-4 py-3">
+                      {lead.services && lead.services !== "-" ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex flex-wrap gap-1 justify-center max-w-[300px] mx-auto">
+                                {lead.services.split(", ").slice(0, 2).map((service, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                  >
+                                    {service}
+                                  </Badge>
+                                ))}
+                                {lead.services.split(", ").length > 2 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                                  >
+                                    +{lead.services.split(", ").length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            {lead.services.split(", ").length > 2 && (
+                              <TooltipContent className="max-w-[300px]">
+                                <div className="flex flex-wrap gap-1">
+                                  {lead.services.split(", ").map((service, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="secondary"
+                                      className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    >
+                                      {service}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
                       {lead.contactInfo}
@@ -449,8 +448,7 @@ const LeadsPage = () => {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() => {
-                              setSelectedLeadId(lead.id);
-                              setShowLeadProfile(true);
+                              router.push(`/leads/${lead.id}`);
                             }}
                           >
                             <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
@@ -461,8 +459,7 @@ const LeadsPage = () => {
 
                           <DropdownMenuItem
                             onClick={() => {
-                              setSelectedLead({ ...leadToFormData(lead), id: lead.id });
-                              setShowEditLeadForm(true);
+                              router.push(`/leads/${lead.id}/edit`);
                             }}
                           >
                             <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />

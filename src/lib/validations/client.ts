@@ -111,7 +111,7 @@ export const createClientSchema = z.object({
     .max(500, "Full address must be less than 500 characters"),
 
   // Agreement information
-  accountManager: z.string().min(2, "Account manager must be at least 2 characters"),
+  accountManager: z.string().optional().or(z.literal("")),
   clientSince: z.date({
     required_error: "Client since date is required",
     invalid_type_error: "Invalid client since selected",

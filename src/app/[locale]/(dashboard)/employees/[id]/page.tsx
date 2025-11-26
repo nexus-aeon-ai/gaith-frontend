@@ -1,10 +1,23 @@
-import EditEmployee from "@/components/EmployeeManagement/EditEmployee";
+import { notFound } from "next/navigation";
 
-type PageProps = {
-  params: { id: string };
-};
+import ViewEmployee from "@/components/EmployeeManagement/view/ViewEmployee";
+import { getEmployeeByIdRaw } from "@/lib/api/employee";
 
-export default function EmployeeEditPage({ params }: PageProps) {
-  return <EditEmployee employeeId={params.id} />;
+interface EmployeeViewPageProps {
+  params: Promise<{ id: string }>;
 }
 
+export default async function EmployeeViewPage({ params }: EmployeeViewPageProps) {
+  const { id } = await params;
+
+  try {
+    const response = await getEmployeeByIdRaw(id);
+    if (!response.data) {
+      notFound();
+    }
+    return <ViewEmployee initialData={response.data} />;
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+    notFound();
+  }
+}

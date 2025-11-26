@@ -32,15 +32,14 @@ type AssignedUser = {
 
 type ApiClientWithAssigned = ApiClient & {
   assignedUsers?: AssignedUser[];
+  serviceOfferings?: Array<{ id: string; name: string }>;
 };
 
 const ClientManagementClient = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [editClientToggle, setEditClientToggle] = useState<boolean>(false);
   const [newClientToggle, setNewClientToggle] = useState<boolean>(false);
-  const columns = useTableColumns(setSelectedClient, setEditClientToggle);
+  const columns = useTableColumns();
   const [deleteClientToggle, setDeleteClientToggle] = useState<boolean>(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const queryClient = useQueryClient();
@@ -75,39 +74,47 @@ const ClientManagementClient = () => {
   // Transform API data to UI Client format
   const clients: Client[] = useMemo(() => {
     return apiClientsData.map(
-      (apiClient: ApiClientWithAssigned): Client => ({
-        id: apiClient.id,
-        name: apiClient.fullName || apiClient.companyName,
-        email: apiClient.emailAddress || "",
-        clientName: apiClient.clientName || "",
-        status: apiClient.isActive ? "Active" : "Inactive",
-        agreementPeriod: {
-          start: apiClient.agreementStartDate
-            ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })
-            : "N/A",
-          end: apiClient.agreementEndDate
-            ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })
-            : "N/A",
-        },
-        marketRegion: apiClient.country || "N/A",
-        services: apiClient.industry || "N/A",
-        contactInfo: apiClient.phoneNumber || "N/A",
-        assignedTo: apiClient.assignedUsers
-          ? apiClient.assignedUsers.map(u => ({
-              name: u.fullName,
-              initial: u.fullName[0] || "",
-              color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            }))
-          : [],
-      }),
+      (apiClient: ApiClientWithAssigned): Client => {
+        // Extract service offerings names
+        const serviceNames = apiClient.serviceOfferings
+          ? apiClient.serviceOfferings.map(so => so.name).join(", ")
+          : "N/A";
+
+        return {
+          id: apiClient.id,
+          name: apiClient.fullName || apiClient.companyName,
+          email: apiClient.emailAddress || "",
+          clientName: apiClient.clientName || "",
+          status: apiClient.isActive ? "Active" : "Inactive",
+          agreementPeriod: {
+            start: apiClient.agreementStartDate
+              ? new Date(apiClient.agreementStartDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "N/A",
+            end: apiClient.agreementEndDate
+              ? new Date(apiClient.agreementEndDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "N/A",
+          },
+          marketRegion: apiClient.country || "N/A",
+          industrySector: apiClient.industrySector?.name || "N/A",
+          services: serviceNames,
+          contactInfo: apiClient.phoneNumber || "N/A",
+          assignedTo: apiClient.assignedUsers
+            ? apiClient.assignedUsers.map(u => ({
+                name: u.fullName,
+                initial: u.fullName[0] || "",
+                color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+              }))
+            : [],
+        };
+      },
     );
   }, [apiClientsData]);
 
@@ -156,17 +163,9 @@ const ClientManagementClient = () => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  // If a client is selected, show the details view
-  if (selectedClient && !editClientToggle) {
-    return <ClientDetailsView client={selectedClient} onBack={() => setSelectedClient(null)} />;
-  }
+  // If new client form is open, show it
   if (newClientToggle) {
     return <NewClient closeNewClientForm={() => setNewClientToggle(false)} />;
-  }
-  if (editClientToggle) {
-    return (
-      <EditClient client={selectedClient} closeEditClientForm={() => setEditClientToggle(false)} />
-    );
   }
 
   return (

@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreVertical, Plus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -29,9 +30,18 @@ import { cn } from "@/lib/utils";
 
 interface BlogArticlesPageProps {
   initialArticles?: BlogPostListItem[];
+  pagination?: {
+    count: number;
+    num_pages: number;
+    current_page: number;
+    has_next: boolean;
+    has_previous: boolean;
+    next_page: number | null;
+    previous_page: number | null;
+  };
 }
 
-const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
+const BlogArticlesPage = ({ initialArticles = [], pagination }: BlogArticlesPageProps) => {
   const [articles, setArticles] = useState<BlogPostListItem[]>(initialArticles);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -39,9 +49,17 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
   const [editingArticleId, setEditingArticleId] = useState<number | null>(null);
   const [editingArticleData, setEditingArticleData] = useState<BlogPostFormData | null>(null);
   const [viewingArticleData, setViewingArticleData] = useState<BlogPostFormData | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPage = pagination?.current_page || 1;
+  const totalPages = pagination?.num_pages || 1;
   const queryClient = useQueryClient();
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    router.push(`?${params.toString()}`);
+  };
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -132,6 +150,7 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
     platform: string;
     topic: string;
     company_website: string;
+    clientId?: string;
   }) => {
     try {
       const response = await generateBlog(data);
@@ -207,12 +226,6 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
     }
   };
 
-  // Pagination
-  const totalPages = Math.ceil(articles.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentArticles = articles.slice(startIndex, endIndex);
-
   return (
     <>
       <div className="flex flex-col gap-6 w-full p-4 font-inter">
@@ -252,24 +265,29 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Updated At</TableHead>
-                <TableHead>Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentArticles.length === 0 ? (
+              {articles.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No blog articles found. Click &quot;Generate Idea&quot; to create one.
                   </TableCell>
                 </TableRow>
               ) : (
-                currentArticles.map((article) => (
+                articles.map((article) => (
                   <TableRow key={article.id}>
                     <TableCell className="font-medium">{article.id}</TableCell>
+                    <TableCell className="max-w-[300px]">
+                      <span className="truncate block" title={article.title || "No title"}>
+                        {article.title || "No title"}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <span
                         className={cn(
@@ -282,7 +300,6 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                     </TableCell>
                     <TableCell>{formatDate(article.created_at)}</TableCell>
                     <TableCell>{formatDate(article.updated_at)}</TableCell>
-                    <TableCell>{formatDate(article.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -324,18 +341,21 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
           </Table>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {pagination && pagination.num_pages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-6 py-4">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of{" "}
-                {articles.length}
+                Page {currentPage} of {totalPages} ({pagination.count} total)
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => {
+                    if (pagination.previous_page) {
+                      handlePageChange(pagination.previous_page);
+                    }
+                  }}
+                  disabled={!pagination.has_previous}
                   className={cn(
                     "cursor-pointer",
                     "flex items-center gap-1 sm:gap-2",
@@ -350,7 +370,7 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={cn(
                       "w-10",
                       "cursor-pointer",
@@ -366,13 +386,17 @@ const BlogArticlesPage = ({ initialArticles = [] }: BlogArticlesPageProps) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    if (pagination.next_page) {
+                      handlePageChange(pagination.next_page);
+                    }
+                  }}
+                  disabled={!pagination.has_next}
                   className={cn(
                     "cursor-pointer",
                     "flex items-center gap-1 sm:gap-2",
                     "bg-card border-border text-xs h-8 sm:h-10",
-                    "hover:bg-card hover:border-blue-500 hover:text-[#3072C0]",
+                    "hover:bg-card hover-border-blue-500 hover:text-[#3072C0]",
                   )}
                 >
                   Next
