@@ -1,5 +1,5 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -25,8 +25,9 @@ const TaskTrackingClient = () => {
   const { isOpen: isCreateTaskOpen, setOpen: setIsCreateTaskOpen } = useTaskModalStore();
   const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } =
     useCategoryModalStore();
+  const queryClient = useQueryClient();
 
-  const [selectedCategory, setSelectedCategory] = useState("Fashion");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1));
 
@@ -230,6 +231,9 @@ const TaskTrackingClient = () => {
       const response = await createTask(createTaskPayload);
 
       if (response) {
+        // Invalidate queries to refresh list and counts
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+
         // Close the modal
         setIsCreateTaskOpen(false);
 
@@ -360,6 +364,10 @@ const TaskTrackingClient = () => {
         clients={clientsList}
         onCategorySelect={name => {
           setSelectedCategory(name);
+          if (name === "All Categories") {
+            setSelectedCategoryId(undefined);
+            return;
+          }
           if (overviewData) {
             const match = overviewData.categories.find(c => c.name === name);
             setSelectedCategoryId(match?.id);
@@ -378,6 +386,10 @@ const TaskTrackingClient = () => {
             selectedCategory={selectedCategory}
             onCategorySelect={name => {
               setSelectedCategory(name);
+              if (name === "All Categories") {
+                setSelectedCategoryId(undefined);
+                return;
+              }
               // find matching id from overview by name
               // We don't store id on Category, so derive via overview categories list name->id
               // Use overviewData if available

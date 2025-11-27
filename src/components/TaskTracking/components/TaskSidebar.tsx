@@ -56,6 +56,24 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
             Task Categories
           </h3>
           <div className="space-y-1 sm:space-y-2">
+            {/* All Categories Option */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onCategorySelect("All Categories")}
+              onKeyDown={() => onCategorySelect("All Categories")}
+              className={`space-y-2 rounded-[16px] p-3 cursor-pointer hover:bg-[#3071c00f] ${selectedCategory === "All Categories" ? "bg-[#3072C014]" : ""}`}
+            >
+              <div className="flex flex-row justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-[10px] h-[10px] rounded-full bg-gray-500`} />
+                  <div className="flex flex-col items-start gap-1">
+                    <p className="text-sm font-medium">All Categories</p>
+                    <span className="text-xs">{totals.all} Tasks</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             {categories.map((category, index) => (
               <div
                 key={index}
