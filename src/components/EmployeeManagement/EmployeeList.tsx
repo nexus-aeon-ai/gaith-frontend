@@ -187,10 +187,13 @@ const EmployeeList = () => {
     return null;
   }
 
+<<<<<<< HEAD
+=======
   if (isLoading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
 
+>>>>>>> 1626b3a1678a6509f2ffedb65e099ea12933d45c
   if (showEditEmployeeForm && selectedEmployeeId) {
     const base = pathname?.split("/employees")[0] || "";
     router.push(`${base}/employees/${selectedEmployeeId}/edit`);
