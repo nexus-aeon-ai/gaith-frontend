@@ -6,9 +6,10 @@ import { getBlogs, type BlogPostListItem } from "@/lib/api/reports";
 export default async function BlogArticlesServerPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const page = Number(searchParams.page) || 1;
+  const { page: pageParam } = await searchParams;
+  const page = Number(pageParam) || 1;
   let initialArticles: BlogPostListItem[] = [];
   let pagination = {
     count: 0,

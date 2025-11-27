@@ -55,10 +55,7 @@ export const createClientSchema = z.object({
     .max(100, "Full name must be less than 100 characters")
     .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
 
-  industry: z.enum(industryOptions.map(i => i.value) as [string, ...string[]], {
-    required_error: "Industry is required",
-    invalid_type_error: "Invalid industry selected",
-  }),
+  industry: z.string().min(1, "Industry is required"),
 
   companySize: z.enum(companySizeOptions, {
     required_error: "Company size is required",
@@ -94,16 +91,18 @@ export const createClientSchema = z.object({
     .optional(),
 
   linkedinProfile: optionalUrl,
-  department: z
-    .string()
-    .min(2, "Department must be at least 2 characters")
-    .max(100, "Department must be less than 100 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Department can only contain letters and spaces"),
+  department: z.string().optional().or(z.literal("")),
 
   location: z
     .string()
     .min(2, "Area must be at least 2 characters")
-    .max(50, "Area must be less than 50 characters"),
+    .max(50, "Area must be less than 50 characters")
+    .optional()
+    .or(z.literal("")),
+
+  country: z.string().optional().or(z.literal("")),
+  city: z.string().optional().or(z.literal("")),
+  area: z.string().optional().or(z.literal("")),
 
   fullAddress: z
     .string()
@@ -116,11 +115,11 @@ export const createClientSchema = z.object({
     required_error: "Client since date is required",
     invalid_type_error: "Invalid client since selected",
   }),
-  agreementStartDate: z.date().min(new Date(), "Agreement start date must be in the future"),
-  agreementEndDate: z.date().min(new Date(), "Agreement end date must be in the future"),
+  agreementStartDate: z.date(),
+  agreementEndDate: z.date(),
   contractDuration: z
     .string()
-    .min(2, "Contract duration must be at least 2 characters")
+    .min(1, "Contract duration must be at least 1 character")
     .max(50, "Contract duration must be less than 50 characters"),
 
   clientStatus: z.enum(["active", "inactive", "pending", "suspended"], {
@@ -136,13 +135,29 @@ export const createClientSchema = z.object({
   }),
 
   // Social Media URLs - Optional but validated if provided
-  websiteUrl: z.string().url("Invalid Website URL").optional(),
+  // Social Media URLs - Optional but validated if provided
+  websiteUrl: z.string().url("Invalid Website URL").optional().or(z.literal("")),
+  facebookUrl: z.string().url("Invalid Facebook URL").optional().or(z.literal("")),
+  twitterUrl: z.string().url("Invalid Twitter URL").optional().or(z.literal("")),
+  instagramUrl: z.string().url("Invalid Instagram URL").optional().or(z.literal("")),
 
   // Internal Notes
   internalNotes: z
     .string()
     .max(2000, "Internal notes must be less than 2000 characters")
     .optional(),
+
+  // New Fields
+  primaryMarketRegionId: z.string().min(1, "Primary market region is required"),
+  secondaryMarketIds: z.array(z.string()).optional(),
+  targetAudienceId: z.string().min(1, "Target audience is required"),
+  languagesSupported: z.array(z.string()).optional(),
+  serviceOfferingIds: z.array(z.string()).optional(),
+  assignedUserIds: z.array(z.string()).optional(),
+  teamRoleIds: z.array(z.string()).optional(),
+  visionStatement: z.string().optional(),
+  missionStatement: z.string().optional(),
+  businessMaturity: z.string().optional(),
 });
 
 // Type inference from schema

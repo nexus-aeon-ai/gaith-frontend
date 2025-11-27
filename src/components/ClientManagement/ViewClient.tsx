@@ -100,6 +100,7 @@ function mapClientToTabType(client: ClientByIdResponse): Client {
 }
 
 export default function ViewClient({ initialData }: ViewClientProps) {
+  console.log(initialData);
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("main-info");
   const client = initialData;
