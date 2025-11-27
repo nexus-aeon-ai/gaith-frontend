@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import DownArrow from "@/components/ui/icons/down-arrow";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { logout } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store/authStore";
 import { IProfile } from "@/lib/types";
 
@@ -56,6 +57,11 @@ const Navbar = ({ user }: NavbarProps) => {
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
   };
+
+  const handleLogout = () => {
+    setUser({} as any);
+    logout();
+  };
   return (
     <header className="flex sticky top-0 z-50 bg-[#E4E9F1] dark:bg-[#0F1220] w-full items-center px-4">
       <div className="flex h-[--header-height] w-full items-center gap-2 ">
@@ -65,7 +71,11 @@ const Navbar = ({ user }: NavbarProps) => {
             <div className="flex w-full items-center gap-4">
               {/* Sidebar Trigger */}
               <div>
-                <SidebarTrigger />
+                {
+                  user ? (
+                    <SidebarTrigger />
+                  ) : null
+                }
               </div>
               {/* Logo */}
               <div className="sm:block hidden">
@@ -200,35 +210,37 @@ const Navbar = ({ user }: NavbarProps) => {
                 </DropdownMenu>
 
                 {/* User Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <div className="flex items-center gap-3 bg-card rounded-full px-2 md:px-4 min-h-12 cursor-pointer">
-                      <div className="relative h-7 w-7">
-                        {avatarLoading ? (
-                          <Spinner />
-                        ) : (
-                          <UserRound
-                            size={32}
-                            className="bg-background p-1 dark:text-[#F0F2F8] text-[#0E1325] rounded-full border-2 border-[#F7C649]"
-                          />
-                        )}
+                {user && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <div className="flex items-center gap-3 bg-card rounded-full px-2 md:px-4 min-h-12 cursor-pointer">
+                        <div className="relative h-7 w-7">
+                          {avatarLoading ? (
+                            <Spinner />
+                          ) : (
+                            <UserRound
+                              size={32}
+                              className="bg-background p-1 dark:text-[#F0F2F8] text-[#0E1325] rounded-full border-2 border-[#F7C649]"
+                            />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="md:hidden block text-base font-medium truncate">
+                            {user?.fullName.slice(0, 1) || "User"}
+                          </span>
+                          <span className=" md:block hidden text-base font-medium truncate">
+                            {user?.fullName || "User"}
+                          </span>
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className="md:hidden block text-base font-medium truncate">
-                          {user?.fullName.slice(0, 1) || "User"}
-                        </span>
-                        <span className=" md:block hidden text-base font-medium truncate">
-                          {user?.fullName || "User"}
-                        </span>
-                        <ChevronDown className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Logout</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </div>
           </div>

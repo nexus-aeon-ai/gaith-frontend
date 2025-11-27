@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTasks, useTasksOverview } from "@/hooks/use-tasks";
+import { useTasks, useTasksOverview, useUpdateTask } from "@/hooks/use-tasks";
 import { getClients } from "@/lib/api";
 import { createTask, CreateTaskDTO, getAllCategories, createCategory, SimpleCategory } from "@/lib/api/tasks";
 import { useCategoryModalStore, useTaskModalStore } from "@/lib/store/taskModalStore";
@@ -87,8 +87,8 @@ const TaskTrackingClient = () => {
       return priority === "Urgent" ? "High" : priority;
     };
 
-    return employeeTasks.map((t, index) => ({
-      id: index + 1, // TaskTracking uses numeric ids
+    return employeeTasks.map((t) => ({
+      id: t.id, // Use actual ID from API
       title: t.title,
       description: t.description,
       dueDate: t.dueDate,
@@ -173,7 +173,17 @@ const TaskTrackingClient = () => {
   const [groupedTasks, setGroupedTasks] = useState<Task[]>([]);
   const [groupedTasksDate, setGroupedTasksDate] = useState<string>("");
 
-   if(isLoadingCategories){
+  const { mutate: updateTask } = useUpdateTask();
+
+  const handleProgressUpdate = (taskId: string | number, newProgress: number) => {
+    // Optimistic update
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, progress: newProgress } : t));
+    
+    // Call API
+    updateTask({ id: String(taskId), data: { progressPercent: newProgress } });
+  };
+
+  if(isLoadingCategories){
     return <div>Loading...</div>;
   }
 
@@ -428,7 +438,7 @@ const TaskTrackingClient = () => {
                       No tasks found for the selected range.
                     </div>
                   ) : (
-                    tasks.map(task => <TaskCard key={task.id} task={task} />)
+                    tasks.map(task => <TaskCard key={task.id} task={task} onProgressUpdate={handleProgressUpdate} />)
                   )}
                 </div>
               </TabsContent>
@@ -496,7 +506,7 @@ const TaskTrackingClient = () => {
           </DialogHeader>
           <div className="space-y-3">
             {groupedTasks.map(task => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onProgressUpdate={handleProgressUpdate} />
             ))}
           </div>
         </DialogContent>

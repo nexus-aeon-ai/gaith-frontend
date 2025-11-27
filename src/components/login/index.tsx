@@ -27,6 +27,7 @@ import { useAuthStore } from "@/lib/store/authStore";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+  organizationId: z.string().min(1, "Organization ID is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -39,6 +40,7 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
+      organizationId: "",
       password: "",
     },
   });
@@ -46,7 +48,7 @@ export default function LoginForm() {
   const mutation = useMutation({
     mutationKey: ["login"],
     mutationFn: async (data: TLoginForm) => {
-      return login(data.email, data.password);
+      return login(data.email, data.password, data.organizationId);
     },
     onSuccess: async response => {
       if (response?.status && response.status === 200) {
@@ -105,6 +107,21 @@ export default function LoginForm() {
             />
             <FormField
               control={form.control}
+              name="organizationId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Organization ID <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Organization ID" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
@@ -140,6 +157,16 @@ export default function LoginForm() {
           </form>
         </Form>
       </CardContent>
+      <div className="flex justify-between items-center px-6 pb-6 mt-4">
+        <div className="flex items-center gap-2 border border-border rounded-lg px-4 py-2">
+          <span className="text-primary">📞</span>
+          <span className="text-sm font-medium">+971 500000000</span>
+        </div>
+        <div className="flex items-center gap-2 border border-border rounded-lg px-4 py-2">
+          <span className="text-primary">✉️</span>
+          <span className="text-sm font-medium">support@gaith.ae</span>
+        </div>
+      </div>
     </Card>
   );
 }

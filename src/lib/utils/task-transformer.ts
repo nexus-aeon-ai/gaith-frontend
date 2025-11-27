@@ -9,20 +9,22 @@ export function transformTaskResponse(task: TaskResponse, options?: {
   employeesById?: Record<string, SimpleEmployee>;
 }): EmployeeTask {
   // Calculate progress based on status
-  let progress = 0;
-  switch (task.status) {
-    case "NotStarted":
-      progress = 0;
-      break;
-    case "InProgress":
-      progress = 50;
-      break;
-    case "AwaitingFeedback":
-      progress = 75;
-      break;
-    case "Completed":
-      progress = 100;
-      break;
+  let progress = task.progressPercent ?? 0;
+  if (task.progressPercent === undefined || task.progressPercent === null) {
+    switch (task.status) {
+      case "NotStarted":
+        progress = 0;
+        break;
+      case "InProgress":
+        progress = 50;
+        break;
+      case "AwaitingFeedback":
+        progress = 75;
+        break;
+      case "Completed":
+        progress = 100;
+        break;
+    }
   }
 
   // Map status to display format
