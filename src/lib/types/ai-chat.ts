@@ -17,6 +17,7 @@ export interface Chat {
   timestamp: string;
   messages: Message[];
   assignedEmployeeIds?: string[];
+  assignedEmployees?: Employee[];
 }
 
 // API Request/Response Types
@@ -25,6 +26,7 @@ export interface Employee {
   id: string;
   employeeId: string;
   userId: string;
+  fullName: string;
   organizationId: string;
   employmentType: string;
   status: string;

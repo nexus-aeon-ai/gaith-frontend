@@ -7,7 +7,10 @@ import {
   getClients,
   getConversationMessages,
   getConversations,
+  getEmployees,
   sendMessage,
+  updateConversation,
+  assignEmployeesToConversation,
 } from "@/lib/api";
 import { getAIChatSocket, type SocketResponse } from "@/lib/api/ai-chat/socket";
 import type { Chat, ChatMessage, Conversation, GetConversationsParams, Message } from "@/lib/types";
@@ -15,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 import { ChatSidebar } from "./chat-sidebar";
 import { ChatWindow } from "./chat-window";
+import { EditConversationDialog } from "./edit-conversation-dialog";
 
 // Helper to format timestamp
 const formatTimestamp = (dateString: string) => {
@@ -63,6 +67,8 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [editingChat, setEditingChat] = useState<Chat | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Initialize websocket connection
@@ -143,6 +149,17 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
 
   const clients = useMemo(() => clientsData ?? [], [clientsData]);
 
+  // Fetch employees for assignment
+  const { data: employeesData } = useQuery({
+    queryKey: ["employees", "assignment"],
+    queryFn: async () => {
+      const res = await getEmployees({ status: "ACTIVE" });
+      return res.data?.results ?? [];
+    },
+  });
+
+  const employees = useMemo(() => employeesData ?? [], [employeesData]);
+
   // Create client lookup map
   const clientsById = useMemo(() => {
     return clients.reduce(
@@ -203,7 +220,8 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
       lastMessage: conv.lastMessageText || "No messages yet",
       timestamp: formatTimestamp(conv.lastMessageDate || conv.updatedAt),
       messages: [], // Messages loaded separately
-      assignedEmployeeIds: conv.assignedEmployees.map(ae => ae.employeeId),
+      assignedEmployeeIds: conv.assignedEmployees.map(ae => ae.employee.id),
+      assignedEmployees: conv.assignedEmployees.map(ae => ae.employee),
     }));
   }, [conversations, clientsById]);
 
@@ -295,6 +313,40 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
     }
   };
 
+  const handleEditChat = (chat: Chat) => {
+    setEditingChat(chat);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveConversation = async (
+    conversationId: string,
+    data: { clientId?: string; assignedEmployeeIds?: string[] },
+  ) => {
+    console.log("handleSaveConversation called with:", { conversationId, data });
+    try {
+      const promises = [];
+
+      // Update client if provided
+      if (data.clientId !== undefined) {
+        console.log("Updating client...");
+        promises.push(updateConversation(conversationId, { clientId: data.clientId }));
+      }
+
+      // Assign employees if provided
+      if (data.assignedEmployeeIds) {
+        console.log("Assigning employees...", data.assignedEmployeeIds);
+        promises.push(assignEmployeesToConversation(conversationId, { employeeIds: data.assignedEmployeeIds }));
+      }
+
+      const results = await Promise.all(promises);
+      console.log("Save results:", results);
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    } catch (error) {
+      console.error("Failed to update conversation:", error);
+      throw error;
+    }
+  };
+
   // Show loading state if no conversations yet
   if (!activeChat) {
     return (
@@ -334,6 +386,7 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
           onChatSelect={handleChatSelect}
           searchQuery={searchTerm}
           onSearchChange={setSearchTerm}
+          onEditChat={handleEditChat}
         />
       </div>
 
@@ -347,6 +400,15 @@ export default function Chatbot({ initialConversations }: ChatbotProps) {
           isSending={isSendingMessage || isWaitingForResponse}
         />
       </div>
+
+      <EditConversationDialog
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        conversation={editingChat}
+        clients={clientsById}
+        employees={employees}
+        onSave={handleSaveConversation}
+      />
     </div>
   );
 }
