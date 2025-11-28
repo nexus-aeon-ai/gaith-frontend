@@ -13,9 +13,10 @@ interface ChatSidebarProps {
   onChatSelect: (chat: Chat) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onEditChat: (chat: Chat) => void;
 }
 
-export function ChatSidebar({ chats, activeChat, onChatSelect, searchQuery, onSearchChange }: ChatSidebarProps) {
+export function ChatSidebar({ chats, activeChat, onChatSelect, searchQuery, onSearchChange, onEditChat }: ChatSidebarProps) {
 
   return (
     <ScrollArea className="relative h-full pb-2 rounded-l-[12px] dark:bg-[#212945] bg-white border-r border-sidebar-border flex flex-col min-w-0">
@@ -47,35 +48,60 @@ export function ChatSidebar({ chats, activeChat, onChatSelect, searchQuery, onSe
             </div>
           ) : (
             chats.map(chat => (
-              <Button
-                key={chat.id}
-                onClick={() => onChatSelect(chat)}
-                variant="ghost"
-                className={cn(
-                  "w-full cursor-pointer p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
-                  "hover:opacity-40 transition-opacity",
-                  "justify-start",
-                  activeChat.id === chat.id
-                    ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
-                    : "text-sidebar-foreground",
-                )}
-              >
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-medium text-xs sm:text-sm truncate">
-                        Client: {chat.client}
-                      </h3>
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-1 sm:ml-2">
-                        {chat.timestamp}
-                      </span>
+              <div key={chat.id} className="relative group">
+                <Button
+                  onClick={() => onChatSelect(chat)}
+                  variant="ghost"
+                  className={cn(
+                    "w-full cursor-pointer p-3 rounded-lg text-left dark:bg-[#0F1B29] bg-[#F3F5F7] transition-colors h-auto whitespace-normal break-words",
+                    "hover:opacity-40 transition-opacity",
+                    "justify-start",
+                    activeChat.id === chat.id
+                      ? "dark:bg-gray-700 dark:text-sidebar-primary-foreground bg-[#d5e3f4]"
+                      : "text-sidebar-foreground",
+                  )}
+                >
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-medium text-xs sm:text-sm truncate">
+                          Client: {chat.client}
+                        </h3>
+                        <span className="text-xs text-muted-foreground flex-shrink-0 ml-1 sm:ml-2">
+                          {chat.timestamp}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {chat.lastMessage}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {chat.lastMessage}
-                    </p>
                   </div>
-                </div>
-              </Button>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditChat(chat);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </Button>
+              </div>
             ))
           )}
         </div>

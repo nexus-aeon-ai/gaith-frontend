@@ -13,6 +13,7 @@ export interface CreateTaskDTO {
   accountId?: string;
   estimatedHours?: number;
   additionalComments?: string;
+  progressPercent?: number;
 }
 
 export interface UpdateTaskDTO {
@@ -27,6 +28,7 @@ export interface UpdateTaskDTO {
   accountId?: string;
   estimatedHours?: number;
   additionalComments?: string;
+  progressPercent?: number;
 }
 
 export interface TaskResponse {
@@ -42,6 +44,7 @@ export interface TaskResponse {
   assignedTo: string;
   estimatedHours: number | null;
   additionalComments: string | null;
+  progressPercent: number;
   isDeleted: boolean;
   isActive: boolean;
   createdAt: string;

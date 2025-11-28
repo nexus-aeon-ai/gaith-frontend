@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
 import { deleteClient, updateClient } from "@/lib/api/client/client";
+import { SocialMediaUrls } from "@/lib/api/leads";
 import { Client } from "@/lib/types";
 import { CreateClientFormData, createClientSchema } from "@/lib/validations/client";
 
@@ -77,6 +78,18 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
       priorityLevel: "low", // Default as not available
       websiteUrl: "", // Not available in client data
       internalNotes: "", // Not available in client data
+      
+      // New Fields
+      primaryMarketRegionId: "", // Not available in client data
+      secondaryMarketIds: [],
+      targetAudienceId: "", // Not available in client data
+      languagesSupported: [],
+      serviceOfferingIds: [],
+      assignedUserIds: [],
+      teamRoleIds: [],
+      visionStatement: "",
+      missionStatement: "",
+      businessMaturity: "",
     };
   };
 
@@ -104,6 +117,13 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         throw new Error("Missing client id");
       }
 
+      // Map form data to API request format - build socialMediaUrls array
+      const socialMediaUrls: SocialMediaUrls = [];
+      if (data.linkedinProfile) socialMediaUrls.push({ platform: "LinkedIn", url: data.linkedinProfile });
+      if (data.facebookUrl) socialMediaUrls.push({ platform: "Facebook", url: data.facebookUrl });
+      if (data.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: data.twitterUrl });
+      if (data.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: data.instagramUrl });
+
       const payload = {
         // Required fields only as per API spec
         clientName: data.fullName,
@@ -114,9 +134,25 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
         contractDurationMonths: parseInt(data.contractDuration) || 0,
-        primaryMarketRegionId: "525ebfb0-9251-421f-942c-d5cf267cb879", // Using default region for now
-        targetAudienceId: "dff00382-2389-4815-9df1-be470e8bb161", // Using default audience for now
-        secondaryMarketIds: ["525ebfb0-9251-421f-942c-d5cf267cb879"],
+        primaryMarketRegionId: data.primaryMarketRegionId,
+        targetAudienceId: data.targetAudienceId,
+        secondaryMarketIds: data.secondaryMarketIds,
+        languagesSupported: data.languagesSupported,
+        visionStatement: data.visionStatement || undefined,
+        missionStatement: data.missionStatement || undefined,
+        socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
+        websiteUrl: data.websiteUrl || undefined,
+        fullAddress: data.fullAddress || undefined,
+        countryId: data.country || undefined,
+        cityId: data.city || undefined,
+        areaId: data.area || undefined,
+        departmentId: data.department || undefined,
+        accountManagerId: data.accountManager || undefined,
+        assignedUserIds: data.assignedUserIds,
+        serviceOfferingIds: data.serviceOfferingIds,
+        teamRoleIds: data.teamRoleIds,
+        internalNotes: data.internalNotes || undefined,
+        businessMaturity: data.businessMaturity || undefined,
       };
 
       const response = await updateClient(client.id, payload);

@@ -458,8 +458,32 @@ export function ChatWindow({
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <div className="hover:opacity-[70%] cursor-pointer">
-            <UsersIcon color={themeNext === "dark" ? "#CACCD6" : "#687192"} />
+          <div className="flex items-center -space-x-2 overflow-hidden mr-2">
+            {chat.assignedEmployees && chat.assignedEmployees.length > 0 ? (
+              chat.assignedEmployees.map((emp) => (
+                <Avatar 
+                  key={emp.id} 
+                  className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800"
+                  title={emp.user?.fullName || emp.fullName}
+                >
+                  {emp.profilePicture || emp.user?.profilePic ? (
+                    <img 
+                      src={emp.profilePicture || emp.user?.profilePic || ""} 
+                      alt={emp.user?.fullName || emp.fullName} 
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary text-xs text-primary-foreground">
+                      {(emp.user?.fullName || emp.fullName || "?").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </Avatar>
+              ))
+            ) : (
+              <div className="hover:opacity-[70%] cursor-pointer">
+                <UsersIcon color={themeNext === "dark" ? "#CACCD6" : "#687192"} />
+              </div>
+            )}
           </div>
           <div className="hover:opacity-[70%] cursor-pointer">
             <SettingsIcon color={themeNext === "dark" ? "#CACCD6" : "#687192"} />

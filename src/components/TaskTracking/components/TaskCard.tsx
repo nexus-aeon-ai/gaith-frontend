@@ -6,10 +6,11 @@ import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import CalendarOuline from "@/components/ui/icons/options/calendar-outline";
 import PersonIcon from "@/components/ui/icons/person";
 import {PricingIcon} from "@/components/ui/icons/sidebar/pricing";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 interface Task {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   dueDate: string;
@@ -23,9 +24,10 @@ interface Task {
 
 interface TaskCardProps {
   task: Task;
+  onProgressUpdate?: (id: string | number, progress: number) => void;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ task, onProgressUpdate }: TaskCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "In Progress":
@@ -119,23 +121,20 @@ const TaskCard = ({ task }: TaskCardProps) => {
                 <span className="text-[#303444] dark:text-[#CCCFDB] font-semibold">Progress</span>
                 <span className="text-gray-900 dark:text-white font-medium">{task.progress}%</span>
               </div>
-              <div
-                className={cn(
-                  "w-full bg-gray-200 dark:bg-gray-700 rounded-full",
-                  "h-1.5 sm:h-2 border border-gray-300 dark:border-gray-600",
-                )}
-              >
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${task.progress}%`,
-                    backgroundColor:
-                      task.status === "Completed"
-                        ? "#2BAE82"
-                        : task.status === "In Progress"
-                          ? "#ECA338"
-                          : "#3B82F6",
+              <div className="w-full">
+                <Slider
+                  defaultValue={[task.progress]}
+                  max={100}
+                  step={1}
+                  className={cn("w-full", "cursor-pointer")}
+                  onValueCommit={(value) => {
+                     if (onProgressUpdate) {
+                        onProgressUpdate(task.id, value[0]);
+                     }
                   }}
+                  // Optional: Update local display while dragging if needed, 
+                  // but for now relying on defaultValue might be enough or we can control it.
+                  // To make it fully controlled we'd need local state, but let's try uncontrolled with commit first.
                 />
               </div>
             </div>

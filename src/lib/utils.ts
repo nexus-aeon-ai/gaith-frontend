@@ -16,3 +16,5 @@ export function formatDateToDDMMYYYY(date: Date): string {
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
 }
+
+export const TAG_BADGE_LIGHT_COLOR = "#1F2937"; // Dark gray for contrast on light backgrounds

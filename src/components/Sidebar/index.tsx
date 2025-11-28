@@ -6,18 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import React from "react";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
+
 
 import FileIcon from "../ui/icons/file";
 import CalendarIcon from "../ui/icons/options/calendar-icon";
@@ -47,9 +36,30 @@ import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { logout } from "@/lib/auth";
+import { useAuthStore } from "@/lib/store/authStore";
+import { cn } from "@/lib/utils";
+
 const SidebarUI  = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
+  const { setUser } = useAuthStore();
+
+  const handleLogout = () => {
+    setUser({} as any);
+    logout();
+  };
 
   const supportItems = [
     {
@@ -298,6 +308,10 @@ const SidebarUI  = () => {
                 <SidebarMenuButton
                   asChild
                   className={isActive(item.href) ? activeClasses : undefined}
+                  onClick={item.label === "Logout" ? (e) => {
+                    e.preventDefault();
+                    handleLogout();
+                  } : undefined}
                 >
                   <Link href={item.href}>
                     <span className="text-lg">

@@ -6,6 +6,14 @@ import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 
+import Facebook from "../ui/icons/socials/fb";
+import Instagram from "../ui/icons/socials/instagram";
+import Linkedin from "../ui/icons/socials/linkedin";
+import Twitter from "../ui/icons/socials/twitterx";
+import Website from "../ui/icons/socials/website";
+
+
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -26,15 +34,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  getClientBusinessMaturity,
+  getClientIndustries,
+  getClientLanguages,
+  getClientMartketRegions,
+  getClientServiceOffers,
+  getClientTargetAudiences,
+  getClientTeamRoles,
+} from "@/lib/api/client/client";
+import { getDepartments, BackendDepartment } from "@/lib/api/departments";
+import { getLeadsLookup, getCitiesByCountry, getAreasByCity, Country, City, Area } from "@/lib/api/leads";
 import { getUsers, type IUser } from "@/lib/api/user";
 import {
   companySizeOptions,
   createClientSchema,
-  industryOptions,
   type CreateClientFormData,
 } from "@/lib/validations/client";
 
-import Website from "../ui/icons/socials/website";
 
 interface ClientFormProps {
   initialData?: CreateClientFormData;
@@ -76,6 +93,18 @@ const defaultFormData: CreateClientFormData = {
 
   // Notes
   internalNotes: "",
+
+  // New Fields
+  primaryMarketRegionId: "",
+  secondaryMarketIds: [],
+  targetAudienceId: "",
+  languagesSupported: [],
+  serviceOfferingIds: [],
+  assignedUserIds: [],
+  teamRoleIds: [],
+  visionStatement: "",
+  missionStatement: "",
+  businessMaturity: "",
 };
 
 const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
@@ -92,6 +121,91 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
     queryFn: async () => {
       const response = await getUsers();
       return response.data || [];
+    },
+  });
+
+  const { data: departmentsResponse, isLoading: loadingDepartments } = useQuery<{ data: BackendDepartment[] | null }>({
+    queryKey: ["utils", "departments"],
+    queryFn: getDepartments,
+  });
+  const departments = departmentsResponse?.data || [];
+
+  const { data: countries = [], isLoading: loadingCountries } = useQuery<Country[]>({
+    queryKey: ["leads", "countries"],
+    queryFn: () => getLeadsLookup<Country>("countries"),
+  });
+  const countryId = form.watch("country");
+
+  const { data: cities = [], isLoading: loadingCities } = useQuery<City[]>({
+    queryKey: ["leads", "cities", countryId],
+    queryFn: () => getCitiesByCountry(countryId || ""),
+    enabled: !!countryId,
+  });
+  const cityId = form.watch("city");
+
+  const { data: areas = [], isLoading: loadingAreas } = useQuery<Area[]>({
+    queryKey: ["leads", "areas", cityId],
+    queryFn: () => getAreasByCity(cityId || ""),
+    enabled: !!cityId,
+  });
+
+  const filteredCities = cities;
+  const filteredAreas = areas;
+
+  // Fetch Lookups
+  const { data: industries = [] } = useQuery({
+    queryKey: ["industries"],
+    queryFn: async () => {
+      const res = await getClientIndustries();
+      return res || [];
+    },
+  });
+
+  const { data: marketRegions = [] } = useQuery({
+    queryKey: ["marketRegions"],
+    queryFn: async () => {
+      const res = await getClientMartketRegions();
+      return res || [];
+    },
+  });
+
+  const { data: targetAudiences = [] } = useQuery({
+    queryKey: ["targetAudiences"],
+    queryFn: async () => {
+      const res = await getClientTargetAudiences();
+      return res || [];
+    },
+  });
+
+  const { data: languages = [] } = useQuery({
+    queryKey: ["languages"],
+    queryFn: async () => {
+      const res = await getClientLanguages();
+      return res || [];
+    },
+  });
+
+  const { data: serviceOfferings = [] } = useQuery({
+    queryKey: ["serviceOfferings"],
+    queryFn: async () => {
+      const res = await getClientServiceOffers();
+      return res || [];
+    },
+  });
+
+  const { data: teamRoles = [] } = useQuery({
+    queryKey: ["teamRoles"],
+    queryFn: async () => {
+      const res = await getClientTeamRoles();
+      return res || [];
+    },
+  });
+
+  const { data: businessMaturityOptions = [] } = useQuery({
+    queryKey: ["businessMaturity"],
+    queryFn: async () => {
+      const res = await getClientBusinessMaturity();
+      return res || [];
     },
   });
 
@@ -116,11 +230,15 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
     input?.showPicker?.();
   };
 
+  const handleError = (error: any) => {
+    console.error("Error submitting form:", error);
+  };
+
   return (
     <Form {...form}>
       <form
         id="lead-form"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, handleError)}
         className="w-full mx-auto space-y-4 font-inter"
       >
         {/* Basic Information */}
@@ -157,12 +275,12 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                     <FormControl>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                          <SelectValue placeholder="Select campaign type" />
+                          <SelectValue placeholder="Select industry sector" />
                         </SelectTrigger>
                         <SelectContent>
-                          {industryOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
+                          {industries.map(option => (
+                            <SelectItem key={option.id} value={option.id || ""}>
+                              {option.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -182,7 +300,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                     <FormControl>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                          <SelectValue placeholder="Select campaign type" />
+                          <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
                         <SelectContent>
                           {companySizeOptions.map(option => (
@@ -198,26 +316,25 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                 )}
               />
 
-              {/* Website */}
               <FormField
                 control={form.control}
-                name="websiteUrl"
+                name="businessMaturity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Website URL</FormLabel>
+                    <FormLabel>Business Maturity</FormLabel>
                     <FormControl>
-                      <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
-                        <div className="h-8 w-8 flex items-center justify-center">
-                          {/* Website SVG */}
-                          <Website />
-                        </div>
-                        <Input
-                          placeholder="https://company.com"
-                          required={false}
-                          {...field}
-                          className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
-                        />
-                      </div>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select business maturity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {businessMaturityOptions.map(option => (
+                            <SelectItem key={option.id} value={option.id || ""}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -226,13 +343,385 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
 
               <FormField
                 control={form.control}
+                name="primaryMarketRegionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Primary Market Region</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select primary market region" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {marketRegions.map(option => (
+                            <SelectItem key={option.id} value={option.id || ""}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="targetAudienceId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Audience</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select target audience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {targetAudiences.map(option => (
+                            <SelectItem key={option.id} value={option.id || ""}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="languagesSupported"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Languages Supported</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value?.[0] || ""}
+                        onValueChange={(val) => {
+                           field.onChange([val]);
+                        }}
+                      >
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder="Select languages" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((option) => (
+                            <SelectItem key={option.code} value={option.code || ""}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+
+              <FormField
+                control={form.control}
+                name="businessOverview"
+                render={({ field }) => (
+                  <FormItem className="col-span-1 md:col-span-2">
+                    <FormLabel>Business Overview</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Brief overview of the business..."
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Media Accounts */}
+        <Card className="pt-3 rounded-[16px] shadow-none">
+          <CardHeader className="px-3">
+            <CardTitle className="text-lg font-medium">Social Media Accounts</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="linkedinProfile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LinkedIn URL</FormLabel>
+                      <FormControl>
+                        <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
+                          <div className="bg-[#3072C014] rounded-full h-8 w-8 flex items-center justify-center p-1">
+                            <Linkedin />
+                          </div>
+                          <Input
+                            placeholder="https://linkedin.com/company/..."
+                            {...field}
+                            className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="facebookUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Facebook URL</FormLabel>
+                      <FormControl>
+                        <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
+                          <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
+                            <Facebook />
+                          </div>
+                          <Input
+                            placeholder="https://facebook.com/company"
+                            {...field}
+                            value={field.value?.toString() ?? ""}
+                            className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="twitterUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Twitter URL</FormLabel>
+                      <FormControl>
+                        <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
+                          <div className="bg-[#07091314] rounded-full h-8 w-8 flex items-center justify-center p-1">
+                            <Twitter />
+                          </div>
+                          <Input
+                            placeholder="https://twitter.com/company"
+                            {...field}
+                            value={field.value?.toString() ?? ""}
+                            className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="instagramUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Instagram URL</FormLabel>
+                      <FormControl>
+                        <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
+                          <div className="bg-[#3072C014] h-8 w-8 flex items-center justify-center rounded-full p-1">
+                            <Instagram />
+                          </div>
+                          <Input
+                            placeholder="https://instagram.com/company"
+                            {...field}
+                            value={field.value?.toString() ?? ""}
+                            className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="websiteUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website URL</FormLabel>
+                      <FormControl>
+                        <div className="flex pl-4 items-center gap-2 dark:bg-[#0F1B29] py-2 shadow-sm bg-[#F3F5F7] rounded-[12px]">
+                          <div className="h-8 w-8 flex items-center justify-center">
+                            <Website />
+                          </div>
+                          <Input
+                            placeholder="https://company.com"
+                            {...field}
+                            className="border-none shadow-none rounded-[12px] focus:outline-none pl-0"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Address Information */}
+        <Card className="pt-3 rounded-[16px] shadow-none ">
+          <CardHeader className="px-3">
+            <CardTitle className="text-lg font-medium">Address Information</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={(val) => {
+                            field.onChange(val);
+                            form.setValue("city", "");
+                          }}
+                          disabled={loadingCountries}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue placeholder={loadingCountries ? "Loading..." : "Select Country"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>
+                                {c.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={(val) => {
+                            field.onChange(val);
+                            form.setValue("area", "");
+                          }}
+                          disabled={loadingCities || !countryId}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue placeholder={loadingCities ? "Loading..." : !countryId ? "Select Country first" : "Select City"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredCities.length === 0 ? (
+                              <SelectItem value="no city" disabled>No cities available</SelectItem>
+                            ) : (
+                              filteredCities.map((r) => (
+                                <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="area"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Area</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          disabled={loadingAreas || !cityId}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue placeholder={loadingAreas ? "Loading..." : !cityId ? "Select City first" : "Select Area"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredAreas.map((a) => (
+                              <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
                 name="fullAddress"
                 render={({ field }) => (
-                  <FormItem className="col-span-2">
+                  <FormItem>
                     <FormLabel>Full Address</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Street Address, City, State, Zip Code"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Company Profile */}
+        <Card className="pt-3 rounded-[16px] shadow-none">
+          <CardHeader className="px-3">
+            <CardTitle className="text-lg font-medium">Company Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="visionStatement"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Vision Statement</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Vision Statement"
+                        className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="missionStatement"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Mission Statement</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Mission Statement"
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -322,23 +811,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="linkedinProfile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Linkedin Profile</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="link"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
 
               <FormField
                 control={form.control}
@@ -347,11 +820,22 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                   <FormItem>
                     <FormLabel>Department</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Marketing"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={loadingDepartments}
+                      >
+                        <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                          <SelectValue placeholder={loadingDepartments ? "Loading..." : "Select Department"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -392,7 +876,6 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                       [&::-webkit-calendar-picker-indicator]:w-full 
                       [&::-webkit-calendar-picker-indicator]:h-full
                     "
-                          min={new Date().toISOString().split("T")[0]}
                         />
 
                         <button
@@ -508,6 +991,97 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                             {users.map((user) => (
                               <SelectItem key={user.id} value={user.id}>
                                 {user.fullName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="assignedUserIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assigned Users</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value?.[0] || ""}
+                          onValueChange={(val) => {
+                             // Simple single select for now as UI component for multi-select is complex
+                             // Ideally this should be a MultiSelect component
+                             field.onChange([val]);
+                          }}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select assigned users" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {users.map((user) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                {user.fullName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="serviceOfferingIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Service Offerings</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value?.[0] || ""}
+                           onValueChange={(val) => {
+                             field.onChange([val]);
+                          }}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select service offerings" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {serviceOfferings.map((option) => (
+                              <SelectItem key={option.id} value={option.id || ""}>
+                                {option.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="teamRoleIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Roles</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value?.[0] || ""}
+                           onValueChange={(val) => {
+                             field.onChange([val]);
+                          }}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
+                            <SelectValue placeholder="Select team roles" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teamRoles.map((option) => (
+                              <SelectItem key={option.id} value={option.id || ""}>
+                                {option.name}
                               </SelectItem>
                             ))}
                           </SelectContent>

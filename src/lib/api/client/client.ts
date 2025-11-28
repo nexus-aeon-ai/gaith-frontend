@@ -335,6 +335,7 @@ export interface CreateClientRequest {
   cityId?: string;
   areaId?: string;
   accountManagerId?: string;
+  departmentId?: string;
   marketingStrategistId?: string;
   assignedUserIds?: string[];
   teamRoleIds?: string[];

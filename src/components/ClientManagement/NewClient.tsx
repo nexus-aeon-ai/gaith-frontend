@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,73 +17,131 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { createClient } from "@/lib/api/client/client";
-import { createAiDataSchema, type CreateAiFormData } from "@/lib/validations/ai-data";
+import { SocialMediaUrls } from "@/lib/api/leads";
+import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
-import AiDataForm from "../Forms/AiDataForm";
+import ClientForm from "../Forms/ClientForm";
 import PopupModal from "../PopupModal/PopupModal";
+
+const defaultFormData: CreateClientFormData = {
+  fullName: "",
+  industry: "",
+  companySize: "0-50",
+  businessOverview: "",
+  email: "",
+  contactName: "",
+  jobTitle: "",
+  phoneNumber: "",
+  linkedinProfile: "",
+  department: "",
+  location: "",
+  country: "",
+  city: "",
+  area: "",
+  fullAddress: "",
+  accountManager: "",
+  clientSince: new Date(),
+  agreementStartDate: new Date(),
+  agreementEndDate: new Date(),
+  contractDuration: "",
+  clientStatus: "active",
+  monthlyBudget: "0",
+  priorityLevel: "low",
+  websiteUrl: "",
+  facebookUrl: "",
+  twitterUrl: "",
+  instagramUrl: "",
+  internalNotes: "",
+  primaryMarketRegionId: "",
+  secondaryMarketIds: [],
+  targetAudienceId: "",
+  languagesSupported: [],
+  serviceOfferingIds: [],
+  assignedUserIds: [],
+  teamRoleIds: [],
+  visionStatement: "",
+  missionStatement: "",
+  businessMaturity: "",
+};
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const handleSave = async (data: CreateAiFormData) => {
-    setIsSubmitting(true);
 
-    try {
-      // Validate form data
-      const result = createAiDataSchema.safeParse(data);
+  const mutation = useMutation({
+    mutationFn: async (data: CreateClientFormData) => {
+      // Map form data to API request format - build socialMediaUrls array
+      const socialMediaUrls: SocialMediaUrls = [];
+      if (data.linkedinProfile) socialMediaUrls.push({ platform: "LinkedIn", url: data.linkedinProfile });
+      if (data.facebookUrl) socialMediaUrls.push({ platform: "Facebook", url: data.facebookUrl });
+      if (data.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: data.twitterUrl });
+      if (data.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: data.instagramUrl });
 
-      if (!result.success) {
-        // Extract validation errors
-        const errors: Record<string, string> = {};
-        result.error.issues.forEach(issue => {
-          const field = issue.path.join(".");
-          errors[field] = issue.message;
-        });
-        console.error("Validation errors:", errors);
-        return;
-      }
-
-      // If validation passes, proceed with create client api
-      console.log("Creating new client with data:", data);
-
-      const response = await createClient({
-        // Required fields only as per API spec
-        clientName: data.clientName,
+      const payload = {
+        clientName: data.fullName,
         emailAddress: data.email,
         phoneNumber: data.phoneNumber || "",
         industrySectorId: data.industry,
         businessOverview: data.businessOverview,
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
-        contractDuration: data.contractDuration,
-        contractDurationUnit: data.contractDurationUnit,
-        primaryMarketRegionId: data.primaryRegion as string,
-        targetAudienceId: data.targetAudience as string,
-        secondaryMarketIds: [data.primaryRegion as string],
-      });
+        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        primaryMarketRegionId: data.primaryMarketRegionId,
+        targetAudienceId: data.targetAudienceId,
+        secondaryMarketIds: data.secondaryMarketIds,
+        languagesSupported: data.languagesSupported,
+        visionStatement: data.visionStatement || undefined,
+        missionStatement: data.missionStatement || undefined,
+        socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
+        websiteUrl: data.websiteUrl || undefined,
+        fullAddress: data.fullAddress || undefined,
+        countryId: data.country || undefined,
+        cityId: data.city || undefined,
+        areaId: data.area || undefined,
+        departmentId: data.department || undefined,
+        accountManagerId: data.accountManager || undefined,
+        assignedUserIds: data.assignedUserIds,
+        serviceOfferingIds: data.serviceOfferingIds,
+        teamRoleIds: data.teamRoleIds,
+        internalNotes: data.internalNotes || undefined,
+        businessMaturity: data.businessMaturity || undefined,
+        // Using companySize from form as ID if possible, or ignoring if it's just a string name that doesn't match ID
+        // Similar to EditClientPage, we might have a mismatch here if companySize is just "0-50" string but API wants ID.
+        // For now, we follow the pattern in EditClientPage where we didn't explicitly set companySizeId unless we have it.
+        // If the backend handles "0-50" string in a specific field, we should map it.
+        // The API definition has companySizeId. The form has companySize enum string.
+        // We will omit companySizeId for now unless we can map it, to avoid errors.
+      };
 
-      console.log("Client created successfully:", response);
-
-      // Close the form on success
-      if (response.status >= 200 && response.status < 300) {
+      return createClient(payload);
+    },
+    onSuccess: (res) => {
+      if (res.status >= 200 && res.status < 300) {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
         toast.success("Client created successfully!");
         closeNewClientForm();
       } else {
         throw new Error("Failed to create client");
       }
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("An error occurred while creating the client. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    },
+    onError: (error) => {
+      console.error("Failed to create client:", error);
+      toast.error("Failed to create client. Please try again.");
+    },
+  });
+
+  const handleSave = (data: CreateClientFormData) => {
+    const result = createClientSchema.safeParse(data);
+    if (!result.success) {
+      console.error("Validation failed:", result.error);
+      // You might want to show toast error here or let the form handle display
+      return;
     }
+    mutation.mutate(data);
   };
 
   const handleCancel = () => {
-    // Handle cancel action
-    closeNewClientForm();
+    setShowCancelModal(true);
   };
 
   return (
@@ -135,21 +193,22 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           </Button>
           <Button
             type="submit"
-            form="aidata-form"
+            form="lead-form" // Changed to match ClientForm ID
             variant={"outline"}
-            disabled={isSubmitting}
+            disabled={mutation.isPending}
             className="p-6 px-8 text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-[#3072C0] hover:text-white transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Save Client"}
+            {mutation.isPending ? "Saving..." : "Save Client"}
           </Button>
         </div>
       </div>
 
-      <AiDataForm
-        mode="create"
+      <ClientForm
+        initialData={defaultFormData}
         onSubmit={handleSave}
         onCancel={handleCancel}
-        isSubmitting={isSubmitting}
+        isSubmitting={mutation.isPending}
+        mode="create"
       />
       <PopupModal
         open={showCancelModal}

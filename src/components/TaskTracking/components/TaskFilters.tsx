@@ -151,6 +151,7 @@ const TaskFilters = ({
               <SelectValue placeholder="Task Category" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="All Categories">All Categories</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category.id} value={category.name}>
                   {category.name}

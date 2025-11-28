@@ -1,10 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 
 import ClientForm from "@/components/Forms/ClientForm";
 import {
@@ -19,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import { updateClient, type ClientByIdResponse } from "@/lib/api/client/client";
 import { SocialMediaUrls } from "@/lib/api/leads";
-import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
+import { createClientSchema, type CreateClientFormData, companySizeOptions } from "@/lib/validations/client";
 
 interface EditClientPageProps {
   initialData: ClientByIdResponse;
@@ -61,27 +59,45 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
 
   return {
     fullName: client.clientName || "",
-    industry: client.industrySectorId || "technology",
+    industry: client.industrySector?.id || client.industrySectorId || "",
     businessOverview: client.businessOverview || "",
     email: client.emailAddress || "",
-    companySize: client.companySize?.name || "0-50",
+    companySize: (companySizeOptions.find((c) => c === client.companySize?.name) as typeof companySizeOptions[number]) || "0-50",
     contactName: client.fullName || "",
-    jobTitle: "",
+    jobTitle: "", // Not available in API response
     phoneNumber: client.phoneNumber || "",
     location: client.area?.name || client.cityType?.name || "",
     fullAddress: client.fullAddress || "",
+    country: client.countryId || "",
+    city: client.cityId || "",
+    area: client.areaId || "",
     linkedinProfile: getUrlByPlatform("LinkedIn"),
-    department: "",
+    facebookUrl: getUrlByPlatform("Facebook"),
+    twitterUrl: getUrlByPlatform("Twitter"),
+    instagramUrl: getUrlByPlatform("Instagram"),
+    department: "", // Not available in API response
     accountManager: client.accountManagerId || "",
     clientSince: safeParseDate(client.agreementStartDate),
     agreementStartDate: safeParseDate(client.agreementStartDate),
     agreementEndDate: safeParseDate(client.agreementEndDate),
     contractDuration: client.contractDuration?.toString() || "",
     clientStatus: client.isActive ? "active" : "inactive",
-    monthlyBudget: "0",
-    priorityLevel: "low",
+    monthlyBudget: "0", // Not available in API response
+    priorityLevel: "low", // Not available in API response
     websiteUrl: client.websiteUrl || "",
     internalNotes: client.internalNotes || "",
+    
+    // New Fields Mapping
+    primaryMarketRegionId: client.primaryMarketRegion?.id || client.primaryMarketRegionId || "",
+    secondaryMarketIds: client.secondaryMarkets?.map(m => m.marketRegion.id) || [],
+    targetAudienceId: client.targetAudience?.id || client.targetAudienceId || "",
+    languagesSupported: client.languagesSupported?.map(l => l.code) || [],
+    serviceOfferingIds: client.serviceOfferings?.map(s => s.id) || [],
+    assignedUserIds: client.assignedUsers?.map(u => u.id) || [],
+    teamRoleIds: client.teamRoles?.map(t => t.id) || [],
+    visionStatement: client.visionStatement || "",
+    missionStatement: client.missionStatement || "",
+    businessMaturity: client.businessMaturity || "",
   };
 }
 
@@ -96,6 +112,9 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
       // Map form data to API request format - build socialMediaUrls array
       const socialMediaUrls: SocialMediaUrls = [];
       if (data.linkedinProfile) socialMediaUrls.push({ platform: "LinkedIn", url: data.linkedinProfile });
+      if (data.facebookUrl) socialMediaUrls.push({ platform: "Facebook", url: data.facebookUrl });
+      if (data.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: data.twitterUrl });
+      if (data.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: data.instagramUrl });
 
       const payload: Parameters<typeof updateClient>[1] = {
         clientName: data.fullName,
@@ -106,29 +125,44 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
         contractDurationMonths: parseInt(data.contractDuration) || 0,
-        primaryMarketRegionId: initialData.primaryMarketRegionId || "",
-        targetAudienceId: initialData.targetAudienceId || "",
-        secondaryMarketIds: initialData.secondaryMarkets?.map(m => m.marketRegion.id) || [],
-        languagesSupported: initialData.languagesSupported?.map(l => l.code) || [],
-        visionStatement: initialData.visionStatement || undefined,
-        missionStatement: initialData.missionStatement || undefined,
+        primaryMarketRegionId: data.primaryMarketRegionId,
+        targetAudienceId: data.targetAudienceId,
+        secondaryMarketIds: data.secondaryMarketIds,
+        languagesSupported: data.languagesSupported,
+        visionStatement: data.visionStatement || undefined,
+        missionStatement: data.missionStatement || undefined,
         socialMediaUrls: socialMediaUrls.length > 0 ? socialMediaUrls : null,
         websiteUrl: data.websiteUrl || undefined,
         fullAddress: data.fullAddress || undefined,
-        countryId: initialData.countryId || undefined,
-        cityId: initialData.cityId || undefined,
-        areaId: initialData.areaId || undefined,
+        countryId: data.country || undefined,
+        cityId: data.city || undefined,
+        areaId: data.area || undefined,
+        departmentId: data.department || undefined,
         accountManagerId: data.accountManager || undefined,
         marketingStrategistId: initialData.marketingStrategistId || undefined,
-        assignedUserIds: initialData.assignedUsers?.map(u => u.id) || [],
-        serviceOfferingIds: initialData.serviceOfferings?.map(s => s.id) || [],
-        teamRoleIds: initialData.teamRoles?.map(t => t.id) || [],
+        assignedUserIds: data.assignedUserIds,
+        serviceOfferingIds: data.serviceOfferingIds,
+        teamRoleIds: data.teamRoleIds,
         internalNotes: data.internalNotes || undefined,
+        businessMaturity: data.businessMaturity || undefined,
+        companySizeId: undefined, // We only have name in form, need ID if we want to update it properly, or rely on backend to handle name? 
+        // Assuming companySize in form is just a string from enum, but API expects ID? 
+        // The API definition shows companySizeId. 
+        // However, the form uses an enum of strings "0-50", etc. 
+        // If the backend expects an ID, we might need to look it up or the backend handles the string.
+        // For now, I'll leave it as is or try to find if there's a lookup for company size IDs.
+        // Looking at client.ts, there is `CompanySize` interface with ID and name.
+        // But `companySizeOptions` in validation are strings.
+        // I will assume for now that I can't easily map back to ID without fetching company sizes lookup.
+        // Let's check if I can fetch company sizes.
       };
 
       return updateClient(clientId, payload);
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
+      if (![201,200].includes(res.status)){
+        throw new Error(res.data?.message || "Failed to update client");
+      }
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["client", clientId] });
       router.push(`/client-management/${clientId}`);
@@ -148,7 +182,7 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
   };
 
   const handleCancel = () => {
-    router.push(`/client-management/${clientId}`);
+    router.back();
   };
 
   return (

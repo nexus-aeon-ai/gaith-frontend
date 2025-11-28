@@ -78,6 +78,7 @@ type LookupTable =
   | "countries"
   | "regions"
   | "areas"
+  | "cities"
   | "product-services"
   | "lead-sources"
   | "team-roles";
@@ -107,6 +108,18 @@ export const getLeadsLookup = async <T = unknown>(
   if (Array.isArray(response.data.data)) return response.data.data;
 
   return [];
+};
+
+export const getCitiesByCountry = async (countryId: string): Promise<City[]> => {
+  if (!countryId) return [];
+  const response = await fetchInstance<City[]>(`${leadsEndpoint}/lookups/cities/by-country/${countryId}`);
+  return response.data || [];
+};
+
+export const getAreasByCity = async (cityId: string): Promise<Area[]> => {
+  if (!cityId) return [];
+  const response = await fetchInstance<Area[]>(`${leadsEndpoint}/lookups/areas/by-city/${cityId}`);
+  return response.data || [];
 };
 
 // API response shape
@@ -245,7 +258,6 @@ export const createLead = async (formData: CreateLeadFormData): Promise<{
   if (formData.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: formData.twitterUrl });
   if (formData.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: formData.instagramUrl });
   if (formData.youtubeUrl) socialMediaUrls.push({ platform: "YouTube", url: formData.youtubeUrl });
-  if (formData.tiktokUrl) socialMediaUrls.push({ platform: "TikTok", url: formData.tiktokUrl });
 
   const body: Record<string, unknown> = {
     fullName: formData.fullName,
@@ -302,7 +314,6 @@ export const editLead = async (
   if (formData.twitterUrl) socialMediaUrls.push({ platform: "Twitter", url: formData.twitterUrl });
   if (formData.instagramUrl) socialMediaUrls.push({ platform: "Instagram", url: formData.instagramUrl });
   if (formData.youtubeUrl) socialMediaUrls.push({ platform: "YouTube", url: formData.youtubeUrl });
-  if (formData.tiktokUrl) socialMediaUrls.push({ platform: "TikTok", url: formData.tiktokUrl });
 
   const body: Record<string, unknown> = {
     fullName: formData.fullName,

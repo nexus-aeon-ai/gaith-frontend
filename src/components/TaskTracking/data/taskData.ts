@@ -1,5 +1,5 @@
 export interface Task {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   dueDate: string;
@@ -166,7 +166,8 @@ export const statuses: Status[] = [
 
 // Helper function to get next ID
 export const getNextTaskId = (tasks: Task[]): number => {
-  return Math.max(...tasks.map(task => task.id), 0) + 1;
+  const numericIds = tasks.map(t => typeof t.id === 'number' ? t.id : Number(t.id)).filter(id => !isNaN(id));
+  return Math.max(...numericIds, 0) + 1;
 };
 
 // Helper function to get next category ID
