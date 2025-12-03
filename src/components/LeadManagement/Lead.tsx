@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from 
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import FilterSheet from "@/components/sheet/Filter";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
+import DeleteConfirmationDialog from "@/components/ui/delete-confirmation-dialog";
 import { deleteLead, getLeads, LeadsFilters } from "@/lib/api/leads";
 import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
@@ -54,21 +56,47 @@ const LeadsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewLeadForm] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [leadsToDelete, setLeadsToDelete] = useState<string[]>([]);
+
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
   const queryClient = useQueryClient();
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteLead(id),
+
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => deleteLead(id)));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
-      console.log("Lead deleted successfully!");
+      setSelectedLeads([]);
+      setLeadsToDelete([]);
+      setIsDeleteDialogOpen(false);
+      toast.success("Leads deleted successfully!");
     },
     onError: error => {
-      console.error("Failed to delete lead. See console for details.");
-      console.error(error);
+      console.error("Failed to delete leads.", error);
+      toast.error("Failed to delete leads. Please try again.");
     },
   });
+
+  const handleBulkDelete = () => {
+    if (selectedLeads.length === 0) return;
+    setLeadsToDelete(selectedLeads);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteLead = (id: string) => {
+    if (!id) return;
+    setLeadsToDelete([id]);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    bulkDeleteMutation.mutate(leadsToDelete);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -129,11 +157,6 @@ const LeadsPage = () => {
     return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)} />;
   }
 
-  const confirmDeleteLead = (id: string) => {
-    if (!id) return;
-    console.log("Deleting lead:", id);
-    deleteMutation.mutate(id);
-  };
   return (
     <div
       className={cn(
@@ -215,10 +238,8 @@ const LeadsPage = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   variant="destructive"
-                  onClick={() => {
-                    // Handle delete action here
-                    // TODO: Implement delete functionality
-                  }}
+                  onClick={handleBulkDelete}
+                  disabled={selectedLeads.length === 0}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                   <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
@@ -571,6 +592,20 @@ const LeadsPage = () => {
           setLeadFilters(filters);
           setCurrentPage(1);
         }}
+      />
+      <DeleteConfirmationDialog
+        open={isDeleteDialogOpen}
+        setOpen={setIsDeleteDialogOpen}
+        itemName="lead"
+        itemLabel={leadsToDelete.length > 1 ? `${leadsToDelete.length} leads` : undefined}
+        onDelete={handleDeleteConfirm}
+        isPending={bulkDeleteMutation.isPending}
+        title={leadsToDelete.length > 1 ? "Delete Leads" : "Delete Lead"}
+        description={
+          leadsToDelete.length > 1
+            ? `Are you sure you want to delete these ${leadsToDelete.length} leads? This action cannot be undone.`
+            : undefined
+        }
       />
     </div>
   );
