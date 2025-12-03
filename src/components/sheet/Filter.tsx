@@ -144,7 +144,7 @@ export default function FilterSheet({
   };
 
   if(isLoading){
-    return <div>Loading...</div>;
+    return null;
   }
 
 

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import FilterSheet from "@/components/sheet/Filter";
+import TableSkeleton from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -43,10 +44,9 @@ const LeadsPage = () => {
   // Fetch leads from API
   const [leadFilters, setLeadFilters] = useState<LeadsFilters | undefined>(undefined);
 
-  const { data } = useQuery<{ status: number; data: { results: Lead[]; count: number } }, Error>({
+  const { data, isLoading } = useQuery<{ status: number; data: { results: Lead[]; count: number } }, Error>({
     queryKey: ["leads", leadFilters],
     queryFn: () => getLeads(leadFilters),
-    initialData: { status: 200, data: { results: [], count: 0 } },
   });
 
   const leads: Lead[] = data?.data.results || [];
@@ -290,8 +290,22 @@ const LeadsPage = () => {
 
       {/* Table Section */}
       <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {isLoading ? (
+          <TableSkeleton
+            columns={[
+              { header: "", width: "w-[50px]" },
+              { header: "Lead Name", width: "w-[250px]" },
+              { header: "Status", width: "w-[100px]" },
+              { header: "Source", width: "w-[120px]" },
+              { header: "Services", width: "w-[200px]" },
+              { header: "Contact Info", width: "w-[150px]" },
+              { header: "Assigned To", width: "w-[120px]" },
+              { header: "Actions", width: "w-[80px]" },
+            ]}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-3 text-left">
@@ -509,6 +523,7 @@ const LeadsPage = () => {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Pagination Section */}
