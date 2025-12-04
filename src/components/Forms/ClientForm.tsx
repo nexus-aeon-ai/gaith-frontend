@@ -42,6 +42,7 @@ import {
   getClientServiceOffers,
   getClientTargetAudiences,
   getClientTeamRoles,
+  type ResponseT,
 } from "@/lib/api/client/client";
 import { getDepartments, BackendDepartment } from "@/lib/api/departments";
 import { getLeadsLookup, getCitiesByCountry, getAreasByCity, Country, City, Area } from "@/lib/api/leads";
@@ -59,6 +60,8 @@ interface ClientFormProps {
   onCancel?: () => void;
   isSubmitting?: boolean;
   mode?: "create" | "edit";
+  readOnly?: boolean;
+  companySizes?: ResponseT[];
 }
 
 const defaultFormData: CreateClientFormData = {
@@ -82,7 +85,7 @@ const defaultFormData: CreateClientFormData = {
   clientSince: new Date(),
   agreementStartDate: new Date(),
   agreementEndDate: new Date(),
-  contractDuration: "",
+
 
   clientStatus: "active", // default from enum: active | inactive | Pending | Suspended
   monthlyBudget: "0",
@@ -107,7 +110,7 @@ const defaultFormData: CreateClientFormData = {
   businessMaturity: "",
 };
 
-const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
+const ClientForm = ({ initialData, onSubmit, onCancel, isSubmitting, mode, readOnly, companySizes }: ClientFormProps) => {
   const { theme } = useTheme();
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),
@@ -241,6 +244,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
         onSubmit={form.handleSubmit(onSubmit, handleError)}
         className="w-full mx-auto space-y-4 font-inter"
       >
+        <fieldset disabled={readOnly} className="contents">
         {/* Basic Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
@@ -303,11 +307,19 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                           <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
                         <SelectContent>
-                          {companySizeOptions.map(option => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
+                          {companySizes && companySizes.length > 0 ? (
+                            companySizes.map((option) => (
+                              <SelectItem key={option.id || option.name} value={option.name || ""}>
+                                {option.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            companySizeOptions.map(option => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -758,6 +770,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="jobTitle"
@@ -940,23 +953,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="contractDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contract Duration</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="10 Months"
-                        className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
             </div>
           </CardContent>
         </Card>
@@ -1256,6 +1253,7 @@ const ClientForm = ({ initialData, onSubmit }: ClientFormProps) => {
             </div>
           </CardContent>
         </Card>
+        </fieldset>
       </form>
     </Form>
   );

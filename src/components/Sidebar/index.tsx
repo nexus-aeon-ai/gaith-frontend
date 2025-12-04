@@ -54,7 +54,7 @@ import { cn } from "@/lib/utils";
 const SidebarUI  = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
-  const { setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   const handleLogout = () => {
     setUser({} as any);
@@ -76,60 +76,75 @@ const SidebarUI  = () => {
     },
   ];
 
+  const hasPermission = (resource?: string) => {
+    if (!resource) return true;
+    const permissions = user?.permissions || [];
+    return permissions.includes(`${resource}.read`);
+  };
+
   const mainItems = [
     {
       label: "Dashboard",
       icon: <DashboardOutline className="dark:text-[#CCCFDB]" />,
       iconFilled: <DashboarFilled className="dark:text-[#CCCFDB]" />,
       href: "/",
+      resource: "dashboard",
     },
     {
       label: "Task Tracking",
       icon: <TaskTrackingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <TaskTrackingFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/task-tracking",
+      resource: "tasks",
     },
     {
       label: "Report & Analysis",
       icon: <ReportIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ReportsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/reports",
+      resource: "reports",
     },
     {
       label: "Leads",
       icon: <LeadsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <LeadsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/leads",
+      resource: "leads",
     },
     {
       label: "Client Management",
       icon: <ClientManagmentIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ClientFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/client-management",
+      resource: "clients",
     },
     {
       label: "Employees",
       icon: <EmployeeIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <EmployeeFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/employees",
+      resource: "employees",
     },
     {
       label: "Employees Tasks",
       icon: <EmployeeTasksIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <EmployeeTasksFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/employee-tasks",
+      resource: "employee_tasks",
     },
     {
       label: "Quotations",
       icon: <QuotationsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <QuotationsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/quotations",
+      resource: "quotations",
     },
     {
       label: "Submitted",
       icon: <SubmitedIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <SubmitedFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/submitted",
+      resource: "submitted",
     },
   ];
 
@@ -139,36 +154,42 @@ const SidebarUI  = () => {
       icon: <Sparkles className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Sparkles className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/generate-marketing-assets",
+      resource: "marketing_assets",
     },
     {
       label: "Social Media Calendar",
       icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB":"#265B99"} />,
       href: "/social-media-calendar",
+      resource: "social_media",
     },
     {
       label: "Blog & Articles",
       icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB":"#265B99"}/>,
       href: "/blog-articles",
+      resource: "blog",
     },
     {
       label: "Marketing Plans",
       icon: <Target className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Target className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/marketing-plans",
+      resource: "marketing_plans",
     },
     {
       label: "Media Buying",
       icon: <ShoppingBag className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ShoppingBag className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/media-buying",
+      resource: "media_buying",
     },
     {
       label: "AI Chatbot",
       icon: <AIChatbotIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <AiChatbotFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/ai-chatbot",
+      resource: "chatbot",
     },
   ];
 
@@ -178,6 +199,7 @@ const SidebarUI  = () => {
       icon: <SettingsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <SettingsFilled color={ theme === "dark" ? "#CCCFDB":"#265B99" } />,
       href: "/settings",
+      resource: "settings",
     },
     {
       label: "Logout",
@@ -186,6 +208,10 @@ const SidebarUI  = () => {
       href: "/logout",
     },
   ];
+
+  const filteredMainItems = mainItems.filter(item => hasPermission(item.resource));
+  const filteredAiToolsItems = aiToolsItems.filter(item => hasPermission(item.resource));
+  const filteredSettingsItems = settingsItems.filter(item => hasPermission(item.resource));
 
   const isActive = (href: string) => {
     if (!pathname) {
@@ -213,7 +239,7 @@ const SidebarUI  = () => {
       <SidebarContent className="h-full bg-background md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
-            {mainItems.map(item => (
+            {filteredMainItems.map(item => (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
@@ -285,7 +311,7 @@ const SidebarUI  = () => {
           <SidebarSeparator />
           <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
           <SidebarMenu>
-            {aiToolsItems.map(item => (
+            {filteredAiToolsItems.map(item => (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
@@ -303,7 +329,7 @@ const SidebarUI  = () => {
           </SidebarMenu>
           <SidebarSeparator />
           <SidebarMenu>
-            {settingsItems.map(item => (
+            {filteredSettingsItems.map(item => (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild

@@ -57,10 +57,7 @@ export const createClientSchema = z.object({
 
   industry: z.string().min(1, "Industry is required"),
 
-  companySize: z.enum(companySizeOptions, {
-    required_error: "Company size is required",
-    invalid_type_error: "Invalid company size selected",
-  }),
+  companySize: z.string().min(1, "Company size is required"),
 
   // Contact Information - Email is required
   businessOverview: z
@@ -117,10 +114,7 @@ export const createClientSchema = z.object({
   }),
   agreementStartDate: z.date(),
   agreementEndDate: z.date(),
-  contractDuration: z
-    .string()
-    .min(1, "Contract duration must be at least 1 character")
-    .max(50, "Contract duration must be less than 50 characters"),
+
 
   clientStatus: z.enum(["active", "inactive", "pending", "suspended"], {
     required_error: "Client status is required",

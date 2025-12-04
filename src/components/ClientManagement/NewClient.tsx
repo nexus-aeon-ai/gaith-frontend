@@ -1,10 +1,13 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
+
+import ClientForm from "../Forms/ClientForm";
+import PopupModal from "../PopupModal/PopupModal";
 
 import {
   Breadcrumb,
@@ -16,12 +19,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { createClient } from "@/lib/api/client/client";
+import { usePermission } from "@/hooks/usePermission";
+import { createClient, getClientCompanySizes } from "@/lib/api/client/client";
 import { SocialMediaUrls } from "@/lib/api/leads";
 import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
-import ClientForm from "../Forms/ClientForm";
-import PopupModal from "../PopupModal/PopupModal";
 
 const defaultFormData: CreateClientFormData = {
   fullName: "",
@@ -66,7 +68,13 @@ const defaultFormData: CreateClientFormData = {
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
   const queryClient = useQueryClient();
+  const { canAdd } = usePermission("clients");
   const [showCancelModal, setShowCancelModal] = useState(false);
+
+  const { data: companySizes } = useQuery({
+    queryKey: ["company-size"],
+    queryFn: getClientCompanySizes,
+  });
 
   const mutation = useMutation({
     mutationFn: async (data: CreateClientFormData) => {
@@ -85,7 +93,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         businessOverview: data.businessOverview,
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
-        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        contractDurationMonths: Math.ceil((data.agreementEndDate.getTime() - data.agreementStartDate.getTime()) / (1000 * 60 * 60 * 24 * 30)),
         primaryMarketRegionId: data.primaryMarketRegionId,
         targetAudienceId: data.targetAudienceId,
         secondaryMarketIds: data.secondaryMarketIds,
@@ -105,12 +113,9 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         teamRoleIds: data.teamRoleIds,
         internalNotes: data.internalNotes || undefined,
         businessMaturity: data.businessMaturity || undefined,
-        // Using companySize from form as ID if possible, or ignoring if it's just a string name that doesn't match ID
-        // Similar to EditClientPage, we might have a mismatch here if companySize is just "0-50" string but API wants ID.
-        // For now, we follow the pattern in EditClientPage where we didn't explicitly set companySizeId unless we have it.
-        // If the backend handles "0-50" string in a specific field, we should map it.
-        // The API definition has companySizeId. The form has companySize enum string.
-        // We will omit companySizeId for now unless we can map it, to avoid errors.
+        companySizeId: Array.isArray(companySizes) ? companySizes.find(c => c.name === data.companySize)?.id : undefined,
+        jobTitle: data.jobTitle,
+        contactName: data.contactName,
       };
 
       return createClient(payload);
@@ -131,6 +136,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
   });
 
   const handleSave = (data: CreateClientFormData) => {
+    if (!canAdd) return;
     const result = createClientSchema.safeParse(data);
     if (!result.success) {
       console.error("Validation failed:", result.error);
@@ -191,15 +197,17 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            form="lead-form" // Changed to match ClientForm ID
-            variant={"outline"}
-            disabled={mutation.isPending}
-            className="p-6 px-8 text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-[#3072C0] hover:text-white transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {mutation.isPending ? "Saving..." : "Save Client"}
-          </Button>
+          {canAdd && (
+            <Button
+              type="submit"
+              form="lead-form" // Changed to match ClientForm ID
+              variant={"outline"}
+              disabled={mutation.isPending}
+              className="p-6 px-8 text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-[#3072C0] hover:text-white transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {mutation.isPending ? "Saving..." : "Save Client"}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -209,6 +217,8 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
         onCancel={handleCancel}
         isSubmitting={mutation.isPending}
         mode="create"
+        readOnly={!canAdd}
+        companySizes={companySizes}
       />
       <PopupModal
         open={showCancelModal}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { updateClient, type ClientByIdResponse } from "@/lib/api/client/client";
+import { usePermission } from "@/hooks/usePermission";
+import { updateClient, getClientCompanySizes, type ClientByIdResponse } from "@/lib/api/client/client";
 import { SocialMediaUrls } from "@/lib/api/leads";
-import { createClientSchema, type CreateClientFormData, companySizeOptions } from "@/lib/validations/client";
+import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
 
 interface EditClientPageProps {
   initialData: ClientByIdResponse;
@@ -62,9 +63,9 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
     industry: client.industrySector?.id || client.industrySectorId || "",
     businessOverview: client.businessOverview || "",
     email: client.emailAddress || "",
-    companySize: (companySizeOptions.find((c) => c === client.companySize?.name) as typeof companySizeOptions[number]) || "0-50",
-    contactName: client.fullName || "",
-    jobTitle: "", // Not available in API response
+    companySize: client.companySize?.name || "",
+    contactName: client.contactName || client.fullName || "",
+    jobTitle: client.jobTitle || "",
     phoneNumber: client.phoneNumber || "",
     location: client.area?.name || client.cityType?.name || "",
     fullAddress: client.fullAddress || "",
@@ -75,12 +76,12 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
     facebookUrl: getUrlByPlatform("Facebook"),
     twitterUrl: getUrlByPlatform("Twitter"),
     instagramUrl: getUrlByPlatform("Instagram"),
-    department: "", // Not available in API response
+    department: client.department || "",
     accountManager: client.accountManagerId || "",
     clientSince: safeParseDate(client.agreementStartDate),
     agreementStartDate: safeParseDate(client.agreementStartDate),
     agreementEndDate: safeParseDate(client.agreementEndDate),
-    contractDuration: client.contractDuration?.toString() || "",
+
     clientStatus: client.isActive ? "active" : "inactive",
     monthlyBudget: "0", // Not available in API response
     priorityLevel: "low", // Not available in API response
@@ -94,7 +95,7 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
     languagesSupported: client.languagesSupported?.map(l => l.code) || [],
     serviceOfferingIds: client.serviceOfferings?.map(s => s.id) || [],
     assignedUserIds: client.assignedUsers?.map(u => u.id) || [],
-    teamRoleIds: client.teamRoles?.map(t => t.id) || [],
+    teamRoleIds: client.teamRoles?.map(t => t.teamRole.id) || [],
     visionStatement: client.visionStatement || "",
     missionStatement: client.missionStatement || "",
     businessMaturity: client.businessMaturity || "",
@@ -104,8 +105,14 @@ function mapClientToFormData(client: ClientByIdResponse): CreateClientFormData {
 export default function EditClientPage({ initialData, clientId }: EditClientPageProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { canEdit } = usePermission("clients");
 
   const formData = mapClientToFormData(initialData);
+
+  const { data: companySizes } = useQuery({
+    queryKey: ["company-size"],
+    queryFn: getClientCompanySizes,
+  });
 
   const mutation = useMutation({
     mutationFn: async (data: CreateClientFormData) => {
@@ -124,7 +131,7 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
         businessOverview: data.businessOverview,
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
-        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        contractDurationMonths: Math.ceil((data.agreementEndDate.getTime() - data.agreementStartDate.getTime()) / (1000 * 60 * 60 * 24 * 30)),
         primaryMarketRegionId: data.primaryMarketRegionId,
         targetAudienceId: data.targetAudienceId,
         secondaryMarketIds: data.secondaryMarketIds,
@@ -145,16 +152,9 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
         teamRoleIds: data.teamRoleIds,
         internalNotes: data.internalNotes || undefined,
         businessMaturity: data.businessMaturity || undefined,
-        companySizeId: undefined, // We only have name in form, need ID if we want to update it properly, or rely on backend to handle name? 
-        // Assuming companySize in form is just a string from enum, but API expects ID? 
-        // The API definition shows companySizeId. 
-        // However, the form uses an enum of strings "0-50", etc. 
-        // If the backend expects an ID, we might need to look it up or the backend handles the string.
-        // For now, I'll leave it as is or try to find if there's a lookup for company size IDs.
-        // Looking at client.ts, there is `CompanySize` interface with ID and name.
-        // But `companySizeOptions` in validation are strings.
-        // I will assume for now that I can't easily map back to ID without fetching company sizes lookup.
-        // Let's check if I can fetch company sizes.
+        companySizeId: Array.isArray(companySizes) ? companySizes.find(c => c.name === data.companySize)?.id : undefined,
+        jobTitle: data.jobTitle,
+        contactName: data.contactName,
       };
 
       return updateClient(clientId, payload);
@@ -173,6 +173,7 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
   });
 
   const handleSave = (data: CreateClientFormData) => {
+    if (!canEdit) return;
     const result = createClientSchema.safeParse(data);
     if (!result.success) {
       console.error("Validation failed:", result.error);
@@ -234,24 +235,27 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            form="lead-form"
-            variant={"outline"}
-            disabled={mutation.isPending}
-            className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {mutation.isPending ? "Saving..." : "Save Changes"}
-          </Button>
+          {canEdit && (
+            <Button
+              type="submit"
+              form="lead-form"
+              variant={"outline"}
+              disabled={mutation.isPending}
+              className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {mutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          )}
         </div>
       </div>
-
       <ClientForm
         initialData={formData}
         onSubmit={handleSave}
         onCancel={handleCancel}
         isSubmitting={mutation.isPending}
         mode="edit"
+        readOnly={!canEdit}
+        companySizes={companySizes}
       />
     </div>
   );

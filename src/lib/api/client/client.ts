@@ -49,9 +49,11 @@ export interface ServiceOffering {
 }
 
 export interface TeamRole {
-  id: string;
-  name: string;
-  description?: string;
+  teamRole: {
+    id: string;
+    name: string;
+    description?: string;
+  };
 }
 
 export interface SecondaryMarket {
@@ -196,6 +198,9 @@ export interface ClientByIdResponse {
   phoneNumber: string;
   businessOverview: string | null;
   companyLogoUrl: string | null;
+  contactName: string | null;
+  jobTitle: string | null;
+  department: string | null;
   industrySectorId: string | null;
   companySizeId: string | null;
   agreementStartDate: string;
@@ -300,7 +305,7 @@ export type ApiClient = {
   industrySector?: IndustrySector | null;
 };
 
-interface ResponseT {
+export interface ResponseT {
   id?: string;
   name?: string;
   value?: string;
@@ -355,6 +360,9 @@ export interface CreateClientRequest {
   longitude?: number;
   internalNotes?: string;
   notes?: string;
+  jobTitle?: string;
+  department?: string;
+  contactName?: string;
 }
 
 export const createClient = async (
@@ -531,6 +539,14 @@ export const getClientServiceOffers = async (): Promise<ResponseT[]> => {
 
 export const getClientTeamRoles = async (): Promise<ResponseT[]> => {
   const response = await fetchInstance<ResponseT[]>(`${clientsEndpoint}/lookups/team-roles`);
+  if (!response.data) {
+    return [];
+  }
+  return response.data;
+};
+
+export const getClientCompanySizes = async (): Promise<ResponseT[]> => {
+  const response = await fetchInstance<ResponseT[]>(`${clientsEndpoint}/lookups/company-size`);
   if (!response.data) {
     return [];
   }
