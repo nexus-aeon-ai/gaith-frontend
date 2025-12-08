@@ -1,5 +1,4 @@
-import type { LucideProps } from "lucide-react";
-import { createLucideIcon } from "lucide-react";
+import { createLucideIcon, type LucideProps } from "lucide-react";
 
 const SitesLucideIcon = createLucideIcon("sites", [
   [

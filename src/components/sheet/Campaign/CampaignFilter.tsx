@@ -54,7 +54,7 @@ export default function FilterSheet({
     platforms: [],
   });
 
-  const { types, statusTypes, platformTypes, isLoading } = useCampaignLookups();
+  const { types, statusTypes, platformTypes } = useCampaignLookups();
   console.log("types:", types, " \nstatusTypes:", statusTypes, " \nplatformTypes:", platformTypes);
 
   // Convert lookup objects to { id, name } format or use fallback strings

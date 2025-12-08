@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CirclePlus, Info, SquarePen } from "lucide-react";
+import { ArrowLeft, CirclePlus, SquarePen } from "lucide-react";
 import { useState } from "react";
 
 import { CampaignForm } from "@/components/ClientManagement/Campaign/Campaign";

@@ -111,7 +111,15 @@ const defaultFormData: CreateClientFormData = {
   businessMaturity: "",
 };
 
-const ClientForm = ({ initialData, onSubmit, onCancel, isSubmitting, mode, readOnly, companySizes }: ClientFormProps) => {
+const ClientForm = ({
+  initialData,
+  onSubmit,
+  onCancel: _onCancel,
+  isSubmitting: _isSubmitting,
+  mode: _mode,
+  readOnly,
+  companySizes,
+}: ClientFormProps) => {
   const { theme } = useTheme();
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),

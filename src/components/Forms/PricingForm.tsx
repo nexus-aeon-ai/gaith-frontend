@@ -32,13 +32,11 @@ import {
   type GeneratePricingFormData,
 } from "@/lib/validations/generate-pricing";
 
-import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 import { CheckboxSquare } from "../ui/checkbox-square";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 
 interface PricingFormProps {
@@ -109,14 +107,6 @@ const services = [
     name: "Email Marketing",
     description: "Campaign strategy, design, and deployment with analytics",
   },
-];
-
-const packageFeatures = [
-  "Digital Marketing Strategy",
-  "Social Media Management",
-  "SEO Optimization",
-  "Content Creation",
-  "Email Marketing",
 ];
 
 const services2 = [

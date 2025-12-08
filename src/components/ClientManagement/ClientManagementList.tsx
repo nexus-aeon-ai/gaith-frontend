@@ -15,9 +15,7 @@ import { deleteClient, getClients, type ApiClient } from "@/lib/api/client/clien
 import { Client, TGenericPaginatedResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import ClientDetailsView from "./ClientDetailsView";
 import ClientTableSection from "./ClientTableSection";
-import EditClient from "./EditClient";
 import HeaderSection from "./HeaderSection";
 import NewClient from "./NewClient";
 import SearchAndActionsSection from "./SearchAndActionsSection";

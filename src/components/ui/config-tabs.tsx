@@ -31,7 +31,7 @@ interface TabProps {
   icon?: React.ReactNode;
 }
 
-export function Tab({ value, children, selected, onSelect, icon }: TabProps) {
+export function Tab({ value: _value, children, selected, onSelect, icon }: TabProps) {
   return (
     <button
       type="button"

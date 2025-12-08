@@ -1,5 +1,4 @@
-import type { LucideProps } from "lucide-react";
-import { createLucideIcon } from "lucide-react";
+import { createLucideIcon, type LucideProps } from "lucide-react";
 
 export const MoreOptionsLucideIcon = createLucideIcon("more-options", [
   [

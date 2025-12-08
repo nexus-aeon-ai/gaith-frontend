@@ -1,11 +1,8 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
 import { CartesianGrid, Line, XAxis, YAxis, ComposedChart, Bar } from "recharts";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,

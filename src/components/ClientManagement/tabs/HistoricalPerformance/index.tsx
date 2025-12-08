@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, FileSpreadsheet, FileText } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   Bar,
@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 
 import { mockBudgetData, mockFinancialData, mockSummaryMetrics } from "../../data";
 
-const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => {
+const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabProps) => {
   const budgetData = mockBudgetData;
   const financialData = mockFinancialData;
   const { theme: themeNext } = useTheme();
