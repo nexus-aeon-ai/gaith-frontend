@@ -35,14 +35,6 @@ interface MediaBuyingData {
   platform: string;
   clientId?: string;
 }
-
-interface AssetDataState {
-  blog: BlogData | null;
-  calendar: CalendarData | null;
-  mediaBuying: MediaBuyingData | null;
-  marketingPlan: { company_website: string } | null;
-}
-
 interface GeneratedResults {
   blog?: unknown;
   calendar?: unknown;
@@ -292,7 +284,7 @@ export default function GeneratedAssetsSheet({
               <div className="space-y-4">
                 <h3 className="text-md font-semibold">Generated Results</h3>
                 
-                {generatedResults.blog && (
+                {!!generatedResults.blog && (
                   <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-[#F3F5F7] dark:bg-[#0F1B29]">
                     <h4 className="font-semibold mb-2">Blog Post</h4>
                     <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -301,7 +293,7 @@ export default function GeneratedAssetsSheet({
                   </div>
                 )}
 
-                {generatedResults.calendar && (
+                {!!generatedResults.calendar && (
                   <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-[#F3F5F7] dark:bg-[#0F1B29]">
                     <h4 className="font-semibold mb-2">Social Media Calendar</h4>
                     <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -310,7 +302,7 @@ export default function GeneratedAssetsSheet({
                   </div>
                 )}
 
-                {generatedResults.mediaBuying && (
+                {!!generatedResults.mediaBuying && (
                   <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-[#F3F5F7] dark:bg-[#0F1B29]">
                     <h4 className="font-semibold mb-2">Media Buying Plan</h4>
                     <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -319,7 +311,7 @@ export default function GeneratedAssetsSheet({
                   </div>
                 )}
 
-                {generatedResults.marketingPlan && (
+                {!!generatedResults.marketingPlan && (
                   <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-[#F3F5F7] dark:bg-[#0F1B29]">
                     <h4 className="font-semibold mb-2">Marketing Strategy</h4>
                     <p className="text-sm text-foreground whitespace-pre-wrap">

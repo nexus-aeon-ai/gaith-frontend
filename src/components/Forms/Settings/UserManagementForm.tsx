@@ -55,6 +55,18 @@ const transformTeamMembersToEmployees = (teamMembers: TeamMemberApiResponse[]): 
       edit: true,
       view: true,
     },
+    // Adding missing mandatory fields for Employee type
+    roleLevel: "Mid-Senior", // Placeholder
+    department: {
+      name: "Engineering",
+      team: "Product Team"
+    },
+    contactInfo: {
+      email: member.email,
+      number: "+1 (555) 000-0000",
+    },
+    performance: "95%",
+    profilePicture: "",
   }));
 };
 
@@ -72,6 +84,11 @@ const mockEmployees: Employee[] = [
       edit: true,
       view: true,
     },
+    roleLevel: "Senior",
+    department: { name: "Engineering", team: "Frontend" },
+    contactInfo: { email: "john.smith@example.com", number: "+1 555-0100" },
+    performance: "98%",
+    profilePicture: "",
   },
   {
     id: "2",
@@ -85,6 +102,11 @@ const mockEmployees: Employee[] = [
       edit: true,
       view: true,
     },
+    roleLevel: "Lead",
+    department: { name: "Product", team: "Core" },
+    contactInfo: { email: "sarah.johnson@example.com", number: "+1 555-0101" },
+    performance: "95%",
+    profilePicture: "",
   },
   {
     id: "3",
@@ -98,6 +120,11 @@ const mockEmployees: Employee[] = [
       edit: true,
       view: true,
     },
+    roleLevel: "Mid-Level",
+    department: { name: "Design", team: "UI/UX" },
+    contactInfo: { email: "michael.brown@example.com", number: "+1 555-0102" },
+    performance: "90%",
+    profilePicture: "",
   },
 ];
 

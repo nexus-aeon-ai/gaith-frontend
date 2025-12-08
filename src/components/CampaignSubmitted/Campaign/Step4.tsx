@@ -140,9 +140,9 @@ function StepContent({ form }: StepFormProps) {
                           </p>
                           <p className="text-sm text-muted-foreground">Up to 5 images</p>
                         </div>
-                        {field.value?.length > 0 && (
+                        {(field.value || []).length > 0 && (
                           <div className="text-sm text-green-600 font-medium">
-                            {field.value.length} image{field.value.length !== 1 ? "s" : ""} selected
+                            {(field.value || []).length} image{(field.value || []).length !== 1 ? "s" : ""} selected
                           </div>
                         )}
                       </div>
@@ -167,11 +167,15 @@ function StepContent({ form }: StepFormProps) {
                 <Input
                   placeholder="Enter compelling headline"
                   {...field}
+                  value={field.value || ""}
                   maxLength={60}
                   className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                 />
               </FormControl>
-              <span className="text-sm">{field.value?.length || 0}/60 characters</span>
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>Catchy & concise</span>
+                <span>{(field.value || "").length}/60</span>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -186,14 +190,17 @@ function StepContent({ form }: StepFormProps) {
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Enter campaign description"
+                  placeholder="Describe your offer in detail..."
                   {...field}
-                  maxLength={300}
-                  rows={4}
-                  className="dark:bg-[#0F1B29] py-6 pt-1 bg-[#F3F5F7] rounded-[12px]"
+                  value={field.value || ""}
+                  maxLength={180}
+                  className="resize-none h-24 dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px]"
                 />
               </FormControl>
-              <span className="text-sm">{field.value?.length || 0}/300 characters</span>
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>Highlight key benefits</span>
+                <span>{(field.value || "").length}/180</span>
+              </div>
               <FormMessage />
             </FormItem>
           )}

@@ -17,12 +17,12 @@ export interface Chat {
   timestamp: string;
   messages: Message[];
   assignedEmployeeIds?: string[];
-  assignedEmployees?: Employee[];
+  assignedEmployees?: ChatEmployee[];
 }
 
 // API Request/Response Types
 
-export interface Employee {
+export interface ChatEmployee {
   id: string;
   employeeId: string;
   userId: string;
@@ -60,7 +60,7 @@ export interface AssignedEmployee {
   assignedAt: string;
   assignedBy: string | null;
   isActive: boolean;
-  employee: Employee;
+  employee: ChatEmployee;
 }
 
 export interface Conversation {

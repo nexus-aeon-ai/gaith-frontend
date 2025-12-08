@@ -1,7 +1,6 @@
 "use client";
 
-import type { SortingState } from "@tanstack/react-table";
-import { getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { type SortingState, getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
 
 import DataTable from "@/components/ui/data-table";

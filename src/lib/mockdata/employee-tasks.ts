@@ -27,7 +27,6 @@ export const mockEmployeeTasks: EmployeeTask[] = [
     },
     estimatedHours: 24,
     actualHours: 24,
-    tags: ["Design", "Social Media", "Campaign"],
     activityLog: [
       {
         id: "log-1",
@@ -81,7 +80,6 @@ export const mockEmployeeTasks: EmployeeTask[] = [
     },
     estimatedHours: 20,
     actualHours: 18,
-    tags: ["Design", "Social Media"],
   },
   {
     id: "3",

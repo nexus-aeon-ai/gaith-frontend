@@ -10,4 +10,5 @@ export * from "./step-props";
 
 export * from "./campaign-pricing";
 export * from "./support";
-export * from "./ai-chat";
+export * as aiChatTypes from "./ai-chat";
+export type { Chat } from "./ai-chat";

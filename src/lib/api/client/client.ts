@@ -1,5 +1,5 @@
-import { SocialMediaUrls } from "../leads";
 import { fetchInstance } from "../../clients";
+import { SocialMediaUrls } from "../leads";
 
 const clientsEndpoint = "/clients";
 

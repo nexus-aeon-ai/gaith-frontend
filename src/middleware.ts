@@ -1,7 +1,6 @@
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { DEFAULT_LOCALE, LOCALES } from "@/lib/constants";
 import { Locale } from "@/lib/types";

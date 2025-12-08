@@ -23,7 +23,10 @@ export interface Client {
 
 // Tab Component Props
 export interface MainInformationTabProps {
-  client: Client;
+  client: {
+    agreementStartDate: string;
+    agreementEndDate: string;
+  };
 }
 
 export interface CampaignTasksTabProps {

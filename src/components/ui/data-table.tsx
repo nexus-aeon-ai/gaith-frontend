@@ -12,12 +12,16 @@ import {
 
 import PagePaginationFilters from "../shared/page-pagination-filters";
 
-import type { TPagination } from "@/types/general";
 
 interface DataTableProps {
   table: TTable<any>;
   colSpan: number;
-  dataPagination: TPagination;
+  dataPagination: {
+    results: any[],
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+  };
 }
 
 const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination }) => {
@@ -63,7 +67,7 @@ const DataTable: React.FC<DataTableProps> = ({ table, colSpan, dataPagination })
           </TableBody>
         </Table>
       </div>
-      <PagePaginationFilters totalPages={dataPagination.page_count} />
+      <PagePaginationFilters totalPages={dataPagination.count} />
     </div>
   );
 };

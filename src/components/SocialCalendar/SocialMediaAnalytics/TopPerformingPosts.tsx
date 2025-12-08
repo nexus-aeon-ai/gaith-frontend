@@ -1,10 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Heart, Share2, MessageCircle, Eye } from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Fb from "@/components/ui/icons/social/fb";
 import Insta from "@/components/ui/icons/social/instagram";
+import { Separator } from "@/components/ui/separator";
 
 // X Platform Icon Component
 const XIcon = () => (

@@ -2,7 +2,7 @@ import { Quotation } from "../types";
 
 export const mockQuotations: Quotation[] = [
   {
-    quotationId: "QUO-2024-001",
+    quotationNumber: "QUO-2024-001",
     customer: {
       avatar: "/images/girl-avatar.jpg",
       name: "Michael Anderson",
@@ -17,7 +17,7 @@ export const mockQuotations: Quotation[] = [
     },
   },
   {
-    quotationId: "QUO-2024-002",
+    quotationNumber: "QUO-2024-002",
     customer: {
       avatar: "/images/girl-avatar.jpg",
       name: "Sarah Johnson",
@@ -32,7 +32,7 @@ export const mockQuotations: Quotation[] = [
     },
   },
   {
-    quotationId: "QUO-2024-003",
+    quotationNumber: "QUO-2024-003",
     customer: {
       avatar: "/images/girl-avatar.jpg",
       name: "Alice Williams",
@@ -47,7 +47,7 @@ export const mockQuotations: Quotation[] = [
     },
   },
   {
-    quotationId: "QUO-2024-004",
+    quotationNumber: "QUO-2024-004",
     customer: {
       avatar: "/images/girl-avatar.jpg",
       name: "Steve Smith",
@@ -62,7 +62,7 @@ export const mockQuotations: Quotation[] = [
     },
   },
   {
-    quotationId: "QUO-2024-005",
+    quotationNumber: "QUO-2024-005",
     customer: {
       avatar: "/images/girl-avatar.jpg",
       name: "Emily Brown",

@@ -265,12 +265,11 @@ const QuotesPage = () => {
     // transform backend item into the shape expected by ViewQuoteDetails
     const transformToViewData = (item: BackendQuotationItem) => {
       const services = (item.pricingItems || []).map(p => {
-        return {
-          name: p.serviceDescription,
-          price: p.servicePrice,
-          quantity: p.quantity,
-          taxPercentage: p.taxPercentage,
-        };
+        const name = p.serviceDescription || p.serviceId || "Service";
+        const price = p.servicePrice ?? 0;
+        const quantity = p.quantity ?? 1;
+        const taxPercentage = p.taxPercentage ?? 0;
+        return { name, price, quantity, taxPercentage };
       });
 
       const terms = item.termsAndConditions

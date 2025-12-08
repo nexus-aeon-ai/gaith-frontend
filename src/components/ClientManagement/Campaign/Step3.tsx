@@ -73,7 +73,7 @@ function StepPreferences({ form }: StepFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Daily Spend Limit</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
                   <FormControl>
                     <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                       <SelectValue placeholder="Select daily spend limit" />

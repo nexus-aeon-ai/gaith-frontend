@@ -124,20 +124,6 @@ const baseEmpSchema = z.object({
 
   // Performance and department
   performanceRating: z.coerce.number().min(0).max(5).optional(),
-  departmentId: z
-    .string()
-    .refine(
-      val => {
-        // Allow empty string, undefined, or valid UUID
-        if (!val || val === "") return true;
-        return z.string().uuid().safeParse(val).success;
-      },
-      {
-        message: "Invalid uuid",
-      }
-    )
-    .optional(),
-
   notes: z.string().max(500, "Notes must be less than 500 characters").optional(),
 });
 

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -27,9 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PasswordInput } from "@/components/ui/password-input";
-import { getRoles } from "@/lib/api/roles";
 import { getDepartments } from "@/lib/api/departments";
+import { getRoles } from "@/lib/api/roles";
 import {
   analyticsPerms,
   contentPerms,
@@ -327,9 +327,9 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />
@@ -356,9 +356,9 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />
@@ -385,9 +385,9 @@ const EmloyeeForm = ({ initialData, onSubmit, mode }: EmloyeeFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />

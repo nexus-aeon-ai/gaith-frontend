@@ -4,10 +4,10 @@ import { Globe, Mail, MapPin, Phone } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-
 import { Separator } from "@/components/ui/separator";
 import { MainInformationTabProps } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
 import { mockMainInformationData } from "../../data";
 
 const MainInformationTab = ({ client }: MainInformationTabProps) => {

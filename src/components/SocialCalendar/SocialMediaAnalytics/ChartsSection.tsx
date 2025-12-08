@@ -152,7 +152,7 @@ const ChartsSection = () => {
                   barSize={35}
                   radius={[16, 16, 16, 16]}
                   // normal shape
-                  shape={props => {
+                  shape={(props: any) => {
                     const { x, y, width, height, payload } = props;
                     const barHeight = height;
                     const maxValue = payload.bar;
@@ -186,7 +186,7 @@ const ChartsSection = () => {
                     );
                   }}
                   // hover state
-                  activeBar={props => {
+                  activeBar={(props: any) => {
                     const { x, y, width, height, payload } = props;
                     const barHeight = height;
                     const maxValue = payload.bar;

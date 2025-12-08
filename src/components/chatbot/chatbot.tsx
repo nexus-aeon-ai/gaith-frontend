@@ -13,7 +13,7 @@ import {
   assignEmployeesToConversation,
 } from "@/lib/api";
 import { getAIChatSocket, type SocketResponse } from "@/lib/api/ai-chat/socket";
-import type { Chat, ChatMessage, Conversation, GetConversationsParams, Message } from "@/lib/types";
+import type { Chat, ChatMessage, Conversation, GetConversationsParams, Message } from "@/lib/types/ai-chat";
 import { cn } from "@/lib/utils";
 
 import { ChatSidebar } from "./chat-sidebar";

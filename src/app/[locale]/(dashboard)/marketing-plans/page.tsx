@@ -3,11 +3,10 @@ import React from "react";
 import MarketingPlansPage from "@/components/MarketingPlans/MarketingPlansPage";
 import { getMarketingPlans, type MarketingPlanListItem } from "@/lib/api/reports";
 
-export default async function MarketingPlansServerPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
+export default async function MarketingPlansServerPage(props: {
+  searchParams: Promise<{ page?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
   let initialPlans: MarketingPlanListItem[] = [];
   let pagination = {

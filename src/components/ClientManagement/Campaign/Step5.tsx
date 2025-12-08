@@ -18,16 +18,16 @@ function StepOverview({ form, values }: StepFormProps & { values: FormValues }) 
       </div>
       <div className="grid gap-4 sm:grid-cols-2 bg-[#F8FBFA] dark:bg-[#111B26] p-4 rounded-lg">
         <div>
-          <OverviewItem label="Campaign Name" value={values.campaignName} />
-          <OverviewItem label="Campaign Type" value={values.campaignType} />
-          <OverviewItem label="Target Audience" value={values.targetAudience} />
-          <OverviewItem label="Total Budget" value={values.totalBudget} />
+          <OverviewItem label="Campaign Name" value={values.campaignName || ""} />
+          <OverviewItem label="Campaign Type" value={values.campaignType || ""} />
+          <OverviewItem label="Target Audience" value={values.targetAudience || ""} />
+          <OverviewItem label="Total Budget" value={values.totalBudget || 0} />
         </div>
         <div>
-          <OverviewItem label="Primary Headline" value={values.headline} />
-          <OverviewItem label="Call-to-Action" value={values.callToAction} />
-          <OverviewItem label="Platforms" value={values.platforms} />
-          <OverviewItem label="Objectives" value={values.objectives} />
+          <OverviewItem label="Primary Headline" value={values.headline || ""} />
+          <OverviewItem label="Call-to-Action" value={values.callToAction || ""} />
+          <OverviewItem label="Platforms" value={values.platforms || []} />
+          <OverviewItem label="Objectives" value={values.objectives || []} />
         </div>
       </div>
 

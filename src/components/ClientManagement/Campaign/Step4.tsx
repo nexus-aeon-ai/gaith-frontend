@@ -204,9 +204,9 @@ function StepContent({ form }: StepFormProps) {
                           </p>
                           <p className="text-sm text-muted-foreground">Up to 5 images</p>
                         </div>
-                        {field.value?.length > 0 && (
+                        {(field.value || []).length > 0 && (
                           <div className="text-sm text-green-600 font-medium">
-                            {field.value.length} image{field.value.length !== 1 ? "s" : ""} selected
+                            {(field.value || []).length} image{(field.value || []).length !== 1 ? "s" : ""} selected
                           </div>
                         )}
                       </div>
@@ -231,6 +231,7 @@ function StepContent({ form }: StepFormProps) {
                 <Input
                   placeholder="Enter compelling headline"
                   {...field}
+                  value={field.value || ""}
                   maxLength={60}
                   className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                 />
@@ -252,6 +253,7 @@ function StepContent({ form }: StepFormProps) {
                 <Textarea
                   placeholder="Enter campaign description"
                   {...field}
+                  value={field.value || ""}
                   maxLength={300}
                   rows={4}
                   className="dark:bg-[#0F1B29] py-6 pt-1 bg-[#F3F5F7] rounded-[12px]"

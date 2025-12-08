@@ -67,7 +67,6 @@ function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
     youtubeUrl: getUrlByPlatform("YouTube"),
     twitterUrl: getUrlByPlatform("Twitter"),
     instagramUrl: getUrlByPlatform("Instagram"),
-    tiktokUrl: getUrlByPlatform("TikTok"),
     websiteUrl: lead.websiteUrl || "",
     additionalNotes: lead.additionalNotes || "",
     leadSource: lead.leadSourceId || "",

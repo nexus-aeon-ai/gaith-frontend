@@ -17,9 +17,9 @@ import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import { DashboardListIcon } from "@/components/ui/icons/sidebar/dashboard-list";
 import { cn } from "@/lib/utils";
 import {
-  CreateCampaignPricingFormData,
-  createCampaignPricingSchema,
-} from "@/lib/validations/campaign-pricing";
+  GeneratePricingFormData,
+  generatePricingSchema,
+} from "@/lib/validations/generate-pricing";
 
 const AiGeneratePricing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,12 +27,12 @@ const AiGeneratePricing = () => {
     // closeEditCampaignPricingForm();
   };
 
-  const handleSave = async (data: CreateCampaignPricingFormData) => {
+  const handleSave = async (data: GeneratePricingFormData) => {
     setIsSubmitting(true);
 
     try {
       // Validate form data
-      const result = createCampaignPricingSchema.safeParse(data);
+      const result = generatePricingSchema.safeParse(data);
 
       if (!result.success) {
         // Extract validation errors

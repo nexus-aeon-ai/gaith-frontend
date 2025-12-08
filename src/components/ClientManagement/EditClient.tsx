@@ -68,7 +68,6 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
       clientSince: safeParseDate(client.agreementPeriod?.start ?? null),
       agreementStartDate: safeParseDate(client.agreementPeriod?.start ?? null),
       agreementEndDate: safeParseDate(client.agreementPeriod?.end ?? null),
-      contractDuration: "", // Calculate from start/end dates if needed
       clientStatus: (client.status || "active").toLowerCase() as
         | "active"
         | "inactive"
@@ -133,7 +132,9 @@ const EditClient = ({ client, closeEditClientForm }: EditClientProps) => {
         businessOverview: data.businessOverview,
         agreementStartDate: data.agreementStartDate.toISOString(),
         agreementEndDate: data.agreementEndDate.toISOString(),
-        contractDurationMonths: parseInt(data.contractDuration) || 0,
+        contractDurationMonths:
+          (data.agreementEndDate.getFullYear() - data.agreementStartDate.getFullYear()) * 12 +
+          (data.agreementEndDate.getMonth() - data.agreementStartDate.getMonth()),
         primaryMarketRegionId: data.primaryMarketRegionId,
         targetAudienceId: data.targetAudienceId,
         secondaryMarketIds: data.secondaryMarketIds,

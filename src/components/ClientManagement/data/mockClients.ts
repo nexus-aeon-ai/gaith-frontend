@@ -4,7 +4,9 @@ export const mockClients: Client[] = [
   {
     id: "1",
     name: "Global Solutions Inc.",
+    clientName: "Global Solutions Inc.",
     email: "contact@globalsolutions.com",
+    industrySector: "Technology",
     status: "Active",
     agreementPeriod: {
       start: "Jul 5, 2025",
@@ -23,7 +25,9 @@ export const mockClients: Client[] = [
   {
     id: "2",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Retail",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -41,7 +45,9 @@ export const mockClients: Client[] = [
   {
     id: "3",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Retail",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -59,7 +65,9 @@ export const mockClients: Client[] = [
   {
     id: "4",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Finance",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -77,7 +85,9 @@ export const mockClients: Client[] = [
   {
     id: "5",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Marketing",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -95,7 +105,9 @@ export const mockClients: Client[] = [
   {
     id: "6",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Healthcare",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -113,7 +125,9 @@ export const mockClients: Client[] = [
   {
     id: "7",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Real Estate",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -131,7 +145,9 @@ export const mockClients: Client[] = [
   {
     id: "8",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Education",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -149,7 +165,9 @@ export const mockClients: Client[] = [
   {
     id: "9",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Construction",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",
@@ -167,7 +185,9 @@ export const mockClients: Client[] = [
   {
     id: "10",
     name: "Michael Anderson",
+    clientName: "Michael Anderson",
     email: "anderson@email.com",
+    industrySector: "Transportation",
     status: "Active",
     agreementPeriod: {
       start: "Jul 9, 2025",

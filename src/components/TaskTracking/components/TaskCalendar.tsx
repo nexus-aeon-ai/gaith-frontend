@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { SimpleCategory } from "@/lib/api/tasks";
 
 interface Task {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   dueDate: string;

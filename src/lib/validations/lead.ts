@@ -122,12 +122,12 @@ export const createLeadSchema = z.object({
   additionalNotes: z.string().max(2000, "Additional notes must be less than 2000 characters").optional(),
 
   // Products & Services
-  productServiceIds: z.array(z.string()).default([]),
-  serviceOfferingIds: z.array(z.string()).default([]),
+  productServiceIds: z.array(z.string()).optional(),
+  serviceOfferingIds: z.array(z.string()).optional(),
   // Team Roles/Additional Team Members
-  teamRoleIds: z.array(z.string()).default([]),
+  teamRoleIds: z.array(z.string()).optional(),
   // Assigned Users
-  assignedToUserIds: z.array(z.string()).default([]),
+  assignedToUserIds: z.array(z.string()).optional(),
 
   //company logo
   companyLogo: z
