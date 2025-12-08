@@ -161,7 +161,7 @@ export default function EditClientPage({ initialData, clientId }: EditClientPage
     },
     onSuccess: (res) => {
       if (![201,200].includes(res.status)){
-        throw new Error(res.data?.message || "Failed to update client");
+        throw new Error((res.data as any)?.message || "Failed to update client");
       }
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["client", clientId] });

@@ -21,6 +21,9 @@ interface BackendPricingItem {
   currencyId: string;
   taxPercentage: number;
   servicePrice: number;
+  // Optional fields returned by backend (not always present)
+  serviceDescription?: string;
+  quantity?: number;
 }
 
 export interface BackendQuotationItem {

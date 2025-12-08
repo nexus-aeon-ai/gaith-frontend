@@ -32,9 +32,7 @@ import {
   City,
   Country,
   LeadSource,
-  UtilsRole,
   getLeadsLookup,
-  getUtilsRoles,
 } from "@/lib/api/leads";
 import { getUsers, type IUser } from "@/lib/api/user";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
@@ -109,11 +107,6 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
     queryFn: () => getLeadsLookup<LeadSource>("lead-sources"),
   });
 
-  const { data: assignedRoles = [], isLoading: loadingAssignedRoles } = useQuery<UtilsRole[]>({
-    queryKey: ["utils", "roles"],
-    queryFn: getUtilsRoles,
-  });
-
   const { data: users = [], isLoading: loadingUsers } = useQuery<IUser[]>({
     queryKey: ["users"],
     queryFn: async () => {
@@ -125,7 +118,6 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const { clientServiceOffers = [] } = useClientLookups();
 
   const selectedServiceOfferingIds = (form.watch("serviceOfferingIds") || []) as string[];
-  // const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
   const selectedAssignedUserIds = (form.watch("assignedToUserIds") || []) as string[];
 
   const filteredCities = cities.filter(city => city.countryTypeId === countryId);
@@ -739,11 +731,11 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={loadingAssignedRoles}
+                    disabled={loadingUsers}
                   >
                     <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                       <SelectValue
-                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Account Manager"}
+                        placeholder={loadingUsers ? "Loading..." : "Select Account Manager"}
                       />
                     </SelectTrigger>
                     <SelectContent>

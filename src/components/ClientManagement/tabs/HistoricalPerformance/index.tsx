@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, FileSpreadsheet, FileText } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   Bar,
@@ -35,11 +35,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { HistoricalPerformanceTabProps } from "@/lib/types";
-
-import { mockBudgetData, mockFinancialData, mockSummaryMetrics } from "../../data";
 import { cn } from "@/lib/utils";
 
-const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => {
+import { mockBudgetData, mockFinancialData, mockSummaryMetrics } from "../../data";
+
+const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabProps) => {
   const budgetData = mockBudgetData;
   const financialData = mockFinancialData;
   const { theme: themeNext } = useTheme();
@@ -216,7 +216,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
                   barSize={35}
                   radius={[16, 16, 16, 16]}
                   // normal shape
-                  shape={props => {
+                  shape={(props: any) => {
                     const { x, y, width, height, payload } = props;
                     const barHeight = height;
                     const maxValue = payload.bar;
@@ -250,7 +250,7 @@ const HistoricalPerformanceTab = ({ client }: HistoricalPerformanceTabProps) => 
                     );
                   }}
                   // hover state
-                  activeBar={props => {
+                  activeBar={(props: any) => {
                     const { x, y, width, height, payload } = props;
                     const barHeight = height;
                     const maxValue = payload.bar;

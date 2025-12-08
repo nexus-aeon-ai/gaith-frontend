@@ -65,8 +65,8 @@ export default function UpcomingPosts({ calendarData }: UpcomingPostsProps) {
             content: entry.content,
             post_details: entry.post_details,
           };
-        } catch (e) {
-          console.error("Error parsing date:", entry.date, e);
+        } catch (_e) {
+          console.error("Error parsing date:", entry.date, _e);
           return null;
         }
       })
@@ -85,7 +85,7 @@ export default function UpcomingPosts({ calendarData }: UpcomingPostsProps) {
         day: "numeric",
         year: "numeric",
       });
-    } catch (e) {
+    } catch {
       return dateStr;
     }
   };

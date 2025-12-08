@@ -3,11 +3,10 @@ import React from "react";
 import MediaBuyingPage from "@/components/MediaBuying/MediaBuyingPage";
 import { getMediaBuyingPlans, type MediaBuyingListItem } from "@/lib/api/reports";
 
-export default async function MediaBuyingServerPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
+export default async function MediaBuyingServerPage(props: {
+  searchParams: Promise<{ page?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
   let initialPlans: MediaBuyingListItem[] = [];
   let pagination = {

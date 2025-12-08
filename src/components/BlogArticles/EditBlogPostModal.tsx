@@ -146,25 +146,25 @@ export default function EditBlogPostModal({
                 name="keywords"
                 render={({ field }) => (
                   <div className="space-y-2">
-                    {field.value.map((keyword, index) => (
+                    {(field.value || []).map((keyword, index) => (
                       <div key={index} className="flex gap-2">
                         <Input
                           placeholder={`Keyword ${index + 1}`}
                           className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                           value={keyword}
                           onChange={(e) => {
-                            const newKeywords = [...field.value];
+                            const newKeywords = [...(field.value || [])];
                             newKeywords[index] = e.target.value;
                             field.onChange(newKeywords);
                           }}
                         />
-                        {field.value.length > 1 && (
+                        {(field.value || []).length > 1 && (
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const newKeywords = field.value.filter((_, i) => i !== index);
+                              const newKeywords = (field.value || []).filter((_, i) => i !== index);
                               field.onChange(newKeywords.length > 0 ? newKeywords : [""]);
                             }}
                             className="text-red-600 hover:text-red-700"
@@ -179,7 +179,7 @@ export default function EditBlogPostModal({
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        field.onChange([...field.value, ""]);
+                        field.onChange([...(field.value || []), ""]);
                       }}
                       className="mt-2"
                     >

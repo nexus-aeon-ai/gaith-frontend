@@ -140,6 +140,9 @@ const Step2: React.FC<Step2Props> = ({ email, onSuccess }) => {
             <div
               className="mb-2 text-center mt-10 mr-2  text-[#2BAE82] hover:underline cursor-pointer"
               onClick={handleResend}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => e.key === "Enter" && handleResend()}
             >
               Don&apos;t receive a code?
             </div>

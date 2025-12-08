@@ -1,7 +1,11 @@
+import { CalendarIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "@/components/Dashboard/AnalyticsCard";
+import AudienceDemographics from "@/components/SocialCalendar/SocialMediaAnalytics/AudienceDemographics";
+import ReachImpressionChart from "@/components/SocialCalendar/SocialMediaAnalytics/ReachImpressionsChart";
+import TopPerformingPosts from "@/components/SocialCalendar/SocialMediaAnalytics/TopPerformingPosts";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +16,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
+import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -21,14 +25,8 @@ import { ActiveClientsIcon } from "../../ui/icons/analytics/activeClients";
 import { CalenderIcon } from "../../ui/icons/analytics/calender";
 import { CampaignsIcon } from "../../ui/icons/analytics/campaigns";
 import { ContentPiecesIcon } from "../../ui/icons/analytics/contentPieces";
-import ExcelIcon from "../../ui/icons/options/excel-icon";
 
 import ChartsSection from "./ChartsSection";
-import ReachImpressionChart from "@/components/SocialCalendar/SocialMediaAnalytics/ReachImpressionsChart";
-import AudienceDemographics from "@/components/SocialCalendar/SocialMediaAnalytics/AudienceDemographics";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import TopPerformingPosts from "@/components/SocialCalendar/SocialMediaAnalytics/TopPerformingPosts";
 
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {

@@ -1,10 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 
 import LeadForm from "@/components/Forms/LeadForm";
 import {
@@ -67,7 +65,6 @@ function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
     youtubeUrl: getUrlByPlatform("YouTube"),
     twitterUrl: getUrlByPlatform("Twitter"),
     instagramUrl: getUrlByPlatform("Instagram"),
-    tiktokUrl: getUrlByPlatform("TikTok"),
     websiteUrl: lead.websiteUrl || "",
     additionalNotes: lead.additionalNotes || "",
     leadSource: lead.leadSourceId || "",

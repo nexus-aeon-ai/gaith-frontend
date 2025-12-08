@@ -57,16 +57,6 @@ export interface LeadSource {
   updatedAt: string;
 }
 
-export interface TeamRole {
-  id: string;
-  organizationId: string;
-  name: string;
-  description: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface UtilsRole {
   id: string;
   code: string;
@@ -173,7 +163,7 @@ const COLORS = [
   "bg-red-500","bg-blue-500","bg-green-500","bg-yellow-500","bg-indigo-500","bg-pink-500",
 ];
 
-function transformLead(lead: BackendLead, idx: number): Lead {
+function transformLead(lead: BackendLead): Lead {
 
   // Transform assignedUsers to match the expected format
   const assignedTo = (lead.assignedUsers || []).map((au, index) => {

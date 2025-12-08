@@ -114,12 +114,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       setIsPopoverOpen(prev => !prev);
     };
 
-    const clearExtraOptions = () => {
-      const newSelectedValues = selectedValues.slice(0, maxCount);
-      setSelectedValues(newSelectedValues);
-      onValueChange(newSelectedValues);
-    };
-
     const toggleAll = () => {
       if (selectedValues.length === options.length) {
         handleClear();

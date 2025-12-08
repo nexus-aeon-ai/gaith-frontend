@@ -8,9 +8,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TagBadge } from "@/components/ui/tag-badge";
 import { cn } from "@/lib/utils";
 
-import { DEFAULT_TAG_COLOR, PRESET_TAG_COLORS } from "@/lib/utils/constants";
-import { isValidHex } from "@/lib/utils/functions";
-
 interface ColorPickerProps {
   value?: string;
   onChange?: (color: string) => void;
@@ -20,7 +17,7 @@ interface ColorPickerProps {
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
-  value = DEFAULT_TAG_COLOR,
+  value = "#000000",
   onChange,
   className,
   label,
@@ -43,7 +40,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     const color = e.target.value;
     setInputValue(color);
     setTouched(true);
-    if (isValidHex(color)) {
+    if (color.startsWith("#")) {
       onChange?.(color);
     }
   };
@@ -69,7 +66,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 className="!h-48 !w-full"
               />
               <div className="flex flex-wrap justify-between gap-2">
-                {PRESET_TAG_COLORS.map(color => (
+                {["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"].map(color => (
                   <button
                     key={color}
                     type="button"
@@ -90,12 +87,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                   onChange={handleColorChange}
                   className={cn(
                     "h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                    isValidHex(inputValue) || !touched ? "border-input" : "border-red-500"
+                    inputValue.startsWith("#") || !touched ? "border-input" : "border-red-500"
                   )}
                   prefixed
-                  aria-invalid={!isValidHex(inputValue) && touched ? true : undefined}
+                  aria-invalid={!inputValue.startsWith("#") && touched ? true : undefined}
                 />
-                {!isValidHex(inputValue) && touched && (
+                {!inputValue.startsWith("#") && touched && (
                   <span className="text-xs text-red-500">Invalid hex code</span>
                 )}
               </div>
@@ -107,7 +104,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           value={inputValue}
           onChange={handleInputChange}
           placeholder={placeholder}
-          className={cn("flex-1", isValidHex(inputValue) || !touched ? "" : "border-red-500")}
+          className={cn("flex-1", inputValue.startsWith("#") || !touched ? "" : "border-red-500")}
           onBlur={() => setTouched(true)}
         />
       </div>

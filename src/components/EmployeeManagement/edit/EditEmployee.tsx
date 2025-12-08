@@ -17,10 +17,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
-import { updateEmployee, type EmployeeFormData } from "@/lib/api/employee";
+import { updateEmployee, type EmployeeFormData , BackendEmployee } from "@/lib/api/employee";
 import { uploadImage } from "@/lib/api/storage";
 import { createEmpSchema, type CreateEmpFormData } from "@/lib/validations/employee";
-import type { BackendEmployee } from "@/lib/api/employee";
 
 interface EditEmployeeProps {
   employeeId: string;
@@ -119,7 +118,7 @@ const EditEmployee = ({ employeeId, initialData: serverData, closeEmployeeForm }
       contentManagement: [],
       analyticsAndReports: [],
       salary: data.salary ? parseFloat(data.salary) : undefined,
-      employementType: employmentTypeMap[data.employmentType] || "Full-time",
+      employementType: (employmentTypeMap[data.employmentType] || "Full-time") as "Full-time" | "Part-time" | "Contract" | "Internship",
       street: data.street || "",
       city: data.city || "",
       state: data.state || "",

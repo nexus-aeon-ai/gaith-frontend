@@ -18,7 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { IntegrationsTabProps } from "@/lib/types";
 
-const IntegrationsTab = ({ client }: IntegrationsTabProps) => {
+const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
   const [googleApiKey, setGoogleApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
   const [metaApiKey, setMetaApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
   const [autoSync, setAutoSync] = useState(false);

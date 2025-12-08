@@ -168,6 +168,7 @@ function StepUpload({ form }: StepFormProps) {
                   maxLength={300}
                   rows={4}
                   className="dark:bg-[#0F1B29] py-6 pt-1 bg-[#F3F5F7] rounded-[12px]"
+                  value={field.value || ""}
                 />
               </FormControl>
               <span className="text-sm">{field.value?.length || 0}/300 characters</span>

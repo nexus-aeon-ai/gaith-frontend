@@ -50,7 +50,7 @@ export default function EmployeeTasksClient() {
         onMarkComplete={handleMarkComplete}
       />
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen} 
-        value={filters} onApply={handleFiltersChange}
+        value={filters as any} onApply={handleFiltersChange as any}
       />
     </>
   );

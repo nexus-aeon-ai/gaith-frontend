@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import EmployeeViewSkeleton from "@/components/EmployeeManagement/skeletons/EmployeeViewSkeleton";
 import RejectCampaignSheet from "@/components/sheet/Campaign/RejectCampaignSheet";
 import RequestChangesSheet from "@/components/sheet/Campaign/RequestChangesSheet";
 import {
@@ -16,13 +17,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import CupIcon from "@/components/ui/icons/cup";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
 import ChecklistIcon from "@/components/ui/icons/task-tracking/checklist";
-import TeacherHatIcon from "@/components/ui/icons/TeacherHat";
 import type { BackendEmployee } from "@/lib/api/employee";
-import EmployeeViewSkeleton from "@/components/EmployeeManagement/skeletons/EmployeeViewSkeleton";
 
 import { cn } from "../../../lib/utils";
 import { Badge } from "../../ui/badge";

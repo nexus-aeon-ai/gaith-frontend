@@ -34,21 +34,7 @@ export type Employee = {
 export type EmployeeFilters = Record<string, string | number | string[] | undefined>;
 
 export interface BackendEmployeeResponse {
-  data: Array<{
-    id: string;
-    employeeId: string;
-    status: string;
-    employmentType: EmploymentType;
-    salary: string;
-    performanceRating: number;
-    user?: {
-      fullName?: string;
-      email?: string;
-      phoneNumber?: string;
-      jobTitle?: string;
-    };
-    skills?: Array<{ skill: string }>;
-  }>;
+  data: BackendEmployee[];
   total: number;
   take?: number;
 }
@@ -82,6 +68,7 @@ export interface BackendEmployee {
     jobTitle: string;
     profilePic: string | null;
     departmentId: string | null;
+    createdAt?: string;
   };
   skills?: Array<{
     id: string;
@@ -96,7 +83,7 @@ const transformEmployee = (backendEmployee: BackendEmployee): Employee => {
   return {
     id: backendEmployee.id,
     employeeId: backendEmployee.employeeId,
-    profilePicture: backendEmployee.profilePicture,
+    profilePicture: backendEmployee.profilePicture || "",
     fullName: backendEmployee.user?.fullName || "",
     email: backendEmployee.user?.email || "",
     phone: backendEmployee.user?.phoneNumber || "",
@@ -139,7 +126,7 @@ export const getEmployees = async (
 }> => {
   // Only pass supported query params to backend (e.g., status)
   const params = new URLSearchParams();
-  const { status, dateFrom, dateTo, ...rest } = filters as Record<string, any>;
+  const { status, dateFrom, dateTo } = filters;
   if (status) {
     if (Array.isArray(status)) {
       status.forEach((s: string) => params.append("status", String(s)));
@@ -168,8 +155,9 @@ export const getEmployees = async (
     const to = dateTo ? new Date(String(dateTo)) : null;
     if (from || to) {
       backendList = backendList.filter(be => {
-        if (!be.createdAt) return false;
-        const created = new Date(be.createdAt);
+        const createdAt = be.createdAt || be.user?.createdAt;
+        if (!createdAt) return false;
+        const created = new Date(createdAt);
         if (from && created < from) return false;
         if (to && created > to) return false;
         return true;
@@ -260,8 +248,11 @@ export interface EmployeeFormData {
   startDate?: Date | string;
 }
 
-const transformFormDataToBackend = (formData: EmployeeFormData, isCreate: boolean = false) => {
-  const payload: any = {
+const transformFormDataToBackend = (
+  formData: EmployeeFormData,
+  isCreate: boolean = false,
+): Record<string, unknown> => {
+  const payload: Record<string, unknown> = {
     fullName: formData.fullName,
     email: formData.primaryEmail,
     phoneNumber: formData.phone,
@@ -344,12 +335,12 @@ export const createEmployee = async (
   }
 
   if (response.status !== 201) {
-  const err = new Error(
-    (response.data as { message?: string }).message || "Create failed"
-  );
-  (err as any).status = response.status;
-  throw err;
-}
+    const err = new Error(
+      (response.data as { message?: string }).message || "Create failed",
+    ) as Error & { status?: number };
+    err.status = response.status;
+    throw err;
+  }
 
   return {
     status: response.status,

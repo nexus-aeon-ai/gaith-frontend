@@ -327,9 +327,9 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />
@@ -356,9 +356,9 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />
@@ -385,9 +385,9 @@ const UserForm = ({ initialData, onSubmit }: UserFormProps) => {
                                 checked={field.value?.includes(perm)}
                                 onCheckedChange={checked => {
                                   if (checked) {
-                                    field.onChange([...field.value, perm]);
+                                    field.onChange([...(field.value || []), perm]);
                                   } else {
-                                    field.onChange(field.value.filter(v => v !== perm));
+                                    field.onChange((field.value || []).filter(v => v !== perm));
                                   }
                                 }}
                               />

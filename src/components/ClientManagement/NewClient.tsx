@@ -6,8 +6,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import ClientForm from "../Forms/ClientForm";
-import PopupModal from "../PopupModal/PopupModal";
 
 import {
   Breadcrumb,
@@ -23,6 +21,9 @@ import { usePermission } from "@/hooks/usePermission";
 import { createClient, getClientCompanySizes } from "@/lib/api/client/client";
 import { SocialMediaUrls } from "@/lib/api/leads";
 import { createClientSchema, type CreateClientFormData } from "@/lib/validations/client";
+
+import ClientForm from "../Forms/ClientForm";
+import PopupModal from "../PopupModal/PopupModal";
 
 
 const defaultFormData: CreateClientFormData = {
@@ -45,7 +46,6 @@ const defaultFormData: CreateClientFormData = {
   clientSince: new Date(),
   agreementStartDate: new Date(),
   agreementEndDate: new Date(),
-  contractDuration: "",
   clientStatus: "active",
   monthlyBudget: "0",
   priorityLevel: "low",

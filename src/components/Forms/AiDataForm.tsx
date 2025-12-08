@@ -415,7 +415,7 @@ const AiDataForm = ({ initialData, onSubmit }: AiDataFormProps) => {
 
               <FormField
                 control={form.control}
-                name="contractDurationNumber"
+                name="contractDuration"
                 render={({ field: durationField }) => (
                   <FormItem>
                     <FormLabel>Contract Duration</FormLabel>

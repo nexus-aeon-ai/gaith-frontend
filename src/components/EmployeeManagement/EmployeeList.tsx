@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 
-import ViewEmployee from "@/components/EmployeeManagement/view/ViewEmployee";
 import FilterSheet from "@/components/sheet/EmployeeFilter";
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -38,7 +37,6 @@ import { deleteEmployee, getEmployees, type Employee as ApiEmployee } from "@/li
 import type { Employee as UiEmployee } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-import AddNewEmployee from "./add/AddEmployee";
 
 const EmployeeList = () => {
   const [apiEmployees, setApiEmployees] = useState<ApiEmployee[]>([]);
@@ -48,9 +46,6 @@ const EmployeeList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
-  const [showEditEmployeeForm, setshowEditEmployeeForm] = useState(false);
-  const [showEmpDetailPage, setShowEmpDetailPage] = useState(false);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
   const queryClient = useQueryClient();
@@ -181,20 +176,8 @@ const EmployeeList = () => {
     return null;
   }
 
-  if (showEmpDetailPage && selectedEmployeeId) {
-    const base = pathname?.split("/employees")[0] || "";
-    router.push(`${base}/employees/${selectedEmployeeId}`);
-    return null;
-  }
-
   if (isLoading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
-  }
-
-  if (showEditEmployeeForm && selectedEmployeeId) {
-    const base = pathname?.split("/employees")[0] || "";
-    router.push(`${base}/employees/${selectedEmployeeId}/edit`);
-    return null;
   }
 
   return (

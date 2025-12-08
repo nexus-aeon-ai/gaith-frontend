@@ -91,7 +91,7 @@ export default function PopupModal({
     }
   };
 
-  const handleButtonClick = (action: ActionConfig, isConfirm: boolean) => {
+  const handleButtonClick = (action: ActionConfig) => {
     return async () => {
       if (action.onClick) {
         await action.onClick();
@@ -108,8 +108,16 @@ export default function PopupModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
       <div
+        role="presentation"
+        tabIndex={-1}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in"
         onClick={handleOverlayClick}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleOverlayClick(e as unknown as React.MouseEvent);
+          }
+        }}
       />
 
       {/* Modal */}
@@ -157,7 +165,7 @@ export default function PopupModal({
             {cancelButton && (
               <Button
                 type={cancelButton.type ?? "button"}
-                onClick={handleButtonClick(cancelButton, false)}
+                onClick={handleButtonClick(cancelButton)}
                 disabled={cancelButton.disabled}
                 className={`p-3 px-6 hover:bg-[#EA3B1F] text-[16px] font-[400] border border-[#EA3B1F] text-[#ea3b1f] hover:text-white rounded-[16px] bg-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   cancelButton.className || ""
@@ -173,7 +181,7 @@ export default function PopupModal({
             {confirmButton && (
               <Button
                 type={confirmButton.type ?? "button"}
-                onClick={handleButtonClick(confirmButton, true)}
+                onClick={handleButtonClick(confirmButton)}
                 disabled={confirmButton.disabled}
                 className={`p-3 px-6 text-white dark:text-black text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed ${
                   confirmButton.className || ""
@@ -191,40 +199,4 @@ export default function PopupModal({
   );
 
   return createPortal(modalContent, document.body);
-}
-
-// Demo usage
-function Demo() {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <div className="p-8">
-      <button
-        onClick={() => setOpen(true)}
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Open Modal
-      </button>
-
-      <PopupModal
-        open={open}
-        onOpenChange={setOpen}
-        iconComponent={
-          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-            <span className="text-2xl">✓</span>
-          </div>
-        }
-        title="Confirm Action"
-        description="Are you sure you want to proceed with this action? This cannot be undone."
-        confirmButton={{
-          label: "Confirm",
-          onClick: () => console.log("Confirmed!"),
-        }}
-        cancelButton={{
-          label: "Cancel",
-          onClick: () => console.log("Cancelled!"),
-        }}
-      />
-    </div>
-  );
 }

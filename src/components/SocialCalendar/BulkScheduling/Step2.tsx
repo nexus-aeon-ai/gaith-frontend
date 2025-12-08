@@ -17,28 +17,6 @@ function StepConfiguration({ form }: StepFormProps) {
   const { control } = form;
   const { theme } = useTheme();
 
-  const interests = [
-    { value: "technology", label: "Technology" },
-    { value: "fashion", label: "Fashion & Style" },
-    { value: "sports", label: "Sports & Fitness" },
-    { value: "travel", label: "Travel & Adventure" },
-    { value: "food", label: "Food & Dining" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "business", label: "Business & Finance" },
-    { value: "education", label: "Education & Learning" },
-  ];
-
-  const countries = [
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "ca", label: "Canada" },
-    { value: "au", label: "Australia" },
-    { value: "fr", label: "France" },
-    { value: "de", label: "Germany" },
-    { value: "in", label: "India" },
-    { value: "jp", label: "Japan" },
-  ];
-
   const handleStartDateClick = () => {
     const input = document.getElementById("date-start") as HTMLInputElement & {
       showPicker?: () => void;
@@ -208,7 +186,7 @@ function StepConfiguration({ form }: StepFormProps) {
             <FormItem>
               <FormLabel>Timezone</FormLabel>
               <FormControl>
-                <Select defaultValue="EST" value={field.value} onValueChange={field.onChange}>
+                <Select defaultValue="EST" value={field.value || ""} onValueChange={field.onChange}>
                   <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                     <SelectValue placeholder="Select Timezone" />
                   </SelectTrigger>

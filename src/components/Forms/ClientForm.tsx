@@ -6,11 +6,6 @@ import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 
-import Facebook from "../ui/icons/socials/fb";
-import Instagram from "../ui/icons/socials/instagram";
-import Linkedin from "../ui/icons/socials/linkedin";
-import Twitter from "../ui/icons/socials/twitterx";
-import Website from "../ui/icons/socials/website";
 
 
 
@@ -52,6 +47,12 @@ import {
   createClientSchema,
   type CreateClientFormData,
 } from "@/lib/validations/client";
+
+import Facebook from "../ui/icons/socials/fb";
+import Instagram from "../ui/icons/socials/instagram";
+import Linkedin from "../ui/icons/socials/linkedin";
+import Twitter from "../ui/icons/socials/twitterx";
+import Website from "../ui/icons/socials/website";
 
 
 interface ClientFormProps {
@@ -110,7 +111,15 @@ const defaultFormData: CreateClientFormData = {
   businessMaturity: "",
 };
 
-const ClientForm = ({ initialData, onSubmit, onCancel, isSubmitting, mode, readOnly, companySizes }: ClientFormProps) => {
+const ClientForm = ({
+  initialData,
+  onSubmit,
+  onCancel: _onCancel,
+  isSubmitting: _isSubmitting,
+  mode: _mode,
+  readOnly,
+  companySizes,
+}: ClientFormProps) => {
   const { theme } = useTheme();
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),

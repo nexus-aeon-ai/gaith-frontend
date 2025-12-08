@@ -226,10 +226,16 @@ export function CampaignSubmittedForm({
             interests:
               data.interests?.map((i: any) => i.interestType?.id ?? i.interestType?.name) ??
               DEFAULTS.interests,
-            country: (data.countryTypeIds && data.countryTypeIds[0]) ?? DEFAULTS.country,
-            stateRegion: (data.regionTypeIds && data.regionTypeIds[0]) ?? DEFAULTS.stateRegion,
+            country:
+              ((data as any).countries?.[0]?.countryType?.id ??
+                (data as any).countries?.[0]?.countryType?.name) ??
+              DEFAULTS.country,
+            stateRegion:
+              ((data as any).regions?.[0]?.regionType?.id ??
+                (data as any).regions?.[0]?.regionType?.name) ??
+              DEFAULTS.stateRegion,
             budgetDistribution:
-              data.budgetAllocations?.map((b: any) => ({
+              ((data as any).budgetAllocations ?? data.budget)?.map((b: any) => ({
                 channel: b.channelTypeId,
                 percent: b.percentage,
               })) ?? DEFAULTS.budgetDistribution,

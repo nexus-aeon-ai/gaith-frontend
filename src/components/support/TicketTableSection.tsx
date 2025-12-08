@@ -1,6 +1,5 @@
 "use client";
-import type { ColumnDef } from "@tanstack/react-table";
-import { flexRender, Table as TanstackTable } from "@tanstack/react-table";
+import { flexRender, Table as TanstackTable, type ColumnDef } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 

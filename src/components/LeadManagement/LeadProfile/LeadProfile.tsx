@@ -132,48 +132,74 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
           {/* Social Media */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
             <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
-            <div className="flex items-center gap-3">
-              {lead.linkedinUrl && (
-                <a
-                  href={lead.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
-                >
-                  <Linkedin />
-                </a>
-              )}
-              {lead.twitterUrl && (
-                <a
-                  href={lead.twitterUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
-                >
-                  <Twitterx />
-                </a>
-              )}
-              {lead.instagramUrl && (
-                <a
-                  href={lead.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
-                >
-                  <Instagram />
-                </a>
-              )}
-              {lead.facebookUrl && (
-                <a
-                  href={lead.facebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
-                >
-                  <Facebook />
-                </a>
-              )}
-            </div>
+            {(() => {
+              const parseSocialMediaUrls = (socialMediaUrls: any) => {
+                if (!socialMediaUrls) return [];
+                if (typeof socialMediaUrls === "string") {
+                  try {
+                    const parsed = JSON.parse(socialMediaUrls);
+                    return Array.isArray(parsed) ? parsed : [];
+                  } catch {
+                    return [];
+                  }
+                }
+                return Array.isArray(socialMediaUrls) ? socialMediaUrls : [];
+              };
+
+              const urls = parseSocialMediaUrls(lead.socialMediaUrls);
+              const getUrl = (platform: string) => 
+                urls.find((u: any) => u.platform.toLowerCase() === platform.toLowerCase())?.url;
+
+              const linkedinUrl = getUrl("LinkedIn");
+              const twitterUrl = getUrl("Twitter");
+              const instagramUrl = getUrl("Instagram");
+              const facebookUrl = getUrl("Facebook");
+
+              return (
+                <div className="flex items-center gap-3">
+                  {linkedinUrl && (
+                    <a
+                      href={linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                    >
+                      <Linkedin />
+                    </a>
+                  )}
+                  {twitterUrl && (
+                    <a
+                      href={twitterUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                    >
+                      <Twitterx />
+                    </a>
+                  )}
+                  {instagramUrl && (
+                    <a
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                    >
+                      <Instagram />
+                    </a>
+                  )}
+                  {facebookUrl && (
+                    <a
+                      href={facebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+                    >
+                      <Facebook />
+                    </a>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Lead Details */}
@@ -188,9 +214,9 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             <div>
               <span className="text-muted-foreground text-sm">Assigned To</span>
               <div className="flex mt-2 gap-2 items-center">
-                {lead.assignedToUser?.fullName ? (
+                {lead.accountManager?.fullName ? (
                   <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-blue-900 font-bold">
-                    {lead.assignedToUser.fullName
+                    {lead.accountManager.fullName
                       .split(" ")
                       .map((n: string) => n[0])
                       .join("")}
@@ -233,11 +259,11 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             <div className="text-sm text-muted-foreground space-y-1">
               <p className="flex justify-between gap-2">
                 <span className="font-medium ">Primary Region: </span>
-                {lead.country?.name || "-"}
+                {lead.countryType?.name || "-"}
               </p>
               <p className="flex justify-between">
                 <span className="font-medium ">Secondary Regions: </span>
-                {lead.region?.name || "-"}
+                {lead.cityType?.name || "-"}
               </p>
               <p className="flex justify-between">
                 <span className="font-medium ">Area: </span>

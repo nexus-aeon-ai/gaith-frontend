@@ -248,17 +248,21 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                 <div className="flex items-start justify-between gap-4 text-sm" role="listitem">
                   <span className="text-muted-foreground font-medium">Campaign Duration</span>
                   <span className="text-foreground dark:text-muted-foreground font-medium">
-                    {new Date(campaign?.startAt).toLocaleString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}{" "}
+                    {campaign?.startAt
+                      ? new Date(campaign.startAt).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "N/A"}{" "}
                     -{" "}
-                    {new Date(campaign?.endAt).toLocaleString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {campaign?.endAt
+                      ? new Date(campaign.endAt).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "N/A"}
                   </span>
                 </div>
               </div>
@@ -422,25 +426,29 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                   </span>
                   <span className="text-foreground dark:text-[#CCCFDB]">
                     Start:{" "}
-                    {new Date(campaign?.startAt).toLocaleString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
+                    {campaign?.startAt
+                      ? new Date(campaign.startAt).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "N/A"}
                   </span>
                   <span className="text-foreground dark:text-[#CCCFDB]">
                     End:{" "}
-                    {new Date(campaign?.endAt).toLocaleString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
+                    {campaign?.endAt
+                      ? new Date(campaign.endAt).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex items-start flex-col gap-1">
@@ -483,7 +491,7 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                 >
                   <span className="text-muted-foreground">Google Ads</span>
                   <span className="font-medium text-foreground dark:text-[#CCCFDB] text-right block">
-                    {campaign?.budget?.googleAds || "nil"}
+                    {(campaign?.budget as any)?.googleAds || "nil"}
                   </span>
                 </div>
                 <div
@@ -492,7 +500,7 @@ const ViewCampaignDetails = ({ closeViewDetails, campaignId }: ViewCampaignDetai
                 >
                   <span className="text-muted-foreground">Facebook & Instagram</span>
                   <span className="font-medium text-foreground dark:text-[#CCCFDB] text-right block">
-                    {campaign?.budget?.facebook || "nil"}
+                    {(campaign?.budget as any)?.facebook || "nil"}
                   </span>
                 </div>
                 <Separator />

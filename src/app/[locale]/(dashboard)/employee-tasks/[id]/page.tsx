@@ -46,7 +46,7 @@ export default function TaskDetailsPage({ params }: TaskDetailsPageProps) {
   const employeesById = useMemo(() => {
     const map: Record<string, { id: string; fullName: string; email?: string }> = {};
     if (assignee) map[assignee.id] = assignee;
-    if (account) map[account.id] = account;
+    if (account) map[account.id] = { id: account.id, fullName: account.clientName };
     return Object.keys(map).length ? map : undefined;
   }, [assignee, account]);
 

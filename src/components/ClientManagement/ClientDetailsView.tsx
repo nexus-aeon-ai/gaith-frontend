@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CirclePlus, Info, SquarePen } from "lucide-react";
+import { ArrowLeft, CirclePlus, SquarePen } from "lucide-react";
 import { useState } from "react";
 
 import { CampaignForm } from "@/components/ClientManagement/Campaign/Campaign";
@@ -45,17 +45,16 @@ const ClientDetailsView = ({ client, onBack }: ClientDetailsViewProps) => {
     queryKey: ["clients", client.id],
     queryFn: async () => {
       const res = await getClientById(client.id);
-      console.log("Single client data:", res.data);
-      return res.data ?? [];
+      console.log("Single client data:", res);
+      return res;
     },
-    initialData: [],
   });
-  if (isLoading) {
+  if (isLoading || !clientData) {
     return <div>Loading...</div>;
   }
 
   // Client Data
-  const clientServiceName = clientData?.serviceOfferings?.[0]?.serviceOffering?.name || "";
+  const clientServiceName = clientData?.serviceOfferings?.[0]?.name || "";
 
   const clientSince = new Date(clientData.createdAt).toLocaleDateString("en-US", {
     month: "long",

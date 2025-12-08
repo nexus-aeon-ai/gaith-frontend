@@ -8,11 +8,26 @@ import React from "react";
 
 
 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { useUserPermissions } from "@/hooks/usePermission";
+import { logout } from "@/lib/auth";
+import { useAuthStore } from "@/lib/store/authStore";
+import { cn } from "@/lib/utils";
+
 import FileIcon from "../ui/icons/file";
 import CalendarIcon from "../ui/icons/options/calendar-icon";
 import SettingsFilled from "../ui/icons/settings-filled";
 import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
-import { useUserPermissions } from "@/hooks/usePermission";
 import AiChatbotFilled from "../ui/icons/sidebar/aichatbot-filled";
 import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
 import SubmitedFilled from "../ui/icons/sidebar/campaign-filled";
@@ -37,25 +52,11 @@ import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { logout } from "@/lib/auth";
-import { useAuthStore } from "@/lib/store/authStore";
-import { cn } from "@/lib/utils";
 
 const SidebarUI  = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
-  const { user, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   const handleLogout = () => {
     setUser({} as any);

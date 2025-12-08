@@ -55,6 +55,7 @@ const DEFAULTS: FormValues = {
   publishStartDate: new Date(),
   publishEndDate: new Date(),
   platforms: [],
+  timezone: "EST",
   launchOptions: "immediate",
 };
 
@@ -71,6 +72,7 @@ const STEP_FIELDS: Record<number, (keyof FormValues)[]> = {
     "publishStartDate",
     "publishEndDate",
     "platforms",
+    "timezone",
   ],
   5: ["launchOptions"],
 };

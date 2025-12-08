@@ -6,7 +6,6 @@ import ReactQueryProvider from "./react-query-provider";
 import { ThemeProvider } from "./theme-provider";
 
 import "react-toastify/dist/ReactToastify.css";
-import { getCookie } from "cookies-next";
 
 interface ProvidersProps {
   children: React.ReactNode;

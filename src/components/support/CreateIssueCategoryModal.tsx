@@ -5,7 +5,6 @@ import { X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { createIssueCategory } from "@/lib/api/support/issue-categories";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { createIssueCategory } from "@/lib/api/support/issue-categories";
 import { cn } from "@/lib/utils";
 
 interface CreateIssueCategoryModalProps {
