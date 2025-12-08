@@ -12,6 +12,7 @@ import FileIcon from "../ui/icons/file";
 import CalendarIcon from "../ui/icons/options/calendar-icon";
 import SettingsFilled from "../ui/icons/settings-filled";
 import { AIChatbotIcon } from "../ui/icons/sidebar/AIChatbot";
+import { useUserPermissions } from "@/hooks/usePermission";
 import AiChatbotFilled from "../ui/icons/sidebar/aichatbot-filled";
 import { BlogArticlesIcon } from "../ui/icons/sidebar/BlogArticles";
 import SubmitedFilled from "../ui/icons/sidebar/campaign-filled";
@@ -76,9 +77,10 @@ const SidebarUI  = () => {
     },
   ];
 
+  const permissions = useUserPermissions();
+
   const hasPermission = (resource?: string) => {
     if (!resource) return true;
-    const permissions = user?.permissions || [];
     return permissions.includes(`${resource}.read`);
   };
 
