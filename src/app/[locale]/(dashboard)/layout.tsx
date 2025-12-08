@@ -13,11 +13,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="[--header-height:85px]">
-      <SidebarProvider className="flex flex-col">
+      <SidebarProvider className="flex flex-col min-h-screen">
         <Navbar user={userProfile.data} />
-        <div className="flex flex-1">
+
+        <div className="flex flex-1 min-h-0 bg-[#E4E9F1] dark:bg-[#0F1220]">
           <SidebarUI />
-          <div>
+
+          <div className="flex-1 min-w-0 overflow-hidden p-4">
             {children}
             <div className="flex flex-col">
               <div className="px-2">

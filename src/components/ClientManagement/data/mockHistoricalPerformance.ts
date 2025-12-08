@@ -14,8 +14,8 @@ export const mockPerformanceData = [
 ];
 
 export const mockBudgetData = [
-  { name: "Spent", value: 70, color: "#10b981" },
   { name: "Remaining", value: 30, color: "#e5e7eb" },
+  { name: "Spent", value: 70, color: "#10b981" },
 ];
 
 export const mockFinancialData = [

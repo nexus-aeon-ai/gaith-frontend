@@ -17,3 +17,13 @@ export const IsUserAuthenticated = async (): Promise<boolean> => {
   }
   return false;
 };
+
+/**
+ * Logs out the user by removing the auth token and redirecting to the login page.
+ */
+export const logout = () => {
+  if (typeof window !== "undefined") {
+    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    window.location.href = "/login";
+  }
+};

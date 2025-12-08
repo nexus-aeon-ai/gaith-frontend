@@ -25,7 +25,7 @@ const AddCategoryButton: React.FC<AddCategoryButtonProps> = ({
       variant="outline"
       className={cn(
         "flex items-center gap-1 sm:gap-2",
-        "border-2 border-[#508CD3] text-[#508CD3]",
+        "border-1 border-[#508CD3] text-[#508CD3]",
         "rounded-3xl w-full sm:w-auto",
         "px-3 sm:px-4 lg:px-6 h-9 sm:h-10 lg:h-12",
         "hover:bg-[#508CD3] hover:text-white",

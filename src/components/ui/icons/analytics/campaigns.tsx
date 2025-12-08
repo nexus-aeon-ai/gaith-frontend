@@ -43,6 +43,8 @@ export const CampaignsIcon = ({ className = "" }) => (
   </svg>
 );
 
+export default CampaignsIcon;
+
 // Usage example:
 // <TaskTrackingIcon className="text-[#E6EFF9] dark:text-blue-800" />
 // - Light mode: #E6EFF9 (light blue)

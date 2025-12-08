@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { capitalize } from "@/lib/utils/functions/capitalize";
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -36,18 +36,18 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-full max-w-full overflow-x-hidden bg-white sm:max-w-xl">
+      <DialogContent className="w-full max-w-full overflow-x-hidden bg-white dark:bg-card sm:max-w-xl">
         <DialogHeader className="flex flex-col items-center">
           <Trash2 size={32} className="mb-3 text-red-500" />
-          <DialogTitle className="text-center text-2xl font-bold">
+          <DialogTitle className="text-center text-2xl font-bold dark:text-white">
             {title || `Delete ${capitalize(itemName)}`}
           </DialogTitle>
-          <DialogDescription className="mt-2 text-center text-gray-600">
+          <DialogDescription className="mt-2 text-center text-gray-600 dark:text-gray-300">
             {description || (
               <>
                 Are you sure you want to delete the {itemName}
                 {itemLabel && (
-                  <span className="font-semibold text-black"> &quot;{itemLabel}&quot;</span>
+                  <span className="font-semibold text-black dark:text-white"> &quot;{itemLabel}&quot;</span>
                 )}{" "}
                 ?
               </>

@@ -4,13 +4,13 @@ import type { IResponse } from "../types/general";
 
 const authEndpoint = "/auth/";
 
-export const login = async (email: string, password: string): Promise<any> => {
+export const login = async (email: string, password: string, organizationId: string): Promise<any> => {
   const response = (await fetchInstance(`${authEndpoint}login/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, organizationId }),
     cache: "force-cache",
   })) as { data: any; status: number };
   return response;
@@ -49,7 +49,7 @@ export const resetPassword = async (
   email: string,
   otp: string,
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
 ): Promise<IResponse<unknown>> => {
   const response = await fetchInstance(`${authEndpoint}reset-password/`, {
     method: "POST",

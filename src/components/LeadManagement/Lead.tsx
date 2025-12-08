@@ -1,9 +1,13 @@
 "use client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import FilterSheet from "@/components/sheet/Filter";
+import TableSkeleton from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -12,6 +16,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import FolderIcon from "@/components/ui/icons/folder";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon";
 import EditIcon from "@/components/ui/icons/options/edit-icon";
 import ExcelIcon from "@/components/ui/icons/options/excel-icon";
@@ -20,26 +32,75 @@ import MenuIcon from "@/components/ui/icons/options/menu-icon";
 import PdfIcon from "@/components/ui/icons/options/pdf-icon";
 import ViewIcon from "@/components/ui/icons/options/view-icon";
 import { Input } from "@/components/ui/input";
-import { mockLeads } from "@/lib/mockdata";
+import DeleteConfirmationDialog from "@/components/ui/delete-confirmation-dialog";
+import { deleteLead, getLeads, LeadsFilters } from "@/lib/api/leads";
+import type { Lead } from "@/lib/types/lead";
 import { cn } from "@/lib/utils";
 
-import EditLead from "./EditLead";
 import NewLead from "./NewLead";
 
 const LeadsPage = () => {
-  const leads = mockLeads;
+  const router = useRouter();
+  // Fetch leads from API
+  const [leadFilters, setLeadFilters] = useState<LeadsFilters | undefined>(undefined);
+
+  const { data, isLoading } = useQuery<{ status: number; data: { results: Lead[]; count: number } }, Error>({
+    queryKey: ["leads", leadFilters],
+    queryFn: () => getLeads(leadFilters),
+  });
+
+  const leads: Lead[] = data?.data.results || [];
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showNewLeadForm, setShowNewLeadForm] = useState(false);
-  const [showEditLeadForm, setShowEditLeadForm] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [leadsToDelete, setLeadsToDelete] = useState<string[]>([]);
+
   const itemsPerPage = 5;
   const { theme: themNext } = useTheme();
+  const queryClient = useQueryClient();
+
+
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => deleteLead(id)));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setSelectedLeads([]);
+      setLeadsToDelete([]);
+      setIsDeleteDialogOpen(false);
+      toast.success("Leads deleted successfully!");
+    },
+    onError: error => {
+      console.error("Failed to delete leads.", error);
+      toast.error("Failed to delete leads. Please try again.");
+    },
+  });
+
+  const handleBulkDelete = () => {
+    if (selectedLeads.length === 0) return;
+    setLeadsToDelete(selectedLeads);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteLead = (id: string) => {
+    if (!id) return;
+    setLeadsToDelete([id]);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    bulkDeleteMutation.mutate(leadsToDelete);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedLeads(leads.map(client => client.id));
+      setSelectedLeads(leads.map((client: Lead) => client.id));
     } else {
       setSelectedLeads([]);
     }
@@ -53,11 +114,12 @@ const LeadsPage = () => {
     }
   };
 
-  const filteredClients = leads.filter(
-    client =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredClients = leads
+    .filter(
+      (client: Lead) =>
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
@@ -70,9 +132,8 @@ const LeadsPage = () => {
   };
 
   const getVisiblePages = () => {
-    const pages = [];
+    const pages: number[] = [];
     const maxVisiblePages = 5;
-
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -80,34 +141,27 @@ const LeadsPage = () => {
     } else {
       let startPage = Math.max(1, currentPage - 2);
       let endPage = Math.min(totalPages, currentPage + 2);
-
       if (currentPage <= 3) {
         endPage = maxVisiblePages;
       } else if (currentPage >= totalPages - 2) {
         startPage = totalPages - maxVisiblePages + 1;
       }
-
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-
     return pages;
   };
 
   if (showNewLeadForm) {
-    return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)}/>;
-  }
-
-  if (showEditLeadForm) {
-    return <EditLead closeEditLeadForm={() => setShowEditLeadForm(false)}/>;
+    return <NewLead closeNewLeadForm={() => setShowNewLeadForm(false)} />;
   }
 
   return (
     <div
       className={cn(
-        "min-h-fit w-full p-2 mt-4 rounded-[12px] sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
-        "bg-background overflow-x-hidden",
+        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6 pb-0 sm:pb-0",
+        " overflow-x-hidden",
       )}
     >
       {/* Header Section */}
@@ -184,10 +238,8 @@ const LeadsPage = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   variant="destructive"
-                  onClick={() => {
-                    // Handle delete action here
-                    // TODO: Implement delete functionality
-                  }}
+                  onClick={handleBulkDelete}
+                  disabled={selectedLeads.length === 0}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                   <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
@@ -238,8 +290,22 @@ const LeadsPage = () => {
 
       {/* Table Section */}
       <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {isLoading ? (
+          <TableSkeleton
+            columns={[
+              { header: "", width: "w-[50px]" },
+              { header: "Lead Name", width: "w-[250px]" },
+              { header: "Status", width: "w-[100px]" },
+              { header: "Source", width: "w-[120px]" },
+              { header: "Services", width: "w-[200px]" },
+              { header: "Contact Info", width: "w-[150px]" },
+              { header: "Assigned To", width: "w-[120px]" },
+              { header: "Actions", width: "w-[80px]" },
+            ]}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-3 text-left">
@@ -273,138 +339,191 @@ const LeadsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-              {currentClients.map((lead, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
-                    <Checkbox
-                      className="!rounded-[8px]"
-                      checked={selectedLeads.includes(lead.id)}
-                      onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-blue-600">
-                            {lead.name
-                              .split(" ")
-                              .map(n => n[0])
-                              .join("")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {lead.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
-                      </div>
+              {currentClients.length === 0 ? (
+                <tr className="pointer-events-none">
+                  <td colSpan={8} className="p-0">
+                    <div className="min-h-[300px] flex flex-col items-center justify-center">
+                      <FolderIcon />
+                      <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : lead.status === "Inactive"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-                      )}
-                    >
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
-                        lead.source === "Website"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                          : lead.source === "Social Media"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : lead.source === "Campaign"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-                      )}
-                    >
-                      {lead.source}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.services}
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
-                    {lead.contactInfo}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex -space-x-3 justify-center">
-                      {lead.assignedTo.map((person, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
-                            person.color,
-                          )}
-                          title={person.name}
-                        >
-                          {person.initial}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <EllipsisVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            // Handle view action
-                            // TODO: Implement view functionality
-                          }}
-                        >
-                          <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            View
-                          </span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setShowEditLeadForm(true);
-                          }}
-                        >
-                          <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Edit
-                          </span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => {
-                            // Handle delete action
-                            // TODO: Implement delete functionality
-                          }}
-                        >
-                          <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Delete
-                          </span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                currentClients.map((lead: Lead) => (
+                  <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">
+                      <Checkbox
+                        className="!rounded-[8px]"
+                        checked={selectedLeads.includes(lead.id)}
+                        onCheckedChange={checked => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-blue-600">
+                              {lead.name
+                                .split(" ")
+                                .map(n => n[0])
+                                .join("")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {lead.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{lead.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          lead.status === "Active"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : lead.status === "Inactive"
+                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+                        )}
+                      >
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={cn(
+                          "inline-flex px-2 py-1 text-xs font-semibold rounded-full",
+                          lead.source === "Website"
+                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                            : lead.source === "Social Media"
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                              : lead.source === "Campaign"
+                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+                        )}
+                      >
+                        {lead.source}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.services && lead.services !== "-" ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex flex-wrap gap-1 justify-center max-w-[300px] mx-auto">
+                                {lead.services.split(", ").slice(0, 2).map((service, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                  >
+                                    {service}
+                                  </Badge>
+                                ))}
+                                {lead.services.split(", ").length > 2 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                                  >
+                                    +{lead.services.split(", ").length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            {lead.services.split(", ").length > 2 && (
+                              <TooltipContent className="max-w-[300px]">
+                                <div className="flex flex-wrap gap-1">
+                                  {lead.services.split(", ").map((service, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="secondary"
+                                      className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    >
+                                      {service}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-white">
+                      {lead.contactInfo}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex -space-x-3 justify-center">
+                        {lead.assignedTo.map(person => (
+                          <div
+                            key={`${lead.id}-assigned-to-${person.name}`}
+                            className={cn(
+                              "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium text-white border-2 border-white dark:border-gray-800",
+                              person.color,
+                            )}
+                            title={person.name}
+                          >
+                            {person.initial}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <EllipsisVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(`/leads/${lead.id}`);
+                            }}
+                          >
+                            <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            View
+                            </span>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(`/leads/${lead.id}/edit`);
+                            }}
+                          >
+                            <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Edit
+                            </span>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                              confirmDeleteLead(lead.id);
+                            }}
+                          >
+                            <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
+                            <span className="hidden sm:inline dark:text-white text-gray-900">
+                            Delete
+                            </span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Pagination Section */}
@@ -435,9 +554,9 @@ const LeadsPage = () => {
 
             {/* Page numbers */}
             <div className="flex items-center gap-1">
-              {getVisiblePages().map((page, index) => (
+              {getVisiblePages().map(page => (
                 <Button
-                  key={index}
+                  key={page}
                   variant={currentPage === page ? "default" : "ghost"}
                   size="sm"
                   onClick={() => handlePageChange(page)}
@@ -479,8 +598,30 @@ const LeadsPage = () => {
           </div>
         </div>
       </div>
-
-      <FilterSheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen} />
+    
+      <FilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        onApply={filters => {
+          console.log("Lead page received filters:", filters);
+          setLeadFilters(filters);
+          setCurrentPage(1);
+        }}
+      />
+      <DeleteConfirmationDialog
+        open={isDeleteDialogOpen}
+        setOpen={setIsDeleteDialogOpen}
+        itemName="lead"
+        itemLabel={leadsToDelete.length > 1 ? `${leadsToDelete.length} leads` : undefined}
+        onDelete={handleDeleteConfirm}
+        isPending={bulkDeleteMutation.isPending}
+        title={leadsToDelete.length > 1 ? "Delete Leads" : "Delete Lead"}
+        description={
+          leadsToDelete.length > 1
+            ? `Are you sure you want to delete these ${leadsToDelete.length} leads? This action cannot be undone.`
+            : undefined
+        }
+      />
     </div>
   );
 };

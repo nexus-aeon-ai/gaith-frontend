@@ -1,4 +1,4 @@
-import ClientManagementClient from "@/components/ClientManagement/ClientManagementClient";
+import ClientManagementClient from "@/components/ClientManagement/ClientManagementList";
 
 export default function ClientManagementPage() {
   return <ClientManagementClient />;

@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CheckboxSquare } from "@/components/ui/checkbox-square";
@@ -10,46 +11,30 @@ import RightArrowIcon from "@/components/ui/icons/options/right-arrow";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useLeadSources, LeadsFilters } from "@/lib/api/leads";
+import { getAllClients, getAllEmployees } from "@/lib/api/tasks";
 
 interface FilterState {
   dateFrom: string;
   dateTo: string;
-  assignees: string[];
-  statuses: string[];
-  sources: string[];
-  clients: string[];
+  assignees: string[]; // store IDs
+  statuses: string[]; // store status values like "NEW", "CONTACTED", etc.
+  sources: string[]; // store source IDs
+  clients: string[]; // store IDs
 }
 
-const assigneeOptions = [
-  "Emily Johnson",
-  "Michael Smith",
-  "Sophia Brown",
-  "James Williams",
-  "Olivia Davis",
-  "Liam Garcia",
-  "Ava Martinez",
-  "Noah Robinson",
-];
-
-const statusOptions = ["New", "Lost", "In Progress"];
-
-const sourceOptions = ["Website", "Social Media", "Campaign", "Referral"];
-
-const clientOptions = [
-  "Fashion Brand",
-  "Sustainable Fashion",
-  "Streetwear Collection",
-  "Luxury Accessories",
-  "Activewear Line",
-  "Vintage Revival",
-];
+const statusOptions = ["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL_SENT", "NEGOTIATING", "CONVERTING", "LOST"];
 
 export default function FilterSheet({
   open,
   onOpenChange,
+  value,
+  onApply,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  value?: LeadsFilters;
+  onApply?: (filters: LeadsFilters) => void;
 }) {
   const [filters, setFilters] = useState<FilterState>({
     dateFrom: "",
@@ -61,6 +46,32 @@ export default function FilterSheet({
   });
 
   const { theme } = useTheme();
+  const { data: employees } = useQuery({ queryKey: ["employees"], queryFn: getAllEmployees });
+  const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: getAllClients });
+  const { data: leadSources = [], isLoading } = useLeadSources();
+
+  const assigneeOptions = useMemo(
+    () => (Array.isArray(employees) ? employees.map(e => ({ 
+      id: e.id, label: e.user?.fullName || "", 
+    })) : []),
+    [employees],
+  );
+  const clientOptions = useMemo(
+    () => (Array.isArray(clients) ? clients.map(c => ({ id: c.id, label: c.clientName })) : []),
+    [clients],
+  );
+
+  // Sync internal state with external value when sheet opens or value changes
+  useEffect(() => {
+    if (!open) return;
+    if (!value) return;
+    setFilters(prev => ({
+      ...prev,
+      assignees: value.assignedToUserIds ? [...value.assignedToUserIds] : [],
+      sources: value.leadSourceId ? [value.leadSourceId] : [],
+      statuses: value.status ? [value.status] : [],
+    }));
+  }, [open, value]);
 
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
@@ -77,12 +88,14 @@ export default function FilterSheet({
 
   const handleSelectAll = (
     category: keyof Pick<FilterState, "assignees" | "statuses" | "sources" | "clients">,
-    options: string[],
+    options: string[] | { id: string; label?: string; name?: string }[],
   ) => {
-    const allSelected = options.every(option => filters[category].includes(option));
+    const typedOptions = options as (string | { id: string; label?: string; name?: string })[];
+    const ids = typedOptions.map(o => (typeof o === "string" ? o : o.id));
+    const allSelected = ids.every(option => filters[category].includes(option));
     setFilters(prev => ({
       ...prev,
-      [category]: allSelected ? [] : options,
+      [category]: allSelected ? [] : ids,
     }));
   };
 
@@ -98,6 +111,21 @@ export default function FilterSheet({
   };
 
   const applyFilters = () => {
+    // Build filters for leads endpoint - only send status, assignedToUserIds, and leadSourceId
+    const status = filters.statuses.length > 0 ? filters.statuses[0] : undefined;
+
+    const assignedToUserIds =
+      filters.assignees.length > 0 ? filters.assignees : undefined;
+
+    const leadSourceId = filters.sources.length > 0 ? filters.sources[0] : undefined;
+
+    const backendFilters: LeadsFilters = {
+      status,
+      assignedToUserIds,
+      leadSourceId,
+    };
+    console.log("Applying filters:", backendFilters);
+    onApply?.(backendFilters);
     onOpenChange(false);
   };
 
@@ -115,6 +143,11 @@ export default function FilterSheet({
     input?.showPicker?.();
   };
 
+  if(isLoading){
+    return null;
+  }
+
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange} >
       <SheetContent className="dark:bg-[#212945] bg-card w-[400px] sm:w-[540px] overflow-y-auto rounded-l-[16px] overflow-x-hidden">
@@ -122,7 +155,7 @@ export default function FilterSheet({
           <SheetTitle className="text-lg font-medium">Filter</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 sm:p-4 p-2">
+        <div className="space-y-6 p-4">
           {/* Added Date Section */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Added Date</Label>
@@ -136,7 +169,7 @@ export default function FilterSheet({
                     value={filters.dateFrom}
                     onChange={e => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
           pr-10
           [&::-webkit-calendar-picker-indicator]:opacity-0 
           [&::-webkit-calendar-picker-indicator]:absolute 
@@ -166,7 +199,7 @@ export default function FilterSheet({
                     value={filters.dateTo}
                     onChange={e => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
                     className="
-                    dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
+                    dark:bg-[#0F1B29] bg-[#F3F5F7] p-6
 
             pr-10
             [&::-webkit-calendar-picker-indicator]:opacity-0 
@@ -195,7 +228,7 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-assignees"
-                  checked={assigneeOptions.every(option => filters.assignees.includes(option))}
+                  checked={assigneeOptions.every(option => filters.assignees.includes(option.id))}
                   onCheckedChange={() => handleSelectAll("assignees", assigneeOptions)}
                 />
                 <Label htmlFor="select-all-assignees" className="text-sm text-muted-foreground">
@@ -205,16 +238,16 @@ export default function FilterSheet({
             </div>
             <div className="space-y-2">
               {assigneeOptions.map(assignee => (
-                <div key={assignee} className="flex items-center space-x-2">
+                <div key={assignee.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`assignee-${assignee}`}
-                    checked={filters.assignees.includes(assignee)}
+                    id={`assignee-${assignee.id}`}
+                    checked={filters.assignees.includes(assignee.id)}
                     onCheckedChange={checked =>
-                      handleCheckboxChange("assignees", assignee, checked as boolean)
+                      handleCheckboxChange("assignees", assignee.id, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`assignee-${assignee}`} className="text-sm">
-                    {assignee}
+                  <Label htmlFor={`assignee-${assignee.id}`} className="text-sm">
+                    {assignee.label}
                   </Label>
                 </div>
               ))}
@@ -246,8 +279,8 @@ export default function FilterSheet({
                       handleCheckboxChange("statuses", status, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`status-${status}`} className="text-sm">
-                    {status}
+                  <Label htmlFor={`status-${status}`} className="text-sm capitalize">
+                    {status.replace("_", " ").toLowerCase()}
                   </Label>
                 </div>
               ))}
@@ -261,8 +294,8 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-sources"
-                  checked={sourceOptions.every(option => filters.sources.includes(option))}
-                  onCheckedChange={() => handleSelectAll("sources", sourceOptions)}
+                  checked={(leadSources as Array<{ id: string; name: string }>).every(option => filters.sources.includes(option.id))}
+                  onCheckedChange={() => handleSelectAll("sources", (leadSources as Array<{ id: string; name: string }>))}
                 />
                 <Label htmlFor="select-all-sources" className="text-sm text-muted-foreground">
                   Select All
@@ -270,17 +303,15 @@ export default function FilterSheet({
               </div>
             </div>
             <div className="space-y-2">
-              {sourceOptions.map(source => (
-                <div key={source} className="flex items-center space-x-2">
+              {(leadSources as Array<{ id: string; name: string }>)?.map(source => (
+                <div key={source.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`source-${source}`}
-                    checked={filters.sources.includes(source)}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange("sources", source, checked as boolean)
-                    }
+                    id={`source-${source.id}`}
+                    checked={filters.sources.includes(source.id)}
+                    onCheckedChange={checked => handleCheckboxChange("sources", source.id, checked as boolean)}
                   />
-                  <Label htmlFor={`source-${source}`} className="text-sm">
-                    {source}
+                  <Label htmlFor={`source-${source.id}`} className="text-sm">
+                    {source.name}
                   </Label>
                 </div>
               ))}
@@ -294,7 +325,7 @@ export default function FilterSheet({
               <div className="flex items-center space-x-2">
                 <CheckboxSquare
                   id="select-all-clients"
-                  checked={clientOptions.every(option => filters.clients.includes(option))}
+                  checked={clientOptions.every(option => filters.clients.includes(option.id))}
                   onCheckedChange={() => handleSelectAll("clients", clientOptions)}
                 />
                 <Label htmlFor="select-all-clients" className="text-sm text-muted-foreground">
@@ -304,16 +335,16 @@ export default function FilterSheet({
             </div>
             <div className="space-y-2">
               {clientOptions.map(client => (
-                <div key={client} className="flex items-center space-x-2">
+                <div key={client.id} className="flex items-center space-x-2">
                   <CheckboxSquare
-                    id={`client-${client}`}
-                    checked={filters.clients.includes(client)}
+                    id={`client-${client.id}`}
+                    checked={filters.clients.includes(client.id)}
                     onCheckedChange={checked =>
-                      handleCheckboxChange("clients", client, checked as boolean)
+                      handleCheckboxChange("clients", client.id, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`client-${client}`} className="text-sm">
-                    {client}
+                  <Label htmlFor={`client-${client.id}`} className="text-sm">
+                    {client.label}
                   </Label>
                 </div>
               ))}

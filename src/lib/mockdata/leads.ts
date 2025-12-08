@@ -2,7 +2,7 @@ import { Lead } from "../types";
 
 export const mockLeads: Lead[] = [
   {
-    id: "1",
+    id: "EMP001",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Website",
@@ -22,7 +22,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "2",
+    id: "EMP002",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Website",
@@ -42,7 +42,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "3",
+    id: "EMP003",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Social Media",
@@ -62,7 +62,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "4",
+    id: "EMP004",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Referral",
@@ -83,7 +83,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "5",
+    id: "EMP005",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Website",
@@ -103,7 +103,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "6",
+    id: "EMP006",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Campaign",
@@ -123,7 +123,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "7",
+    id: "EMP007",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Social Media",
@@ -143,27 +143,7 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "8",
-    name: "Michael Anderson",
-    email: "anderson@email.com",
-    source: "Socila Media",
-    status: "Active",
-    agreementPeriod: {
-      start: "Jul 9, 2025",
-      end: "Jul 24, 2025",
-    },
-    marketRegion: "Europe",
-    services: "Digital Marketing",
-    contactInfo: "+9640000000",
-    assignedTo: [
-      { name: "Alice", initial: "A", color: "bg-red-500" },
-      { name: "Sarah", initial: "S", color: "bg-blue-500" },
-      { name: "Steve", initial: "S", color: "bg-green-500" },
-      { name: "Steve", initial: "S", color: "bg-yellow-500" },
-    ],
-  },
-  {
-    id: "9",
+    id: "EMP008",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Social Media",
@@ -183,7 +163,27 @@ export const mockLeads: Lead[] = [
     ],
   },
   {
-    id: "10",
+    id: "EMP009",
+    name: "Michael Anderson",
+    email: "anderson@email.com",
+    source: "Social Media",
+    status: "Active",
+    agreementPeriod: {
+      start: "Jul 9, 2025",
+      end: "Jul 24, 2025",
+    },
+    marketRegion: "Europe",
+    services: "Digital Marketing",
+    contactInfo: "+9640000000",
+    assignedTo: [
+      { name: "Alice", initial: "A", color: "bg-red-500" },
+      { name: "Sarah", initial: "S", color: "bg-blue-500" },
+      { name: "Steve", initial: "S", color: "bg-green-500" },
+      { name: "Steve", initial: "S", color: "bg-yellow-500" },
+    ],
+  },
+  {
+    id: "EMP010",
     name: "Michael Anderson",
     email: "anderson@email.com",
     source: "Social Media",

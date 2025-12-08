@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { CirclePlus } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
@@ -25,6 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useClientLookups } from "@/lib/api/client/client-lookups";
+import {
+  Area,
+  City,
+  Country,
+  LeadSource,
+  UtilsRole,
+  getLeadsLookup,
+  getUtilsRoles,
+} from "@/lib/api/leads";
+import { getUsers, type IUser } from "@/lib/api/user";
 import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lead";
 
 import Fb from "../ui/icons/socials/fb";
@@ -47,11 +59,11 @@ const defaultFormData: CreateLeadFormData = {
   email: "",
   phoneNumber: "",
   country: "",
-  region: "",
+  city: "",
   area: "",
   fullAddress: "",
-  leadSource: "website",
-  assignedTo: "creative-director",
+  leadSource: "",
+  assignedTo: "",
   visionStatement: "",
   missionStatement: "",
   linkedinUrl: "",
@@ -61,44 +73,11 @@ const defaultFormData: CreateLeadFormData = {
   instagramUrl: "",
   websiteUrl: "",
   additionalNotes: "",
-  productsServices: {
-    software: false,
-    hardware: false,
-    consulting: false,
-    webDesign: false,
-    mobileApp: false,
-    cloudServices: false,
-  },
-  additionalTeamMembers: {
-    software: false,
-    hardware: false,
-    consulting: false,
-    webDesign: false,
-    mobileApp: false,
-    cloudServices: false,
-    marketing: false,
-  },
+  productServiceIds: [],
+  serviceOfferingIds: [],
+  teamRoleIds: [],
+  assignedToUserIds: [],
 };
-
-const additionalTeamMembersOptions = [
-  { id: "creative-director", label: "Creative Director", value: "creative-director" },
-  { id: "social-media-manager", label: "Social Media Manager", value: "social-media-manager" },
-  { id: "ux-researcher", label: "UX Researcher", value: "ux-researcher" },
-  { id: "web-developer", label: "Web Developer", value: "web-developer" },
-  { id: "content-writer", label: "Content Writer", value: "content-writer" },
-  { id: "graphic-designer", label: "Graphic Designer", value: "graphic-designer" },
-  { id: "seo-specialist", label: "SEO Specialist", value: "seo-specialist" },
-];
-const leadSourceOptions = [
-  { value: "website", label: "Website" },
-  { value: "social-media", label: "Social Media" },
-  { value: "referral", label: "Referral" },
-  { value: "campaign", label: "Campaign" },
-  { value: "cold-call", label: "Cold Call" },
-  { value: "email", label: "Email Marketing" },
-  { value: "trade-show", label: "Trade Show" },
-  { value: "other", label: "Other" },
-];
 
 const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const { theme } = useTheme();
@@ -108,6 +87,60 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
     defaultValues: initialData || defaultFormData,
     mode: "onChange",
   });
+
+  const { data: countries = [], isLoading: loadingCountries } = useQuery<Country[]>({
+    queryKey: ["leads", "countries"],
+    queryFn: () => getLeadsLookup<Country>("countries"),
+  });
+  const countryId = form.watch("country");
+  const { data: cities = [], isLoading: loadingCities} = useQuery<City[]>({
+    queryKey: ["leads", "cities", countryId],
+    queryFn: () => getLeadsLookup<City>("cities"),
+    enabled: !!countryId,
+  });
+  const cityId = form.watch("city");
+  const { data: areas = [], isLoading: loadingAreas } = useQuery<Area[]>({
+    queryKey: ["leads", "areas", cityId],
+    queryFn: () => getLeadsLookup<Area>("areas"),
+    enabled: !!cityId,
+  });
+  const { data: leadSources = [], isLoading: loadingLeadSources } = useQuery<LeadSource[]>({
+    queryKey: ["leads", "lead-sources"],
+    queryFn: () => getLeadsLookup<LeadSource>("lead-sources"),
+  });
+
+  const { data: assignedRoles = [], isLoading: loadingAssignedRoles } = useQuery<UtilsRole[]>({
+    queryKey: ["utils", "roles"],
+    queryFn: getUtilsRoles,
+  });
+
+  const { data: users = [], isLoading: loadingUsers } = useQuery<IUser[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await getUsers();
+      return response.data || [];
+    },
+  });
+
+  const { clientServiceOffers = [] } = useClientLookups();
+
+  const selectedServiceOfferingIds = (form.watch("serviceOfferingIds") || []) as string[];
+  // const selectedTeamRoleIds = (form.watch("teamRoleIds") || []) as string[];
+  const selectedAssignedUserIds = (form.watch("assignedToUserIds") || []) as string[];
+
+  const filteredCities = cities.filter(city => city.countryTypeId === countryId);
+  const filteredAreas = areas.filter(a => a.cityId === cityId);
+
+  // if (
+  //   loadingCountries ||
+  //   loadingCities ||
+  //   loadingAreas ||
+  //   loadingLeadSources ||
+  //   loadingAssignedRoles ||
+  //   loadingUsers
+  // ) {
+  //   return <div>Loading form data...</div>;
+  // }
 
   return (
     <Form {...form}>
@@ -217,6 +250,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           <CardContent className="p-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Country, City, Area selects (with filtering) */}
                 <FormField
                   control={form.control}
                   name="country"
@@ -224,32 +258,72 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Country"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
+                        <Select
+                          value={field.value}
+                          onValueChange={val => {
+                            field.onChange(val);
+                            form.setValue("city", "");
+                          }}
+                          disabled={loadingCountries}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue
+                              placeholder={loadingCountries ? "Loading..." : "Select Country"}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map(c => (
+                              <SelectItem key={c.id} value={c.id}>
+                                {c.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
-                  name="region"
+                  name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Region</FormLabel>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Region"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
+                        <Select
+                          value={field.value}
+                          onValueChange={val => {
+                            field.onChange(val);
+                            form.setValue("area", "");
+                          }}
+                          disabled={loadingCities || !countryId}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue
+                              placeholder={
+                                loadingCities
+                                  ? "Loading..."
+                                  : !countryId
+                                    ? "Select Country first"
+                                    : "Select City"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredCities.length === 0 ? (
+                              <SelectItem value="no city" disabled>
+                                No cities available
+                              </SelectItem>
+                            ) : (
+                              filteredCities.map(r => (
+                                <SelectItem key={r.id} value={r.id}>
+                                  {r.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -260,14 +334,31 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                     <FormItem>
                       <FormLabel>Area</FormLabel>
                       <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="City, Country"
-                          className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                          {...field}
-                        />
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          disabled={loadingAreas || !cityId}
+                        >
+                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                            <SelectValue
+                              placeholder={
+                                loadingAreas
+                                  ? "Loading..."
+                                  : !cityId
+                                    ? "Select City first"
+                                    : "Select Area"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredAreas.map(a => (
+                              <SelectItem key={a.id} value={a.id}>
+                                {a.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -306,7 +397,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="visionStatement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Visoin Statement</FormLabel>
+                      <FormLabel>Vision Statement</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Street Address, City, State, Zip Code"
@@ -561,169 +652,145 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
           </CardContent>
         </Card>
 
-        {/* Team Assignment */}
+        {/* Service Offerings Multiselect */}
+        <Card className="pt-3 rounded-[16px] shadow-none">
+          <CardHeader className="px-3">
+            <CardTitle className="text-lg font-medium">Service Offerings</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <FormField
+              control={form.control}
+              name="serviceOfferingIds"
+              render={() => (
+                <FormItem>
+                  <div className="grid mg:grid-cols-2 lg:grid-cols-4  gap-4">
+                    {clientServiceOffers.map(service => (
+                      <label key={service.id} className="flex items-center gap-2 cursor-pointer">
+                        <CheckboxSquare
+                          checked={selectedServiceOfferingIds.includes(service.id as string)}
+                          onCheckedChange={checked => {
+                            if (checked) {
+                              form.setValue("serviceOfferingIds", [
+                                ...selectedServiceOfferingIds,
+                                service.id as string,
+                              ]);
+                            } else {
+                              form.setValue(
+                                "serviceOfferingIds",
+                                selectedServiceOfferingIds.filter(
+                                  (id: string) => id !== service.id,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+
+                        <span>{service.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Lead Source Select */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
             <CardTitle className="text-lg font-medium">Team Assignment</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Lead Source */}
-                <FormField
-                  control={form.control}
-                  name="leadSource"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Lead Source</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Lead Source" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {leadSourceOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Assigned To */}
-                <FormField
-                  control={form.control}
-                  name="assignedTo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Assigned To</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
-                            <SelectValue placeholder="Select Assigned To" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {additionalTeamMembersOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Upload Logo */}
-              <FormField
-                control={form.control}
-                name="companyLogo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-[#CCCFDB] text-[#303444]">
-                      Upload Company Logo (Max size 5 Mb)
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <input
-                          type="file"
-                          id="fileUpload"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          onChange={e => field.onChange(e.target.files?.[0])}
+          <CardContent className="p-4 grid md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="leadSource"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lead Source</FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={loadingLeadSources}
+                    >
+                      <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                        <SelectValue
+                          placeholder={loadingLeadSources ? "Loading..." : "Select Lead Source"}
                         />
-                        <div className="dark:bg-[#0F1B29] py-4 bg-[#F3F5F7] rounded-[12px] text-center hover:border-muted-foreground/50 transition-colors">
-                          <div className="flex flex-col items-center space-y-2">
-                            <Gallery
-                              className="h-8 w-8 text-muted-foreground"
-                              color={theme === "dark" ? "#CCCFDB" : "#303444"}
-                            />
-                            <div className="space-y-0">
-                              <p className="text-lg font-[400] dark:text-[#CCCFDB] text-[#303444]">
-                                Upload company Logo
-                              </p>
-                              <p className="text-muted-foreground">or drag and drop here</p>
-                            </div>
-                            {field.value && (
-                              <p className="text-sm text-green-600 font-medium">
-                                Selected: {field.value.name}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {leadSources.map(source => (
+                          <SelectItem key={source.id} value={source.id}>
+                            {source.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="assignedTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assigned To</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={loadingAssignedRoles}
+                  >
+                    <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
+                      <SelectValue
+                        placeholder={loadingAssignedRoles ? "Loading..." : "Select Account Manager"}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.fullName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              {/* Additional Team Members */}
-              <FormField
-                control={form.control}
-                name="additionalTeamMembers"
-                render={() => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Additional Team Members</FormLabel>
-                    <div className="flex flex-col md:flex-row gap-4">
-                      <div className="space-y-3">
-                        {additionalTeamMembersOptions.slice(0, 4).map(option => (
-                          <FormField
-                            key={option.id}
-                            control={form.control}
-                            name={`additionalTeamMembers.${option.id}`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-2">
-                                <FormControl>
-                                  <CheckboxSquare
-                                    id={option.id}
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <FormLabel htmlFor={option.id} className="text-sm">
-                                  {option.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                      <div className="space-y-3">
-                        {additionalTeamMembersOptions.slice(4, 7).map(option => (
-                          <FormField
-                            key={option.id}
-                            control={form.control}
-                            name={`additionalTeamMembers.${option.id}`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-2">
-                                <FormControl>
-                                  <CheckboxSquare
-                                    id={option.id}
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <FormLabel htmlFor={option.id} className="text-sm">
-                                  {option.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="assignedToUserIds"
+              render={() => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Additional Team Members</FormLabel>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {users.map(user => (
+                      <label key={user.id} className="flex items-center gap-2 cursor-pointer">
+                        <CheckboxSquare
+                          checked={selectedAssignedUserIds.includes(user.id)}
+                          onCheckedChange={checked => {
+                            if (checked) {
+                              form.setValue("assignedToUserIds", [
+                                ...selectedAssignedUserIds,
+                                user.id,
+                              ]);
+                            } else {
+                              form.setValue(
+                                "assignedToUserIds",
+                                selectedAssignedUserIds.filter((id: string) => id !== user.id),
+                              );
+                            }
+                          }}
+                        />
+                        <span>{user.fullName}</span>
+                      </label>
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 

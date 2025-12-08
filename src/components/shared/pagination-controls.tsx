@@ -39,8 +39,9 @@ export default function PaginationControls({
         {/* Previous page button */}
         <PaginationItem>
           <PaginationPrevious
-            className="aria-disabled:pointer-events-none aria-disabled:opacity-50 bg-card"
+            className="aria-disabled:pointer-events-none border-none aria-disabled:opacity-50 bg-transparent shadow-none"
             href={previousPageHref}
+            disabled={currentPage === 1}
             aria-label="Go to previous page"
             aria-disabled={currentPage === 1 ? true : undefined}
             role={currentPage === 1 ? "link" : undefined}
@@ -57,7 +58,7 @@ export default function PaginationControls({
         {/* Page number links */}
         {pages.map(page => (
           <PaginationItem key={page.number}>
-            <PaginationLink href={page.href} isActive={page.number === currentPage}>
+            <PaginationLink className=" border-none" href={page.href} isActive={page.number === currentPage}>
               {page.number}
             </PaginationLink>
           </PaginationItem>
@@ -73,9 +74,10 @@ export default function PaginationControls({
         {/* Next page button */}
         <PaginationItem>
           <PaginationNext
-            className="aria-disabled:pointer-events-none aria-disabled:opacity-50 bg-card"
+            className="aria-disabled:pointer-events-none border-none aria-disabled:opacity-50 bg-transparent shadow-none"
             href={nextPageHref}
             aria-label="Go to next page"
+            disabled={currentPage === totalPages}
             aria-disabled={currentPage === totalPages ? true : undefined}
             role={currentPage === totalPages ? "link" : undefined}
           />

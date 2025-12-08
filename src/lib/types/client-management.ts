@@ -4,12 +4,14 @@ export interface Client {
   id: string;
   name: string;
   email: string;
+  clientName: string;
   status: "Active" | "Inactive" | "Pending";
   agreementPeriod: {
     start: string;
     end: string;
   };
   marketRegion: string;
+  industrySector: string;
   services: string;
   contactInfo: string;
   assignedTo: {
@@ -25,7 +27,8 @@ export interface MainInformationTabProps {
 }
 
 export interface CampaignTasksTabProps {
-  client: Client;
+  setShowPendingTasks: (show: boolean) => void;
+  setShowCampaignOverview: (show: boolean) => void;
 }
 
 export interface HistoricalPerformanceTabProps {
@@ -44,7 +47,10 @@ export interface Campaign {
   endDate: string;
   status: "Inprogress" | "On Track" | "Completed";
   tasksRemaining: number;
-  budget: string;
+  budget: {
+    totalBudget: string;
+    perDayBudget: string;
+  };
   roi: string;
   lastUpdated: string;
   icon: string;

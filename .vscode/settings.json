@@ -1,8 +1,7 @@
 {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.organizeImports": "explicit"
+        "source.fixAll.eslint": "explicit"
     },
     "eslint.validate": [
         "javascript",
@@ -10,7 +9,7 @@
         "typescript",
         "typescriptreact"
     ],
-    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.importModuleSpecifier": "non-relative",
     "typescript.suggest.autoImports": true,
     "typescript.updateImportsOnFileMove.enabled": "always",
     "files.associations": {
@@ -48,4 +47,5 @@
         "**/dist": true,
         "**/.git": true
     }
+    
 }

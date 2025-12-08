@@ -17,7 +17,7 @@ const useTableColumns = () => {
       header: "Report Name",
       accessorKey: "name",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2 sm:w-auto max-w-[100px] overflow-clip">
+        <div className="flex items-center gap-2">
           {row.original.icon}
           <span>{row.original.name}</span>
         </div>

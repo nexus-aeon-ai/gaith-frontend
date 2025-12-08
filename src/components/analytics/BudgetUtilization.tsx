@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { useTheme } from "next-themes";
 import React, { useState } from "react";
 import { Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
@@ -20,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DownArrow from "@/components/ui/icons/down-arrow";
+import { Separator } from "@/components/ui/separator";
 
 // Mock data for different time periods
 const budgetDataByPeriod = {
@@ -137,7 +139,7 @@ const useMediaQuery = (query: string) => {
 
 const BudgetUtilization: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<3 | 6 | 9 | 12>(3);
-  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+  const { theme } = useTheme();
 
   const currentData = budgetDataByPeriod[selectedPeriod];
   const selectedOption = timeOptions.find(option => option.value === selectedPeriod);
@@ -149,59 +151,147 @@ const BudgetUtilization: React.FC = () => {
   const isMd = useMediaQuery("(max-width: 768px)");
   const isLg = useMediaQuery("(max-width: 1024px)");
   const isXl = useMediaQuery("(max-width: 1280px)");
+  const is2xl = useMediaQuery("(max-width: 1536px)");
 
   // Decide radii based on breakpoints
-  const innerRadius = isXs ? 60 : isSm ? 70 : isMd ? 80 : isLg ? 90 : isXl ? 100 : 100;
+  const innerRadius = isXs ? 50 : isSm ? 60 : isMd ? 70 : isLg ? 80 : isXl ? 90 : is2xl ? 100 : 100;
 
-  const outerRadius = isXs ? 85 : isSm ? 100 : isMd ? 110 : isLg ? 130 : isXl ? 130 : 150;
+  const outerRadius = isXs
+    ? 75
+    : isSm
+      ? 90
+      : isMd
+        ? 95
+        : isLg
+          ? 110
+          : isXl
+            ? 120
+            : is2xl
+              ? 140
+              : 140;
 
   const overlaySize = Math.max(64, Math.min(240, Math.round(innerRadius * 1.6)));
 
   const renderCustomizedLabel = (props: any) => {
-    const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent } = props;
+    const { cx, cy, midAngle, innerRadius: ir, outerRadius: orr, percent, fill } = props;
 
+    //for inner percentage text
     // Adjust factor per breakpoint
-    const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.3 : isLg ? 0.35 : isXl ? 0.3 : 0.35;
+    const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.2 : isLg ? 0.2 : isXl ? 0.2 : 0.2;
 
-    const radius = ir + (orr - ir) * factor;
+    const radiusP = ir + (orr - ir) * factor;
+    const xP = cx + radiusP * Math.cos(-midAngle * RADIAN);
+    const yP = cy + radiusP * Math.sin(-midAngle * RADIAN);
+
+    const textAnchor = xP > cx ? "start" : "end";
+
+    const radius = outerRadius; // push line outside the pie
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    const textAnchor = x > cx ? "start" : "end";
-
-    // Adjust font size per breakpoint
-    const fontSize = isXs ? 8 : isSm ? 10 : isMd ? 11 : isLg ? 12 : isXl ? 13 : 14;
+    const lineEndX = x + (x > cx ? 30 : -30); // horizontal line direction
+    const lineEndY = y;
 
     return (
-      <text
-        x={x}
-        y={y}
-        fill="hsl(var(--foreground))"
-        textAnchor={textAnchor}
-        dominantBaseline="central"
-        fontSize={fontSize}
-        fontWeight="bold"
-        pointerEvents={"none"}
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
+      <g>
+        <text
+          x={xP}
+          y={yP}
+          fill="hsl(var(--foreground))"
+          textAnchor={textAnchor}
+          dominantBaseline="central"
+          fontSize={12}
+          fontWeight="600"
+          pointerEvents={"none"}
+        >
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+
+        {/* horizontal line */}
+        <line x1={x} y1={y} x2={lineEndX} y2={lineEndY} stroke={fill} strokeWidth={1.5} />
+
+        {/* label */}
+        <text
+          x={lineEndX + (x > cx ? 6 : -6)}
+          y={lineEndY}
+          textAnchor={x > cx ? "start" : "end"}
+          dominantBaseline="middle"
+          fontSize={14}
+          fill={theme === "dark" ? "#F6FBFE" : "#070913"}
+        >
+          Nexus
+        </text>
+      </g>
     );
+
+    // // Adjust factor per breakpoint
+    // const factor = isXs ? 0.15 : isSm ? 0.2 : isMd ? 0.2 : isLg ? 0.2 : isXl ? 0.2 : 0.2;
+
+    // const radius = ir + (orr - ir) * factor;
+    // const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    // const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    // const textAnchor = x > cx ? "start" : "end";
+
+    // // for line labels
+    // const radiusLine = orr; // push line outside the pie
+    // const xLine = cx + radiusLine * Math.cos(-midAngle * RADIAN);
+    // const yLine = cy + radiusLine * Math.sin(-midAngle * RADIAN);
+
+    // const lineEndX = xLine + (xLine > cx ? 50 : -50); // horizontal line direction
+    // const lineEndY = yLine;
+
+    // return (
+    //   <g>
+    //     <text
+    //       x={x}
+    //       y={y}
+    //       fill="hsl(var(--foreground))"
+    //       textAnchor={textAnchor}
+    //       dominantBaseline="central"
+    //       fontSize={12}
+    //       fontWeight="600"
+    //       pointerEvents={"none"}
+    //     >
+    //       {`${(percent * 100).toFixed(0)}%`}
+    //     </text>
+    //     {/* horizontal line with slice color */}
+    //     <line
+    //       x1={x}
+    //       y1={y}
+    //       x2={lineEndX}
+    //       y2={lineEndY}
+    //       stroke={fill} // use the slice color
+    //       strokeWidth={1.5}
+    //     />
+
+    //     {/* label text - dynamic from slice */}
+    //     <text
+    //       x={lineEndX + (x > cx ? 6 : -6)}
+    //       y={lineEndY}
+    //       textAnchor={x > cx ? "start" : "end"}
+    //       dominantBaseline="middle"
+    //       fontSize={12}
+    //       fill={"red"} // match slice color
+    //     >
+    //       Nexus
+    //     </text>
+    //   </g>
+    // );
   };
 
   return (
-    <Card className="w-full lg:col-span-1 col-span-1">
-      <CardHeader className="flex flex-row items-center justify-between pt-4">
-        <CardTitle className="font-semibold text-lg text-card-foreground">
-          Budget Utilization
-        </CardTitle>
+    <Card className="w-full lg:col-span-4 col-span-1">
+      <CardHeader className="flex flex-row items-center justify-between p-3 py-[11px]">
+        <CardTitle className="font-bold text-lg text-card-foreground">Budget Utilization</CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="text-sm px-3 py-1 dark:bg-card bg-white dark:hover:bg-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:hover:text-gray-100 rounded-3xl border h-auto gap-1"
+              className="text-sm px-3 py-[10px] dark:bg-card bg-white dark:hover:bg-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:hover:text-gray-100 rounded-[16px] border-[#DCE0E4] dark:border-[#404663] shadow-none h-auto gap-1"
             >
               {selectedOption?.label}
-              <ChevronDown className="h-3 w-3" />
+              <DownArrow className="!h-5 !w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -217,16 +307,35 @@ const BudgetUtilization: React.FC = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent>
+      <Separator />
+      <CardContent className="p-0">
         <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px]">
           {/* Center overlay - moved outside ChartContainer */}
           <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+            {/* Dashed ring */}
             <div
-              className="bg-muted rounded-full flex flex-col items-center justify-center text-center"
+              className="absolute rounded-full border border-dashed border-muted-foreground/30 dark:border-[#A0AEBA]"
+              style={{
+                width: overlaySize + 25,
+                height: overlaySize + 25,
+              }}
+            />
+
+            {/* Outer lighter circle */}
+            <div
+              className="absolute rounded-full bg-[#E8ECF5] dark:bg-[#1A2336]"
+              style={{
+                width: overlaySize + 15,
+                height: overlaySize + 15,
+              }}
+            />
+
+            {/* Inner main circle */}
+            <div
+              className="relative bg-muted dark:bg-[#0F1220] rounded-full flex flex-col items-center justify-center text-center"
               style={{
                 width: overlaySize,
                 height: overlaySize,
-                boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.1)",
               }}
             >
               <div className={`font-bold ${isSm ? "text-sm" : "text-xl"} text-foreground`}>
@@ -250,11 +359,9 @@ const BudgetUtilization: React.FC = () => {
                 paddingAngle={3}
                 cornerRadius={5}
                 labelLine={false}
-                label={renderCustomizedLabel}
-                isAnimationActive={false}
+                label={renderCustomizedLabel} // percentage inside
+                isAnimationActive={true}
                 activeShape={renderActiveShape as ActiveShape<PieSectorDataItem>}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
               />
             </PieChart>
           </ChartContainer>

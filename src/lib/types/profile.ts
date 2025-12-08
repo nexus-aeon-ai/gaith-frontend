@@ -12,4 +12,5 @@ export interface IProfile {
     value: string;
     category: string;
   }[];
+  permissions: string[];
 }

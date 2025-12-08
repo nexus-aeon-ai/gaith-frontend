@@ -23,7 +23,7 @@ interface TableSkeletonProps {
 const TableSkeleton = ({ columns, rows = 7, className = "" }: TableSkeletonProps) => {
   return (
     <div
-      className={cn("w-full overflow-auto rounded-md border border-gray-300 bg-white", className)}
+      className={cn("w-full overflow-auto rounded-md border border-gray-300 bg-white dark:bg-card", className)}
     >
       <Table>
         <TableHeader className="text-left">
