@@ -11,7 +11,8 @@ const env = createEnv({
   },
   runtimeEnv: {
     // NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-    NEXT_PUBLIC_API_URL: "http://40.172.156.195",
+    // NEXT_PUBLIC_API_URL: "http://40.172.156.195",
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     // NEXT_PUBLIC_IS_COOKIE_SECURE: process.env.NEXT_PUBLIC_IS_COOKIE_SECURE,
   },
 });
