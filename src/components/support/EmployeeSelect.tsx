@@ -57,7 +57,7 @@ const EmployeeSelect = ({
       onValueChange={handleValueChange}
       disabled={disabled}
     >
-      <SelectTrigger className="h-12 rounded-xl bg-muted/40">
+      <SelectTrigger className="h-12 rounded-xl bg-muted/40 dark:bg-[#0F1B29]">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

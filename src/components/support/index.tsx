@@ -6,12 +6,23 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
 import {
   assignTicket,
   createTicket,
+  deleteTicket,
   listTickets,
   updateTicket,
 } from "@/lib/api/support/support";
@@ -65,6 +76,7 @@ const Support = () => {
   }, [searchParams]);
 
   const [searchValue, setSearchValue] = useState(filterParams.searchTerm || "");
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setSearchValue(filterParams.searchTerm || "");
@@ -72,19 +84,37 @@ const Support = () => {
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
-    const params = new URLSearchParams(searchParams.toString());
 
-    if (value.trim()) {
-      params.set("searchTerm", value);
-    } else {
-      params.delete("searchTerm");
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    params.set("skip", "0");
+    // Debounce search by 500ms
+    searchTimeoutRef.current = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    const queryString = params.toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+      if (value.trim()) {
+        params.set("searchTerm", value.trim());
+      } else {
+        params.delete("searchTerm");
+      }
+
+      params.set("skip", "0");
+
+      const queryString = params.toString();
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    }, 500);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Fetch tickets with React Query
   const {
@@ -100,7 +130,6 @@ const Support = () => {
   });
 
   // Fetch all users for assigned user lookup
-
 
   // Create ticket mutation
   const createTicketMutation = useMutation({
@@ -132,7 +161,7 @@ const Support = () => {
       queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
       setShowSubmitForm(false);
     },
-    onError: (error) => {
+    onError: error => {
       console.error("Error creating ticket:", error);
       // TODO: Show error toast
     },
@@ -168,8 +197,23 @@ const Support = () => {
       setShowEditForm(false);
       setSelectedTicket(null);
     },
-    onError: (error) => {
+    onError: error => {
       console.error("Error updating ticket:", error);
+      // TODO: Show error toast
+    },
+  });
+
+  // Delete ticket mutation
+  const deleteTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      return await deleteTicket(ticketId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
+      // TODO: Show success toast
+    },
+    onError: error => {
+      console.error("Error deleting ticket:", error);
       // TODO: Show error toast
     },
   });
@@ -214,6 +258,10 @@ const Support = () => {
     }
   };
 
+  const handleDelete = (ticket: SupportTicket) => {
+    deleteTicketMutation.mutate(ticket.id);
+  };
+
   const handleExportExcel = () => {
     // TODO: Implement Excel export
     console.log("Export Excel");
@@ -224,7 +272,7 @@ const Support = () => {
     console.log("Export PDF");
   };
 
-  const columns = useTableColumns(handleViewAndReply, handleEdit);
+  const columns = useTableColumns(handleViewAndReply, handleEdit, handleDelete);
 
   const tickets = ticketsData?.data || [];
   const totalCount = ticketsData?.total || 0;
@@ -285,8 +333,41 @@ const Support = () => {
   // If submit form is shown
   if (showSubmitForm) {
     return (
-      <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6", "bg-background")}>
+      <div className="min-h-screen w-full p-2 sm:p-3 font-inter md:p-4 lg:p-6">
         <div className="mb-6">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/dashboard">
+                    <DashboardListIcon className="h-4 w-4 text-[#3072C0]" />
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link
+                    href="/support"
+                    onClick={() => setShowSubmitForm(false)}
+                    className="text-blue-500 hover:text-blue-700 font-medium"
+                  >
+                    Support
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Submit a Support Ticket</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+          <p className="text-[18px] font-semibold">Submit A Support Ticket</p>
+          <p className="text-[12px] mt-1 mb-3 font-normal text-[#303444] dark:text-[#CCCFDB]">
+            Get help, submit tickets, and access support resources
+          </p>
           <button
             onClick={() => setShowSubmitForm(false)}
             className="text-blue-500 hover:text-blue-700 flex items-center gap-2"
@@ -324,12 +405,7 @@ const Support = () => {
   }
 
   return (
-    <div
-      className={cn(
-        "min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6",
-        "overflow-x-hidden",
-      )}
-    >
+    <div className={cn("min-h-screen w-full p-2 sm:p-3 md:p-4 lg:p-6", "overflow-x-hidden")}>
       <HeaderSection onSubmitTicket={() => setShowSubmitForm(true)} />
       <SearchAndActionsSection
         searchTerm={searchValue}

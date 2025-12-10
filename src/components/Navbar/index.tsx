@@ -142,7 +142,7 @@ const Navbar = ({ user }: NavbarProps) => {
                       size="icon"
                       className={`rounded-[24px] border-2 ${
                         themeNext === "dark"
-                          ? "bg-[#D29A09] border-transparent"
+                          ? "bg-[#D29A09] hover:bg-[#D29A09] border-transparent"
                           : "border-transparent"
                       }`}
                       onClick={() => handleThemeChange("dark")}

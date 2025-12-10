@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Upload } from "lucide-react";
+import { FileText, Plus, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -113,7 +113,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                     disabled={categoriesLoading}
                   >
                     <SelectTrigger
-                      className={cn("flex-1", fieldState.invalid && "border-red-500")}
+                      className={cn("flex-1 dark:bg-[#0F1B29]", fieldState.invalid && "border-red-500")}
                     >
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
@@ -157,25 +157,25 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                 <Label className="text-sm font-medium">Priority Level</Label>
                 <RadioGroup value={field.value} onValueChange={field.onChange}>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Low" id="low" />
+                    <RadioGroupItem value="Low" id="low"  className="data-[state=checked]:border-[#3072C0] data-[state=checked]:text-[#3072C0]"/>
                     <Label htmlFor="low" className="font-normal cursor-pointer">
                       Low - General questions or minor issues
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Medium" id="medium" />
+                    <RadioGroupItem value="Medium" id="medium"  className="data-[state=checked]:border-[#3072C0] data-[state=checked]:text-[#3072C0]"/>
                     <Label htmlFor="medium" className="font-normal cursor-pointer">
                       Medium - Important but not urgent
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="High" id="high" />
+                    <RadioGroupItem value="High" id="high"  className="data-[state=checked]:border-[#3072C0] data-[state=checked]:text-[#3072C0]"/>
                     <Label htmlFor="high" className="font-normal cursor-pointer">
                       High - Urgent business impact
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Critical" id="critical" />
+                    <RadioGroupItem value="Critical" id="critical"  className="data-[state=checked]:border-[#3072C0] data-[state=checked]:text-[#3072C0]"/>
                     <Label htmlFor="critical" className="font-normal cursor-pointer">
                       Critical - System down or security issue
                     </Label>
@@ -216,7 +216,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                   {...field}
                   id="subject"
                   placeholder="Brief description about issue type"
-                  className={cn("w-full", fieldState.invalid && "border-red-500")}
+                  className={cn("w-full dark:bg-[#0F1B29]", fieldState.invalid && "border-red-500")}
                 />
                 {fieldState.error?.message && (
                   <p className="text-sm text-red-500">{fieldState.error.message}</p>
@@ -239,7 +239,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                   id="description"
                   placeholder="Detailed description of the issue"
                   className={cn(
-                    "w-full min-h-[120px]",
+                    "w-full min-h-[120px] dark:bg-[#0F1B29]",
                     fieldState.invalid && "border-red-500",
                   )}
                 />
@@ -263,7 +263,7 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                 }
               }}
               className={cn(
-                "border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg",
+                "border-2 border-dashed dark:bg-[#0F1B29]  border-gray-300 dark:border-gray-700 rounded-lg",
                 "p-8 text-center cursor-pointer hover:border-blue-500 transition-colors",
               )}
               onClick={() => document.getElementById("file-upload")?.click()}
@@ -284,13 +284,37 @@ const SubmitTicketForm = ({ ticket, onSubmit, onSaveDraft }: SubmitTicketFormPro
                 onChange={handleFileChange}
               />
             </div>
-            {formState.dirtyFields.attachments && form.watch("attachments")?.length && (
-              <div className="mt-2">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {form.watch("attachments")?.length} file(s) selected
-                </p>
+            {form.watch("attachments")?.length ? (
+              <div className="mt-3 space-y-2">
+                {Array.from(form.watch("attachments") || []).map((file) => (
+                  <div
+                    key={`${file.name}-${file.size}-${file.lastModified}`}
+                    className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-[#0A1525] rounded-lg border border-gray-200 dark:border-gray-700"
+                  >
+                    <FileText className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentFiles = form.watch("attachments") || [];
+                        const newFiles = Array.from(currentFiles).filter((f) => 
+                          `${f.name}-${f.size}-${f.lastModified}` !== `${file.name}-${file.size}-${file.lastModified}`
+                        );
+                        setValue("attachments", newFiles, {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        });
+                      }}
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors shrink-0"
+                    >
+                      <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Action Buttons */}

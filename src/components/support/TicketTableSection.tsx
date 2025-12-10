@@ -66,7 +66,7 @@ const TicketTableSection = ({ table, columns, totalCount }: TicketTableSectionPr
               {table.getHeaderGroups().map(headerGroup => (
                 <>
                   {headerGroup.headers.map(header => (
-                    <TableHead key={header.id} className="text-xs font-semibold">
+                    <TableHead key={header.id} className="text-[14px] font-semibold">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
