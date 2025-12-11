@@ -53,21 +53,21 @@ export default function Calendar({
     }
 
     const eventsMap = new Map<number, Set<string>>();
-    
-    calendarData.calendar.forEach((entry) => {
+
+    calendarData.calendar.forEach(entry => {
       try {
         console.log(entry);
         const entryDate = new Date(entry.date);
         const day = entryDate.getDate();
         const month = entryDate.getMonth();
         const year = entryDate.getFullYear();
-        
+
         // Only include events from the current month/year
         if (month === currentDate.getMonth() && year === currentDate.getFullYear()) {
           if (!eventsMap.has(day)) {
             eventsMap.set(day, new Set());
           }
-          const platformKey = entry.platform.toLowerCase().replace(/\s+/g, '');
+          const platformKey = entry.platform.toLowerCase().replace(/\s+/g, "");
           eventsMap.get(day)?.add(platformKey);
         }
       } catch (error) {
@@ -198,7 +198,7 @@ export default function Calendar({
             return (
               <div
                 key={index}
-                className={`aspect-square p-3 border rounded-lg flex flex-col cursor-pointer hover:bg-accent justify-between transition-colors ${
+                className={`aspect-square p-3 border rounded-lg flex flex-col cursor-pointer hover:bg-accent transition-colors ${
                   highlight ? "border-blue-500 border-2 " : "border-border"
                 } ${!currentMonth ? "opacity-40" : ""} ${hasEvent ? "bg-blue-50 dark:bg-blue-950/20" : ""}`}
                 role="button"
@@ -216,11 +216,13 @@ export default function Calendar({
                 }}
                 tabIndex={hasEvent ? 0 : -1}
               >
-                <div className="flex items-start justify-between">
-                  <span className={`text-sm font-medium ${hasEvent ? "font-bold text-blue-600 dark:text-blue-400" : ""}`}>
+                <div className="flex flex-col items-start">
+                  <span
+                    className={`text-sm font-medium ${hasEvent ? "font-bold text-blue-600 dark:text-blue-400" : ""}`}
+                  >
                     {d.day}
                   </span>
-                  {highlight && <span className="text-xs font-semibold text-blue-600">Today</span>}
+                {highlight && <p className="text-xs font-semibold mb-1 text-blue-600">Today</p>}
                 </div>
 
                 {/* Event Indicators */}
@@ -247,9 +249,7 @@ export default function Calendar({
         {EVENTS.length > 0 && (
           <div className="flex items-center justify-center gap-6 pt-6 border-t border-border">
             {Object.entries(PLATFORMS)
-              .filter(([key]) => 
-                EVENTS.some(event => event.platforms.includes(key))
-              )
+              .filter(([key]) => EVENTS.some(event => event.platforms.includes(key)))
               .map(([key, { color, label }]) => (
                 <div key={key} className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${color}`} />
@@ -258,7 +258,7 @@ export default function Calendar({
               ))}
           </div>
         )}
-        
+
         {/* No posts message */}
         {EVENTS.length === 0 && (
           <div className="flex items-center justify-center pt-6 border-t border-border">

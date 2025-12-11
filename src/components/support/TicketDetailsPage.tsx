@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadMultiImages } from "@/lib/api/storage";
 import {
     createTicketReply,
     getTicketActivities,
@@ -91,8 +92,20 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
   // Create reply mutation
   const createReplyMutation = useMutation({
     mutationFn: async (data: z.infer<typeof replySchema>) => {
-      // TODO: Upload attachments first if any
-      const attachmentUrls: string[] = [];
+      // Upload attachments first if any
+      let attachmentUrls: string[] = [];
+      if (data.attachments && data.attachments.length > 0) {
+        try {
+          const uploadResponse = await uploadMultiImages(data.attachments);
+          if (uploadResponse.data) {
+            attachmentUrls = uploadResponse.data.map(item => item.url);
+            console.log("Uploaded reply attachment URLs:", attachmentUrls);
+          }
+        } catch (error) {
+          console.error("Error uploading attachments:", error);
+          throw new Error("Failed to upload attachments");
+        }
+      }
 
       return createTicketReply(ticket.id, {
         message: data.message,
@@ -353,6 +366,19 @@ const TicketDetailsPage = ({ ticket, onBack, onClose, mode = "view" }: TicketDet
                     </p>
                   </div>
                 </div>
+                {reply.attachments && reply.attachments.length > 0 && (
+                  <div className="mt-4 flex gap-2">
+                    {reply.attachments.map((attachment) => (
+                      <div
+                        key={attachment}
+                        className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                        <span className="text-sm">{attachment}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}

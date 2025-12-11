@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
+import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import {
   Form,
   FormControl,
@@ -14,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Clock5 from "@/components/ui/icons/alerts/clock-5";
 import CalendarIcon from "@/components/ui/icons/options/calendar-icon";
 import Facebook from "@/components/ui/icons/social/fb";
 import Instagram from "@/components/ui/icons/social/instagram";
@@ -21,13 +23,7 @@ import Linkedin from "@/components/ui/icons/social/linkedin";
 import TikTok from "@/components/ui/icons/social/tiktok";
 import XIcon from "@/components/ui/icons/social/twitterx";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,12 +56,12 @@ const platforms = [
   { id: "Twitter", name: "Twitter/X", icon: <XIcon /> },
 ];
 
-export default function CreatePostSheet({ 
-  open, 
-  onOpenChange, 
+export default function CreatePostSheet({
+  open,
+  onOpenChange,
   onSubmit,
   initialData,
-  defaultDate 
+  defaultDate,
 }: CreatePostSheetProps) {
   const { theme } = useTheme();
 
@@ -73,7 +69,7 @@ export default function CreatePostSheet({
     resolver: zodResolver(postFormSchema),
     defaultValues: {
       date: initialData?.date || defaultDate || new Date().toISOString().split("T")[0],
-      platform: initialData?.platform || "LinkedIn",
+      platform: initialData?.platform || "",
       content: initialData?.content || "",
       post_details: initialData?.post_details || "",
       scheduleTime: "",
@@ -87,7 +83,7 @@ export default function CreatePostSheet({
     if (open) {
       form.reset({
         date: initialData?.date || defaultDate || new Date().toISOString().split("T")[0],
-        platform: initialData?.platform || "LinkedIn",
+        platform: initialData?.platform || "",
         content: initialData?.content || "",
         post_details: initialData?.post_details || "",
         scheduleTime: "",
@@ -124,7 +120,6 @@ export default function CreatePostSheet({
     onSubmit(data);
   };
 
-
   const handleCancel = () => {
     form.reset();
     onOpenChange(false);
@@ -140,38 +135,62 @@ export default function CreatePostSheet({
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-1 overflow-hidden flex-col">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex flex-1 overflow-hidden flex-col"
+          >
             <div className="flex flex-1 overflow-hidden">
               {/* Left Section - Form */}
-              <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+              <div className="flex-1 p-6 pt-0 space-y-6 overflow-y-auto scrollbar-hide ">
                 {/* Platform Selection */}
                 <FormField
                   control={form.control}
                   name="platform"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium mb-3 block">Select Platform</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="dark:bg-[#0F1B29] bg-[#DCE0E4] p-6 rounded-[12px]">
-                            <SelectValue placeholder="Select platform" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {platforms.map(platform => (
-                            <SelectItem key={platform.id} value={platform.id}>
-                              <div className="flex items-center gap-2">
-                                {platform.icon}
-                                <span>{platform.name}</span>
+                      <FormLabel className="text-sm font-semibold mb-3 block">Select Platform</FormLabel>
+                      <FormControl>
+                        <div className="space-y-2 rounded-[12px]">
+                          {platforms.map(platform => {
+                            const isChecked = field.value === platform.id;
+                            const isDisabled = field.value !== "" && !isChecked;
+                            
+                            return (
+                              <div key={platform.id} className="flex items-center gap-3">
+                                <CheckboxSquare
+                                  id={platform.id}
+                                  checked={isChecked}
+                                  disabled={isDisabled}
+                                  onCheckedChange={checked => {
+                                    if (checked) {
+                                      field.onChange(platform.id);
+                                    } else {
+                                      field.onChange("");
+                                    }
+                                  }}
+                                  className="data-[state=checked]:bg-[#3072C0]/50 data-[state=checked]:border-none data-[state=checked]:text-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
+                                />
+                                <label
+                                  htmlFor={platform.id}
+                                  className={`flex items-center gap-2 flex-1 ${
+                                    isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                  }`}
+                                >
+                                  {platform.icon}
+                                  <span className="text-sm">{platform.name}</span>
+                                </label>
                               </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            );
+                          })}
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Separator */}
+                <Separator className="my-4" />
 
                 {/* Post Content */}
                 <FormField
@@ -180,7 +199,9 @@ export default function CreatePostSheet({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center justify-between mb-2">
-                        <FormLabel className="text-sm font-medium">Post Content</FormLabel>
+                        <FormLabel className="text-sm font-semibold">
+                          Post Content AI Prompt
+                        </FormLabel>
                         <div className="flex gap-2">
                           <Button
                             type="button"
@@ -203,15 +224,17 @@ export default function CreatePostSheet({
                       </div>
                       <FormControl>
                         <Textarea
-                          placeholder="Enter post content..."
+                          placeholder="Enter your prompt for custom generation"
                           {...field}
-                          className="min-h-[120px] resize-none dark:bg-[#0F1B29] bg-[#DCE0E4]"
+                          className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                 <Separator className="my-4" />
 
                 {/* Post Details */}
                 <FormField
@@ -224,7 +247,7 @@ export default function CreatePostSheet({
                         <Textarea
                           placeholder="Enter detailed post information..."
                           {...field}
-                          className="min-h-[150px] resize-none dark:bg-[#0F1B29] bg-[#DCE0E4]"
+                          className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
                         />
                       </FormControl>
                       <FormMessage />
@@ -238,7 +261,9 @@ export default function CreatePostSheet({
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium mb-2 block">Schedule Date</FormLabel>
+                      <FormLabel className="text-sm font-medium mb-2 block">
+                        Schedule Date
+                      </FormLabel>
                       <div className="relative w-full">
                         <FormControl>
                           <Input
@@ -246,8 +271,8 @@ export default function CreatePostSheet({
                             type="date"
                             {...field}
                             className="
-                              dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
-                                pr-10
+                              dark:bg-[#0F1B29] bg-[#F3F5F7] border-[#DCE0E4] dark:border-[#404663] p-6 
+                                pr-10 shadow-none rounded-xl
                                 [&::-webkit-calendar-picker-indicator]:opacity-0 
                                 [&::-webkit-calendar-picker-indicator]:absolute 
                                 [&::-webkit-calendar-picker-indicator]:w-full 
@@ -275,7 +300,9 @@ export default function CreatePostSheet({
                   name="scheduleTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium mb-2 block">Schedule Time</FormLabel>
+                      <FormLabel className="text-sm font-medium mb-2 block">
+                        Schedule Time
+                      </FormLabel>
                       <div className="relative w-full">
                         <FormControl>
                           <Input
@@ -283,8 +310,8 @@ export default function CreatePostSheet({
                             type="time"
                             {...field}
                             className="
-                              dark:bg-[#0F1B29] bg-[#DCE0E4] p-6
-                                pr-10
+                              dark:bg-[#0F1B29] bg-[#F3F5F7] border-[#DCE0E4] dark:border-[#404663] p-6
+                                pr-10 shadow-none rounded-xl
                                 [&::-webkit-calendar-picker-indicator]:opacity-0 
                                 [&::-webkit-calendar-picker-indicator]:absolute 
                                 [&::-webkit-calendar-picker-indicator]:w-full 
@@ -297,7 +324,7 @@ export default function CreatePostSheet({
                           onClick={handleTimeClick}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                         >
-                          <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
+                          <Clock5 color={theme === "dark" ? "#CCCFDB" : "#303444"} />
                         </button>
                       </div>
                       <FormMessage />
@@ -305,16 +332,19 @@ export default function CreatePostSheet({
                   )}
                 />
 
+                 <Separator className="my-4" />
+
+
                 {/* Toggle Options */}
                 <div>
-                  <FormLabel className="text-sm font-medium mb-3 block">Options</FormLabel>
-                  <div className="space-y-3">
+                  <FormLabel className="text-sm font-semibold mb-3 block">Schedule Time</FormLabel>
+                  <div>
                     <FormField
                       control={form.control}
                       name="autoPublish"
                       render={({ field }) => (
                         <FormItem className="flex items-center justify-between">
-                          <FormLabel className="text-sm">Auto-Publish</FormLabel>
+                          <FormLabel className="text-sm font-normal">Auto-Publish</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -330,7 +360,7 @@ export default function CreatePostSheet({
                       name="addToLibrary"
                       render={({ field }) => (
                         <FormItem className="flex items-center justify-between">
-                          <FormLabel className="text-sm">Add To Content Library</FormLabel>
+                          <FormLabel className="text-sm font-normal">Add To Content Library</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -364,7 +394,11 @@ export default function CreatePostSheet({
                   className="p-6 px-8 text-white text-[16px] bg-[#3072C0] hover:bg-[#184a86] transition-all font-[400] rounded-[16px] border-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CalendarIcon className="!w-6 !h-6" fill="#F6FBFE" />
-                  {form.formState.isSubmitting ? "Submitting..." : (initialData ? "Update Post" : "Schedule Post")}
+                  {form.formState.isSubmitting
+                    ? "Submitting..."
+                    : initialData
+                      ? "Update Post"
+                      : "Schedule Post"}
                 </Button>
               </div>
             </div>

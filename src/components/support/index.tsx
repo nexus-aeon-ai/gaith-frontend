@@ -19,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { uploadMultiImages } from "@/lib/api/storage";
 import {
   assignTicket,
   createTicket,
@@ -134,9 +135,22 @@ const Support = () => {
   // Create ticket mutation
   const createTicketMutation = useMutation({
     mutationFn: async (data: SubmitTicketFormType) => {
-      // Upload attachments first if any (would need to implement file upload API)
-      const attachmentUrls: string[] = [];
-      // TODO: Upload files and get URLs
+      console.log("ticket data to create:", data);
+      
+      // Upload attachments first if any
+      let attachmentUrls: string[] = [];
+      if (data.attachments && data.attachments.length > 0) {
+        try {
+          const uploadResponse = await uploadMultiImages(data.attachments);
+          if (uploadResponse.data) {
+            attachmentUrls = uploadResponse.data.map(item => item.url);
+            console.log("Uploaded attachment URLs:", attachmentUrls);
+          }
+        } catch (error) {
+          console.error("Error uploading attachments:", error);
+          throw new Error("Failed to upload attachments");
+        }
+      }
 
       const ticketResponse = await createTicket({
         issueCategoryId: data.issueCategoryId,
@@ -170,9 +184,20 @@ const Support = () => {
   // Update ticket mutation
   const updateTicketMutation = useMutation({
     mutationFn: async ({ ticketId, data }: { ticketId: string; data: SubmitTicketFormType }) => {
-      // Upload attachments first if any (would need to implement file upload API)
-      const attachmentUrls: string[] = [];
-      // TODO: Upload files and get URLs
+      // Upload attachments first if any
+      let attachmentUrls: string[] = [];
+      if (data.attachments && data.attachments.length > 0) {
+        try {
+          const uploadResponse = await uploadMultiImages(data.attachments);
+          if (uploadResponse.data) {
+            attachmentUrls = uploadResponse.data.map(item => item.url);
+            console.log("Uploaded attachment URLs:", attachmentUrls);
+          }
+        } catch (error) {
+          console.error("Error uploading attachments:", error);
+          throw new Error("Failed to upload attachments");
+        }
+      }
 
       const ticketResponse = await updateTicket(ticketId, {
         issueCategoryId: data.issueCategoryId,

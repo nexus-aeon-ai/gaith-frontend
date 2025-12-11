@@ -524,6 +524,9 @@ export const updateSocialMediaCalendar = async (
   calendar_id: number,
   calendar_data: { calendar: CalendarEntry[] },
 ): Promise<{ status: number; data: unknown | null }> => {
+
+  console.log("calendar id:", calendar_id);
+  console.log("calendar data:", calendar_data);
   const response = await fetchInstance<unknown>("/reports/social-media-calendar", {
     method: "PUT",
     headers: {

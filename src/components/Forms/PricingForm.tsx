@@ -203,14 +203,16 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
           <Card className="pt-3 rounded-[16px] shadow-none">
             <CardHeader className="px-3">
               <CardTitle className="text-[14px] font-bold">Client Information</CardTitle>
+              <Separator />
             </CardHeader>
+
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-10 gap-3">
                 <FormField
                   control={form.control}
                   name="fullName"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-4 col-span-1">
                       <FormLabel>Client Name</FormLabel>
                       <FormControl>
                         <Input
@@ -228,7 +230,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-6 col-span-1">
                       <FormLabel>Client Email</FormLabel>
                       <FormControl>
                         <Input
@@ -245,7 +247,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                   control={form.control}
                   name="proposalDate"
                   render={({ field: { value, onChange } }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-5 col-span-1">
                       <FormLabel>Proposal Date</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
@@ -286,7 +288,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                   control={form.control}
                   name="validUntilDate"
                   render={({ field: { value, onChange, ...field } }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-5 col-span-1">
                       <FormLabel>Valid Until</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
@@ -335,17 +337,20 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
 
           {/* Service Selection */}
           <Card className="pt-3 rounded-[16px] shadow-none">
-            <CardHeader className="flex flex-row items-center justify-between px-3">
-              <CardTitle className="text-[14px] font-bold">Service Selection</CardTitle>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={handleAddCustomService}
-                className="flex items-center text-md gap-2 [&_svg]:w-5 [&_svg]:h-5 cursor-pointer text-blue-600 hover:bg-transparent hover:text-blue-500"
-              >
-                <Plus className="rounded-full p-1 bg-blue-100 dark:bg-blue-400" color="blue" />
-                Add Custom Service
-              </Button>
+            <CardHeader className="flex flex-col px-3">
+              <div className="flex flex-row items-center justify-between">
+                <CardTitle className="text-[14px] font-bold">Service Selection</CardTitle>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={handleAddCustomService}
+                  className="flex items-center text-md gap-2 [&_svg]:w-5 [&_svg]:h-5 cursor-pointer text-blue-600 hover:bg-transparent hover:text-blue-500"
+                >
+                  <Plus className="rounded-full p-1 bg-blue-100 dark:bg-blue-400" color="blue" />
+                  Add Custom Service
+                </Button>
+              </div>
+              <Separator />
             </CardHeader>
             <CardContent className="p-4">
               <div className="flex flex-col gap-2">
@@ -450,7 +455,6 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                     </div>
                   </div>
                 ))}
-                F
               </div>
             </CardContent>
           </Card>
@@ -724,7 +728,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
           </Card>
         </div>
 
-        <div className="lg:col-span-2 col-span-1 space-y-3 bg-white dark:bg-gray-900 min-h-screen">
+        <div className="lg:col-span-2 col-span-1 space-y-3 h-fit rounded-2xl dark:bg-gray-900 min-h-screen">
           <Card className="pt-3 rounded-[16px] shadow-none">
             <CardHeader className="px-2">
               <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
@@ -740,7 +744,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="px-2 pb-0">
+            <CardContent className="px-0 pb-0">
               <div className="p-4 space-y-3">
                 {/* Company Info */}
                 <div className="flex items-start justify-between">
@@ -797,7 +801,7 @@ const GeneratePricingForm = ({ onSubmit }: PricingFormProps) => {
                   <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-3">
                     Available Packages
                   </h2>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid lg:grid-cols-1 md:grid-cols-3 sm:grid-cols-3 xl:grid-cols-3 grid-cols-1 gap-3">
                     {packages2.map((pkg, index) => (
                       <Card
                         key={index}
