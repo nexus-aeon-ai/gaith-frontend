@@ -227,7 +227,7 @@ export default function Calendar({
 
                 {/* Event Indicators */}
                 {hasEvent && (
-                  <div className="flex gap-1.5 flex-wrap">
+                  <div className="flex gap-1 flex-wrap">
                     {event.platforms.map((platform, idx) => {
                       const platformConfig = PLATFORMS[platform as keyof typeof PLATFORMS];
                       return platformConfig ? (

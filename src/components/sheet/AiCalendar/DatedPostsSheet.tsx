@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 import CreatePostSheet, { type PostFormData } from "@/components/sheet/AiCalendar/NewPostSheet";
 import { Button } from "@/components/ui/button";
+import { CalenderIcon } from "@/components/ui/icons/analytics/calender-nobg";
 import DeleteIcon from "@/components/ui/icons/options/delete-icon-v2";
 import EditIcon from "@/components/ui/icons/options/edit-icon-v2";
 import Facebook from "@/components/ui/icons/social/fb";
@@ -60,6 +61,7 @@ export default function DatedPostSheet({
 }: DatedPostSheetProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<(CalendarEntry & { index: number }) | null>(null);
+  const [scheduleOnly, setScheduleOnly] = useState(false);
   const queryClient = useQueryClient();
 
   const date = new Date(day).toLocaleDateString("en-US", {
@@ -107,6 +109,19 @@ export default function DatedPostSheet({
       post_details: post.post_details,
       index: post.originalIndex,
     });
+    setScheduleOnly(false);
+    setIsModalOpen(true);
+  };
+
+  const handleSchedule = (post: any) => {
+    setEditingPost({
+      date: post.date,
+      content: post.content,
+      platform: post.platform,
+      post_details: post.post_details,
+      index: post.originalIndex,
+    });
+    setScheduleOnly(true);
     setIsModalOpen(true);
   };
 
@@ -176,17 +191,28 @@ export default function DatedPostSheet({
     }
 
     let updatedCalendar: CalendarEntry[];
-    
     if (editingPost !== null) {
       // Edit existing post
-      updatedCalendar = calendarData.calendar.map((entry, idx) => 
-        idx === editingPost.index ? {
-          date: data.date,
-          content: data.content,
-          platform: data.platform,
-          post_details: data.post_details,
-        } : entry
-      );
+      updatedCalendar = calendarData.calendar.map((entry, idx) => {
+        if (idx === editingPost.index) {
+          if (scheduleOnly) {
+            // Only update date and scheduleTime, keep other fields unchanged
+            return {
+              ...entry,
+              date: data.date,
+              // Optionally, if you want to store scheduleTime separately, add it here
+            };
+          } else {
+            return {
+              date: data.date,
+              content: data.content,
+              platform: data.platform,
+              post_details: data.post_details,
+            };
+          }
+        }
+        return entry;
+      });
     } else {
       // Add new post
       updatedCalendar = [
@@ -254,21 +280,21 @@ export default function DatedPostSheet({
                         size="sm"
                         onClick={() => handleEdit(post)}
                         disabled={savePostMutation.isPending || deletePostMutation.isPending}
-                        className="cursor-pointer flex-1 text-blue-600 hover:text-blue-600 bg-transparent border-blue-600 hover:bg-transparent  rounded-lg"
+                        className="cursor-pointer flex-1 text-blue-600 hover:text-blue-600 bg-transparent border-blue-600 hover:bg-transparent rounded-lg"
                       >
                         <EditIcon className="w-4 h-4 mr-1" fill="#3072C0" />
                         Edit
                       </Button>
                       {/* Schedule button commented out as per requirements */}
-                      {/* <Button
+                      <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleSchedule(post!.id)}
-                        className="cursor-pointer flex-1 text-emerald-600 hover:text-emerald-600 bg-transparent border-emerald-600 hover:bg-transparent  rounded-lg"
+                        onClick={() => handleSchedule(post)}
+                        className="cursor-pointer flex-1 text-emerald-600 hover:text-emerald-600 bg-transparent border-emerald-600 hover:bg-transparent rounded-lg"
                       >
-                        <CalendarIcon className="!w-4 !h-4" fill="#2BAE82" />
+                        <CalenderIcon className="w-6! h-6!"/>
                         Schedule
-                      </Button> */}
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -324,6 +350,7 @@ export default function DatedPostSheet({
           post_details: editingPost.post_details,
         } : undefined}
         defaultDate={day.split('T')[0]}
+        scheduleOnly={scheduleOnly}
       />
     </>
   );

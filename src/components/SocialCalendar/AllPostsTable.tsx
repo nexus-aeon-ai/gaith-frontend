@@ -10,7 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Fb from "@/components/ui/icons/social/fb";
+import FbIcon from "@/components/ui/icons/social/fb";
+import GoogleIcon from "@/components/ui/icons/social/google";
+import IgIcon from "@/components/ui/icons/social/instagram";
+import LkIcon from "@/components/ui/icons/social/linkedin";
+import TiktokIcon from "@/components/ui/icons/social/tiktok";
+import TwIcon from "@/components/ui/icons/social/twitterx";
 import {
   Table,
   TableBody,
@@ -20,9 +25,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Post {
+export interface Post {
   id: number;
-  platform: "facebook" | "instagram" | "x";
+  platform: string;
   platformName: string;
   title: string;
   description: string;
@@ -31,97 +36,6 @@ interface Post {
   duration: string;
   status: "Published" | "Failed" | "Scheduled" | "Draft";
 }
-
-const mockPosts: Post[] = [
-  {
-    id: 1,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 2,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 3,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 4,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 5,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 6,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Published",
-  },
-  {
-    id: 7,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Failed",
-  },
-  {
-    id: 8,
-    platform: "facebook",
-    platformName: "Facebook",
-    title: "Product Launch Announcement",
-    description: "Excited to announce our latest prod...",
-    scheduledStart: "Dec 20",
-    scheduledEnd: "Jan 15",
-    duration: "26 days",
-    status: "Scheduled",
-  },
-];
 
 const StatusBadge = ({ status }: { status: Post["status"] }) => {
   const statusStyles = {
@@ -140,12 +54,30 @@ const StatusBadge = ({ status }: { status: Post["status"] }) => {
   );
 };
 
-export default function AllPostsTable() {
+export default function AllPostsTable({ posts }: { posts: Post[] }) {
   const [selectedPosts, setSelectedPosts] = useState<number[]>([]);
+  const getPlatformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case "facebook":
+        return <FbIcon />;
+      case "instagram":
+        return <IgIcon />;
+      case "twitter":
+        return <TwIcon />;
+      case "linkedin":
+        return <LkIcon />;
+      case "google":
+        return <GoogleIcon />;
+      case "tiktok":
+        return <TiktokIcon />;
+      default:
+        return null;
+    }
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedPosts(mockPosts.map(post => post.id));
+      setSelectedPosts(posts.map(post => post.id));
     } else {
       setSelectedPosts([]);
     }
@@ -163,7 +95,7 @@ export default function AllPostsTable() {
     console.log(`${action} post:`, postId);
   };
 
-  const allSelected = selectedPosts.length === mockPosts.length && mockPosts.length > 0;
+  const allSelected = selectedPosts.length === posts.length && posts.length > 0;
 
   return (
     <div className="w-full bg-white shadow-sm dark:bg-[#212945] rounded-lg border border-gray-200 dark:border-gray-700">
@@ -193,7 +125,7 @@ export default function AllPostsTable() {
           </TableHeader>
 
           <TableBody>
-            {mockPosts.map(post => (
+            {posts.map(post => (
               <TableRow
                 key={post.id}
                 className="hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
@@ -206,10 +138,11 @@ export default function AllPostsTable() {
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      <Fb />
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-8 flex shrink-0 items-center justify-center">
+                      {getPlatformIcon(post.platform)}
                     </div>
+
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {post.platformName}
                     </span>

@@ -46,6 +46,7 @@ interface CreatePostSheetProps {
   onSubmit: (data: PostFormData) => void;
   initialData?: PostFormData;
   defaultDate?: string;
+  scheduleOnly?: boolean;
 }
 
 const platforms = [
@@ -58,10 +59,11 @@ const platforms = [
 
 export default function CreatePostSheet({
   open,
-  onOpenChange,
+  onOpenChange, 
   onSubmit,
   initialData,
   defaultDate,
+  scheduleOnly = false,
 }: CreatePostSheetProps) {
   const { theme } = useTheme();
 
@@ -142,120 +144,159 @@ export default function CreatePostSheet({
             <div className="flex flex-1 overflow-hidden">
               {/* Left Section - Form */}
               <div className="flex-1 p-6 pt-0 space-y-6 overflow-y-auto scrollbar-hide ">
-                {/* Platform Selection */}
-                <FormField
-                  control={form.control}
-                  name="platform"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-semibold mb-3 block">Select Platform</FormLabel>
-                      <FormControl>
-                        <div className="space-y-2 rounded-[12px]">
-                          {platforms.map(platform => {
-                            const isChecked = field.value === platform.id;
-                            const isDisabled = field.value !== "" && !isChecked;
-                            
-                            return (
-                              <div key={platform.id} className="flex items-center gap-3">
-                                <CheckboxSquare
-                                  id={platform.id}
-                                  checked={isChecked}
-                                  disabled={isDisabled}
-                                  onCheckedChange={checked => {
-                                    if (checked) {
-                                      field.onChange(platform.id);
-                                    } else {
-                                      field.onChange("");
-                                    }
-                                  }}
-                                  className="data-[state=checked]:bg-[#3072C0]/50 data-[state=checked]:border-none data-[state=checked]:text-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
+                {/* Platform Selection, Content, Details, and Toggles only if not scheduleOnly */}
+                {!scheduleOnly && (
+                  <>
+                    {/* Platform Selection */}
+                    <FormField
+                      control={form.control}
+                      name="platform"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold mb-3 block">Select Platform</FormLabel>
+                          <FormControl>
+                            <div className="space-y-2 rounded-[12px]">
+                              {platforms.map(platform => {
+                                const isChecked = field.value === platform.id;
+                                const isDisabled = field.value !== "" && !isChecked;
+                                return (
+                                  <div key={platform.id} className="flex items-center gap-3">
+                                    <CheckboxSquare
+                                      id={platform.id}
+                                      checked={isChecked}
+                                      disabled={isDisabled}
+                                      onCheckedChange={checked => {
+                                        if (checked) {
+                                          field.onChange(platform.id);
+                                        } else {
+                                          field.onChange("");
+                                        }
+                                      }}
+                                      className="data-[state=checked]:bg-[#3072C0]/50 data-[state=checked]:border-none data-[state=checked]:text-[#3072C0] disabled:opacity-50 disabled:cursor-not-allowed"
+                                    />
+                                    <label
+                                      htmlFor={platform.id}
+                                      className={`flex items-center gap-2 flex-1 ${
+                                        isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                      }`}
+                                    >
+                                      {platform.icon}
+                                      <span className="text-sm">{platform.name}</span>
+                                    </label>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Separator */}
+                    <Separator className="my-4" />
+                    {/* Post Content */}
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between mb-2">
+                            <FormLabel className="text-sm font-semibold">
+                              Post Content AI Prompt
+                            </FormLabel>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClear}
+                                className="text-sm text-muted-foreground hover:"
+                              >
+                                Clear
+                              </Button>
+                              <Button
+                                type="button"
+                                variant={"outline"}
+                                className="p-4 text-[16px] hover:bg-[#3072C0]/10 font-[400] rounded-[12px] border-[#3072C0] text-[#3072C0] hover:text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={handleGenerate}
+                              >
+                                Generate
+                              </Button>
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter your prompt for custom generation"
+                              {...field}
+                              className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Separator className="my-4" />
+                    {/* Post Details */}
+                    <FormField
+                      control={form.control}
+                      name="post_details"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium mb-2 block">Post Details</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter detailed post information..."
+                              {...field}
+                              className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Separator className="my-4" />
+                    {/* Toggle Options */}
+                    <div>
+                      <FormLabel className="text-sm font-semibold mb-3 block">Schedule Time</FormLabel>
+                      <div>
+                        <FormField
+                          control={form.control}
+                          name="autoPublish"
+                          render={({ field }) => (
+                            <FormItem className="flex items-center justify-between">
+                              <FormLabel className="text-sm font-normal">Auto-Publish</FormLabel>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
                                 />
-                                <label
-                                  htmlFor={platform.id}
-                                  className={`flex items-center gap-2 flex-1 ${
-                                    isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                  }`}
-                                >
-                                  {platform.icon}
-                                  <span className="text-sm">{platform.name}</span>
-                                </label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Separator */}
-                <Separator className="my-4" />
-
-                {/* Post Content */}
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between mb-2">
-                        <FormLabel className="text-sm font-semibold">
-                          Post Content AI Prompt
-                        </FormLabel>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleClear}
-                            className="text-sm text-muted-foreground hover:"
-                          >
-                            Clear
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={"outline"}
-                            className="p-4 text-[16px] hover:bg-[#3072C0]/10 font-[400] rounded-[12px] border-[#3072C0] text-[#3072C0] hover:text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={handleGenerate}
-                          >
-                            Generate
-                          </Button>
-                        </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="addToLibrary"
+                          render={({ field }) => (
+                            <FormItem className="flex items-center justify-between">
+                              <FormLabel className="text-sm font-normal">Add To Content Library</FormLabel>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter your prompt for custom generation"
-                          {...field}
-                          className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </div>
+                  </>
+                )}
 
-                 <Separator className="my-4" />
-
-                {/* Post Details */}
-                <FormField
-                  control={form.control}
-                  name="post_details"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium mb-2 block">Post Details</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter detailed post information..."
-                          {...field}
-                          className="min-h-[120px] resize-none dark:bg-[#0F1B29] rounded-2xl bg-[#F3F5F7]"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Schedule Date */}
+                {/* Always show Schedule Date and Time fields */}
                 <FormField
                   control={form.control}
                   name="date"
@@ -279,6 +320,7 @@ export default function CreatePostSheet({
                                 [&::-webkit-calendar-picker-indicator]:h-full
                               "
                             min={new Date().toISOString().split("T")[0]}
+                            // disabled={scheduleOnly}
                           />
                         </FormControl>
                         <button
@@ -293,8 +335,6 @@ export default function CreatePostSheet({
                     </FormItem>
                   )}
                 />
-
-                {/* Schedule Time */}
                 <FormField
                   control={form.control}
                   name="scheduleTime"
@@ -317,6 +357,7 @@ export default function CreatePostSheet({
                                 [&::-webkit-calendar-picker-indicator]:w-full 
                                 [&::-webkit-calendar-picker-indicator]:h-full
                               "
+                            // disabled={scheduleOnly}
                           />
                         </FormControl>
                         <button
@@ -331,48 +372,6 @@ export default function CreatePostSheet({
                     </FormItem>
                   )}
                 />
-
-                 <Separator className="my-4" />
-
-
-                {/* Toggle Options */}
-                <div>
-                  <FormLabel className="text-sm font-semibold mb-3 block">Schedule Time</FormLabel>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="autoPublish"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center justify-between">
-                          <FormLabel className="text-sm font-normal">Auto-Publish</FormLabel>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="addToLibrary"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center justify-between">
-                          <FormLabel className="text-sm font-normal">Add To Content Library</FormLabel>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 

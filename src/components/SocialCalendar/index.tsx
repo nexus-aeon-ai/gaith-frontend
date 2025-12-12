@@ -350,7 +350,7 @@ const SocialCalendarPage = ({
   };
 
   if (showAllPostsPage)
-    return <AllPostsPage closeAllPostsPage={() => setShowAllPostsPage(false)} />;
+    return <AllPostsPage calendarData={currentCalendarData} closeAllPostsPage={() => setShowAllPostsPage(false)} />;
   if (showBulkSchedulePage) return <BulkScheduleForm />;
 
   if (showAnalytics) return <SocialMediaAnalytics />;
@@ -423,7 +423,7 @@ const SocialCalendarPage = ({
                   variant={"outline"}
                   className="p-6 text-[16px] hover:bg-[#2BAE82]/10 hover:text-[#2BAE82] font-[400] rounded-[16px] border-[#2BAE82] text-[#2BAE82] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setShowBulkSchedulePage(true)}
-                >
+                > 
                   <CalenderIcon className="w-9! h-9! text-[#2BAE82]" />
                   Bulk Post Scheduling
                 </Button>

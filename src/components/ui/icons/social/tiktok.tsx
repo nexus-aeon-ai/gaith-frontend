@@ -5,8 +5,8 @@ const TikTok = () => {
     <div className="flex items-center justify-center rounded-full bg-[#00000014] p-1 h-8 w-8">
       <svg
         width="16"
-        height="18"
-        viewBox="0 0 16 18"
+        height="20"
+        viewBox="0 0 16 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
