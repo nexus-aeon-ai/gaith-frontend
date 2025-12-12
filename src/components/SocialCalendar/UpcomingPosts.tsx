@@ -24,6 +24,8 @@ interface UpcomingPostsProps {
 
 const PlatformIcon = ({ platform }: { platform: string }) => {
   const platformLower = platform.toLowerCase();
+  console.log("platform in platformIcon:", platform);
+
   
   switch (platformLower) {
     case "facebook":
@@ -76,6 +78,8 @@ export default function UpcomingPosts({ calendarData }: UpcomingPostsProps) {
 
     return filtered;
   }, [calendarData]);
+
+  console.log("upcomingPosts:", upcomingPosts);
 
   const formatDate = (dateStr: string) => {
     try {

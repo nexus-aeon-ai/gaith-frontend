@@ -1,6 +1,6 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, MessageSquare, MoreVertical } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Eye, MessageSquare, MoreVertical, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 const useTableColumns = (
   onViewAndReply?: (ticket: SupportTicket) => void,
   onEdit?: (ticket: SupportTicket) => void,
+  onDelete?: (ticket: SupportTicket) => void,
 ) => {
   const columns: ColumnDef<SupportTicket>[] = [
     {
@@ -40,10 +41,29 @@ const useTableColumns = (
     },
     {
       accessorKey: "ticketId",
-      header: "Ticket ID",
+      header: ({ column }) => {
+        const isSorted = column.getIsSorted();
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1 h-8 px-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <span>Ticket ID</span>
+            {isSorted === "asc" ? (
+              <ArrowUp className="h-4 w-4" />
+            ) : isSorted === "desc" ? (
+              <ArrowDown className="h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="h-4 w-4 opacity-50" />
+            )}
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <span className="text-sm font-medium text-[#3072C0]">{row.original.ticketId}</span>
+        <span className="text-sm font-medium ">{row.original.ticketId}</span>
       ),
+      enableSorting: true,
     },
     {
       accessorKey: "subject",
@@ -172,6 +192,14 @@ const useTableColumns = (
               >
                 <Edit className="h-4 w-4 text-orange-500" />
                 <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="flex items-center gap-2 cursor-pointer text-red-600 dark:text-red-400"
+                onClick={() => onDelete?.(ticket)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

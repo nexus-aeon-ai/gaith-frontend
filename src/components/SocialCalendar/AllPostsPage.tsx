@@ -102,7 +102,7 @@ const upcomingPosts = [
   },
 ];
 
-const AllPostsPage = ({ closeAllPostsPage }: { closeAllPostsPage: () => void }) => {
+const AllPostsPage = ({ closeAllPostsPage,  }: { closeAllPostsPage: () => void }) => {
   const { theme } = useTheme();
   const [showAllPostsFilter, setShowAllPostsFilter] = useState(false);
 

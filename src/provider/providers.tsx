@@ -15,7 +15,7 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="light"
       enableSystem
       disableTransitionOnChange
       enableColorScheme

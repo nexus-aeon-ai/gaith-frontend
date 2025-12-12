@@ -25,7 +25,7 @@ const AnalyticsCard: React.FC<AnalyticsSummaryCardProps> = ({
         <span className="text-xs font-medium opacity-80">{label}</span>
         <span className="text-2xl font-bold leading-tight mt-2">{value}</span>
       </div>
-      <div className={"  p-2  flex items-center justify-center w-12 h-12"}>{icon}</div>
+      <div className={"p-2  flex items-center justify-center w-12 h-12"}>{icon}</div>
     </div>
     <div className="flex items-center gap-2 mt-2">
       <span className={`text-xs font-semibold ${trendColor}`}>{trend}</span>

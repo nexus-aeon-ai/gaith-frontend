@@ -63,7 +63,7 @@ const Navbar = ({ user }: NavbarProps) => {
     logout();
   };
   return (
-    <header className="flex sticky top-0 z-50 bg-[#E4E9F1] dark:bg-[#0F1220] w-full items-center px-4">
+    <header className="flex sticky top-0 z-50 bg-[#E4E9F1] dark:bg-[#14182a] w-full items-center px-4">
       <div className="flex h-[--header-height] w-full items-center gap-2 ">
         <div className="min-w-full flex items-center justify-between px-2 py-8 bg-background rounded-xl text-foreground shadow h-[85px]">
           <div className="flex flex-1 items-center justify-between w-full">
@@ -142,7 +142,7 @@ const Navbar = ({ user }: NavbarProps) => {
                       size="icon"
                       className={`rounded-[24px] border-2 ${
                         themeNext === "dark"
-                          ? "bg-[#D29A09] border-transparent"
+                          ? "bg-[#D29A09] hover:bg-[#D29A09] border-transparent"
                           : "border-transparent"
                       }`}
                       onClick={() => handleThemeChange("dark")}
