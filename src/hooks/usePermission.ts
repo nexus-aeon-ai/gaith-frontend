@@ -8,7 +8,7 @@ const MOCK_PERMISSIONS = [
   // "reports.read", "reports.create", "reports.update", "reports.delete",
   "leads.read", "leads.create", "leads.update", "leads.delete",
   "clients.read", "clients.create", "clients.update", "clients.delete",
-  // "employees.read", "employees.create", "employees.update", "employees.delete",
+  "employees.read", "employees.create", "employees.update", "employees.delete",
   "employee_tasks.read", "employee_tasks.create", "employee_tasks.update", "employee_tasks.delete",
   "quotations.read", "quotations.create", "quotations.update", "quotations.delete",
   "submitted.read", "submitted.create", "submitted.update", "submitted.delete",
