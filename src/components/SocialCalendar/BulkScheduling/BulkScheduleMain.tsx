@@ -52,8 +52,9 @@ const DEFAULTS: FormValues = {
   publishEndDate: new Date(),
   platforms: [],
   launchOptions: "immediate",
+  postingFrequency: "every-other-day",
+  preferredTimeSlots: ["15:00"],
 };
-
 
 export function BulkScheduleForm() {
   const [step, setStep] = useState(1);
@@ -65,10 +66,8 @@ export function BulkScheduleForm() {
     mode: "onChange",
   });
 
-
   async function handleNext() {
     // validate only the current step's fields
-    
 
     if (isLast) {
       // submit on last step
@@ -151,7 +150,6 @@ export function BulkScheduleForm() {
             {step === 2 && <StepConfiguration form={form} />}
             {step === 3 && <StepBulkPostOverview form={form} />}
           </div>
-
         </form>
       </Form>
       {/* Footer actions */}
@@ -161,7 +159,7 @@ export function BulkScheduleForm() {
             <Button
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
-                "bg-card rounded-2xl w-full sm:w-auto",
+                "bg-transparent rounded-2xl w-full sm:w-auto",
                 "px-3 sm:px-4 min-w-[130px] lg:px-6 h-9 sm:h-10 lg:h-12",
                 "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500",
                 "text-xs sm:text-sm lg:text-base",
@@ -169,37 +167,42 @@ export function BulkScheduleForm() {
               )}
               onClick={handlePrev}
             >
-              <ChevronLeft />
+              <ChevronLeft/>
               <p>Back</p>
             </Button>
           </div>
           <div className="flex sm:flex-row flex-col gap-2 w-full sm:w-auto ">
-            <Button
-              className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card rounded-2xl sm:w-auto",
-                "px-3 sm:px-4 min-w-[130px] lg:px-6 h-9 sm:h-10 lg:h-12",
-                "hover:bg-red-50 dark:hover:bg-gray-800 text-red-500",
-                "text-xs sm:text-sm lg:text-base",
-                "border-red-500 border",
-              )}
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              className={cn(
-                "flex items-center gap-1 sm:gap-2",
-                "bg-card rounded-2xl  sm:w-auto",
-                "px-3 sm:px-4 min-w-[130px] lg:px-6 h-9 sm:h-10 lg:h-12",
-                "hover:bg-blue-50 dark:hover:bg-gray-800 text-blue-700",
-                "text-xs sm:text-sm lg:text-base",
-                "border-blue-700 border",
-              )}
-              onClick={handleSave}
-            >
-              Save
-            </Button>
+            {!isLast && (
+              <Button
+                className={cn(
+                  "flex items-center gap-1 sm:gap-2",
+                  "bg-transparent rounded-2xl sm:w-auto",
+                  "px-3 sm:px-4 min-w-[130px] lg:px-6 h-9 sm:h-10 lg:h-12",
+                  "hover:bg-red-50 dark:hover:bg-gray-800 text-red-500",
+                  "text-xs sm:text-sm lg:text-base",
+                  "border-red-500 border",
+                )}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            )}
+
+            {isLast && (
+              <Button
+                className={cn(
+                  "flex items-center gap-1 sm:gap-2",
+                  "bg-transparent rounded-2xl  sm:w-auto",
+                  "px-3 sm:px-4 min-w-[130px] lg:px-6 h-9 sm:h-10 lg:h-12",
+                  "hover:bg-blue-50 dark:hover:bg-gray-800 text-blue-700",
+                  "text-xs sm:text-sm lg:text-base",
+                  "border-blue-700 border",
+                )}
+                onClick={handleSave}
+              >
+                Save as Draft
+              </Button>
+            )}
             <Button
               className={cn(
                 "flex items-center gap-1 sm:gap-2",
@@ -210,7 +213,7 @@ export function BulkScheduleForm() {
               )}
               onClick={handleNext}
             >
-              {isLast ? "Submit" : "Next"}
+              {isLast ? "Schedule All Posts" : "Next"}
               {!isLast && <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />}
             </Button>
           </div>

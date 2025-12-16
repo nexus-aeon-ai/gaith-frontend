@@ -672,19 +672,34 @@ export const updateBlogPost = async (
 
 /**
  * Publish blog post
- * PUT /reports/blog-post
+ * PUT /reports/blog-post?blog_post_id={id}
+ *
+ * The payload should include blog_post_id and blog_post_data with status 'published' and the rest of the original data.
  */
 export const publishBlog = async (
-  id: number,
+  blog_post_id: number,
+  blog_post_data: {
+    title: string;
+    content: string;
+    keywords: string[];
+    reference_links?: string[];
+    status?: string;
+  },
 ): Promise<{ status: number; data: unknown | null }> => {
-  const response = await fetchInstance<unknown>("/reports/blog-post", {
+  const url = `/reports/blog-post?blog_post_id=${blog_post_id}`;
+  const response = await fetchInstance<unknown>(url, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ blog_id: id }),
+    body: JSON.stringify({
+      blog_post_id,
+      blog_post_data: {
+        ...blog_post_data,
+        status: "published",
+      },
+    }),
   });
-
   return response;
 };
 

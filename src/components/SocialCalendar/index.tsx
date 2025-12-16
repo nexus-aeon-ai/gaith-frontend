@@ -350,7 +350,14 @@ const SocialCalendarPage = ({
   };
 
   if (showAllPostsPage)
-    return <AllPostsPage calendarData={currentCalendarData} closeAllPostsPage={() => setShowAllPostsPage(false)} />;
+    return (
+      <AllPostsPage 
+        calendarData={currentCalendarData} 
+        calendarId={selectedCalendarId}
+        onCalendarUpdate={refreshCalendarData}
+        closeAllPostsPage={() => setShowAllPostsPage(false)} 
+      />
+    );
   if (showBulkSchedulePage) return <BulkScheduleForm />;
 
   if (showAnalytics) return <SocialMediaAnalytics />;

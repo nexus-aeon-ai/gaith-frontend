@@ -1,9 +1,12 @@
 "use client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreVertical } from "lucide-react";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
+import CreatePostSheet, { type PostFormData } from "@/components/sheet/AiCalendar/NewPostSheet";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxSquare } from "@/components/ui/checkbox-square";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +38,21 @@ export interface Post {
   scheduledEnd: string;
   duration: string;
   status: "Published" | "Failed" | "Scheduled" | "Draft";
+  originalIndex?: number;
+}
+
+interface CalendarEntry {
+  date: string;
+  content: string;
+  platform: string;
+  post_details: string;
+}
+
+interface CalendarData {
+  calendar: CalendarEntry[];
+  created_at: string;
+  updated_at: string;
+  status: "draft" | "completed" | "failed";
 }
 
 const StatusBadge = ({ status }: { status: Post["status"] }) => {
@@ -54,8 +72,78 @@ const StatusBadge = ({ status }: { status: Post["status"] }) => {
   );
 };
 
-export default function AllPostsTable({ posts }: { posts: Post[] }) {
+export default function AllPostsTable({
+  posts,
+  calendarData,
+  calendarId,
+  onCalendarUpdate,
+}: {
+  posts: Post[];
+  calendarData: CalendarData | null | undefined;
+  calendarId: number | null;
+  onCalendarUpdate?: () => void;
+}) {
   const [selectedPosts, setSelectedPosts] = useState<number[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<(CalendarEntry & { index: number }) | null>(null);
+  const queryClient = useQueryClient();
+
+  // Save post mutation (create or update)
+  const savePostMutation = useMutation({
+    mutationFn: async ({
+      calendarId,
+      updatedCalendar,
+    }: {
+      calendarId: number;
+      updatedCalendar: CalendarEntry[];
+    }) => {
+      const { updateSocialMediaCalendar } = await import("@/lib/api/reports");
+      const response = await updateSocialMediaCalendar(calendarId, { calendar: updatedCalendar });
+      if (response.status !== 200) {
+        throw new Error("Failed to save post");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      toast.success(editingPost ? "Post updated successfully" : "Post duplicated successfully");
+      setIsModalOpen(false);
+      setEditingPost(null);
+      onCalendarUpdate?.();
+      queryClient.invalidateQueries({ queryKey: ["social-media-calendars", calendarId] });
+    },
+    onError: error => {
+      console.error("Error saving post:", error);
+      toast.error(editingPost ? "Failed to update post" : "Failed to duplicate post");
+    },
+  });
+
+  // Delete post mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async ({
+      calendarId,
+      updatedCalendar,
+    }: {
+      calendarId: number;
+      updatedCalendar: CalendarEntry[];
+    }) => {
+      const { updateSocialMediaCalendar } = await import("@/lib/api/reports");
+      const response = await updateSocialMediaCalendar(calendarId, { calendar: updatedCalendar });
+      if (response.status !== 200) {
+        throw new Error("Failed to delete post");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("Post deleted successfully");
+      onCalendarUpdate?.();
+      queryClient.invalidateQueries({ queryKey: ["social-media-calendars", calendarId] });
+    },
+    onError: error => {
+      console.error("Error deleting post:", error);
+      toast.error("An error occurred while deleting post");
+    },
+  });
+
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case "facebook":
@@ -91,8 +179,92 @@ export default function AllPostsTable({ posts }: { posts: Post[] }) {
     }
   };
 
-  const handleAction = (action: string, postId: number) => {
-    console.log(`${action} post:`, postId);
+  const handleEdit = (post: Post) => {
+    if (!calendarData || post.originalIndex === undefined) return;
+
+    const originalPost = calendarData.calendar[post.originalIndex];
+    setEditingPost({
+      date: originalPost.date,
+      content: originalPost.content,
+      platform: originalPost.platform,
+      post_details: originalPost.post_details,
+      index: post.originalIndex,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDuplicate = (post: Post) => {
+    if (!calendarId || !calendarData || post.originalIndex === undefined) {
+      toast.error("Cannot duplicate post");
+      return;
+    }
+
+    const originalPost = calendarData.calendar[post.originalIndex];
+    // Add duplicated post to calendar array
+    const updatedCalendar = [
+      ...calendarData.calendar,
+      {
+        date: originalPost.date,
+        content: originalPost.content,
+        platform: originalPost.platform,
+        post_details: originalPost.post_details,
+      },
+    ];
+
+    savePostMutation.mutate({ calendarId, updatedCalendar });
+  };
+
+  const handleDelete = (post: Post) => {
+    if (!calendarId || !calendarData || post.originalIndex === undefined) {
+      toast.error("Cannot delete post");
+      return;
+    }
+
+    // Remove the post from calendar array
+    const updatedCalendar = calendarData.calendar.filter((_, idx) => idx !== post.originalIndex);
+
+    deletePostMutation.mutate({ calendarId, updatedCalendar });
+  };
+
+  const handleViewDetails = (post: Post) => {
+    // Implement view details logic here
+    console.log("View details for post:", post);
+  };
+
+  const handleSavePost = (data: PostFormData) => {
+    if (!calendarId || !calendarData) {
+      toast.error("Calendar ID not available");
+      return;
+    }
+
+    let updatedCalendar: CalendarEntry[];
+    if (editingPost !== null) {
+      // Edit existing post
+      updatedCalendar = calendarData.calendar.map((entry, idx) => {
+        if (idx === editingPost.index) {
+          return {
+            date: data.date,
+            content: data.content,
+            platform: data.platform,
+            post_details: data.post_details,
+          };
+        }
+        return entry;
+      });
+    } else {
+      // This shouldn't happen in this flow, but handle it just in case
+      updatedCalendar = [
+        ...calendarData.calendar,
+        {
+          date: data.date,
+          content: data.content,
+          platform: data.platform,
+          post_details: data.post_details,
+        },
+      ];
+    }
+
+    savePostMutation.mutate({ calendarId, updatedCalendar });
   };
 
   const allSelected = selectedPosts.length === posts.length && posts.length > 0;
@@ -102,9 +274,9 @@ export default function AllPostsTable({ posts }: { posts: Post[] }) {
       <div className="w-full overflow-x-auto">
         <Table className="table-fixed w-full min-w-[700px]">
           <TableHeader>
-            <TableRow className="hover:bg-transparent border-b border-gray-200 dark:border-gray-700">
+            <TableRow className="hover:bg-transparent border-b border-gray-200 dark:border-gray-700 ">
               <TableHead className="w-12">
-                <Checkbox checked={allSelected} onCheckedChange={handleSelectAll} />
+                <CheckboxSquare checked={allSelected} onCheckedChange={handleSelectAll} />
               </TableHead>
               <TableHead className="font-semibold text-gray-900 dark:text-white w-[120px]">
                 Platform
@@ -131,7 +303,7 @@ export default function AllPostsTable({ posts }: { posts: Post[] }) {
                 className="hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
               >
                 <TableCell>
-                  <Checkbox
+                  <CheckboxSquare
                     checked={selectedPosts.includes(post.id)}
                     onCheckedChange={checked => handleSelectPost(post.id, checked as boolean)}
                   />
@@ -183,17 +355,15 @@ export default function AllPostsTable({ posts }: { posts: Post[] }) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleAction("Edit", post.id)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAction("Duplicate", post.id)}>
+                      <DropdownMenuItem onClick={() => handleEdit(post)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDuplicate(post)}>
                         Duplicate
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAction("View Details", post.id)}>
+                      <DropdownMenuItem onClick={() => handleViewDetails(post)}>
                         View Details
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleAction("Delete", post.id)}
+                        onClick={() => handleDelete(post)}
                         className="text-red-600 focus:text-red-600"
                       >
                         Delete
@@ -206,6 +376,23 @@ export default function AllPostsTable({ posts }: { posts: Post[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <CreatePostSheet
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSubmit={handleSavePost}
+        initialData={
+          editingPost
+            ? {
+                date: editingPost.date,
+                platform: editingPost.platform,
+                content: editingPost.content,
+                post_details: editingPost.post_details,
+              }
+            : undefined
+        }
+        defaultDate={new Date().toISOString().split("T")[0]}
+      />
     </div>
   );
 }

@@ -43,7 +43,7 @@ export default function Calendar({
 }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPostsByDate, setShowPostsByDate] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   // Convert API calendar data to events format
   const EVENTS = useMemo(() => {
@@ -204,13 +204,16 @@ export default function Calendar({
                 role="button"
                 onClick={() => {
                   if (hasEvent) {
-                    setSelectedDate(new Date(d.year, d.month, d.day));
+                    const dayString = `${d.year}-${String(d.month + 1).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
+                    setSelectedDate(dayString);
+                    console.log("Selected date:", d);
                     setShowPostsByDate(true);
                   }
                 }}
                 onKeyDown={() => {
                   if (hasEvent) {
-                    setSelectedDate(new Date(d.year, d.month, d.day));
+                    const dayString = `${d.year}-${String(d.month + 1).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
+                    setSelectedDate(dayString);
                     setShowPostsByDate(true);
                   }
                 }}
@@ -269,7 +272,7 @@ export default function Calendar({
         )}
       </div>
       <DatedPostSheet
-        day={selectedDate ? selectedDate.toISOString() : ""}
+        day={selectedDate}
         open={showPostsByDate}
         onOpenChange={setShowPostsByDate}
         calendarData={calendarData}

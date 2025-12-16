@@ -1,5 +1,6 @@
 import { Info } from "lucide-react";
 import { useTheme } from "next-themes";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -121,8 +122,12 @@ function StepUpload({ form }: StepFormProps) {
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             onChange={e => {
                               const file = e.target.files?.[0];
-                              if (file && file.size <= 10 * 1024 * 1024) {
-                                field.onChange(file);
+                              if (file) {
+                                if (file.size <= 10 * 1024 * 1024) {
+                                  field.onChange(file);
+                                } else {
+                                  toast.error("File size must be less than 10MB");
+                                }
                               }
                             }}
                           />

@@ -140,42 +140,156 @@ function StepConfiguration({ form }: StepFormProps) {
 
       <div className="space-y-2">
         <p className="text-md font-medium">Posting Frequency</p>
-        <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-            <p className="text-sm font-medium">Daily</p>
-          </div>
-          <div className=" cursor border-[#3072C0] border-2 bg-[#3072C014] rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <CalendarIcon color={"#265B99"} />
-            <p className="text-sm font-medium text-[#265B99]">Every Other Day</p>
-          </div>
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-            <p className="text-sm font-medium">Weekdays Only</p>
-          </div>
-        </div>
+        <FormField
+          control={control}
+          name="postingFrequency"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={() => field.onChange("daily")}
+                    className={`border cursor rounded-[16px] flex flex-col items-center gap-3 py-4 ${
+                      field.value === "daily"
+                        ? "border-[#3072C0] border-2 bg-[#3072C014]"
+                        : "bg-card"
+                    }`}
+                    onClick={() => field.onChange("daily")}
+                  >
+                    <CalendarIcon
+                      color={
+                        field.value === "daily"
+                          ? "#265B99"
+                          : theme === "dark"
+                            ? "#CCCFDB"
+                            : "#303444"
+                      }
+                    />
+                    <p
+                      className={`text-sm font-medium ${field.value === "daily" ? "text-[#265B99]" : ""}`}
+                    >
+                      Daily
+                    </p>
+                  </div>
+                  <div
+                    role="button"
+                    tabIndex={-1}
+                    onKeyDown={() => field.onChange("every-other-day")}
+                    className={`border cursor rounded-[16px] flex flex-col items-center gap-3 py-4 ${
+                      field.value === "every-other-day"
+                        ? "border-[#3072C0] border-2 bg-[#3072C014]"
+                        : "bg-card"
+                    }`}
+                    onClick={() => field.onChange("every-other-day")}
+                  >
+                    <CalendarIcon
+                      color={
+                        field.value === "every-other-day"
+                          ? "#265B99"
+                          : theme === "dark"
+                            ? "#CCCFDB"
+                            : "#303444"
+                      }
+                    />
+                    <p
+                      className={`text-sm font-medium ${field.value === "every-other-day" ? "text-[#265B99]" : ""}`}
+                    >
+                      Every Other Day
+                    </p>
+                  </div>
+                  <div
+                    role="button"
+                    tabIndex={-2}
+                    onKeyDown={() => field.onChange("weekdays-only")}
+                    className={`border cursor rounded-[16px] flex flex-col items-center gap-3 py-4 ${
+                      field.value === "weekdays-only"
+                        ? "border-[#3072C0] border-2 bg-[#3072C014]"
+                        : "bg-card"
+                    }`}
+                    onClick={() => field.onChange("weekdays-only")}
+                  >
+                    <CalendarIcon
+                      color={
+                        field.value === "weekdays-only"
+                          ? "#265B99"
+                          : theme === "dark"
+                            ? "#CCCFDB"
+                            : "#303444"
+                      }
+                    />
+                    <p
+                      className={`text-sm font-medium ${field.value === "weekdays-only" ? "text-[#265B99]" : ""}`}
+                    >
+                      Weekdays Only
+                    </p>
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       <div className="space-y-2">
         <p className="text-md font-medium">Preferred Time Slots</p>
-        <div className="grid md:grid-cols-3 lg:grid-cols-5 grid-cols-1 gap-3">
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <p className="text-sm font-medium">9:00 AM</p>
-          </div>
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <p className="text-sm font-medium">12:00 PM</p>
-          </div>
-
-          <div className=" cursor border-[#3072C0] bg-[#3072C014] border-2 rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <p className="text-sm font-medium text-[#265B99]">3:00 PM</p>
-          </div>
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <p className="text-sm font-medium">6:00 PM</p>
-          </div>
-          <div className="border cursor bg-card rounded-[16px] flex flex-col items-center gap-3 py-4">
-            <p className="text-sm font-medium">9:00 PM</p>
-          </div>
-        </div>
+        <FormField
+          control={control}
+          name="preferredTimeSlots"
+          render={({ field }) => {
+            const timeSlots = [
+              { value: "09:00", label: "9:00 AM" },
+              { value: "12:00", label: "12:00 PM" },
+              { value: "15:00", label: "3:00 PM" },
+              { value: "18:00", label: "6:00 PM" },
+              { value: "21:00", label: "9:00 PM" },
+            ];
+            const selectedSlots = (field.value as string[]) || [];
+            return (
+              <FormItem>
+                <FormControl>
+                  <div className="grid md:grid-cols-3 lg:grid-cols-5 grid-cols-1 gap-3">
+                    {timeSlots.map(slot => (
+                      <div
+                        key={slot.value}
+                        className={`border cursor rounded-[16px] flex flex-col items-center gap-3 py-4 ${
+                          selectedSlots.includes(slot.value)
+                            ? "border-[#3072C0] bg-[#3072C014] border-2"
+                            : "bg-card"
+                        }`}
+                        onClick={() => {  
+                          const newSlots = selectedSlots.includes(slot.value)
+                            ? selectedSlots.filter(s => s !== slot.value)
+                            : [...selectedSlots, slot.value];
+                          field.onChange(newSlots);
+                        }}
+                        role="button"
+                        tabIndex={-1}
+                        onKeyDown={() => {
+                          const newSlots = selectedSlots.includes(slot.value)
+                            ? selectedSlots.filter(s => s !== slot.value)
+                            : [...selectedSlots, slot.value];
+                          field.onChange(newSlots);
+                        }}
+                      >
+                        <p
+                          className={`text-sm font-medium ${
+                            selectedSlots.includes(slot.value) ? "text-[#265B99]" : ""
+                          }`}
+                        >
+                          {slot.label}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </div>
 
       <div className="font-medium text-md ">
@@ -194,7 +308,7 @@ function StepConfiguration({ form }: StepFormProps) {
                     <SelectItem value="EST">EST (Eastern Standard Time)</SelectItem>
                     <SelectItem value="CST">CST (Central Standard Time)</SelectItem>
                     <SelectItem value="MST">MST (Mountain Standard Time)</SelectItem>
-                    <SelectItem value="PST">PST (Pacific Standard Time)</SelectItem>                   
+                    <SelectItem value="PST">PST (Pacific Standard Time)</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

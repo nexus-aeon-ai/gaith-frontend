@@ -69,6 +69,7 @@ export default function DatedPostSheet({
     day: "numeric",
     year: "numeric",
   });
+  console.log("Rendering DatedPostsSheet for date:", day);
 
   // Filter posts for the selected date
   const postsForDate = useMemo(() => {

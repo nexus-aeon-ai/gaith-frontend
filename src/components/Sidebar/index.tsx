@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import React from "react";
 
-
-
 import {
   Sidebar,
   SidebarContent,
@@ -52,8 +50,7 @@ import { SubmitedIcon } from "../ui/icons/sidebar/submited";
 import { TaskTrackingIcon } from "../ui/icons/sidebar/TaskTracking";
 import TaskTrackingFilled from "../ui/icons/sidebar/tasktracking-filled";
 
-
-const SidebarUI  = () => {
+const SidebarUI = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
   const { setUser } = useAuthStore();
@@ -162,14 +159,16 @@ const SidebarUI  = () => {
     {
       label: "Social Media Calendar",
       icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB":"#265B99"} />,
+      iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#265B99"} />,
       href: "/social-media-calendar",
       resource: "social_media",
     },
     {
       label: "Blog & Articles",
       icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      iconFilled: <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB":"#265B99"}/>,
+      iconFilled: (
+        <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB" : "#265B99"} />
+      ),
       href: "/blog-articles",
       resource: "blog",
     },
@@ -200,7 +199,7 @@ const SidebarUI  = () => {
     {
       label: "Settings",
       icon: <SettingsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
-      iconFilled: <SettingsFilled color={ theme === "dark" ? "#CCCFDB":"#265B99" } />,
+      iconFilled: <SettingsFilled color={theme === "dark" ? "#CCCFDB" : "#265B99"} />,
       href: "/settings",
       resource: "settings",
     },
@@ -226,7 +225,7 @@ const SidebarUI  = () => {
     }
 
     if (href === "/support") {
-      return (pathname.includes("/support") && !pathname.includes("/support/faq"));
+      return pathname.includes("/support") && !pathname.includes("/support/faq");
     }
     if (href === "/support/faq") {
       return pathname.includes("/support/faq");
@@ -238,7 +237,10 @@ const SidebarUI  = () => {
     "bg-muted text-foreground border dark:border-[#3072C0] transition-all duration-300 ease-in-out";
 
   return (
-    <Sidebar variant="inset" className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none bg-transparent">
+    <Sidebar
+      variant="inset"
+      className="top-[calc(var(--header-height)+6px)] left-2 !h-[calc(100svh-var(--header-height))] border-none bg-transparent"
+    >
       <SidebarContent className="h-full bg-background md:shadow-md rounded-[24px] scrollbar-hide overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
@@ -321,10 +323,24 @@ const SidebarUI  = () => {
                   className={cn("py-5", isActive(item.href) && activeClasses)}
                 >
                   <Link href={item.href}>
-                    <span className="text-lg">
-                      {isActive(item.href) ? item.iconFilled : item.icon}
-                    </span>
-                    <span className="font-medium">{item.label}</span>
+                   <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isActive(item.href) ? item.iconFilled : item.icon}
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full transition-all duration-500 ease-in-out transform",
+                          isActive(item.href) ? "scale-100 opacity-100" : "scale-0 opacity-0",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(268.38deg, #F7C649 1.37%, #FFB257 26.94%, #29AD82 66.61%, #265B99 98.7%)",
+                        }}
+                      />
+                    </div>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -337,16 +353,34 @@ const SidebarUI  = () => {
                 <SidebarMenuButton
                   asChild
                   className={isActive(item.href) ? activeClasses : undefined}
-                  onClick={item.label === "Logout" ? (e) => {
-                    e.preventDefault();
-                    handleLogout();
-                  } : undefined}
+                  onClick={
+                    item.label === "Logout"
+                      ? e => {
+                          e.preventDefault();
+                          handleLogout();
+                        }
+                      : undefined
+                  }
                 >
                   <Link href={item.href}>
-                    <span className="text-lg">
-                      {isActive(item.href) ? item.iconFilled : item.icon}
-                    </span>
-                    <span className="font-medium">{item.label}</span>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {isActive(item.href) ? item.iconFilled : item.icon}
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full transition-all duration-500 ease-in-out transform",
+                          isActive(item.href) ? "scale-100 opacity-100" : "scale-0 opacity-0",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(268.38deg, #F7C649 1.37%, #FFB257 26.94%, #29AD82 66.61%, #265B99 98.7%)",
+                        }}
+                      />
+                    </div>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

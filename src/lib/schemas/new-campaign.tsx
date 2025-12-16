@@ -43,4 +43,6 @@ export const FormSchema = z.object({
   platforms: z.array(z.string()),
   timezone: z.string().optional().nullable(),
   launchOptions: z.enum([...launchOptions] as const),
+  postingFrequency: z.string().optional().nullable(),
+  preferredTimeSlots: z.array(z.string()).optional(),
 });
