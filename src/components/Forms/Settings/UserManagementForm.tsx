@@ -39,9 +39,15 @@ import {
 
 // Function to transform API response to Employee format with mock data for missing fields
 const transformTeamMembersToEmployees = (teamMembers: TeamMemberApiResponse[]): Employee[] => {
-  const mockRoles = ["Software Engineer", "Product Manager", "Designer", "Marketing Manager", "Sales Representative"];
+  const mockRoles = [
+    "Software Engineer",
+    "Product Manager",
+    "Designer",
+    "Marketing Manager",
+    "Sales Representative",
+  ];
   const mockStatuses: ("active" | "inactive")[] = ["active", "active", "active", "inactive"];
-  
+
   return teamMembers.map((member, index) => ({
     id: member.id,
     fullName: member.fullName,
@@ -59,7 +65,7 @@ const transformTeamMembersToEmployees = (teamMembers: TeamMemberApiResponse[]): 
     roleLevel: "Mid-Senior", // Placeholder
     department: {
       name: "Engineering",
-      team: "Product Team"
+      team: "Product Team",
     },
     contactInfo: {
       email: member.email,
@@ -129,11 +135,11 @@ const mockEmployees: Employee[] = [
 ];
 
 const roleStyles: Record<string, { bg: string; text: string }> = {
-  "Software Engineer": { bg: "bg-blue-100", text: "text-blue-800" },
-  "Product Manager": { bg: "bg-green-100", text: "text-green-800" },
-  Designer: { bg: "bg-purple-100", text: "text-purple-800" },
-  "Team Lead": { bg: "bg-yellow-100", text: "text-yellow-800" },
-  Developer: { bg: "bg-red-100", text: "text-red-800" },
+  "Software Engineer": { bg: "bg-[#3072C014]", text: "text-[#3072C0]" },
+  "Product Manager": { bg: "bg-[#2BAE8214] dark:bg-[#2BAE8229]", text: "text-[#175E46] dark:text-[#68DAB3]" },
+  "Designer": { bg: "bg-[#853AA614] ", text: "text-[#853AA6] dark:text-[#C99DDD] dark:bg-[#C99DDD14]" },
+  "Team Lead": { bg: "dark:bg-[#2BAE8229]", text: "dark:text-[#68DAB3]" },
+  "Developer": { bg: "bg-red-100", text: "text-red-800" },
 };
 
 // ----------- Types -----------
@@ -206,7 +212,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         toast.success("Role permissions updated successfully!");
         queryClient.invalidateQueries({ queryKey: ["role-permissions"] });
       },
-      onError: (error) => {
+      onError: error => {
         console.error("Error updating role permissions:", error);
         toast.error("Failed to update role permissions. Please try again.");
       },
@@ -241,7 +247,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
       submitForm: async (): Promise<boolean> => {
         const isValid = await form.trigger();
         if (!isValid) return false;
-        
+
         try {
           await handleSubmit(onSubmit)();
           return true;
@@ -262,16 +268,16 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
       hasPermission: boolean,
     ) => {
       // Update local state immediately for UI responsiveness
-      setRolePermissions(prev => 
-        prev.map(permission => 
+      setRolePermissions(prev =>
+        prev.map(permission =>
           permission.permissionCode === permissionCode
             ? {
-              ...permission,
-              roles: {
-                ...permission.roles,
-                [roleCode]: hasPermission,
-              },
-            }
+                ...permission,
+                roles: {
+                  ...permission.roles,
+                  [roleCode]: hasPermission,
+                },
+              }
             : permission,
         ),
       );
@@ -282,7 +288,7 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         permissionCode,
         hasPermission,
       };
-      
+
       updateRolePermissionsMutation.mutate([update]);
     };
 
@@ -291,9 +297,9 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
         prev.map(emp =>
           emp.id === id
             ? {
-              ...emp,
-              permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
-            }
+                ...emp,
+                permissions: { ...emp.permissions, [permission]: !emp.permissions[permission] },
+              }
             : emp,
         ),
       );
@@ -331,104 +337,130 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
 
             <CardContent className="p-4">
               <div className="w-full overflow-x-auto">
-                <div className="border rounded-lg">
+                <div className="border rounded-2xl overflow-hidden">
                   <Table className="min-w-[700px]">
                     <TableHeader>
-                      <TableRow>
+                      <TableRow className="bg-[#F8FBFA] dark:bg-[#06080F] border-b-[#DCE0E4] dark:border-b-[#404663]">
                         <TableHead>Employee Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
+                        <TableHead className="text-center">Role</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Permissions</TableHead>
                         <TableHead className="text-center">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoadingTeamMembers ? (
-                        // Loading skeleton rows
-                        Array.from({ length: 3 }).map((_, index) => (
-                          <TableRow key={`loading-${index}`}>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="h-6 bg-gray-200 rounded animate-pulse w-16" />
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                {Array.from({ length: 4 }).map((_, i) => (
-                                  <div key={i} className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2 justify-center">
-                                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-                                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        employees.map(emp => (
-                          <TableRow key={emp.id}>
-                            <TableCell>{emp.fullName}</TableCell>
-                            <TableCell className="text-gray-600">{emp.email}</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={cn(
-                                  "p-2 rounded-sm font-[400]",
-                                  roleStyles[emp.role]?.bg,
-                                  roleStyles[emp.role]?.text,
-                                )}
-                              >
-                                {emp.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className="bg-[#2BAE8214] font-[400] p-2 rounded-sm capitalize hover:bg-[#2BAE8214] dark:text-[#68DAB3] text-[#175E46]">
-                                {emp.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex md:flex-row flex-col gap-3">
-                                {(["delete", "approve", "edit", "view"] as const).map(key => (
-                                  <div key={key} className="flex items-center gap-2">
-                                    <Checkbox
-                                      checked={emp.permissions[key]}
-                                      onCheckedChange={() => handleEmpPermissionChange(emp.id, key)}
-                                      className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                      {isLoadingTeamMembers
+                        ? // Loading skeleton rows
+                          Array.from({ length: 3 }).map((_, index) => (
+                            <TableRow
+                              key={`loading-${index}`}
+                              className="border-b-[#DCE0E4] dark:border-b-[#404663]"
+                            >
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="h-6 bg-gray-200 rounded animate-pulse w-16" />
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  {Array.from({ length: 4 }).map((_, i) => (
+                                    <div
+                                      key={i}
+                                      className="h-4 w-4 bg-gray-200 rounded animate-pulse"
                                     />
-                                    <label className="text-sm cursor-pointer">{key}</label>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2 justify-center">
+                                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        : employees.map(emp => (
+                            <TableRow
+                              key={emp.id}
+                              className="border-b-[#DCE0E4] dark:border-b-[#404663]"
+                            >
+                              <TableCell>
+                                <span
+                                  style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                                >
+                                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#3072C014] text-[#3072C0] font-bold text-sm uppercase">
+                                    {(() => {
+                                      const words = emp.fullName.trim().split(" ").filter(Boolean);
+                                      if (words.length === 1) {
+                                        return words[0].slice(0, 2);
+                                      } else {
+                                        return words[0][0] + words[1][0];
+                                      }
+                                    })()}
+                                  </span>
+                                  <div className="flex flex-col ">
+                                    <span>{emp.fullName}</span>
+                                    <span className="text-[12px] text-[#687192] dark:text-[#CACCD6]">{emp.email}</span>
                                   </div>
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() => handleEdit(emp.id)}
-                                  className="p-2 hover:bg-gray-100 rounded-md"
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge
+                                  className={cn(
+                                    "p-2 rounded-xl font-normal text-[12px] px-3 w-[130px] text-center justify-center",
+                                    roleStyles[emp.role]?.bg,
+                                    roleStyles[emp.role]?.text,
+                                  )}
                                 >
-                                  <EditIcon />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(emp.id)}
-                                  className="p-2 hover:bg-gray-100 rounded-md"
-                                >
-                                  <DeleteIcon />
-                                </button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
+                                  {emp.role}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className="bg-[#2BAE8214] font-normal p-2 px-3 rounded-xl capitalize hover:bg-[#2BAE8214] dark:text-[#68DAB3] text-[#175E46]">
+                                  {emp.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex md:flex-row flex-col gap-3">
+                                  {(["delete", "approve", "edit", "view"] as const).map(key => (
+                                    <div key={key} className="flex items-center gap-2">
+                                      <Checkbox
+                                        checked={emp.permissions[key]}
+                                        onCheckedChange={() =>
+                                          handleEmpPermissionChange(emp.id, key)
+                                        }
+                                        className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                      />
+                                      <label className="text-sm cursor-pointer">{key}</label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => handleEdit(emp.id)}
+                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                  >
+                                    <EditIcon color="#2BAE82"/>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(emp.id)}
+                                    className="p-2 hover:bg-gray-100 rounded-md"
+                                  >
+                                    <DeleteIcon />
+                                  </button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -442,11 +474,11 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
               <CardTitle className="text-md font-bold">Role Permissions</CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-2xl overflow-hidden">
                 <div className="w-full overflow-x-auto">
                   <Table className="min-w-[500px]">
                     <TableHeader>
-                      <TableRow>
+                      <TableRow className="bg-[#F8FBFA] dark:bg-[#06080F] border-b-[#DCE0E4] dark:border-b-[#404663]">
                         <TableHead>Permission</TableHead>
                         <TableHead className="text-center">Super Admin</TableHead>
                         <TableHead className="text-center">Admin</TableHead>
@@ -454,72 +486,76 @@ const UserManagementForm = forwardRef<UserManagementFormRef, UserManagementFormP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoadingRolePermissions ? (
-                        // Loading skeleton rows
-                        Array.from({ length: 5 }).map((_, index) => (
-                          <TableRow key={`loading-${index}`}>
-                            <TableCell>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        rolePermissions.map(permission => (
-                          <TableRow key={permission.permissionCode}>
-                            <TableCell className="font-medium capitalize">
-                              {permission.permissionName}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.super_admin || false}
-                                onCheckedChange={(checked) =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "super_admin",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.admin || false}
-                                onCheckedChange={(checked) =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "admin",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permission.roles.employee || false}
-                                onCheckedChange={(checked) =>
-                                  handlePermissionChange(
-                                    permission.permissionCode,
-                                    "employee",
-                                    checked as boolean,
-                                  )
-                                }
-                                className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
+                      {isLoadingRolePermissions
+                        ? // Loading skeleton rows
+                          Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow
+                              key={`loading-${index}`}
+                              className="border-b-[#DCE0E4] dark:border-b-[#404663]"
+                            >
+                              <TableCell>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto" />
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        : rolePermissions.map(permission => (
+                            <TableRow
+                              key={permission.permissionCode}
+                              className="border-b-[#DCE0E4] dark:border-b-[#404663]"
+                            >
+                              <TableCell className="font-medium capitalize">
+                                {permission.permissionName}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.super_admin || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "super_admin",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.admin || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "admin",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permission.roles.employee || false}
+                                  onCheckedChange={checked =>
+                                    handlePermissionChange(
+                                      permission.permissionCode,
+                                      "employee",
+                                      checked as boolean,
+                                    )
+                                  }
+                                  className="rounded-sm h-5 w-5 bg-card border border-[#3072C0]/50 data-[state=checked]:bg-[#3072C0]/30 data-[state=checked]:text-[#3072C0] data-[state=checked]:border-[#3072C0]/30"
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
