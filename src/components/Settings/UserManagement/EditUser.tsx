@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import UserForm from "@/components/Forms/UserForm";
 import {
@@ -14,12 +15,23 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { updateUser, type IUser } from "@/lib/api/user";
 import { createUserSchema, type CreateUserFormData } from "@/lib/validations/user";
 
-const EditUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
+interface EditUserProps {
+  closeNewUserForm: () => void;
+  userData?: IUser;
+}
+
+const EditUser = ({ closeNewUserForm, userData }: EditUserProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async (data: CreateUserFormData) => {
+    if (!userData?.id) {
+      toast.error("User ID is missing");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -33,12 +45,28 @@ const EditUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
           const field = issue.path.join(".");
           errors[field] = issue.message;
         });
+        toast.error("Please fix the validation errors");
         return;
       }
 
-      // If validation passes, proceed with create lead api
+      // If validation passes, proceed with update user api
+      const response = await updateUser(userData.id, {
+        fullName: data.fullName,
+        email: data.email,
+        username: data.email, // Use email as username
+        role: data.userRole,
+        status: data.accountActive ? "Active" : "Inactive",
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success("User updated successfully!");
+        closeNewUserForm();
+      } else {
+        toast.error("Failed to update user");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
+      toast.error("An error occurred while updating the user");
     } finally {
       setIsSubmitting(false);
     }
@@ -81,7 +109,7 @@ const EditUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
         <div>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Edit User</h1>
           <p className="text-muted-foreground">
-            Update user information, permissions, and account settings for Sarah Anderson. 
+            Update user information, permissions, and account settings{userData ? ` for ${userData.fullName}` : ''}. 
           </p>
         </div>
         <div className="flex gap-3">
@@ -104,7 +132,29 @@ const EditUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
         </div>
       </div>
 
-      <UserForm mode="edit" onSubmit={handleSave} onCancel={handleCancel} isSubmitting={isSubmitting} />
+      <UserForm 
+        mode="edit" 
+        onSubmit={handleSave} 
+        onCancel={handleCancel} 
+        isSubmitting={isSubmitting}
+        initialData={userData ? {
+          fullName: userData.fullName,
+          email: userData.email,
+          phoneNumber: "", // Not available in IUser
+          department: "Other" as const,
+          userRole: userData.role as "Admin" | "Manager" | "Employee" | "Viewer",
+          jobTitle: "",
+          password: "",
+          confirmPassword: "",
+          userManagement: [],
+          contentManagement: [],
+          analyticsAndReports: [],
+          accountActive: userData.status === "Active",
+          emailVerification: false,
+          forcePassChange: false,
+          notes: "",
+        } : undefined}
+      />
     </div>
   );
 };

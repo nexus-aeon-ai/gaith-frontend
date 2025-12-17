@@ -1,5 +1,5 @@
 "use client";
-
+import { useTheme } from "next-themes";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 
 import NotificationIcon from "@/components/ui/icons/notfication";
@@ -18,16 +18,16 @@ import NotificationForm, { NotificationFormRef } from "../Forms/Settings/Notific
 import SecurityForm, { SecurityFormRef } from "../Forms/Settings/SecurityForm";
 import UserManagementForm, { UserManagementFormRef } from "../Forms/Settings/UserManagementForm";
 
-
-
 export type SettingsTabsRef = {
   getAllFormData: () => Record<string, unknown>;
   submitAllForms: () => Promise<void>;
   submitModifiedForms: () => Promise<{ savedForms: string[]; skippedForms: string[] }>;
+  resetAllForms: () => void;
 };
 
 export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
   const [activeTab, setActiveTab] = useState("general");
+  const {theme} = useTheme();
 
   const generalRef = useRef<GeneralTabFormRef>(null);
   const userRef = useRef<UserManagementFormRef>(null);
@@ -96,6 +96,12 @@ export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
       await securityRef.current?.submitForm();
     },
     submitModifiedForms,
+    resetAllForms: () => {
+      generalRef.current?.resetToDefaults();
+      userRef.current?.resetToDefaults();
+      notificationRef.current?.resetToDefaults();
+      securityRef.current?.resetToDefaults();
+    },
   }));
 
   return (
@@ -107,9 +113,9 @@ export const SettingsTabs = forwardRef<SettingsTabsRef>((_, ref) => {
       >
         <TabsTrigger
           value="general"
-          className="data-[state=active]:text-[#3072C0] py-3 whitespace-nowrap rounded-b-none data-[state=active]:bg-[#3072C014] data-[state=active]:border-b data-[state=active]:border-b-[#3072C0] flex items-center justify-center gap-2"
+          className="dark:data-[state=active]:text-[#3072C0] data-[state=active]:text-[#3072C0] dark:text-[#CCCFDB] text-[#303444] py-3 whitespace-nowrap rounded-b-none data-[state=active]:bg-[#3072C014] data-[state=active]:border-b data-[state=active]:border-b-[#3072C0] flex items-center justify-center gap-2"
         >
-          {activeTab === "general" ? <SettingsFilledIcon color="#3072C0"/> : <SettingsIcon />}
+          {activeTab === "general" ? <SettingsFilledIcon color="#3072C0"/> : <SettingsIcon color={theme === "dark"? "#CCCFDB":"#303444"}/>}
           General
         </TabsTrigger>
         <TabsTrigger

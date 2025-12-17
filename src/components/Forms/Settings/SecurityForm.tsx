@@ -41,6 +41,7 @@ export type SecurityFormRef = {
   isDirty: () => boolean;
   hasData: () => boolean;
   isValid: () => boolean;
+  resetToDefaults: () => void;
 };
 
 interface SecurityFormProps {
@@ -287,6 +288,12 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
     isDirty: () => form.formState.isDirty,
     hasData: () => hasFormData(),
     isValid: () => form.formState.isValid,
+    resetToDefaults: () => {
+      form.reset(defaultSecurityFormData);
+      setShowPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+    },
   }));
 
   return (
@@ -457,8 +464,10 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
+              <div className="border border-[#DCE0E4] dark:border-[#404663]  my-4"/>
+
             <div className="mt-4">
-              <section className="mb-8">
+              <section className="mb-4">
                 <h2 className="font-semibold mb-4 text-base">Session Management</h2>
 
                 <div className="space-y-3">
@@ -481,7 +490,7 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
                         </div>
                       </div>
 
-                      <span className="px-4 py-1 text-sm font-medium text-green-700 bg-green-50 rounded-full">
+                      <span className="px-4 py-1 text-[12px] font-normal text-[#175E46] dark:text-[#68DAB3] dark:bg-[#2BAE8229] bg-[#2BAE8214] rounded-lg">
                         {session.status}
                       </span>
                     </div>
@@ -492,15 +501,15 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
                   Sign Out All Other Sessions
                 </button>
               </section>
-
+              <div className="border border-[#DCE0E4] dark:border-[#404663]  mb-4"/>
               {/* System Information */}
               <div className="w-full">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                <h3 className="text-sm font-medium text-[#303444]] dark:text-[#CCCFDB]  mb-3">
                   System Information
                 </h3>
 
                 <div className="w-full">
-                  <div className="max-w-6xl mx-auto">
+                  <div className="p-3 bg-[#F8FBFA] dark:bg-[#06080F] rounded-2xl">
                     {/* Use a 3-column grid:
               col1 = left labels
               col2 = center column with main values (aligned center)
@@ -523,9 +532,7 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Database Size:</span>
-                          <span className="ml-3 font-normal">
-                            {systemInfo.dbSize}
-                          </span>
+                          <span className="ml-3 font-normal">{systemInfo.dbSize}</span>
                         </div>
                       </div>
 

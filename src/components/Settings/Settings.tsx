@@ -55,6 +55,16 @@ const Settings = () => {
     }
   };
 
+  // 🔹 Function to handle "Reset To Defaults" - resets all forms
+  const handleResetToDefaults = () => {
+    if (settingsRef.current) {
+      if (confirm("Are you sure you want to reset all settings to their default values? This action cannot be undone.")) {
+        settingsRef.current.resetAllForms();
+        toast.success("All settings have been reset to default values.");
+      }
+    }
+  };
+
   return (
     <div className="p-6 font-inter w-full">
       <h1 className="text-2xl font-bold mb-1">Settings</h1>
@@ -66,7 +76,9 @@ const Settings = () => {
       <SettingsTabs ref={settingsRef} />
 
       <div className="flex justify-end gap-2 mt-4">
-        <Button className="border border-[#687192] dark:border-[#CACCD6] dark:text-[#CACCD6] text-[#687192] p-4 h-12 text-sm font-normal bg-transparent dark:hover:bg-[#687192]/20 hover:bg-[#687192]/10 rounded-2xl">
+        <Button 
+          onClick={handleResetToDefaults}
+          className="border border-[#687192] dark:border-[#CACCD6] dark:text-[#CACCD6] text-[#687192] p-4 h-12 text-sm font-normal bg-transparent dark:hover:bg-[#687192]/20 hover:bg-[#687192]/10 rounded-2xl">
           Reset To Defaults
         </Button>
 

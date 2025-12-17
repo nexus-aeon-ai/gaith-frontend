@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import UserForm from "@/components/Forms/UserForm";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DashboardListIcon } from "@/components/ui/icons/dashboard-list";
+import { createUser } from "@/lib/api/user";
 import { createUserSchema, type CreateUserFormData } from "@/lib/validations/user";
 
 const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
@@ -33,12 +35,28 @@ const AddNewUser = ({ closeNewUserForm }: { closeNewUserForm: () => void }) => {
           const field = issue.path.join(".");
           errors[field] = issue.message;
         });
+        toast.error("Please fix the validation errors");
         return;
       }
 
       // If validation passes, proceed with create user api
+      const response = await createUser({
+        fullName: data.fullName,
+        email: data.email,
+        username: data.email, // Use email as username
+        role: data.userRole,
+        status: data.accountActive ? "Active" : "Inactive",
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success("User created successfully!");
+        closeNewUserForm();
+      } else {
+        toast.error("Failed to create user");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
+      toast.error("An error occurred while creating the user");
     } finally {
       setIsSubmitting(false);
     }

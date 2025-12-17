@@ -41,6 +41,7 @@ export type NotificationFormRef = {
   isDirty: () => boolean;
   hasData: () => boolean;
   isValid: () => boolean;
+  resetToDefaults: () => void;
 };
 
 interface NotificationFormProps {
@@ -253,6 +254,9 @@ const NotificationForm = forwardRef<NotificationFormRef, NotificationFormProps>(
       isDirty: () => form.formState.isDirty,
       hasData: () => hasFormData(),
       isValid: () => form.formState.isValid,
+      resetToDefaults: () => {
+        form.reset(defaultNotificationFormData);
+      },
     }));
 
     return (

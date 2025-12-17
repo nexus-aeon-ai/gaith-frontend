@@ -44,6 +44,7 @@ export type GeneralTabFormRef = {
   isDirty: () => boolean;
   hasData: () => boolean;
   isValid: () => boolean;
+  resetToDefaults: () => void;
 };
 
 interface GeneralTabFormProps {
@@ -212,6 +213,10 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
     isDirty: () => form.formState.isDirty,
     hasData: () => hasFormData(),
     isValid: () => form.formState.isValid,
+    resetToDefaults: () => {
+      form.reset(defaultGeneralFormData);
+      setTheme("light"); // Reset theme to light
+    },
   }));
 
   // Show loading state while fetching settings
