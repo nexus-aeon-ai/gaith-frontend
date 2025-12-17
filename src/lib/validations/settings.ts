@@ -53,7 +53,6 @@ export const generalTabSchema = z.object({
 
   // Language and regional settings
   interfaceLang: z.enum(["English", "Arabic"]),
-  textDirection: z.enum(["left-to-right", "right-to-left"]),
 
   // Theme preferences
   darkThemeStatus: z.boolean().optional(),
@@ -172,7 +171,6 @@ export const defaultGeneralFormData: GeneralTabFormData = {
   jobTitle: "",
   department: "Sales", // Ensure this is always a valid enum value
   interfaceLang: "English",
-  textDirection: "left-to-right",
   darkThemeStatus: false,
   defaultExport: "XLSX",
   includeMetaData: false,

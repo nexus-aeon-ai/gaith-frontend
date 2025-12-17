@@ -70,15 +70,6 @@ const sessions = [
   },
 ];
 
-const systemInfo = {
-  version: "v2.1.4",
-  lastUpdated: "Dec 15, 2024",
-  dbSize: "2.4 GB",
-  activeUsers: 12,
-  storageUsed: "45.2 MB",
-  backupStatus: "Up to date",
-};
-
 const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit }, ref) => {
   const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
@@ -501,66 +492,6 @@ const SecurityForm = forwardRef<SecurityFormRef, SecurityFormProps>(({ onSubmit 
                   Sign Out All Other Sessions
                 </button>
               </section>
-              <div className="border border-[#DCE0E4] dark:border-[#404663]  mb-4"/>
-              {/* System Information */}
-              <div className="w-full">
-                <h3 className="text-sm font-medium text-[#303444]] dark:text-[#CCCFDB]  mb-3">
-                  System Information
-                </h3>
-
-                <div className="w-full">
-                  <div className="p-3 bg-[#F8FBFA] dark:bg-[#06080F] rounded-2xl">
-                    {/* Use a 3-column grid:
-              col1 = left labels
-              col2 = center column with main values (aligned center)
-              col3 = right labels + values (right aligned)
-          */}
-                    <div className="grid md:grid-cols-2 items-center gap-4 text-sm text-muted-foreground">
-                      {/* Left column (labels) */}
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">System Version:</span>
-                          <span className="ml-3 text-muted-foreground font-medium">
-                            {systemInfo.version}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Last Update:</span>
-                          <span className="ml-3 text-muted-foreground">
-                            {systemInfo.lastUpdated}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Database Size:</span>
-                          <span className="ml-3 font-normal">{systemInfo.dbSize}</span>
-                        </div>
-                      </div>
-
-                      {/* Right column (labels + values right aligned) */}
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Active Users:</span>
-                          <span className="ml-3 text-muted-foreground font-medium">
-                            {systemInfo.activeUsers}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Storage Used:</span>
-                          <span className="ml-3 text-muted-foreground">
-                            {systemInfo.storageUsed}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Backup Status:</span>
-                          <span className="ml-3 font-semibold text-green-600">
-                            {systemInfo.backupStatus}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>

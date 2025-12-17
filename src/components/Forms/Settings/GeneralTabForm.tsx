@@ -17,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -167,7 +166,6 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
       (values.jobTitle && values.jobTitle.trim() !== "") ||
       values.department !== "Sales" || // Different from default
       values.interfaceLang !== "English" || // Different from default
-      values.textDirection !== "left-to-right" || // Different from default
       values.darkThemeStatus !== false || // Different from default
       values.defaultExport !== "XLSX" || // Different from default
       values.includeMetaData !== false // Different from default
@@ -359,47 +357,6 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="textDirection"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Text Direction</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex sm:flex-row flex-col  sm:gap-12 gap-2"
-                      >
-                        <FormItem className="flex items-start space-x-2 space-y-0">
-                          <FormControl className="mt-[2px]">
-                            <RadioGroupItem
-                              value="left-to-right"
-                              className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                            />
-                          </FormControl>
-                          <div className="font-normal text-sm flex flex-col">
-                            <p>Left To Right</p>
-                          </div>
-                        </FormItem>
-                        <FormItem className="flex items-start space-x-2 space-y-0">
-                          <FormControl className="mt-[2px]">
-                            <RadioGroupItem
-                              value="right-to-left"
-                              className="text-[#3072C0] data-[state=checked]:border-[#3072C0]"
-                            />
-                          </FormControl>
-                          <div className="font-normal text-sm flex flex-col">
-                            <p>Right To Left</p>
-                          </div>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
           </CardContent>
         </Card>
@@ -426,7 +383,7 @@ const GeneralTabForm = forwardRef<GeneralTabFormRef, GeneralTabFormProps>(({ onS
                     <FormItem>
                       <FormControl>
                         <Switch
-                          checked={field.value}
+                          checked={theme==="dark"? true : false}
                           onCheckedChange={checked => {
                             field.onChange(checked);
                             setTheme(checked ? "dark" : "light");
