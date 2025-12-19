@@ -1,5 +1,6 @@
 import { CirclePlus } from "lucide-react";
 import React from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useTaskModalStore } from "@/lib/store/taskModalStore";
@@ -14,6 +15,7 @@ const AddTaskButton: React.FC<AddTaskButtonProps> = ({
   className,
   children = "Add New Task",
 }) => {
+  const t = useTranslations("TaskTracking");
   const { setOpen, setIsEdit } = useTaskModalStore();
 
   return (
@@ -33,7 +35,7 @@ const AddTaskButton: React.FC<AddTaskButtonProps> = ({
     >
       <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
       <span className="hidden sm:inline">{children}</span>
-      <span className="sm:hidden">Add Task</span>
+      <span className="sm:hidden">{t("addNewTask")}</span>
     </Button>
   );
 };

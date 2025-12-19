@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -39,13 +41,14 @@ const clients = [
 ];
 
 export default function ClientReportsTable() {
+  const t = useTranslations('Reports');
   return (
     <Card className="rounded-2xl shadow-sm border pt-4 lg:col-span-6 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold">Client Reports</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('clientReports')}</CardTitle>
        <div className="flex items-center gap-1">
           <a href="#none" className="text-md font-medium text-[#3072C0]">
-            View All
+            {t('viewAll')}
           </a>
           <RightArrow size={16} className="text-[#3072C0] " />
         </div>
@@ -57,10 +60,10 @@ export default function ClientReportsTable() {
         <Table>
           <TableHeader>
             <TableRow className="dark:border-[#404663]">
-              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Client</TableHead>
-              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Status</TableHead>
-              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">Progress</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">{t('client')}</TableHead>
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">{t('status')}</TableHead>
+              <TableHead className="dark:text-[#CCCFDB] text-[#303444]">{t('progress')}</TableHead>
+              <TableHead className="text-right">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
 

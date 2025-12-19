@@ -1,5 +1,6 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,8 +27,8 @@ const TaskTrackingClient = () => {
   const { isOpen: isCreateCategoryOpen, setOpen: setIsCreateCategoryOpen } =
     useCategoryModalStore();
   const queryClient = useQueryClient();
-
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const t = useTranslations("TaskTracking");
+  const [selectedCategory, setSelectedCategory] = useState(t("allCategories"));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1));
 
@@ -167,7 +168,7 @@ const TaskTrackingClient = () => {
   const [isCancelConfirmModalOpen, setIsCancelConfirmModalOpen] = useState(false);
   const [isCanceledModalOpen, setIsCanceledModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"task" | "category">("task");
-  const [filterType, setFilterType] = useState<string>("list");
+  const [filterType, setFilterType] = useState<string>(t("list"));
 
   // Grouped tasks modal state
   const [isGroupedTasksModalOpen, setIsGroupedTasksModalOpen] = useState(false);

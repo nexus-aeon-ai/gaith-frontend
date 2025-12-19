@@ -3,6 +3,7 @@
 import { Quote, ShoppingBag, Sparkles, Target, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import React from "react";
 
@@ -54,6 +55,7 @@ const SidebarUI = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
   const { setUser } = useAuthStore();
+  const t = useTranslations('Sidebar');
 
   const handleLogout = () => {
     setUser({} as any);
@@ -62,13 +64,13 @@ const SidebarUI = () => {
 
   const supportItems = [
     {
-      label: "My Ticket",
+      label: t('myTicket'),
       icon: <Ticket className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Ticket className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/support",
     },
     {
-      label: "FAQ's",
+      label: t('faqs'),
       icon: <Quote className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Quote className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/support/faq",
@@ -84,63 +86,63 @@ const SidebarUI = () => {
 
   const mainItems = [
     {
-      label: "Dashboard",
+      label: t('dashboard'),
       icon: <DashboardOutline className="dark:text-[#CCCFDB]" />,
       iconFilled: <DashboarFilled className="dark:text-[#CCCFDB]" />,
       href: "/",
       resource: "dashboard",
     },
     {
-      label: "Task Tracking",
+      label: t('taskTracking'),
       icon: <TaskTrackingIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <TaskTrackingFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/task-tracking",
       resource: "tasks",
     },
     {
-      label: "Report & Analysis",
+      label: t('reportAnalysis'),
       icon: <ReportIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ReportsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/reports",
       resource: "reports",
     },
     {
-      label: "Leads",
+      label: t('leads'),
       icon: <LeadsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <LeadsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/leads",
       resource: "leads",
     },
     {
-      label: "Client Management",
+      label: t('clientManagement'),
       icon: <ClientManagmentIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ClientFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/client-management",
       resource: "clients",
     },
     {
-      label: "Employees",
+      label: t('employees'),
       icon: <EmployeeIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <EmployeeFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/employees",
       resource: "employees",
     },
     {
-      label: "Employees Tasks",
+      label: t('employeeTasks'),
       icon: <EmployeeTasksIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <EmployeeTasksFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/employee-tasks",
       resource: "employee_tasks",
     },
     {
-      label: "Quotations",
+      label: t('quotations'),
       icon: <QuotationsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <QuotationsFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/quotations",
       resource: "quotations",
     },
     {
-      label: "Submitted",
+      label: t('submitted'),
       icon: <SubmitedIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <SubmitedFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/submitted",
@@ -150,21 +152,21 @@ const SidebarUI = () => {
 
   const aiToolsItems = [
     {
-      label: "Generate Marketing Assets",
+      label: t('generateMarketingAssets'),
       icon: <Sparkles className="h-5 w-5 text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Sparkles className="h-5 w-5 text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/generate-marketing-assets",
       resource: "marketing_assets",
     },
     {
-      label: "Social Media Calendar",
+      label: t('socialMediaCalendar'),
       icon: <SocialMediaCalenderIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <CalendarIcon color={theme === "dark" ? "#CCCFDB" : "#265B99"} />,
       href: "/social-media-calendar",
       resource: "social_media",
     },
     {
-      label: "Blog & Articles",
+      label: t('blogArticles'),
       icon: <BlogArticlesIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: (
         <FileIcon className=" h-6 w-6" color={theme === "dark" ? "#CCCFDB" : "#265B99"} />
@@ -173,21 +175,21 @@ const SidebarUI = () => {
       resource: "blog",
     },
     {
-      label: "Marketing Plans",
+      label: t('marketingPlans'),
       icon: <Target className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <Target className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/marketing-plans",
       resource: "marketing_plans",
     },
     {
-      label: "Media Buying",
+      label: t('mediaBuying'),
       icon: <ShoppingBag className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <ShoppingBag className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/media-buying",
       resource: "media_buying",
     },
     {
-      label: "AI Chatbot",
+      label: t('aiChatbot'),
       icon: <AIChatbotIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <AiChatbotFilled className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/ai-chatbot",
@@ -197,14 +199,14 @@ const SidebarUI = () => {
 
   const settingsItems = [
     {
-      label: "Settings",
+      label: t('settings'),
       icon: <SettingsIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <SettingsFilled color={theme === "dark" ? "#CCCFDB" : "#265B99"} />,
       href: "/settings",
       resource: "settings",
     },
     {
-      label: "Logout",
+      label: t('logout'),
       icon: <LogoutIcon className="text-[#303444] dark:text-[#CCCFDB]" />,
       iconFilled: <LogoutIcon className="text-[#265B99] dark:text-[#CCCFDB]" />,
       href: "/logout",
@@ -221,7 +223,7 @@ const SidebarUI = () => {
     }
 
     if (href === "/") {
-      return pathname === "/en";
+      return pathname === "/en" || pathname === "/ar" || pathname === "/en/" || pathname === "/ar/";
     }
 
     if (href === "/support") {
@@ -278,7 +280,7 @@ const SidebarUI = () => {
             ))}
           </SidebarMenu>
           <SidebarSeparator />
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('supportGroup')}</SidebarGroupLabel>
           <SidebarMenu>
             {supportItems.map(item => (
               <SidebarMenuItem key={item.label}>
@@ -314,7 +316,7 @@ const SidebarUI = () => {
             ))}
           </SidebarMenu>
           <SidebarSeparator />
-          <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('aiToolsGroup')}</SidebarGroupLabel>
           <SidebarMenu>
             {filteredAiToolsItems.map(item => (
               <SidebarMenuItem key={item.label}>

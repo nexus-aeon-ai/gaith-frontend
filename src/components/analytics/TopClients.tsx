@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts";
@@ -105,13 +106,14 @@ const renderBarChart = (clients: { name: string; percent: number }[], theme: str
 const TopClients = () => {
   const { theme } = useTheme();
   const [tab, setTab] = useState("engagement");
+  const t = useTranslations('Analytics');
   const chartData = tab === "engagement" ? engagementClients : roiClients;
 
   return (
     <Card className="w-full lg:col-span-6 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between p-3 pt-4">
         <CardTitle className="font-bold text-lg text-card-foreground ">
-          Top Performing Clients
+          {t('topClients')}
         </CardTitle>
 
         <Tabs
@@ -130,7 +132,7 @@ const TopClients = () => {
               data-[state=inactive]:border-[#DCE0E4]
               dark:data-[state=active]:bg-[#1E1405] dark:data-[state=active]:text-white transition-colors"
             >
-              Engagement
+              {t('engagement')}
             </TabsTrigger>
 
             <TabsTrigger
@@ -143,7 +145,7 @@ const TopClients = () => {
               data-[state=inactive]:border-[#DCE0E4]
               dark:data-[state=active]:bg-[#1E1405] dark:data-[state=active]:text-white transition-colors"
             >
-              ROI
+              {t('roi')}
             </TabsTrigger>
           </TabsList>
         </Tabs>

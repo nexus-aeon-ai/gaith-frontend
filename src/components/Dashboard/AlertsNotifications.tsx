@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RightArrow from "@/components/ui/icons/right-arrow";
 import { Separator } from "@/components/ui/separator";
@@ -42,15 +43,16 @@ const alerts = [
 ];
 
 const AlertsNotifications = () => {
+  const t = useTranslations('Alerts');
   return (
     <Card className="col-span-1 lg:col-span-4 w-full">
       <CardHeader className="flex flex-row items-center justify-between  py-[12px] px-4">
         <CardTitle className="text-lg p-0 font-bold text-card-foreground">
-          Alerts & Notifications
+          {t('alertsNotifications')}
         </CardTitle>
         <div className="flex items-center gap-1">
           <a href="#none" className="text-md font-medium text-[#3072C0]">
-            View All
+            {t('viewAll')}
           </a>
           <RightArrow size={16} className="text-[#3072C0] "/>
         </div>

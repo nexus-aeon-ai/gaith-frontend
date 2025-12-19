@@ -1,5 +1,6 @@
 import { Ellipsis } from "lucide-react";
 import React from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +40,7 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
   completionRate = 0,
   totals = { all: 0, completed: 0 },
 }) => {
+  const t = useTranslations("TaskTracking");
   const [showSubCategory, setShowSubCategory] = React.useState(false);
   const [subCategoryIndex, setSubCategoryIndex] = React.useState<number | null>(null);
   console.log("Categories in Sidebar:", categories);
@@ -53,7 +55,7 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
               "mb-2 sm:mb-3 lg:mb-4 text-xs sm:text-sm md:text-base",
             )}
           >
-            Task Categories
+            {t("taskCategories")}
           </h3>
           <div className="space-y-1 sm:space-y-2">
             {/* All Categories Option */}
@@ -68,8 +70,8 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
                 <div className="flex items-center gap-2">
                   <div className={`w-[10px] h-[10px] rounded-full bg-gray-500`} />
                   <div className="flex flex-col items-start gap-1">
-                    <p className="text-sm font-medium">All Categories</p>
-                    <span className="text-xs">{totals.all} Tasks</span>
+                    <p className="text-sm font-medium">{t("allCategories")}</p>
+                    <span className="text-xs">{totals.all} {t("tasks")}</span>
                   </div>
                 </div>
               </div>
@@ -129,7 +131,7 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
       {/* Task Status */}
       <Card className="bg-card rounded-[16px]">
         <CardContent className="p-4">
-          <h3 className={cn("font-semibold text-gray-900 dark:text-white mb-4")}>Task Status</h3>
+          <h3 className={cn("font-semibold text-gray-900 dark:text-white mb-4")}>{t("taskStatus")}</h3>
           <div className="space-y-2">
             {statuses.map((status, index) => (
               <div key={index} className="flex flex-col gap-2">
@@ -151,7 +153,7 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
           <div className={cn("pt-4 ")}>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Completion Rate
+                {t("completionRate")}
               </span>
             </div>
             <div className="flex justify-between items-center mb-2">
@@ -159,7 +161,7 @@ const TaskSidebar: React.FC<TaskSidebarProps> = ({
                 {completionRate}%
               </span>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {totals.completed} of {totals.all} tasks
+                {totals.completed} {t("of")} {totals.all} {t("tasks")}
               </p>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">

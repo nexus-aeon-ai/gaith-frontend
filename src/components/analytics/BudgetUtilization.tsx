@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import React, { useState } from "react";
 import { Pie, PieChart, Sector } from "recharts";
@@ -74,12 +75,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const timeOptions = [
-  { value: 3 as const, label: "3 Months" },
-  { value: 6 as const, label: "6 Months" },
-  { value: 9 as const, label: "9 Months" },
-  { value: 12 as const, label: "12 Months" },
-];
+
 
 const RADIAN = Math.PI / 180;
 
@@ -140,6 +136,13 @@ const useMediaQuery = (query: string) => {
 const BudgetUtilization: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<3 | 6 | 9 | 12>(3);
   const { theme } = useTheme();
+  const t = useTranslations('Analytics');
+  const timeOptions = [
+  { value: 3 as const, label: t("3Months") },
+  { value: 6 as const, label: t("6Months") },
+  { value: 9 as const, label: t("9Months") },
+  { value: 12 as const, label: t("12Months") },
+];
 
   const currentData = budgetDataByPeriod[selectedPeriod];
   const selectedOption = timeOptions.find(option => option.value === selectedPeriod);
@@ -283,7 +286,7 @@ const BudgetUtilization: React.FC = () => {
   return (
     <Card className="w-full lg:col-span-4 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between p-3 py-[11px]">
-        <CardTitle className="font-bold text-lg text-card-foreground">Budget Utilization</CardTitle>
+        <CardTitle className="font-bold text-lg text-card-foreground">{t('budgetUtilization')}</CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

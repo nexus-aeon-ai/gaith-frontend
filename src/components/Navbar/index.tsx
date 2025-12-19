@@ -2,6 +2,7 @@
 import { setCookie } from "cookies-next";
 import { ChevronDown, UserRound } from "lucide-react";
 import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -32,7 +33,9 @@ interface NavbarProps {
 const Navbar = ({ user }: NavbarProps) => {
   const { setUser, setLanguage, language: languageStore } = useAuthStore();
   const { theme: themeNext, setTheme: setThemeNext } = useTheme();
-
+  const router = useRouter();
+  const pathname = usePathname();
+ 
   const [avatarLoading, setAvatarLoading] = useState<boolean>(true);
   const [mounted, setMounted] = useState(false);
 
@@ -48,14 +51,34 @@ const Navbar = ({ user }: NavbarProps) => {
     setMounted(true);
   }, []);
 
+  // Sync language store with current locale from pathname
+  useEffect(() => {
+    if (pathname) {
+      const locale = pathname.split("/")[1]; // Extract locale from pathname like /ar/dashboard
+      if (locale === "ar") {
+        setLanguage("AR");
+      } else if (locale === "en") {
+        setLanguage("EN");
+      }
+    }
+  }, [pathname, setLanguage]);
+
   const handleThemeChange = (theme: string) => {
     setThemeNext(theme as "light" | "dark");
     setCookie("theme", theme);
   };
 
   const handleLanguageChange = (language: string) => {
+    const newLocale = language === "EN" ? "en" : "ar";
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
+    
+    // Replace the locale in the pathname
+    const segments = pathname.split("/");
+    segments[1] = newLocale; // Replace locale segment
+    const newPathname = segments.join("/");
+    
+    router.push(newPathname);
   };
 
   const handleLogout = () => {

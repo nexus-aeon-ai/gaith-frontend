@@ -1,4 +1,5 @@
 "use client";
+import {useTranslations} from 'next-intl'
 import { useTheme } from "next-themes";
 import React, { useRef } from "react";
 
@@ -24,9 +25,14 @@ import { SuccessRateIcon } from "../ui/icons/analytics/successRate";
 import AlertsNotifications from "./AlertsNotifications";
 import AnalyticsCard, { AnalyticsSummaryCardProps } from "./AnalyticsCard";
 
+
+const DashboardMain = () => {
+  const { theme } = useTheme();
+  const dateRef = useRef<HTMLInputElement | null>(null);
+   const t = useTranslations('Dashboard');
 const analyticsCards: AnalyticsSummaryCardProps[] = [
   {
-    label: "Active Clients",
+    label: t("activeClients"),
     value: 24,
     icon: <ActiveClientsIcon className="text-[#508CD3] w-12 h-12" />,
     trend: (
@@ -36,10 +42,10 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
       </p>
     ),
     trendColor: "text-green-500",
-    subLabel: "Last month",
+    subLabel: t("lastMonth"),
   },
   {
-    label: "Ongoing Campaigns",
+    label: t("ongoingCampaigns"),
     value: 37,
     icon: <CampaignsIcon className="text-[#2BAE82] w-12 h-12" />,
     trend: (
@@ -53,7 +59,7 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
     subLabel: "vs last month",
   },
   {
-    label: "Content Pieces",
+    label: t("contentPieces"),
     value: (
       <p className="flex items-center gap-1">
         1,420,100 <AED width={15} height={13} />
@@ -67,10 +73,10 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
       </p>
     ),
     trendColor: "text-green-500",
-    subLabel: "Last month",
+    subLabel: t("lastMonth"),
   },
   {
-    label: "Calendar Completion",
+    label: t("calendarCompletion"),
     value: "86%",
     icon: <CalenderIcon className="text-[#F5B719] w-12 h-12" />,
     trend: (
@@ -80,10 +86,10 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
       </p>
     ),
     trendColor: "text-red-500",
-    subLabel: "Last month",
+    subLabel: t("lastMonth"),
   },
   {
-    label: "Success Rate",
+    label: t("successRate"),
     value: "78%",
     icon: <SuccessRateIcon className="text-[#EA3B1F] w-12 h-12" />,
     trend: (
@@ -93,13 +99,9 @@ const analyticsCards: AnalyticsSummaryCardProps[] = [
       </p>
     ),
     trendColor: "text-green-500",
-    subLabel: "Last month",
+    subLabel: t("lastMonth"),
   },
 ];
-
-const DashboardMain = () => {
-  const { theme } = useTheme();
-  const dateRef = useRef<HTMLInputElement | null>(null);
 
   const openCalendar = () => {
     dateRef.current?.showPicker();
@@ -110,9 +112,9 @@ const DashboardMain = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Overview of your marketing performance
+            {t('description')}
           </p>
         </div>
         <div className="flex gap-2 md:flex-row flex-col">
@@ -153,7 +155,7 @@ const DashboardMain = () => {
             )}
           >
             <ExcelIcon className="!h-6 !w-6" />
-            <span>Export Excel</span>
+            <span>{t('export-excel')}</span>
           </Button>
 
           <Button
@@ -169,7 +171,7 @@ const DashboardMain = () => {
             )}
           >
             <PdfIcon className="!h-5 !w-5" />
-            <span>Export PDF</span>
+            <span>{t('export-pdf')}</span>
           </Button>
         </div>
       </div>

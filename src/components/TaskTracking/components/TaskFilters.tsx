@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
@@ -40,6 +41,8 @@ const TaskFilters = ({
   onCategorySelect,
 }: TaskFilterProps) => {
   const { theme } = useTheme();
+  const t = useTranslations("TaskTracking");
+  
   useEffect(() => {
     console.log("clients in filter:", clients);
   }, [clients]);
@@ -54,11 +57,11 @@ const TaskFilters = ({
         )}
       >
         <span className={cn("text-lg font-bold", "text-[#070913] dark:text-[#F6FBFE]")}>
-          Filter By:
+          {t("filterBy")}
         </span>
         {/* buttons  */}
         <div className="flex gap-1 sm:gap-2 md:gap-2">
-          {filterType === "list" && (
+          {filterType === t("list") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -76,11 +79,11 @@ const TaskFilters = ({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem variant="destructive">
                   <EditIcon />
-                  <span className="hidden sm:inline dark:text-white text-gray-900">Edit</span>
+                  <span className="hidden sm:inline dark:text-white text-gray-900">{t("edit")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive">
                   <DeleteIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                  <span className="hidden sm:inline dark:text-white text-gray-900">{t("delete")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -95,7 +98,7 @@ const TaskFilters = ({
             )}
           >
             <ExcelIcon className="!w-5 !h-5" />
-            <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
+            <span className="hidden xl:inline dark:text-white text-gray-900">{t("exportExcel")}</span>
             <span className=" dark:text-white text-gray-900">Excel</span>
           </Button>
           <Button
@@ -107,7 +110,7 @@ const TaskFilters = ({
             )}
           >
             <PdfIcon className="!w-5 !h-5" />
-            <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
+            <span className="hidden xl:inline dark:text-white text-gray-900">{t("exportPdf")}</span>
             <span className=" dark:text-white text-gray-900">PDF</span>
           </Button>
         </div>
@@ -131,7 +134,7 @@ const TaskFilters = ({
                 "text-xs sm:text-sm dark:border-[#404663]",
               )}
             >
-              <SelectValue placeholder="Client" />
+              <SelectValue placeholder={t("selectClient")} />
             </SelectTrigger>
             <SelectContent>
               {clients.map((client: ApiClient) => (
@@ -148,10 +151,10 @@ const TaskFilters = ({
                 "text-xs sm:text-sm dark:border-[#404663]",
               )}
             >
-              <SelectValue placeholder="Task Category" />
+              <SelectValue placeholder={t("taskCategory")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All Categories">All Categories</SelectItem>
+              <SelectItem value="All Categories">{t("allCategories")}</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category.id} value={category.name}>
                   {category.name}
@@ -162,7 +165,7 @@ const TaskFilters = ({
         </div>
 
         <AddCategoryButton className="w-full xl:w-60 h-10 sm:h-12 rounded-[16px] bg-card cursor-pointer">
-          Add New Category
+          {t("addNewCategory")}
         </AddCategoryButton>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { format, getDay, parse, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { SimpleCategory } from "@/lib/api/tasks";
@@ -35,6 +36,8 @@ interface TaskCalendarProps {
 }
 
 const TaskCalendar = ({ tasks, categories, currentDate, onNavigate, onSelectEvent }: TaskCalendarProps) => {
+  const t = useTranslations("TaskTracking");
+  
   const formatMonthYear = (date: Date) => {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };

@@ -4,6 +4,7 @@ import { CirclePlus } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ interface AddTaskModalProps {
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, categories }) => {
+  const t = useTranslations("TaskTracking");
   const {
     register,
     handleSubmit,
@@ -101,14 +103,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         className="flex-1 bg-card border-2 border-[#EA3B1F] text-[#EA3B1F] hover:bg-[#EA3B1F] hover:text-white p-3 sm:p-6 h-8 sm:h-12 rounded-2xl text-xs sm:text-sm"
         onClick={onClose}
       >
-        Cancel
+        {t("cancel")}
       </Button>
       <Button
         type="submit"
         className="ml-2 sm:ml-4 flex-1 bg-[#508CD3] hover:bg-blue-700 text-white p-3 sm:p-6 h-8 sm:h-12 rounded-2xl text-xs sm:text-sm"
         onClick={handleSubmit(onSubmit)}
       >
-        Create Task
+        {t("createTask")}
       </Button>
     </div>
   );
@@ -117,7 +119,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
     <ScrollableDialog
       open={isOpen}
       onOpenChange={onClose}
-      title="Create New Task"
+      title={t("createNewTask")}
       className="max-w-3xl bg-card"
       childrenWrapperClassName="space-y-3"
       footer={footer}
@@ -126,11 +128,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Task Title */}
         <div>
           <Label htmlFor="task-title" className="text-primary-text text-xs sm:text-sm">
-            Task Title <span className="text-red-500">*</span>
+            {t("taskTitle")} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="task-title"
-            placeholder="Enter task title"
+            placeholder={t("enterTaskTitle")}
             className={cn(
               "bg-input mt-1 sm:mt-2 text-xs sm:text-sm h-8 sm:h-10",
               errors.title ? "border-red-500" : "",
@@ -143,11 +145,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Description */}
         <div>
           <Label htmlFor="task-description" className="text-primary-text text-xs sm:text-sm">
-            Description
+            {t("description")}
           </Label>
           <Input
             id="task-description"
-            placeholder="Enter task description"
+            placeholder={t("enterTaskDescription")}
             className="bg-input text-center mt-1 sm:mt-2 text-xs sm:text-sm h-32 sm:h-40"
             {...register("description")}
           />
@@ -156,7 +158,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Due Date */}
         <div>
           <Label htmlFor="due-date" className="text-primary-text text-xs sm:text-sm">
-            Due Date <span className="text-red-500">*</span>
+            {t("dueDate")} <span className="text-red-500">*</span>
           </Label>
           <Input
             type="date"
@@ -173,7 +175,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Category */}
         <div>
           <Label htmlFor="category" className="text-primary-text text-xs sm:text-sm">
-            Category <span className="text-red-500">*</span>
+            {t("category")} <span className="text-red-500">*</span>
           </Label>
           <Select onValueChange={value => setValue("category", value)}>
             <SelectTrigger
@@ -182,7 +184,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.category ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={t("selectCategory")} />
             </SelectTrigger>
             <SelectContent>
               {categories.map(category => (
@@ -200,7 +202,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Client */}
         <div>
           <Label htmlFor="client" className="text-primary-text text-xs sm:text-sm">
-            Client <span className="text-red-500">*</span>
+            {t("client")} <span className="text-red-500">*</span>
           </Label>
           <Select onValueChange={value => setValue("client", value)}>
             <SelectTrigger
@@ -209,7 +211,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.client ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select client" />
+              <SelectValue placeholder={t("selectClient")} />
             </SelectTrigger>
             <SelectContent>
               {clientsList.map(client => (
@@ -225,7 +227,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Status */}
         <div>
           <Label htmlFor="initial-status" className="text-primary-text text-xs sm:text-sm">
-            Status <span className="text-red-500">*</span>
+            {t("status")} <span className="text-red-500">*</span>
           </Label>
           <Select
             onValueChange={value =>
@@ -238,13 +240,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.status ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder={t("selectStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="NotStarted">Not Started</SelectItem>
-              <SelectItem value="InProgress">In Progress</SelectItem>
+              <SelectItem value="NotStarted">{t("notStarted")}</SelectItem>
+              <SelectItem value="InProgress">{t("inProgress")}</SelectItem>
               <SelectItem value="AwaitingFeedback">Awaiting Feedback</SelectItem>
-              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Completed">{t("completed")}</SelectItem>
             </SelectContent>
           </Select>
           {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
@@ -253,7 +255,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Population Status */}
         <div>
           <Label htmlFor="population-status" className="text-primary-text text-xs sm:text-sm">
-            Population Status <span className="text-red-500">*</span>
+            {t("populationStatus")} <span className="text-red-500">*</span>
           </Label>
           <Select
             onValueChange={value =>
@@ -266,13 +268,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.populationStatus ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder={t("selectPopulationStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Draft">Draft</SelectItem>
-              <SelectItem value="Review">Review</SelectItem>
-              <SelectItem value="SentToClient">Sent To Client</SelectItem>
-              <SelectItem value="ApprovedByClient">Approved By Client</SelectItem>
+              <SelectItem value="Draft">{t("draft")}</SelectItem>
+              <SelectItem value="Review">{t("review")}</SelectItem>
+              <SelectItem value="SentToClient">{t("sentToClient")}</SelectItem>
+              <SelectItem value="ApprovedByClient">{t("approvedByClient")}</SelectItem>
             </SelectContent>
           </Select>
           {errors.populationStatus && (
@@ -283,7 +285,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Assignee */}
         <div>
           <Label htmlFor="assignee" className="text-primary-text text-xs sm:text-sm">
-            Assign To<span className="text-red-500">*</span>
+            {t("assignedTo")}<span className="text-red-500">*</span>
           </Label>
           <Select onValueChange={value => setValue("assignedTo", value)}>
             <SelectTrigger
@@ -292,7 +294,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.assignedTo ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select assignee" />
+              <SelectValue placeholder={t("selectAssignee")} />
             </SelectTrigger>
             <SelectContent>
               {usersList.map(user => (
@@ -310,7 +312,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Priority */}
         <div>
           <Label htmlFor="priority" className="text-primary-text text-xs sm:text-sm">
-            Priority <span className="text-red-500">*</span>
+            {t("priority")} <span className="text-red-500">*</span>
           </Label>
           <Select onValueChange={value => setValue("priority", value as "High" | "Medium" | "Low" | "Urgent")}>
             <SelectTrigger
@@ -319,13 +321,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                 errors.priority ? "border-red-500" : "",
               )}
             >
-              <SelectValue placeholder="Select priority" />
+              <SelectValue placeholder={t("selectPriority")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Low">Low</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="High">High</SelectItem>
-              <SelectItem value="Urgent">Urgent</SelectItem>
+              <SelectItem value="Low">{t("low")}</SelectItem>
+              <SelectItem value="Medium">{t("medium")}</SelectItem>
+              <SelectItem value="High">{t("high")}</SelectItem>
+              <SelectItem value="Urgent">{t("urgent")}</SelectItem>
             </SelectContent>
           </Select>
           {errors.priority && (
@@ -336,12 +338,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Estimated Hours */}
         <div>
           <Label htmlFor="estimated-hours" className="text-primary-text text-xs sm:text-sm">
-            Estimated Hours
+            {t("estimatedHours")}
           </Label>
           <Input
             type="number"
             id="estimated-hours"
-            placeholder="Enter estimated hours"
+            placeholder={t("enterEstimatedHours")}
             className="bg-input mt-1 sm:mt-2 text-xs sm:text-sm h-8 sm:h-10"
             {...register("estimatedHours")}
           />
@@ -350,11 +352,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
         {/* Additional Comments */}
         <div>
           <Label htmlFor="additional-comments" className="text-primary-text text-xs sm:text-sm">
-            Additional Comments
+            {t("additionalComments")}
           </Label>
           <textarea
             id="additional-comments"
-            placeholder="Add any additional comments or notes..."
+            placeholder={t("additionalCommentsPlaceholder")}
             className="bg-input border border-border rounded-lg mt-1 sm:mt-2 p-2 sm:p-3 text-xs sm:text-sm w-full h-20 sm:h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#508CD3]"
             {...register("additionalComments")}
           />
@@ -366,11 +368,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
           <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
             <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4 text-[#508CD3]" />
             <span className="text-xs sm:text-sm font-medium text-[#94A2AB]">
-              Create a New Task by using AI
+              {t("createTaskWithAI")}
             </span>
           </div>
           <Input
-            placeholder="Describe your task and let AI create it for you..."
+            placeholder={t("describeTaskForAI")}
             className="bg-transparent border-none p-0 h-8 sm:h-10 text-xs sm:text-sm text-[#94A2AB] placeholder:text-[#94A2AB] focus:ring-0 focus:border-none"
           />
         </div>

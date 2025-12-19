@@ -3,6 +3,7 @@ import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
   onClose,
   onAddCategory,
 }: AddCategoryModalProps) => {
+  const t = useTranslations("TaskTracking");
   const [selectedColor, setSelectedColor] = useState("text-[#508CD3]");
 
   const {
@@ -88,14 +90,14 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
         className="flex-1 bg-card border-2 border-[#EA3B1F] text-[#EA3B1F] hover:bg-[#EA3B1F] hover:text-white p-6 w-34 h-12 rounded-2xl"
         onClick={onClose}
       >
-        Cancel
+        {t("cancel")}
       </Button>
       <Button
         type="submit"
         className="ml-4 flex-1 bg-[#508CD3] hover:bg-blue-700 text-white p-6 w-50 h-12 rounded-2xl"
         onClick={handleSubmit(onSubmit)}
       >
-        Create Category
+        {t("createCategory")}
       </Button>
     </div>
   );
@@ -104,7 +106,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
     <ScrollableDialog
       open={isOpen}
       onOpenChange={onClose}
-      title="Add New Category"
+      title={t("addNewCategoryTitle")}
       className="w-full max-w-md bg-card sm:w-auto sm:max-w-md"
       childrenWrapperClassName="space-y-3"
       footer={footer}
@@ -112,11 +114,11 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col gap-3">
           <Label htmlFor="category-name" className="text-primary-text">
-            Category Name <span className="text-red-500">*</span>
+            {t("categoryName")} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="category-name"
-            placeholder="Enter category name"
+            placeholder={t("enterCategoryName")}
             className={cn("bg-input", errors.name ? "border-red-500" : "")}
             {...register("name")}
           />
@@ -124,18 +126,18 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
         </div>
         <div className="flex flex-col gap-3">
           <Label htmlFor="category-description" className="text-primary-text">
-            Description (Optional)
+            {t("categoryDescription")}
           </Label>
           <Textarea
             id="category-description"
-            placeholder="Enter category description"
+            placeholder={t("enterCategoryDescription")}
             className="bg-input"
             {...register("description")}
           />
         </div>
         <div>
           <Label>
-            Color <span className="text-red-500">*</span>
+            {t("color")} <span className="text-red-500">*</span>
           </Label>
           <div className="flex gap-2 mt-2">
             {colorOptions.map((color) => (
@@ -163,11 +165,11 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
           <div className="flex items-center gap-2 mb-2">
             <CirclePlus className="w-4 h-4 text-[#508CD3]" />
             <span className="text-sm font-medium text-primary-text">
-              Create a New Category by using AI
+              {t("createCategoryWithAI")}
             </span>
           </div>
           <Input
-            placeholder="Describe your category and let AI create it for you..."
+            placeholder={t("describeCategoryForAI")}
             className="bg-transparent border-none p-0 h-8 text-sm text-primary-text placeholder:text-primary-text focus:ring-0 focus:border-none"
           />
         </div>

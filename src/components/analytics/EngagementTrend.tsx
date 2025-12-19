@@ -1,5 +1,5 @@
 "use client";
-
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { CartesianGrid, Line, XAxis, YAxis, ComposedChart, Bar } from "recharts";
@@ -47,7 +47,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const EngagementTrend = () => {
-  const [range, setRange] = useState("12 Month");
+  const t = useTranslations('Analytics');
+  const [range, setRange] = useState(t('12Months'));
   const { theme: themeNext } = useTheme();
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -92,8 +93,7 @@ const EngagementTrend = () => {
   return (
     <Card className="w-full lg:col-span-6 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 py-[10px]">
-        <CardTitle className="font-bold text-lg text-card-foreground">
-          Engagement Rate Trend
+        <CardTitle className="font-bold text-lg text-card-foreground">{t('engagementRateTrend')}
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -106,9 +106,9 @@ const EngagementTrend = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[120px]">
-            <DropdownMenuItem onClick={() => setRange("3 Month")}>3 Month</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setRange("6 Month")}>6 Month</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setRange("12 Month")}>12 Month</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRange(t('3Months'))}>{t('3Months')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRange(t('6Months'))}>{t('6Months')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setRange(t('12Months'))}>{t('12Months')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>

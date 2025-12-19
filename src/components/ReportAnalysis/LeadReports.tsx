@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import RightArrow from "@/components/ui/icons/right-arrow";
@@ -42,13 +44,14 @@ const leads = [
 ];
 
 export default function LeadReportsTable() {
+  const t = useTranslations('Reports');
   return (
     <Card className="rounded-2xl shadow-sm border pt-4 lg:col-span-4 col-span-1">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold">Lead Reports</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('leadReports')}</CardTitle>
         <div className="flex items-center gap-1">
           <a href="#none" className="text-md font-medium text-[#3072C0]">
-            View All
+            {t('viewAll')}
           </a>
           <RightArrow size={16} className="text-[#3072C0] " />
         </div>
@@ -60,10 +63,10 @@ export default function LeadReportsTable() {
         <Table>
           <TableHeader>
             <TableRow className="dark:border-[#404663]">
-              <TableHead className="w-[200px]">Leads</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="w-[200px]">{t('leads')}</TableHead>
+              <TableHead>{t('source')}</TableHead>
+              <TableHead>{t('status')}</TableHead>
+              <TableHead className="text-right">{t('value')}</TableHead>
             </TableRow>
           </TableHeader>
 
