@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,15 @@ const CanceledModal: React.FC<CanceledModalProps> = ({
 }: CanceledModalProps) => {
   const isTask = type === "task";
   
+  const t = useTranslations("TaskTracking");
+  const tModal = useTranslations("modal");
+  
   const footer = (
     <Button 
       onClick={onThankYou}
       className="w-full rounded-lg h-10 bg-[#508CD3] hover:bg-blue-700 text-white"
     >
-      Thank You
+      {tModal("thankYou")}
       <ArrowRight className="ml-2 h-4 w-4" />
     </Button>
   );
@@ -50,11 +54,11 @@ const CanceledModal: React.FC<CanceledModalProps> = ({
         </div>
         
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
-          {isTask ? "Task" : "Category"} Canceled
+          {isTask ? t("task") : t("category")} {tModal("canceled")}
         </h2>
         
         <p className="text-sm text-gray-600 dark:text-gray-300 p-2 px-8 mb-3 ">
-          Your {isTask ? "task" : "category"} has been successfully canceled and removed from your active list..
+          {isTask ? t("yourTask") : t("yourCategory")} {tModal("hasBeenCanceled")}
         </p>
       </div>
     </ScrollableDialog>

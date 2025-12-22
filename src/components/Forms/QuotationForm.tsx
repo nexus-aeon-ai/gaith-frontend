@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -69,6 +70,7 @@ const defaultFormData: CreateQuotationFormData = {
 };
 
 const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: QuoteFormProps) => {
+  const t = useTranslations("QuoteManagement");
   const { theme } = useTheme();
 
   const { clientServiceOffers } = useClientLookups();
@@ -239,8 +241,8 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
             <CardHeader className="p-4 pb-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-md font-medium">Customer Information</h2>
-                  <p className="text-sm text-muted-foreground">Customer details are read-only</p>
+                  <h2 className="text-md font-medium">{t("customerInfo")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("readOnlyNote")}</p>
                 </div>
                 <Badge
                   variant="secondary"
@@ -307,7 +309,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
         {mode === "edit" && quotation && (
           <Card className="rounded-[16px] shadow-none">
             <CardHeader className="p-4 pb-0">
-              <CardTitle className="text-md">Quotation Details</CardTitle>
+              <CardTitle className="text-md">{t("quotationDetails")}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 w-full space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -316,7 +318,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   name="validUntil"
                   render={({ field: { value, onChange } }) => (
                     <FormItem>
-                      <FormLabel>Valid Until Date</FormLabel>
+                      <FormLabel>{t("validUntilDate")}</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
                           <Input
@@ -361,11 +363,11 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>{t("quotationStatus")}</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="dark:bg-[#0F1B29] capitalize py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder={t("selectStatus")} />
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions.map(option => (
@@ -387,10 +389,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 name="title"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Quotation Title</FormLabel>
+                    <FormLabel>{t("quotationTitle")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Quotation Title"
+                        placeholder={t("quotationTitle")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -405,10 +407,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 name="description"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("description")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Description"
+                        placeholder={t("description")}
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -430,11 +432,11 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   name="clientId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Client</FormLabel>
+                      <FormLabel>{t("selectClient")}</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={val => field.onChange(val)}>
                           <SelectTrigger className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
-                            <SelectValue placeholder="Select Client" />
+                            <SelectValue placeholder={t("selectClient")} />
                           </SelectTrigger>
                           <SelectContent>
                             {apiClientsData.map(client => (
@@ -454,7 +456,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                   name="validUntil"
                   render={({ field: { value, onChange } }) => (
                     <FormItem>
-                      <FormLabel>Valid Until</FormLabel>
+                      <FormLabel>{t("validUntil")}</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
                           <Input
@@ -501,10 +503,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 name="title"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Quotation Title</FormLabel>
+                    <FormLabel>{t("quotationTitle")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Quotation Title"
+                        placeholder={t("quotationTitle")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -519,10 +521,10 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 name="description"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("description")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Description"
+                        placeholder={t("description")}
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -538,7 +540,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
         {/* Service and pricing */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="flex items-center flex-row justify-between px-3">
-            <CardTitle className="text-lg font-medium">Service & Pricing Details</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("serviceAndPricingDetails")}</CardTitle>
             <div className="flex justify-end items-center">
               <Button
                 type="button"
@@ -554,7 +556,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 className="flex items-center hover:bg-transparent hover:text-[#3072C0] gap-2 text-[#3072C0] dark:text-[#CCCFDB] dark:hover:text-[#CCCFDB] cursor-pointer"
               >
                 <Plus className="h-4 w-4 p-[2px] bg-[#bbd9ff] dark:bg-[#495462] rounded-full" />
-                Add items
+                {t("addItems")}
               </Button>
             </div>
           </CardHeader>
@@ -572,7 +574,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.serviceId`}
                     render={({ field }) => (
                       <FormItem className="md:col-span-2 col-span-1 mt-[6px]">
-                        <FormLabel>Service</FormLabel>
+                        <FormLabel>{t("serviceName")}</FormLabel>
                         <FormControl>
                           <Select
                             value={field.value as string}
@@ -600,7 +602,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.servicePrice`}
                     render={({ field: priceField }) => (
                       <FormItem className="lg:col-span-2 col-span-1">
-                        <FormLabel className="whitespace-nowrap">Service Price</FormLabel>
+                        <FormLabel className="whitespace-nowrap">{t("price")}</FormLabel>
                         <FormControl>
                           <div className="relative flex items-center">
                             <Input
@@ -658,7 +660,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.taxPercentage`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tax (%)</FormLabel>
+                        <FormLabel>{t("taxPercentage")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -682,7 +684,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                     name={`serviceInstance.${index}.total`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total</FormLabel>
+                        <FormLabel>{t("total")}</FormLabel>
                         <FormControl>
                           <div className="py-3 px-3 rounded-[12px] text-gray-700 dark:text-gray-300 border border-transparent">
                             <p className="text-[16px] font-[700]">
@@ -715,7 +717,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
             <div className="w-full flex justify-evenly dark:bg-[#0F1B29] border text-[16px] shadow-none py-6 bg-[#F3F5F7] rounded-[12px]">
               <div className="flex flex-col gap-3 justify-between items-center">
                 <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">
-                  Subtotal:
+                  {t("subtotal")}:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
                   {currencySymbol}
@@ -724,7 +726,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
               </div>
               <div className="flex flex-col gap-3 justify-between items-center">
                 <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">
-                  Total Tax:
+                  {t("tax")}:
                 </span>
                 <span className="text-[18px] font-[700] tracking-wide">
                   {currencySymbol}
@@ -732,7 +734,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 </span>
               </div>
               <div className="flex flex-col gap-3 justify-between items-center text-sm font-medium ">
-                <span className="text-gray-800 dark:text-gray-100">Grand Total:</span>
+                <span className="text-gray-800 dark:text-gray-100">{t("grandTotal")}:</span>
                 <span className="text-[18px] font-[700] tracking-wide">
                   {currencySymbol}
                   {totals?.grandTotal.toFixed(2)}
@@ -745,7 +747,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
         {/* terms and conditions */}
         <Card className="rounded-[16px] shadow-none">
           <CardContent className="p-4 w-full space-y-3">
-            <p className="text-md font-medium mb-2">Terms & Conditions</p>
+            <p className="text-md font-medium mb-2">{t("termsAndConditions")}</p>
             <div className="w-full flex flex-col px-4 dark:bg-[#0F1B29] border text-[16px] shadow-none py-3 bg-[#F3F5F7] rounded-[12px]">
               <ul className="list-disc ml-6">
                 {terms.map((term, index) => (
@@ -757,7 +759,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 ))}
               </ul>
             </div>
-            <p className="text-md font-medium mb-2">Notes</p>
+            <p className="text-md font-medium mb-2">{t("notes")}</p>
             <FormField
               control={form.control}
               name="notes"
@@ -765,7 +767,7 @@ const QuotationForm = ({ initialData, onSubmit, mode = "create", quotation }: Qu
                 <FormItem className="col-span-2">
                   <FormControl>
                     <Textarea
-                      placeholder="Notes"
+                      placeholder={t("notes")}
                       className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />

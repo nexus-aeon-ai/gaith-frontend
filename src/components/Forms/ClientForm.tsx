@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
@@ -120,6 +121,7 @@ const ClientForm = ({
   readOnly,
   companySizes,
 }: ClientFormProps) => {
+  const t = useTranslations("ClientForm");
   const { theme } = useTheme();
   const form = useForm<CreateClientFormData>({
     resolver: zodResolver(createClientSchema),
@@ -257,7 +259,7 @@ const ClientForm = ({
         {/* Basic Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("basicInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -467,7 +469,7 @@ const ClientForm = ({
         {/* Social Media Accounts */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Social Media Accounts</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("socialMediaAccounts")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -595,7 +597,7 @@ const ClientForm = ({
         {/* Address Information */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Address Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("addressInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
@@ -712,7 +714,7 @@ const ClientForm = ({
         {/* Company Profile */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Company Profile</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("companyProfile")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -758,7 +760,7 @@ const ClientForm = ({
         {/* Contact Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Primary Contact Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("primaryContactInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -870,7 +872,7 @@ const ClientForm = ({
         {/* Address Information */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium mb-3">Agreement Information</CardTitle>
+            <CardTitle className="text-lg font-medium mb-3">{t("agreementInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="px-4">
             <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 grid-cols-1 font-medium text-md">
@@ -970,7 +972,7 @@ const ClientForm = ({
         {/* Account Management */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Account Management </CardTitle>
+            <CardTitle className="text-lg font-medium">{t("accountManagement")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -41,6 +42,7 @@ import NewLead from "./NewLead";
 
 const LeadsPage = () => {
   const router = useRouter();
+  const t = useTranslations("LeadManagement");
   // Fetch leads from API
   const [leadFilters, setLeadFilters] = useState<LeadsFilters | undefined>(undefined);
 
@@ -178,10 +180,10 @@ const LeadsPage = () => {
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
-            Leads Management
+            {t("title")}
           </h1>
           <p className={cn("text-xs sm:text-sm", "text-gray-600 dark:text-gray-300")}>
-            Track and manage sales prospects through the conversion pipeline.
+            {t("description")}
           </p>
         </div>
 
@@ -196,8 +198,8 @@ const LeadsPage = () => {
           onClick={() => setShowNewLeadForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Add New Lead</span>
-          <span className="sm:hidden">Add Lead</span>
+          <span className="hidden sm:inline">{t("addNewLead")}</span>
+          <span className="sm:hidden">{t("addLead")}</span>
         </Button>
       </div>
 
@@ -214,7 +216,7 @@ const LeadsPage = () => {
           <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
-              placeholder="Search leads"
+              placeholder={t("searchLeads")}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="border-none shadow-none focus:outline-none h-12 min-w-md"
@@ -242,7 +244,7 @@ const LeadsPage = () => {
                   disabled={selectedLeads.length === 0}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                  <span className="hidden sm:inline dark:text-white text-gray-900">{t("delete")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -257,7 +259,7 @@ const LeadsPage = () => {
               onClick={() => setIsFilterSheetOpen(true)}
             >
               <FilterIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("filter")}</span>
             </Button>
 
             <Button
@@ -269,8 +271,8 @@ const LeadsPage = () => {
               )}
             >
               <ExcelIcon />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
-              <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("exportExcel")}</span>
+              <span className="sm:hidden dark:text-white text-gray-900">{t("excel")}</span>
             </Button>
             <Button
               variant="outline"
@@ -281,8 +283,8 @@ const LeadsPage = () => {
               )}
             >
               <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Export PDF</span>
-              <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("exportPdf")}</span>
+              <span className="sm:hidden dark:text-white text-gray-900">{t("pdf")}</span>
             </Button>
           </div>
         </div>
@@ -316,25 +318,25 @@ const LeadsPage = () => {
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lead Name
+                  {t("leadName")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t("status")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Source
+                  {t("source")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Services
+                  {t("services")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact Info
+                  {t("contactInfo")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assigned To
+                  {t("assignedTo")}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -344,7 +346,7 @@ const LeadsPage = () => {
                   <td colSpan={8} className="p-0">
                     <div className="min-h-[300px] flex flex-col items-center justify-center">
                       <FolderIcon />
-                      <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
+                      <p className="text-muted-foreground text-sm mt-2 font-medium">{t("noData")}</p>
                     </div>
                   </td>
                 </tr>
@@ -488,7 +490,7 @@ const LeadsPage = () => {
                           >
                             <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                             <span className="hidden sm:inline dark:text-white text-gray-900">
-                            View
+                            {t("view")}
                             </span>
                           </DropdownMenuItem>
 
@@ -499,7 +501,7 @@ const LeadsPage = () => {
                           >
                             <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                             <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Edit
+                            {t("edit")}
                             </span>
                           </DropdownMenuItem>
 
@@ -511,7 +513,7 @@ const LeadsPage = () => {
                           >
                             <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                             <span className="hidden sm:inline dark:text-white text-gray-900">
-                            Delete
+                            {t("delete")}
                             </span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -531,7 +533,7 @@ const LeadsPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Left side - Page info */}
           <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Page {currentPage} of {totalPages} ({filteredClients.length} total leads)
+            {t("page")} {currentPage} {t("of")} {totalPages} ({filteredClients.length} {t("totalLeads")})
           </div>
 
           {/* Right side - Pagination controls */}
@@ -615,10 +617,10 @@ const LeadsPage = () => {
         itemLabel={leadsToDelete.length > 1 ? `${leadsToDelete.length} leads` : undefined}
         onDelete={handleDeleteConfirm}
         isPending={bulkDeleteMutation.isPending}
-        title={leadsToDelete.length > 1 ? "Delete Leads" : "Delete Lead"}
+        title={leadsToDelete.length > 1 ? t("deleteLeads") : t("deleteLead")}
         description={
           leadsToDelete.length > 1
-            ? `Are you sure you want to delete these ${leadsToDelete.length} leads? This action cannot be undone.`
+            ? `${t("areYouSure")} ${leadsToDelete.length} ${t("leads")}? ${t("cannotUndo")}`
             : undefined
         }
       />

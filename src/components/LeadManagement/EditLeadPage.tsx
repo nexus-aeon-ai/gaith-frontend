@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import LeadForm from "@/components/Forms/LeadForm";
 import {
@@ -80,6 +81,8 @@ function mapLeadToFormData(lead: LeadByIdResponse): CreateLeadFormData {
 export default function EditLeadPage({ initialData, leadId }: EditLeadPageProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("LeadForm");
+  const tLead = useTranslations("LeadManagement");
 
   const formData = mapLeadToFormData(initialData);
 
@@ -123,7 +126,7 @@ export default function EditLeadPage({ initialData, leadId }: EditLeadPageProps)
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/leads" className="text-blue-600 font-medium text-md">
-                Leads
+                {tLead("leads")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -137,16 +140,16 @@ export default function EditLeadPage({ initialData, leadId }: EditLeadPageProps)
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Lead</BreadcrumbPage>
+            <BreadcrumbPage>{t("addNewLead")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Lead</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{t("addNewLead")}</h1>
           <p className="text-muted-foreground">
-            Update lead information and details.
+            {t("updateLeadInformation")}
           </p>
         </div>
         <div className="flex gap-3">
@@ -155,7 +158,7 @@ export default function EditLeadPage({ initialData, leadId }: EditLeadPageProps)
             onClick={handleCancel}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -164,7 +167,7 @@ export default function EditLeadPage({ initialData, leadId }: EditLeadPageProps)
             disabled={mutation.isPending}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {mutation.isPending ? "Saving..." : "Save Changes"}
+            {mutation.isPending ? t("saving") : t("saveChanges")}
           </Button>
         </div>
       </div>

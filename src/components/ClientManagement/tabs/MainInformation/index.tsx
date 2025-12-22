@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { mockMainInformationData } from "../../data";
 
 const MainInformationTab = ({ client }: MainInformationTabProps) => {
+  const t = useTranslations("ClientManagement");
   const clientDetails = mockMainInformationData;
 
   const formatDate = (isoDate: string) => {
@@ -26,14 +28,14 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
         {/* Agreement Period Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="px-0 py-2 text-lg">Agreement Period</CardTitle>
+            <CardTitle className="px-0 py-2 text-lg">{t("agreementPeriod")}</CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">From</span>
-                <span className="text-sm text-muted-foreground">To</span>
+                <span className="text-sm text-muted-foreground">{t("from")}</span>
+                <span className="text-sm text-muted-foreground">{t("to")}</span>
               </div>
 
               <div className="flex justify-between">
@@ -49,14 +51,14 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
             <Separator />
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Contract Status:</span>
+              <span className="text-sm text-muted-foreground">{t("contractStatus")}:</span>
               <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                 {clientDetails.agreementPeriod.status}
               </Badge>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Renewal Due:</span>
+              <span className="text-sm text-muted-foreground">{t("renewalDue")}:</span>
               <span className="text-sm font-medium text-foreground">
                 {clientDetails.agreementPeriod.renewalDue}
               </span>
@@ -65,7 +67,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
             <Separator />
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Assigned To:</span>
+              <span className="text-sm text-muted-foreground">{t("assignedTo")}:</span>
               <div className="flex -space-x-2">
                 {clientDetails.agreementPeriod.assignedTo.map((person, index) => (
                   <div
@@ -87,7 +89,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
         {/* Business Overview Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="px-0 py-2 text-lg">Business Overview</CardTitle>
+            <CardTitle className="px-0 py-2 text-lg">{t("businessOverview")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-foreground leading-relaxed">
@@ -96,19 +98,19 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
 
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Founded:</span>
+                <span className="text-sm text-muted-foreground">{t("founded")}:</span>
                 <span className="text-sm font-medium text-foreground">
                   {clientDetails.businessOverview.founded}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Employees:</span>
+                <span className="text-sm text-muted-foreground">{t("employees")}:</span>
                 <span className="text-sm font-medium text-foreground">
                   {clientDetails.businessOverview.employees}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Headquarters:</span>
+                <span className="text-sm text-muted-foreground">{t("headquarters")}:</span>
                 <span className="text-sm font-medium text-foreground">
                   {clientDetails.businessOverview.headquarters}
                 </span>
@@ -120,7 +122,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
         {/* Social Media Accounts Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="px-0 py-2 text-lg">Social Media Accounts</CardTitle>
+            <CardTitle className="px-0 py-2 text-lg">{t("socialMediaAccounts")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -251,7 +253,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
         {/* Location Details Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="px-0 py-2 text-lg">Location Details</CardTitle>
+            <CardTitle className="px-0 py-2 text-lg">{t("locationDetails")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Map placeholder */}
@@ -264,19 +266,19 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
 
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Primary Region:</span>
+                <span className="text-sm text-muted-foreground">{t("country")}:</span>
                 <span className="text-sm font-medium text-foreground text-end">
                   {clientDetails.locationDetails.primaryRegion}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Secondary Regions:</span>
+                <span className="text-sm text-muted-foreground">{t("city")}:</span>
                 <span className="text-sm font-medium text-foreground text-end">
                   {clientDetails.locationDetails.secondaryRegions}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Target Markets:</span>
+                <span className="text-sm text-muted-foreground">{t("area")}:</span>
                 <span className="text-sm font-medium text-foreground text-end">
                   {clientDetails.locationDetails.targetMarkets}
                 </span>
@@ -292,14 +294,14 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="text-sm font-medium  mb-2">Vision:</h4>
+              <h4 className="text-sm font-medium  mb-2">{t("visionStatement")}:</h4>
               <p className="text-sm text-foreground leading-relaxed">
                 {clientDetails.visionMission.vision}
               </p>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium  mb-2">Mission:</h4>
+              <h4 className="text-sm font-medium  mb-2">{t("missionStatement")}:</h4>
               <p className="text-sm text-foreground leading-relaxed">
                 {clientDetails.visionMission.mission}
               </p>
@@ -310,7 +312,7 @@ const MainInformationTab = ({ client }: MainInformationTabProps) => {
         {/* Assigned To Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="px-0 py-2 text-lg">Assigned To</CardTitle>
+            <CardTitle className="px-0 py-2 text-lg">{t("assignedTo")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

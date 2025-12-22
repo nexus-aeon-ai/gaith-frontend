@@ -3,6 +3,8 @@
 import { format } from "date-fns";
 import { ArrowDown, ArrowUp, CirclePlus, DeleteIcon, MoreVertical, Search } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -54,8 +56,10 @@ export default function EmployeeTasksTable({
   onDeleteTask,
   onMarkComplete,
 }: EmployeeTasksTableProps) {
+  const t = useTranslations("EmployeeTasks");
+  const params = useParams();
+  const locale = params.locale as string;
   const [searchQuery, setSearchQuery] = useState(filters?.q ?? "");
-
   // Debounce search -> backend filter
   useEffect(() => {
     const t = setTimeout(() => {
@@ -170,13 +174,13 @@ export default function EmployeeTasksTable({
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
-            Employee Tasks Management
+            {t("title")}
           </h1>
           <p className={cn("text-xs sm:text-sm md:text-base", "text-gray-600 dark:text-gray-300")}>
-            Track, assign, and manage tasks across your organization
+            {t("description")}
           </p>
         </div>
-        <Link href="/en/employee-tasks/create">
+        <Link href={`/${locale}/employee-tasks/create`}>
           <Button
             className={cn(
               "flex items-center gap-1 sm:gap-2",
@@ -187,8 +191,8 @@ export default function EmployeeTasksTable({
             )}
           >
             <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">Add New Task</span>
-            <span className="sm:hidden">Add Task</span>
+            <span className="hidden sm:inline">{t("addNewTask")}</span>
+            <span className="sm:hidden">{t("addTask")}</span>
           </Button>
         </Link>
       </div>
@@ -206,7 +210,7 @@ export default function EmployeeTasksTable({
           <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
-              placeholder="Search employee tasks"
+              placeholder={t("search")}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="border-none shadow-none focus:outline-none h-12 xl:min-w-[350px] md:min-w-[250px] min-w-[100px]"
@@ -230,7 +234,7 @@ export default function EmployeeTasksTable({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem variant="destructive" onClick={() => {}}>
                   <DeleteIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                  <span className="hidden sm:inline dark:text-white text-gray-900">{t("delete")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -245,7 +249,7 @@ export default function EmployeeTasksTable({
               onClick={() => onOpenFilters?.()}
             >
               <FilterIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("filter")}</span>
             </Button>
             <Button
               variant="outline"
@@ -257,8 +261,8 @@ export default function EmployeeTasksTable({
               onClick={handleExportExcel}
             >
               <ExcelIcon />
-              <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
-              <span className=" dark:text-white text-gray-900">Excel</span>
+              <span className="hidden xl:inline dark:text-white text-gray-900">{t("export")}</span>
+              <span className=" dark:text-white text-gray-900">{t("excel")}</span>
             </Button>
             <Button
               variant="outline"
@@ -270,7 +274,7 @@ export default function EmployeeTasksTable({
               onClick={handleExportPDF}
             >
               <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="hidden xl:inline dark:text-white text-gray-900">Export</span>
+              <span className="hidden xl:inline dark:text-white text-gray-900">{t("export")}</span>
               <span className=" dark:text-white text-gray-900">PDF</span>
             </Button>
           </div>
@@ -293,7 +297,7 @@ export default function EmployeeTasksTable({
               </TableHead>
               <TableHead className="text-[#303444] dark:text-[#CCCFDB]" onClick={handleSortByName}>
                 <div className="flex items-center gap-1">
-                  Task
+                  {t("taskTitle")}
                   {sortOrder === "asc" ? (
                     <ArrowUp className="h-3 w-3" />
                   ) : (
@@ -301,13 +305,13 @@ export default function EmployeeTasksTable({
                   )}
                 </div>
               </TableHead>
-              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">Assignee</TableHead>
-              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">Due Date</TableHead>
-              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">Priority</TableHead>
-              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">Status</TableHead>
-              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">Progress</TableHead>
+              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">{t("assignee")}</TableHead>
+              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">{t("dueDate")}</TableHead>
+              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">{t("priority")}</TableHead>
+              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">{t("status")}</TableHead>
+              <TableHead className="text-[#303444] dark:text-[#CCCFDB]">{t("progress")}</TableHead>
               <TableHead className="text-right text-[#303444] dark:text-[#CCCFDB]">
-                Actions
+                {t("actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -323,7 +327,7 @@ export default function EmployeeTasksTable({
             ) : currentTasks.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-10 text-gray-500">
-                  No tasks found
+                  {t("noData")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -405,7 +409,7 @@ export default function EmployeeTasksTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem asChild>
-                          <Link href={`/en/employee-tasks/${task.id}`} className="cursor-pointer">
+                          <Link href={`/${locale}/employee-tasks/${task.id}`} className="cursor-pointer">
                             <svg
                               className="w-4 h-4 mr-2 text-[#3B82F6]"
                               fill="none"
@@ -425,12 +429,12 @@ export default function EmployeeTasksTable({
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                               />
                             </svg>
-                            View Details
+                            {t("view")}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link
-                            href={`/en/employee-tasks/${task.id}/edit`}
+                            href={`/${locale}/employee-tasks/${task.id}/edit`}
                             className="cursor-pointer"
                           >
                             <svg
@@ -446,7 +450,7 @@ export default function EmployeeTasksTable({
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                               />
                             </svg>
-                            Edit
+                            {t("edit")}
                           </Link>
                         </DropdownMenuItem>
                         {task.status !== "Completed" && (
@@ -467,7 +471,7 @@ export default function EmployeeTasksTable({
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            Mark as complete
+                            {t("markComplete")}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
@@ -487,7 +491,7 @@ export default function EmployeeTasksTable({
                               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                             />
                           </svg>
-                          Delete
+                          {t("deleteTask")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -501,7 +505,7 @@ export default function EmployeeTasksTable({
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-border px-6 py-4">
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            Showing {startIndex + 1}-{Math.min(endIndex, filteredTasks.length)} of{" "}
+            {t("showing")} {startIndex + 1}-{Math.min(endIndex, filteredTasks.length)} {t("of")}{" "}
             {filteredTasks.length}
           </div>
           <div className="flex items-center gap-2">

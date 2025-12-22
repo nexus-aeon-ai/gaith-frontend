@@ -349,10 +349,10 @@ const TaskTrackingClient = () => {
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
-            Task Tracking
+            {t("taskTracking")}
           </h1>
           <p className={cn("text-xs sm:text-sm md:text-base", "text-gray-600 dark:text-gray-300")}>
-            Track, manage, and prioritize tasks efficiently.
+            {t("taskTrackingDescription")}
           </p>
         </div>
         <AddTaskButton />
@@ -425,24 +425,24 @@ const TaskTrackingClient = () => {
               </h2>
             </div>
 
-            <Tabs defaultValue="list" className="rounded-[16px]" onValueChange={setFilterType}>
+            <Tabs defaultValue={t("list")} className="rounded-[16px]" onValueChange={setFilterType}>
               <div className="flex justify-end ">
-                <TabsList className=" h-12  rounded-[20px]  bg-card border-1 border-border">
+                <TabsList className=" h-12  rounded-[20px]  bg-card border border-border">
                   <TabsTrigger
-                    value="list"
-                    className="text-xs px-6 rounded-[20px] h-11 data-[state=active]:bg-[#F7C649] dark:data-[state=active]:dark:bg-[#D29A09] data-[state=active]:text-[#070913]"
+                    value={t("list")}
+                    className="text-xs px-6 rounded-[18px] h-11 data-[state=active]:bg-[#F7C649] dark:data-[state=active]:dark:bg-[#D29A09] data-[state=active]:text-[#070913]"
                   >
-                    List
+                    {t("list")}
                   </TabsTrigger>
                   <TabsTrigger
-                    value="calendar"
-                    className="text-xs px-6 rounded-[20px] h-11 data-[state=active]:bg-[#F7C649] dark:data-[state=active]:dark:bg-[#D29A09] data-[state=active]:text-[#070913]"
+                    value={t("calendar")}
+                    className="text-xs px-6 rounded-[18px] h-11 data-[state=active]:bg-[#F7C649] dark:data-[state=active]:dark:bg-[#D29A09] data-[state=active]:text-[#070913]"
                   >
-                    Calendar
+                    {t("calendar")}
                   </TabsTrigger>
                 </TabsList>
               </div>
-              <TabsContent value="list">
+              <TabsContent value={t("list")}>
                 <div className=" sm:space-y-1 rounded-[16px] p-4 ">
                   {isLoading ? (
                     <div className="text-sm text-gray-500">Loading tasks...</div>
@@ -455,7 +455,7 @@ const TaskTrackingClient = () => {
                   )}
                 </div>
               </TabsContent>
-              <TabsContent value="calendar">
+              <TabsContent value={t("calendar")}>
                 <div className="overflow-x-auto -mx-2 sm:-mx-3 md:-mx-4 px-2 sm:px-3 md:px-4 rounded-[16px] p-4 pb-6 bg-card">
                   <TaskCalendar
                     tasks={tasks}

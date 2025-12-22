@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Globe, Mail, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -33,9 +34,10 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
     queryFn: () => getLeadById(leadId),
     enabled: !!leadId,
   });
+  const t = useTranslations("ViewLead");
 
   if (isLoading || !lead) {
-    return <div className="flex items-center justify-center p-8">Loading...</div>;
+    return <div className="flex items-center justify-center p-8">{t("loading")}</div>;
   }
 
   return (
@@ -57,7 +59,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
                 className="text-blue-600 font-medium text-md"
                 onClick={closeLeadProfile}
               >
-                Leads Management
+                {t("leadsManagement")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -73,11 +75,11 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
           <div className="flex md:gap-2 gap-1 md:items-center items-start">
             <h1 className="text-2xl font-semibold text-foreground">{lead.fullName || "-"}</h1>
             <Badge className="md:mt-0 mt-2 rounded-sm bg-green-100 pointer-events-none dark:bg-green-900/40 text-green-700 dark:text-green-500">
-              {lead.status || "New Lead"}
+              {lead.status || t("newLead")}
             </Badge>
           </div>
           <p className="text-muted-foreground">
-            Submitted {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "-"}
+            {t("submitted")} {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "-"}
           </p>
         </div>
         <div className="flex md:flex-row flex-col gap-2">
@@ -86,13 +88,13 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
               variant="outline"
               className="w-fit p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#EA3B1F] rounded-[16px] bg-transparent"
             >
-              Mark as Lost
+              {t("markAsLost")}
             </Button>
             <Button
               variant="outline"
               className="w-fit p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
             >
-              Edit Profile
+              {t("editProfile")}
             </Button>
           </div>
           <div className="flex md:flex-row flex-col gap-2">
@@ -102,7 +104,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
               variant={"outline"}
               className="w-fit p-6 px-8 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Convert to Client
+              {t("convertToClient")}
             </Button>
           </div>
         </div>
@@ -112,7 +114,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Contact Information */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Contact Information</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("contactInformation")}</h2>
             <div className="space-y-2 text-muted-foreground text-sm">
               <div className="flex items-center gap-2">
                 <Mail size={16} className="text-blue-600" />
@@ -131,7 +133,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
 
           {/* Social Media */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("socialMediaAccounts")}</h2>
             {(() => {
               const parseSocialMediaUrls = (socialMediaUrls: any) => {
                 if (!socialMediaUrls) return [];
@@ -204,15 +206,15 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
 
           {/* Lead Details */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Lead Details</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("leadDetails")}</h2>
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Source</span>
+              <span className="text-muted-foreground">{t("source")}</span>
               <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1 rounded-lg">
                 {lead.leadSource?.name || "-"}
               </span>
             </div>
             <div>
-              <span className="text-muted-foreground text-sm">Assigned To</span>
+              <span className="text-muted-foreground text-sm">{t("assignedTo")}</span>
               <div className="flex mt-2 gap-2 items-center">
                 {lead.accountManager?.fullName ? (
                   <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-blue-900 font-bold">
@@ -233,14 +235,14 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Vision & Mission */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Vision & Mission</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("visionAndMission")}</h2>
             <div className="text-sm text-muted-foreground space-y-3">
               <div>
-                <h3 className="font-medium ">Vision</h3>
+                <h3 className="font-medium ">{t("vision")}</h3>
                 <p>{lead.visionStatement || "-"}</p>
               </div>
               <div>
-                <h3 className="font-medium ">Mission</h3>
+                <h3 className="font-medium ">{t("mission")}</h3>
                 <p>{lead.missionStatement || "-"}</p>
               </div>
             </div>
@@ -248,7 +250,7 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
 
           {/* Location Details */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Location Details</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("locationDetails")}</h2>
             <Image
               src="/images/maps.png"
               width={500}
@@ -258,19 +260,19 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
             />
             <div className="text-sm text-muted-foreground space-y-1">
               <p className="flex justify-between gap-2">
-                <span className="font-medium ">Primary Region: </span>
+                <span className="font-medium ">{t("primaryRegion")}</span>
                 {lead.countryType?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Secondary Regions: </span>
+                <span className="font-medium ">{t("secondaryRegions")}</span>
                 {lead.cityType?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Area: </span>
+                <span className="font-medium ">{t("area")}</span>
                 {lead.area?.name || "-"}
               </p>
               <p className="flex justify-between">
-                <span className="font-medium ">Address: </span>
+                <span className="font-medium ">{t("address")}</span>
                 {lead.fullAddress || "-"}
               </p>
             </div>
@@ -278,27 +280,27 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
 
           {/* Recent Activity [STATIC sample] */}
           <div className="bg-card rounded-2xl p-5 shadow-sm border">
-            <h2 className="font-semibold text-lg mb-3">Recent Activity</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("recentActivity")}</h2>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <FileText />
                 <div className="flex flex-col">
-                  <p>Downloaded Product Brochure</p>
-                  <p className="text-gray-500">2 days ago</p>
+                  <p>{t("downloadedProductBrochure")}</p>
+                  <p className="text-gray-500">2 {t("daysAgo")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar />
                 <div className="flex flex-col">
-                  <p>Scheduled Demo Call</p>
-                  <p className="text-gray-500">5 days ago</p>
+                  <p>{t("scheduledDemoCall")}</p>
+                  <p className="text-gray-500">5 {t("daysAgo")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <FileText />
                 <div className="flex flex-col">
-                  <p>Downloaded Product Brochure</p>
-                  <p className="text-gray-500">2 days ago</p>
+                  <p>{t("downloadedProductBrochure")}</p>
+                  <p className="text-gray-500">2 {t("daysAgo")}</p>
                 </div>
               </div>
             </div>
@@ -307,11 +309,10 @@ export default function LeadProfile({ leadId, closeLeadProfile }: LeadProfilePro
 
         {/* Notes & Comments */}
         <div className="bg-card rounded-2xl p-5 shadow-sm border">
-          <h2 className="font-semibold text-lg mb-3">Notes & Comments</h2>
+          <h2 className="font-semibold text-lg mb-3">{t("notesAndComments")}</h2>
           <div className="flex items-center text-start w-full p-4 border rounded-lg bg-[#E4E9F1] dark:bg-[#0F1B29]">
             <p className="text-sm max-w-lg text-muted-foreground ">
-              {lead.additionalNotes ||
-                "Initial contact made. Sarah showed strong interest in our enterprise analytics solution. Planning to schedule a detailed demo next week."}
+              {lead.additionalNotes || t("initialContact")}
             </p>
           </div>
         </div>

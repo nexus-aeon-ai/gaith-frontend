@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import QuotationForm from "@/components/Forms/QuotationForm";
@@ -21,6 +22,7 @@ import { createQuoteSchema, type CreateQuotationFormData } from "@/lib/validatio
 import { ConfirmDialog } from "../Popups/PopupModal";
 
 const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
+  const t = useTranslations("QuoteManagement");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -87,13 +89,13 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
                 className="text-blue-600 font-medium text-md"
                 onClick={closeNewQuoteForm}
               >
-                Quotations Management
+                {t("quotationsManagement")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create New Quotation</BreadcrumbPage>
+            <BreadcrumbPage>{t("createNewQuotation")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -101,8 +103,8 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Create New Quotation</h1>
-          <p className="text-muted-foreground">Create New Quotation</p>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{t("createNewQuotation")}</h1>
+          <p className="text-muted-foreground">{t("createNewQuotation")}</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -110,7 +112,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
             onClick={() => setShowCancelModal(true)}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -119,7 +121,7 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
             disabled={isSubmitting}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Create Quotation"}
+            {isSubmitting ? t("saving") : t("createNewQuotation")}
           </Button>
         </div>
       </div>
@@ -134,11 +136,11 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
       <ConfirmDialog
         open={showConfirmModal}
         onOpenChange={setShowConfirmModal}
-        title="Changes saved Successfully"
-        description="Your changes has been saved and is now available in Quotations List."
+        title={t("confirmSaveSuccess")}
+        description={t("saveSuccessDescription")}
         singleButton
         onConfirm={closeNewQuoteForm}
-        confirmText="View Table"
+        confirmText={t("viewTable")}
         icon={
           <div>
             <Check
@@ -155,10 +157,10 @@ const NewQuote = ({ closeNewQuoteForm }: { closeNewQuoteForm: () => void }) => {
         open={showCancelModal}
         onOpenChange={setShowCancelModal}
         onCancel={closeNewQuoteForm}
-        title="Cancel Changes?"
-        description="Are you sure you want to cancel these changes? This action cannot be undone."
-        confirmText="No, Keep"
-        cancelText="Yes, Cancel"
+        title={t("cancelChanges")}
+        description={t("areYouSureCancel")}
+        confirmText={t("noKeep")}
+        cancelText={t("yesCancel")}
         icon={
           <div>
             <X

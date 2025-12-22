@@ -39,12 +39,16 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   const messages = await getMessages({ locale });
-  console.log("LocaleLayout - locale:", locale);
-  console.log("LocaleLayout - messages:", messages);
+  
+  // Ensure EmployeeTasks namespace exists in messages
+  if (messages && !messages.EmployeeTasks) {
+    console.warn(`EmployeeTasks namespace missing for locale: ${locale}`);
+  }
+  
   return (
     <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>{children}</Providers>
           <footer className="w-full text-center py-4 text-xs bg-[#E4E9F1] dark:bg-[#0F1220] text-gray-500 dark:text-gray-400">
             © {new Date().getFullYear()} Gaith | All rights reserved |{" "}

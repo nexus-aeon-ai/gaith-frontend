@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, CirclePlus, EllipsisVertical, Search } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -96,6 +97,7 @@ const data = {
 };
 
 const QuotesPage = () => {
+  const t = useTranslations("QuoteManagement");
   const [searchTerm, setSearchTerm] = useState("");
   const [quotationFilters, setQuotationFilters] = useState<{
     startDate?: string;
@@ -234,7 +236,7 @@ const QuotesPage = () => {
           "bg-backgrournd mb-3 overflow-x-hidden",
         )}
       >
-        Loading quotations...
+        {t("loadingQuotations")}
       </div>
     );
   }
@@ -247,7 +249,7 @@ const QuotesPage = () => {
           "bg-backgrournd mb-3 overflow-x-hidden",
         )}
       >
-        Failed to load quotations.
+        {t("failedToLoad")}
       </div>
     );
   }
@@ -338,10 +340,10 @@ const QuotesPage = () => {
               "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
             )}
           >
-            Quotations Management
+            {t("title")}
           </h1>
           <p className={cn("text-xs sm:text-sm", "text-gray-600 dark:text-gray-300")}>
-            Create, manage, and track customer quotations
+            {t("description")}
           </p>
         </div>
 
@@ -356,8 +358,8 @@ const QuotesPage = () => {
           onClick={() => setShowNewQuoteForm(true)}
         >
           <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Create New Quotation</span>
-          <span className="sm:hidden">Create Quotation</span>
+          <span className="hidden sm:inline">{t("createNewQuotation")}</span>
+          <span className="sm:hidden">{t("createQuotation")}</span>
         </Button>
       </div>
       {/* Search and Actions Section */}
@@ -373,7 +375,7 @@ const QuotesPage = () => {
           <div className="bg-[#F3F5F7] py-2 w-full lg:max-w-md rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
             <Search />
             <Input
-              placeholder="Search quotations"
+              placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="border-none shadow-none focus:outline-none h-12 lg:max-w-md w-full"
@@ -402,7 +404,7 @@ const QuotesPage = () => {
                   // }}
                 >
                   <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                  <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                  <span className="hidden sm:inline dark:text-white text-gray-900">{t("delete")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -417,7 +419,7 @@ const QuotesPage = () => {
               onClick={() => setIsFilterSheetOpen(true)}
             >
               <FilterIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("filter")}</span>
             </Button>
 
             <Button
@@ -429,8 +431,8 @@ const QuotesPage = () => {
               )}
             >
               <ExcelIcon />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
-              <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("exportExcel")}</span>
+              <span className="sm:hidden dark:text-white text-gray-900">{t("excel")}</span>
             </Button>
             <Button
               variant="outline"
@@ -441,8 +443,8 @@ const QuotesPage = () => {
               )}
             >
               <PdfIcon className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="hidden sm:inline dark:text-white text-gray-900">Export PDF</span>
-              <span className="sm:hidden dark:text-white text-gray-900">PDF</span>
+              <span className="hidden sm:inline dark:text-white text-gray-900">{t("exportPdf")}</span>
+              <span className="sm:hidden dark:text-white text-gray-900">{t("pdf")}</span>
             </Button>
           </div>
         </div>
@@ -463,25 +465,25 @@ const QuotesPage = () => {
                 />
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
-                Quotation ID
+                {t("quotationId")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB]">
-                Customer
+                {t("customer")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
-                Amount
+                {t("amount")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
-                Status
+                {t("status")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
-                Created Date
+                {t("createdDate")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
-                Valid Until
+                {t("validUntil")}
               </TableHead>
               <TableHead className="text-xs font-semibold text-[#303444] dark:text-[#CCCFDB] text-center">
-                Actions
+                {t("actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -492,7 +494,7 @@ const QuotesPage = () => {
                 <TableCell colSpan={8} className="p-0">
                   <div className="min-h-[300px] flex flex-col items-center justify-center">
                     <FolderIcon />
-                    <p className="text-muted-foreground text-sm mt-2 font-medium">No Data</p>
+                    <p className="text-muted-foreground text-sm mt-2 font-medium">{t("noData")}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -592,7 +594,7 @@ const QuotesPage = () => {
                         >
                           <ViewIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="ml-2 text-sm dark:text-white text-gray-900">
-                            View Details
+                            {t("viewDetails")}
                           </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -602,7 +604,7 @@ const QuotesPage = () => {
                           }}
                         >
                           <EditIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="ml-2 text-sm dark:text-white text-gray-900">Edit</span>
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">{t("edit")}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
@@ -611,7 +613,7 @@ const QuotesPage = () => {
                         >
                           <SendIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="ml-2 text-sm dark:text-white text-gray-900">
-                            Send To Client
+                            {t("sendToClient")}
                           </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -621,12 +623,12 @@ const QuotesPage = () => {
                         >
                           <InvoiceIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
                           <span className="ml-2 text-sm dark:text-white text-gray-900">
-                            Generate Invoice
+                            {t("generateInvoice")}
                           </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => {}}>
                           <CopyIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="ml-2 text-sm dark:text-white text-gray-900">Copy</span>
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">{t("copy")}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           //  onClick={() => deleteQuotationMutate(quote.id)}
@@ -636,7 +638,7 @@ const QuotesPage = () => {
                           }}
                         >
                           <DeleteIcon color={themNext === "dark" ? "#CCCFDB" : "#303444"} />
-                          <span className="ml-2 text-sm dark:text-white text-gray-900">Delete</span>
+                          <span className="ml-2 text-sm dark:text-white text-gray-900">{t("delete")}</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

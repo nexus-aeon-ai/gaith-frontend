@@ -24,13 +24,37 @@
 import {getRequestConfig} from 'next-intl/server';
 
 import { DEFAULT_LOCALE, LOCALES } from '@/lib/constants';
+
+// Pre-load message imports to ensure namespaces are available
+const messageImports = {
+  en: () => import('./messages/en.json'),
+  ar: () => import('./messages/ar.json'),
+} as const;
  
 export default getRequestConfig(async ({ locale }) => {
   // Ensure locale is valid, fallback to DEFAULT_LOCALE
-  const validLocale = locale && LOCALES.includes(locale as any) ? locale : DEFAULT_LOCALE;
-  console.log("i18n request config - validLocale:", validLocale);
-  return {
-    locale: validLocale,
-    messages: (await import(`./messages/${validLocale}.json`)).default
-  };
+  const validLocale = (locale && LOCALES.includes(locale as any) ? locale : DEFAULT_LOCALE) as keyof typeof messageImports;
+  
+  try {
+    const messageModule = await messageImports[validLocale]();
+    const messages = messageModule.default;
+    
+    if (!messages) {
+      console.error(`Messages object is null/undefined for locale: ${validLocale}`);
+      throw new Error(`Failed to load messages for locale: ${validLocale}`);
+    }
+    
+    // Verify EmployeeTasks namespace exists
+    if (!messages.EmployeeTasks) {
+      console.error(`EmployeeTasks namespace missing in messages for locale: ${validLocale}`);
+    }
+    
+    return {
+      locale: validLocale,
+      messages
+    };
+  } catch (error) {
+    console.error(`Error loading messages for locale ${validLocale}:`, error);
+    throw error;
+  }
 });

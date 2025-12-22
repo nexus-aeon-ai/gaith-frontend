@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { Badge } from "@/components/ui/badge";
@@ -106,6 +107,7 @@ const CampaignTasksTab = ({
   setShowPendingTasks,
   setShowCampaignOverview,
 }: CampaignTasksTabProps) => {
+  const t = useTranslations("ClientManagement");
   const campaigns = mockCampaigns;
   const tasks = mockTasks;
 
@@ -149,20 +151,20 @@ const CampaignTasksTab = ({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between p-2 ">
-            <CardTitle>Campaign Overview</CardTitle>
+            <CardTitle>{t("campaignOverview")}</CardTitle>
             <Tabs defaultValue="Active" className="w-auto">
               <TabsList className="inline-flex h-9 gap-2 items-center justify-center rounded-lg bg-card p-1 text-muted-foreground">
                 <TabsTrigger
                   value="Active"
                   className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-[12px] px-4 py-2 m-2 mx-0 text-sm font-medium data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0] data-[state=active]:text-blue-500"
                 >
-                  Active
+                  {t("active")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="Completed"
                   className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-[12px] px-4 py-2 m-2 mx-0 text-sm font-medium data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0] data-[state=active]:text-blue-500"
                 >
-                  Completed
+                  {t("completed")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -192,7 +194,7 @@ const CampaignTasksTab = ({
                         <div>
                           <h3 className="font-semibold text-foreground">{campaign.name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {campaign.type} • Ends {campaign.endDate}
+                          {campaign.type} • {t("ends")} {campaign.endDate}
                           </p>
                         </div>
                       </div>
@@ -243,7 +245,7 @@ const CampaignTasksTab = ({
             </TabsContent>
             <TabsContent value="Completed" className="space-y-4">
               <div className="text-center py-8 text-muted-foreground">
-                No completed campaigns yet.
+                {t("noCompletedCampaigns") || "No completed campaigns yet."}
               </div>
             </TabsContent>
           </Tabs>
@@ -254,20 +256,20 @@ const CampaignTasksTab = ({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between p-2">
-            <CardTitle>Pending Tasks</CardTitle>
+            <CardTitle>{t("pendingTasks") || "Pending Tasks"}</CardTitle>
             <Tabs defaultValue="Today" className="w-auto">
               <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-card p-1 text-muted-foreground">
                 <TabsTrigger
                   value="Today"
                   className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-[12px] px-4 py-2 m-2 text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
                 >
-                  Today
+                  {t("today") || "Today"}
                 </TabsTrigger>
                 <TabsTrigger
                   value="Upcoming"
                   className="inline-flex border-1 items-center justify-center whitespace-nowrap rounded-[12px] px-4 py-2  text-sm font-medium data-[state=active]:text-foreground data-[state=active]:bg-[#3072C014] data-[state=active]:border-[#3072C0]"
                 >
-                  Upcoming
+                  {t("upcoming") || "Upcoming"}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -315,7 +317,7 @@ const CampaignTasksTab = ({
               ))}
             </TabsContent>
             <TabsContent value="Upcoming" className="space-y-4">
-              <div className="text-center py-8 text-muted-foreground">No upcoming tasks.</div>
+              <div className="text-center py-8 text-muted-foreground">{t("noUpcomingTasks") || "No upcoming tasks."}</div>
             </TabsContent>
           </Tabs>
         </CardContent>

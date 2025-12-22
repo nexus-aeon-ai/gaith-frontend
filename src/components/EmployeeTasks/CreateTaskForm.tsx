@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -51,6 +52,9 @@ interface CreateTaskFormProps {
 }
 
 export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
+  const t = useTranslations("EmployeeTasks");
+  const params = useParams();
+  const locale = params.locale as string;
   const router = useRouter();
   const createMutation = useCreateTask();
 
@@ -129,18 +133,18 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
           <rect x="14" y="14" width="7" height="7" rx="1" />
         </svg>
         <span>&gt;</span>
-        <Link href="/en/employee-tasks" className="text-primary hover:underline">
-          Employee Tasks Management
+        <Link href={`/${locale}/employee-tasks`} className="text-primary hover:underline">
+          {t("title")}
         </Link>
         <span>&gt;</span>
-        <span className="text-gray-900 dark:text-white">Create New Task</span>
+        <span className="text-gray-900 dark:text-white">{t("createNewTask")}</span>
       </div>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Create New Task</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-300">Add information to create a new task</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t("createNewTask")}</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300">{t("addInformation")}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -148,14 +152,14 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
             onClick={() => router.back()}
             className="cursor-pointer p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             onClick={form.handleSubmit(handleSubmit)}
             disabled={createMutation.isPending}
             className="cursor-pointer p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-[#3072C0]  bg-[#3072C0] text-white dark:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createMutation.isPending ? "Creating..." : "Create Task"}
+            {createMutation.isPending ? t("creating") : t("create")}
           </Button>
         </div>
       </div>
@@ -170,11 +174,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Task Title</FormLabel>
+                  <FormLabel>{t("taskTitle")}</FormLabel>
                   <FormControl>
                     <Input
                       className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
-                      placeholder="Task Title"
+                      placeholder={t("taskTitle")}
                       {...field}
                     />
                   </FormControl>
@@ -189,10 +193,10 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Task Description</FormLabel>
+                  <FormLabel>{t("taskDescription")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Task Description"
+                      placeholder={t("taskDescription")}
                       className="min-h-[100px] resize-none dark:bg-[#0F1B29] pb-6 bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />
@@ -209,11 +213,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assignee</FormLabel>
+                    <FormLabel>{t("assignee")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Assignee" />
+                          <SelectValue placeholder={t("selectAssignee")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -235,11 +239,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="accountId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Client</FormLabel>
+                    <FormLabel>{t("client")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select client" />
+                          <SelectValue placeholder={t("selectClient")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -263,18 +267,18 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority Level</FormLabel>
+                    <FormLabel>{t("priorityLevel")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Priority" />
+                          <SelectValue placeholder={t("selectPriority")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Urgent">Urgent</SelectItem>
-                        <SelectItem value="High">High</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="Low">Low</SelectItem>
+                        <SelectItem value="Urgent">{t("urgent")}</SelectItem>
+                        <SelectItem value="High">{t("high")}</SelectItem>
+                        <SelectItem value="Medium">{t("medium")}</SelectItem>
+                        <SelectItem value="Low">{t("low")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -288,7 +292,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Due Date</FormLabel>
+                    <FormLabel>{t("dueDate")}</FormLabel>
                     <FormControl>
                       {/* <Input
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
@@ -333,11 +337,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Task Category</FormLabel>
+                    <FormLabel>{t("taskCategory")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Task Category" />
+                          <SelectValue placeholder={t("selectCategory")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -359,7 +363,7 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
                 name="estimatedHours"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Estimated Hours</FormLabel>
+                    <FormLabel>{t("estimatedHours")}</FormLabel>
                     <FormControl>
                       <Input
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
@@ -381,11 +385,11 @@ export default function CreateTaskForm({ onSubmit }: CreateTaskFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="mb-3">
-                    Enter Any Additional Instructions Or Requirements
+                    {t("additionalInstructions")}
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter any additional instructions or requirements"
+                      placeholder={t("additionalComments")}
                       className="min-h-[100px] resize-none dark:bg-[#0F1B29]  bg-[#F3F5F7] rounded-[12px]"
                       {...field}
                     />

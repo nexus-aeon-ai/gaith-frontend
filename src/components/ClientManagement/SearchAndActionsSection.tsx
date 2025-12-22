@@ -1,6 +1,7 @@
 "use client";
 import { Search } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ interface SearchAndActionsSectionProps {
 
 const SearchAndActionsSection = ({
 }: SearchAndActionsSectionProps) => {
-
+  const t = useTranslations("ClientManagement");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilterSheet, setIsFilterSheetOpen] = useState(false);
   const { theme } = useTheme();
@@ -43,7 +44,7 @@ const SearchAndActionsSection = ({
         <div className="bg-[#F3F5F7] py-2 rounded-[12px] dark:bg-[#0F1B29] px-4 flex justify-center items-center">
           <Search />
           <Input
-            placeholder="Search clients"
+            placeholder={t("searchClients")}
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="border-none shadow-none focus:outline-none h-12 xl:min-w-md md:min-w-[250px] min-w-[100px]"
@@ -73,7 +74,7 @@ const SearchAndActionsSection = ({
                 }}
               >
                 <DeleteIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-                <span className="hidden sm:inline dark:text-white text-gray-900">Delete</span>
+                <span className="hidden sm:inline dark:text-white text-gray-900">{t("delete")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -88,7 +89,7 @@ const SearchAndActionsSection = ({
             onClick={() => setIsFilterSheetOpen(true)}
           >
             <FilterIcon color={theme === "dark" ? "#CCCFDB" : "#303444"} />
-            <span className="hidden sm:inline dark:text-white text-gray-900">Filter</span>
+            <span className="hidden sm:inline dark:text-white text-gray-900">{t("filter")}</span>
           </Button>
           <Button
             variant="outline"

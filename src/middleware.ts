@@ -45,33 +45,44 @@ export async function middleware(request: NextRequest) {
     locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
+  let response: NextResponse;
+
   if (!pathnameHasLocale) {
     // Redirect if there is no locale
-    return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
+    response = NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
+  } else {
+    // Check if user is authenticated (has auth token in cookies)
+    const isAuthenticated = await IsUserAuthenticated();
+    console.log("isAuthenticated", isAuthenticated);
+    console.log("pathname", pathname);
+    console.log("AUTH_PAGES", AUTH_PAGES.includes(pathname.replace(`/${locale}`, "")));
+
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (isAuthenticated && AUTH_PAGES.includes(pathname.replace(`/${locale}`, ""))) {
+      response = NextResponse.redirect(new URL("/", request.url));
+    }
+    // Handle authentication
+    else if (
+      !isAuthenticated &&
+      !pathname.includes("/login") &&
+      !pathname.includes("/signup") &&
+      !pathname.includes("/forget-password") &&
+      !pathname.includes("/pricing")
+    ) {
+      response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    } else {
+      response = NextResponse.next();
+    }
   }
 
-  // Check if user is authenticated (has auth token in cookies)
-  const isAuthenticated = await IsUserAuthenticated();
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("pathname", pathname);
-  console.log("AUTH_PAGES", AUTH_PAGES.includes(pathname.replace(`/${locale}`, "")));
-
-  // If user is authenticated and trying to access auth pages, redirect to dashboard
-  if (isAuthenticated && AUTH_PAGES.includes(pathname.replace(`/${locale}`, ""))) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-  // Handle authentication
-  if (
-    !isAuthenticated &&
-    !pathname.includes("/login") &&
-    !pathname.includes("/signup") &&
-    !pathname.includes("/forget-password") &&
-    !pathname.includes("/pricing")
-  ) {
-    return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+  // Set locale cookies to preserve preference across route changes
+  const pathLocale = pathname.split("/")[1];
+  if (LOCALES.includes(pathLocale as Locale)) {
+    response.cookies.set("NEXT_LOCALE", pathLocale);
+    response.cookies.set("DEFAULT_LOCALE", pathLocale);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

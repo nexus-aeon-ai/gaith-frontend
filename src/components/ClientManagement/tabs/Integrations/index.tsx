@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { IntegrationsTabProps } from "@/lib/types";
 
 const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
+  const t = useTranslations("ClientManagement");
   const [googleApiKey, setGoogleApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
   const [metaApiKey, setMetaApiKey] = useState("GA-XXXX-XXXX-XXXX-XXXX");
   const [autoSync, setAutoSync] = useState(false);
@@ -34,12 +36,12 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="py-2 text-md">API Configuration</CardTitle>
+            <CardTitle className="py-2 text-md">{t("apiConfiguration")}</CardTitle>
             <Button
               size="sm"
               className="text-xs p-2 m-2 bg-[#3072C0] hover:bg-[#3072C0]/90 text-white rounded-xl h-10 w-36"
             >
-              Test Connections
+              {t("testConnections")}
             </Button>
           </div>
         </CardHeader>
@@ -47,7 +49,7 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
           {/* Google Analytics API Key */}
           <div className="space-y-2">
             <Label htmlFor="google-api" className="text-[#303444] dark:text-[#CCCFDB]">
-              Google Analytics API Key
+              {t("googleAnalyticsApiKey")}
             </Label>
             <div className="relative">
               <Input
@@ -69,17 +71,17 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm text-green-600">Connected</span>
+              <span className="text-sm text-green-600">{t("connected")}</span>
             </div>
           </div>
 
           {/* Meta Analytics API Key */}
           <div className="space-y-2">
             <Label htmlFor="meta-api" className="text-[#303444] dark:text-[#CCCFDB]">
-              Meta Analytics API Key
+              {t("metaAnalyticsApiKey")}
             </Label>
             <div className="space-y-1">
-              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">App Id</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">{t("appId")}</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -108,7 +110,7 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">App Secret</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">{t("appSecret")}</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -133,11 +135,11 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
             </div> */}
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm text-green-600">Connected</span>
+                <span className="text-sm text-green-600">{t("connected")}</span>
               </div>
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">Access Token</p>
+              <p className="font-medium text-sm text-[#303444] dark:text-[#CCCFDB]">{t("accessToken")}</p>
               <div className="relative">
                 <Input
                   id="meta-api"
@@ -162,7 +164,7 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
             </div> */}
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm text-green-600">Connected</span>
+                <span className="text-sm text-green-600">{t("connected")}</span>
               </div>
             </div>
           </div>
@@ -172,7 +174,7 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
       {/* Synchronization */}
       <Card className="h-fit">
         <CardHeader>
-          <CardTitle className="py-2 text-md">Synchronization</CardTitle>
+          <CardTitle className="py-2 text-md">{t("synchronization")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Auto Sync */}
@@ -180,9 +182,9 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="auto-sync" className="text-[#303444] dark:text-[#CCCFDB]">
-                  Auto Sync
+                  {t("autoSync")}
                 </Label>
-                <p className="text-sm text-muted-foreground">Automatically sync data every hour</p>
+                <p className="text-sm text-muted-foreground">{t("automaticallySyncDataEveryHour")}</p>
               </div>
               <Switch
                 className={`
@@ -202,7 +204,7 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
           {/* Sync Schedule */}
           <div className="space-y-2">
             <Label htmlFor="sync-schedule" className="text-[#303444] dark:text-[#CCCFDB]">
-              Sync Schedule
+              {t("synchronization")}
             </Label>
             <Select defaultValue="every-hour">
               <SelectTrigger className="rounded-[12px] !h-12 shadow-none border border-border bg-[#F3F5F7] dark:bg-background">
@@ -223,11 +225,11 @@ const IntegrationsTab = ({ client: _client }: IntegrationsTabProps) => {
           {/* Sync Status */}
           <div className="border space-y-1 border-border rounded-lg p-4 bg-[#F3F5F7] dark:bg-background">
             <div className="flex items-center justify-between">
-              <Label className="text-muted-foreground">Last Sync</Label>
+              <Label className="text-muted-foreground">{t("lastSync")}</Label>
               <span className="text-sm">2 minutes ago</span>
             </div>
             <div className="flex  items-center justify-between">
-              <Label className="text-muted-foreground">Next Sync</Label>
+              <Label className="text-muted-foreground">{t("syncNow") || "Next Sync"}</Label>
               <p className="text-sm font-normal">in 58 minutes</p>
             </div>
           </div>

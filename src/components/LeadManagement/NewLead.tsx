@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import LeadForm from "@/components/Forms/LeadForm";
@@ -21,6 +22,8 @@ import { createLeadSchema, type CreateLeadFormData } from "@/lib/validations/lea
 const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+  const t = useTranslations("LeadForm");
+  const tLead = useTranslations("LeadManagement");
 
   const mutation = useMutation({
     mutationFn: createLead,
@@ -79,13 +82,13 @@ const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/leads" className="text-blue-600 font-medium text-md" onClick={closeNewLeadForm}>
-                Leads
+                {tLead("leads")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Lead</BreadcrumbPage>
+            <BreadcrumbPage>{t("createNewLead")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -93,9 +96,9 @@ const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Add New Lead</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{t("addNewLead")}</h1>
           <p className="text-muted-foreground">
-            Create a comprehensive client profile with all necessary information.
+            {t("createNewLead")}
           </p>
         </div>
         <div className="flex gap-3">
@@ -104,7 +107,7 @@ const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
             onClick={handleCancel}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -113,7 +116,7 @@ const NewLead = ({ closeNewLeadForm }: { closeNewLeadForm: () => void }) => {
             disabled={isSubmitting}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0] font-[400] rounded-[16px] border-[#3072C0] text-[#3072C0] bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Save Lead"}
+            {isSubmitting ? t("saving") : t("saveLead")}
           </Button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ const activityLog = [
 ];
 
 export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
+  const t = useTranslations("EmployeeTasks");
   const getActivityIcon = (action: string) => {
     if (action.includes("Completed")) {
       return (
@@ -155,10 +157,10 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
         </svg>
         <span>&gt;</span>
         <Link href="/en/employee-tasks" className="text-primary hover:underline">
-          Employee Tasks Management
+          {t("title")}
         </Link>
         <span>&gt;</span>
-        <span className="text-gray-900 dark:text-white">Task Details</span>
+        <span className="text-gray-900 dark:text-white">{t("taskDetails")}</span>
       </div>
 
       {/* Header */}
@@ -178,8 +180,8 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
           )}
         >
           <ExcelIcon className="!w-6 !h-6" />
-          <span className="hidden sm:inline dark:text-white text-gray-900">Export Excel</span>
-          <span className="sm:hidden dark:text-white text-gray-900">Excel</span>
+          <span className="hidden sm:inline dark:text-white text-gray-900">{t("exportExcel")}</span>
+          <span className="sm:hidden dark:text-white text-gray-900">{t("excel")}</span>
         </Button>
       </div>
 
@@ -190,7 +192,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
           <div className="bg-[#F3F5F7] rounded-lg dark:border-[#404663] border border-border shadow-sm p-6 pt-2 dark:bg-[#0F1B29] space-y-2 h-full">
             {/* Status */}
             <div className="flex items-center justify-between py-2 border-b border-border">
-              <span className="text-gray-600 dark:text-gray-400 font-medium">Status</span>
+              <span className="text-gray-600 dark:text-gray-400 font-medium">{t("status")}</span>
               <Badge
                 //  className={cn("text-xs", getStatusColor(task.status))}
                 className="text-xs dark:bg-[#2BAE8229] dark:text-[#68DAB3] bg-[#2BAE8214] text-[#175E46] p-2 pointer-events-none rounded-[8px]"
@@ -201,18 +203,18 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
 
             {/* Priority */}
             <div className="flex items-center justify-between py-3 border-b border-border">
-              <span className="text-gray-600 dark:text-gray-400 font-medium">Priority</span>
+              <span className="text-gray-600 dark:text-gray-400 font-medium">{t("priority")}</span>
               <Badge
                 // className={cn("text-xs", getPriorityColor(task.priority))}
                 className="text-xs dark:bg-[#2BAE8229] dark:text-[#68DAB3] bg-[#2BAE8214] text-[#175E46] p-2 pointer-events-none rounded-[8px]"
               >
-                {task.priority} Priority
+                {task.priority} {t("priority")}
               </Badge>
             </div>
 
             {/* Due Date */}
             <div className="flex items-center justify-between py-3 border-b border-border">
-              <span className="text-gray-600 dark:text-gray-400 font-medium">Due Date</span>
+              <span className="text-gray-600 dark:text-gray-400 font-medium">{t("dueDate")}</span>
               <span className="text-gray-900 dark:text-white font-medium">
                 {format(new Date(task.dueDate), "MMM dd, yyyy")}
               </span>
@@ -220,7 +222,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
 
             {/* Created Date */}
             <div className="flex items-center justify-between py-3 border-b border-border">
-              <span className="text-gray-600 dark:text-gray-400 font-medium">Created Date</span>
+              <span className="text-gray-600 dark:text-gray-400 font-medium">{t("createdDate")}</span>
               <span className="text-gray-900 dark:text-white font-medium">
                 {format(new Date(task.createdDate), "MMM dd, yyyy")}
               </span>
@@ -238,7 +240,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
             {task.estimatedHours && (
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-gray-600 dark:text-gray-400 font-medium">
-                  Estimated Hours
+                  {t("estimatedHours")}
                 </span>
                 <span className="text-gray-900 dark:text-white font-medium">
                   {task.estimatedHours} Hours
@@ -259,7 +261,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
             {/* Progress */}
             <div className="py-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400 font-medium">Progress</span>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{t("progress")}</span>
                 <span className="text-[#2BAE82] font-semibold">{task.progress}%</span>
               </div>
               <Progress value={task.progress} className="mt-2 h-2 bg-gray-400" />
@@ -272,7 +274,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
           {/* Assignee Card */}
           <div className="bg-[#F3F5F7] dark:bg-[#0F1B29] dark:border-[#404663] rounded-lg border border-border shadow-sm p-4">
             <h3 className="text-lg border-b pb-2 font-semibold text-gray-900 dark:text-white mb-4">
-              Assignee
+              {t("assignee")}
             </h3>
             <div className="flex items-start gap-3">
               <Avatar className="w-12 h-12">
@@ -301,7 +303,7 @@ export default function ViewTaskDetails({ task }: ViewTaskDetailsProps) {
           {/* Activity Log */}
           <div className="flex-1 flex flex-col bg-[#F3F5F7] dark:bg-[#0F1B29] dark:border-[#404663] rounded-lg border border-border shadow-sm p-4">
             <h3 className="text-lg border-b pb-1 font-semibold text-gray-900 dark:text-white mb-4">
-              Activity Log
+              {t("activityLog")}
             </h3>
             <div className="space-y-4">
               {activityLog.map(log => (

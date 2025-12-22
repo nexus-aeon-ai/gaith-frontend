@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import {
   Bar,
@@ -40,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { mockBudgetData, mockFinancialData, mockSummaryMetrics } from "../../data";
 
 const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabProps) => {
+  const t = useTranslations("ClientManagement");
   const budgetData = mockBudgetData;
   const financialData = mockFinancialData;
   const { theme: themeNext } = useTheme();
@@ -87,9 +89,9 @@ const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabP
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground">Historical Performance</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t("historicalPerformance")}</h2>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Track success metrics and campaign performance
+            {t("trackSuccessMetrics")}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -98,10 +100,10 @@ const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabP
               <SelectValue defaultValue={"3 Month"} placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1-month">1 Month</SelectItem>
-              <SelectItem value="3-month">3 Month</SelectItem>
-              <SelectItem value="6-month">6 Month</SelectItem>
-              <SelectItem value="1-year">1 Year</SelectItem>
+              <SelectItem value="1-month">{t("1Month")}</SelectItem>
+              <SelectItem value="3-month">{t("3Month")}</SelectItem>
+              <SelectItem value="6-month">{t("6Month")}</SelectItem>
+              <SelectItem value="1-year">{t("1Year")}</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -118,7 +120,7 @@ const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabP
               )}
             >
               <ExcelIcon className="h-4 w-4" />
-              <span>Export Excel</span>
+              <span>{t("exportExcel")}</span>
             </Button>
             <Button
               variant="outline"
@@ -133,7 +135,7 @@ const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabP
               )}
             >
               <PDFIcon />
-              <span>Export PDF</span>
+              <span>{t("exportPdf")}</span>
             </Button>
           </div>
         </div>
@@ -145,15 +147,15 @@ const HistoricalPerformanceTab = ({ client: _client }: HistoricalPerformanceTabP
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between p-2">
-              <CardTitle className="text-lg">Performance Metrics</CardTitle>
+              <CardTitle className="text-lg">{t("performanceMetrics")}</CardTitle>
               <Select defaultValue="last-year">
                 <SelectTrigger className="w-24 p-2 rounded-[16px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="last-year">Last year</SelectItem>
-                  <SelectItem value="this-year">This year</SelectItem>
-                  <SelectItem value="last-6-months">Last 6 months</SelectItem>
+                  <SelectItem value="last-year">{t("lastYear")}</SelectItem>
+                  <SelectItem value="this-year">{t("thisYear")}</SelectItem>
+                  <SelectItem value="last-6-months">{t("last6Months")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import QuotationForm from "@/components/Forms/QuotationForm";
@@ -27,6 +28,7 @@ const EditQuote = ({
   closeEditQuoteForm: () => void;
   quotation: Quotation | null;
 }) => {
+  const t = useTranslations("QuoteManagement");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
@@ -140,13 +142,13 @@ const EditQuote = ({
                 className="text-blue-600 font-medium text-md"
                 onClick={closeEditQuoteForm}
               >
-                Quotations Management
+                {t("quotationsManagement")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Quotation</BreadcrumbPage>
+            <BreadcrumbPage>{t("editQuotation")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -154,7 +156,7 @@ const EditQuote = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Edit Quotation</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{t("editQuotation")}</h1>
           <p className="text-muted-foreground">
             {quotation?.id} - {quotation?.customer.name}
           </p>
@@ -165,7 +167,7 @@ const EditQuote = ({
             onClick={handleCancel}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -175,7 +177,7 @@ const EditQuote = ({
             onClick={() => console.log("EditQuote Save button clicked")}
             className="p-6 px-8 text-[16px] hover:bg-[#3072C0]/80 font-[400] rounded-[16px] border-none bg-[#3072C0] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Save Changes"}
+            {isSubmitting ? t("saving") : t("saveChanges")}
           </Button>
         </div>
       </div>

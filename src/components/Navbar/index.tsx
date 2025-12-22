@@ -72,6 +72,9 @@ const Navbar = ({ user }: NavbarProps) => {
     const newLocale = language === "EN" ? "en" : "ar";
     setLanguage(language as "EN" | "AR");
     setCookie("language", language);
+    // Set NEXT_LOCALE cookie so middleware preserves locale preference
+    setCookie("NEXT_LOCALE", newLocale);
+    setCookie("DEFAULT_LOCALE", newLocale);
     
     // Replace the locale in the pathname
     const segments = pathname.split("/");

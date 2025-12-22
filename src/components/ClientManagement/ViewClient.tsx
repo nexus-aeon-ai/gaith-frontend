@@ -4,6 +4,7 @@ import { Calendar, Globe, Mail, Phone, MapPin, Building2, Users, FileText, Paper
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -101,8 +102,9 @@ function mapClientToTabType(client: ClientByIdResponse): Client {
 
 export default function ViewClient({ initialData }: ViewClientProps) {
   console.log(initialData);
-  const router = useRouter();
+  const t = useTranslations("ClientManagement");
   const [activeTab, setActiveTab] = useState("main-info");
+  const router = useRouter();
   const client = initialData;
   const clientForTabs = mapClientToTabType(client);
   const socialMediaUrls = parseSocialMediaUrls(client.socialMediaUrls);
@@ -262,8 +264,8 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                 />
               </svg>
             )}
-            <span className="hidden sm:inline">Main Information</span>
-            <span className="sm:hidden">Main</span>
+            <span className="hidden sm:inline">{t("mainInformation")}</span>
+            <span className="sm:hidden">{t("main")}</span>
           </TabsTrigger>
           <TabsTrigger
             value="campaign-tasks"
@@ -275,8 +277,8 @@ export default function ViewClient({ initialData }: ViewClientProps) {
               "text-gray-600 text-xs sm:text-sm px-2 py-3",
             )}
           >
-            <span className="hidden sm:inline">Campaign & Tasks</span>
-            <span className="sm:hidden">Campaign</span>
+            <span className="hidden sm:inline">{t("campaignAndTasks")}</span>
+            <span className="sm:hidden">{t("campaign")}</span>
           </TabsTrigger>
           <TabsTrigger
             value="historical-performance"
@@ -288,8 +290,8 @@ export default function ViewClient({ initialData }: ViewClientProps) {
               "text-gray-600 text-xs sm:text-sm px-2 py-3",
             )}
           >
-            <span className="hidden sm:inline">Historical Performance</span>
-            <span className="sm:hidden">Performance</span>
+            <span className="hidden sm:inline">{t("historicalPerformance")}</span>
+            <span className="sm:hidden">{t("performance")}</span>
           </TabsTrigger>
           <TabsTrigger
             value="integrations"
@@ -301,7 +303,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
               "text-gray-600 text-xs sm:text-sm px-2 py-3",
             )}
           >
-            Integrations
+            {t("integrations")}
           </TabsTrigger>
         </TabsList>
 
@@ -314,7 +316,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Mail className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Contact Information</h2>
+                <h2 className="font-semibold text-lg">{t("contactInformation")}</h2>
               </div>
               <div className="space-y-2 text-muted-foreground text-sm">
                 <div className="flex items-center gap-2">
@@ -349,7 +351,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
           {/* Social Media */}
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("socialMediaAccounts")}</h2>
               <div className="flex items-center gap-3 flex-wrap">
                 {socialMediaUrls.length > 0 ? (
                   socialMediaUrls.map((item) => {
@@ -441,7 +443,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                     return null;
                   })
                 ) : (
-                  <span className="text-muted-foreground text-sm">No social media links</span>
+                  <span className="text-muted-foreground text-sm">{t("noSocialMediaLinks")}</span>
                 )}
               </div>
             </CardContent>
@@ -450,11 +452,11 @@ export default function ViewClient({ initialData }: ViewClientProps) {
           {/* Business Details */}
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Business Details</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("businessDetails")}</h2>
               <div className="space-y-3 text-sm">
                 {client.industrySector && (
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Industry</span>
+                    <span className="text-muted-foreground">{t("industry")}</span>
                     <Badge variant="outline" className="text-xs">
                       {client.industrySector.name}
                     </Badge>
@@ -462,19 +464,19 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                 )}
                 {client.companySize && (
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Company Size</span>
+                    <span className="text-muted-foreground">{t("companySize")}</span>
                     <span className="text-foreground">{client.companySize.name}</span>
                   </div>
                 )}
                 {client.businessMaturity && (
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Business Maturity</span>
+                    <span className="text-muted-foreground">{t("businessMaturity")}</span>
                     <span className="text-foreground">{client.businessMaturity}</span>
                   </div>
                 )}
                 {client.languagePreferences && (
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Language Preference</span>
+                    <span className="text-muted-foreground">{t("languagePreference")}</span>
                     <span className="text-foreground">{client.languagePreferences}</span>
                   </div>
                 )}
@@ -490,36 +492,36 @@ export default function ViewClient({ initialData }: ViewClientProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Location Details</h2>
+                <h2 className="font-semibold text-lg">{t("locationDetails")}</h2>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 {client.countryType && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Country:</span>
+                    <span className="font-medium text-foreground">{t("country")}:</span>
                     <span>{client.countryType.name} ({client.countryType.code})</span>
                   </div>
                 )}
                 {client.cityType && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">City:</span>
+                    <span className="font-medium text-foreground">{t("city")}:</span>
                     <span>{client.cityType.name}</span>
                   </div>
                 )}
                 {client.area && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Area:</span>
+                    <span className="font-medium text-foreground">{t("area")}:</span>
                     <span>{client.area.name}</span>
                   </div>
                 )}
                 {client.fullAddress && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Full Address:</span>
+                    <span className="font-medium text-foreground">{t("fullAddress")}:</span>
                     <span className="text-right max-w-[60%]">{client.fullAddress}</span>
                   </div>
                 )}
                 {(client.latitude !== null && client.longitude !== null) && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Coordinates:</span>
+                    <span className="font-medium text-foreground">{t("coordinates")}</span>
                     <span className="text-xs">{client.latitude.toFixed(6)}, {client.longitude.toFixed(6)}</span>
                   </div>
                 )}
@@ -535,7 +537,7 @@ export default function ViewClient({ initialData }: ViewClientProps) {
                     referrerPolicy="no-referrer-when-downgrade"
                     src={`https://www.openstreetmap.org/export/embed.html?bbox=${client.longitude - 0.01},${client.latitude - 0.01},${client.longitude + 0.01},${client.latitude + 0.01}&layer=mapnik&marker=${client.latitude},${client.longitude}`}
                     className="rounded-lg w-full"
-                    title="Location Map"
+                    title={t("locationMap")}
                   />
                 </div>
               ) : client.countryType ? (

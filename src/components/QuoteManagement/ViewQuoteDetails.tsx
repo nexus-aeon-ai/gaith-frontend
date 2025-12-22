@@ -2,6 +2,7 @@
 
 import { Send, SquarePen } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import {
   Breadcrumb,
@@ -64,6 +65,7 @@ export type QuotationCardProps = {
 };
 
 const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
+  const t = useTranslations("QuoteManagement");
   const {
     title,
     description,
@@ -123,13 +125,13 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
                 className="text-blue-600 font-medium text-md"
                 onClick={closeViewDetails}
               >
-                Quotations Management
+                {t("quotationsManagement")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Quotation Details</BreadcrumbPage>
+            <BreadcrumbPage>{t("quotationDetails")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -138,10 +140,10 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
       <div className="flex flex-col xl:flex-row xl:gap-12 gap-4 items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl whitespace-nowrap font-semibold text-foreground mb-2">
-            Quotation Details - QUO-2024-001
+            {t("quotationDetailsView")} {title}
           </h1>
           <p className="text-muted-foreground">
-            Track quotation details, customer info, and updates.
+            {t("trackQuotationDetails")}
           </p>
         </div>
         <div className="flex sm:flex-row flex-col gap-3">
@@ -151,8 +153,8 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             className="p-6 px-4 text-[16px] font-[400] border-none bg-card rounded-[16px] shadow=none border hover:bg-gray-200 dark:hover:bg-card/80 hover:text-dark"
           >
             <PdfIcon />
-            <span className="hidden md:block">Export PDF</span>
-            <span className="block md:hidden">PDF</span>
+            <span className="hidden md:block">{t("downloadPdf")}</span>
+            <span className="block md:hidden">{t("pdf")}</span>
           </Button>
           <Button
             variant="outline"
@@ -160,8 +162,8 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             className="p-6 px-4 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
           >
             <SquarePen />
-            <span className="hidden md:block">Edit Quotations</span>
-            <span className="block md:hidden">Edit</span>
+            <span className="hidden md:block">{t("editQuotations")}</span>
+            <span className="block md:hidden">{t("edit")}</span>
           </Button>
           <Button
             type="submit"
@@ -170,8 +172,8 @@ const ViewQuoteDetails = ({ closeViewDetails, data }: QuotationCardProps) => {
             className="p-6 px-5 text-[16px] bg-[#3072C0] font-[400] rounded-[16px] border-none hover:bg-[#3072C0]/80 text-[#fff] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send />
-            <span className="hidden md:block">Send to Client</span>
-            <span className="block md:hidden">Send</span>
+            <span className="hidden md:block">{t("sendToClient")}</span>
+            <span className="block md:hidden">{t("send")}</span>
           </Button>
         </div>
       </div>

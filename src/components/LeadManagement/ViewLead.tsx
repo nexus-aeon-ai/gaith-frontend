@@ -4,6 +4,7 @@ import { Globe, Mail, Phone, MapPin, Building2, Users, FileText, Paperclip } fro
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -57,6 +58,8 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
   const router = useRouter();
   const lead = initialData;
   const socialMediaUrls = parseSocialMediaUrls(lead.socialMediaUrls);
+  const t = useTranslations("ViewLead");
+  const tLead = useTranslations("LeadManagement");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -88,7 +91,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/leads" className="text-blue-600 font-medium text-md">
-                Leads Management
+                {t("leadsManagement")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -120,7 +123,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             onClick={() => router.push(`/leads/${lead.id}/edit`)}
             className="w-fit p-6 px-8 hover:bg-[#3072C0] text-[16px] font-[400] border-[#3072C0] text-[#3072C0] rounded-[16px] bg-transparent"
           >
-            Edit Lead
+            {t("editLead")}
           </Button>
         </div>
       </div>
@@ -133,7 +136,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Mail className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Contact Information</h2>
+                <h2 className="font-semibold text-lg">{t("contactInformation")}</h2>
               </div>
               <div className="space-y-2 text-muted-foreground text-sm">
                 <div className="flex items-center gap-2">
@@ -174,7 +177,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
           {/* Social Media */}
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Social Media Accounts</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("socialMediaAccounts")}</h2>
               <div className="flex items-center gap-3 flex-wrap">
                 {socialMediaUrls.length > 0 ? (
                   socialMediaUrls.map((item) => {
@@ -267,7 +270,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                     return null;
                   })
                 ) : (
-                  <span className="text-muted-foreground text-sm">No social media links</span>
+                  <span className="text-muted-foreground text-sm">{t("noSocialMediaLinks")}</span>
                 )}
               </div>
             </CardContent>
@@ -276,10 +279,10 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
           {/* Lead Details */}
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Lead Details</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("leadDetails")}</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Source</span>
+                  <span className="text-muted-foreground">{t("source")}</span>
                   {lead.leadSource ? (
                     <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-500 text-xs font-medium px-3 py-1">
                       {lead.leadSource.name}
@@ -289,7 +292,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                   )}
                 </div>
                 <div>
-                  <span className="text-muted-foreground text-sm block mb-2">Account Manager</span>
+                  <span className="text-muted-foreground text-sm block mb-2">{t("accountManager")}</span>
                   {lead.accountManager ? (
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-900 border-2 border-white dark:border-gray-800 flex items-center justify-center text-blue-900 dark:text-blue-100 font-bold text-xs">
@@ -321,30 +324,30 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Location Details</h2>
+                <h2 className="font-semibold text-lg">{t("locationDetails")}</h2>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 {lead.countryType && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Country:</span>
+                    <span className="font-medium text-foreground">{t("country")}:</span>
                     <span>{lead.countryType.name} ({lead.countryType.code})</span>
                   </div>
                 )}
                 {lead.cityType && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">City:</span>
+                    <span className="font-medium text-foreground">{t("city")}:</span>
                     <span>{lead.cityType.name}</span>
                   </div>
                 )}
                 {lead.area && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Area:</span>
+                    <span className="font-medium text-foreground">{t("area")}:</span>
                     <span>{lead.area.name}</span>
                   </div>
                 )}
                 {lead.fullAddress && (
                   <div className="flex justify-between">
-                    <span className="font-medium text-foreground">Full Address:</span>
+                    <span className="font-medium text-foreground">{t("fullAddress")}:</span>
                     <span className="text-right max-w-[60%]">{lead.fullAddress}</span>
                   </div>
                 )}
@@ -369,7 +372,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5 flex flex-col flex-1">
               <div className="flex items-center gap-2 mb-3">
                 <Building2 className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Company Profile</h2>
+                <h2 className="font-semibold text-lg">{t("companyProfile")}</h2>
               </div>
               {lead.companyLogoUrl && (
                 <div className="mb-3">
@@ -385,18 +388,18 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
               <div className="space-y-3 text-sm text-muted-foreground flex-1">
                 {lead.visionStatement && (
                   <div>
-                    <h3 className="font-medium text-foreground mb-1">Vision Statement</h3>
+                    <h3 className="font-medium text-foreground mb-1">{t("visionStatement")}</h3>
                     <p className="text-sm">{lead.visionStatement}</p>
                   </div>
                 )}
                 {lead.missionStatement && (
                   <div>
-                    <h3 className="font-medium text-foreground mb-1">Mission Statement</h3>
+                    <h3 className="font-medium text-foreground mb-1">{t("missionStatement")}</h3>
                     <p className="text-sm">{lead.missionStatement}</p>
                   </div>
                 )}
                 {!lead.visionStatement && !lead.missionStatement && (
-                  <p className="text-sm text-muted-foreground">No company profile information available.</p>
+                  <p className="text-sm text-muted-foreground">{t("noCompanyProfileInfo")}</p>
                 )}
               </div>
               </CardContent>
@@ -406,7 +409,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Users className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Assigned Team Members</h2>
+                <h2 className="font-semibold text-lg">{t("assignedTeamMembers")}</h2>
               </div>
               {lead.assignedUsers && lead.assignedUsers.length > 0 ? (
                 <div className="space-y-3">
@@ -437,7 +440,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No team members assigned</p>
+                <p className="text-sm text-muted-foreground">{t("noTeamMembersAssigned")}</p>
               )}
             </CardContent>
           </Card>
@@ -448,7 +451,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Service Offerings</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("serviceOfferings")}</h2>
               {lead.serviceOfferings && lead.serviceOfferings.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {lead.serviceOfferings.map((service) => (
@@ -462,7 +465,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No service offerings selected</p>
+                <p className="text-sm text-muted-foreground">{t("noServiceOfferingsSelected")}</p>
               )}
             </CardContent>
           </Card>
@@ -470,10 +473,10 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         {/* Additional Notes */}
         <Card>
           <CardContent className="p-5">
-            <h2 className="font-semibold text-lg mb-3">Additional Notes</h2>
+            <h2 className="font-semibold text-lg mb-3">{t("additionalNotes")}</h2>
             <div className="flex items-start w-full p-4 border rounded-lg bg-[#E4E9F1] dark:bg-[#0F1B29]">
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {lead.additionalNotes || "No additional notes provided."}
+                {lead.additionalNotes || t("noAdditionalNotes")}
               </p>
             </div>
           </CardContent>
@@ -484,7 +487,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
         {lead.teamRoles && lead.teamRoles.length > 0 && (
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-lg mb-3">Team Roles</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("teamRoles")}</h2>
               <div className="flex flex-wrap gap-2">
                 {lead.teamRoles.map((role) => (
                   <Badge
@@ -506,7 +509,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <FileText className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Communications</h2>
+                <h2 className="font-semibold text-lg">{t("communications")}</h2>
               </div>
               <div className="space-y-3">
                 {lead.communications.map((communication) => (
@@ -533,7 +536,7 @@ export default function ViewLead({ initialData }: ViewLeadProps) {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Paperclip className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-lg">Attachments</h2>
+                <h2 className="font-semibold text-lg">{t("attachments")}</h2>
               </div>
               <div className="space-y-2">
                 {lead.attachments.map((attachment) => (

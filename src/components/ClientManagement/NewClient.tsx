@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -67,6 +68,8 @@ const defaultFormData: CreateClientFormData = {
 };
 
 const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) => {
+  const t = useTranslations("ClientForm");
+  const tClient = useTranslations("ClientManagement");
   const queryClient = useQueryClient();
   const { canAdd } = usePermission("clients");
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -170,13 +173,13 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
                 className="text-blue-600 font-medium text-md"
                 onClick={closeNewClientForm}
               >
-                Client Management
+                {tClient("title")}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Add New Client</BreadcrumbPage>
+            <BreadcrumbPage>{tClient("addNewClient")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -184,9 +187,9 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Add New Client</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{tClient("addNewClient")}</h1>
           <p className="text-muted-foreground">
-            Create a comprehensive client profile with all necessary information.
+            {t("createNewClient")}
           </p>
         </div>
         <div className="flex gap-3">
@@ -195,7 +198,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
             onClick={() => setShowCancelModal(true)}
             className="p-6 px-8 hover:bg-[#EA3B1F] text-[16px] font-[400] border-[#EA3B1F] text-[#ea3b1f] rounded-[16px] bg-transparent"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           {canAdd && (
             <Button
@@ -205,7 +208,7 @@ const NewClient = ({ closeNewClientForm }: { closeNewClientForm: () => void }) =
               disabled={mutation.isPending}
               className="p-6 px-8 text-[#3072C0] text-[16px] border-[#3072C0] bg-transparent hover:bg-[#3072C0] hover:text-white transition-all font-[400] rounded-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {mutation.isPending ? "Saving..." : "Save Client"}
+              {mutation.isPending ? t("saving") : t("saveClient")}
             </Button>
           )}
         </div>

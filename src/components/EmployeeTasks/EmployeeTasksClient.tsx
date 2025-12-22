@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import FilterSheet from "@/components/sheet/Filter";
 import { useDeleteTask, useMarkTaskAsComplete, useTasks } from "@/hooks/use-tasks";
@@ -10,6 +11,7 @@ import { transformTasksResponse } from "@/lib/utils/task-transformer";
 import EmployeeTasksTable from "./EmployeeTasksTable";
 
 export default function EmployeeTasksClient() {
+  const t = useTranslations("EmployeeTasks");
   const [filters, setFilters] = useState<TasksCalendarFilters>({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { data: tasksData, isLoading } = useTasks(filters);
@@ -19,7 +21,7 @@ export default function EmployeeTasksClient() {
   const tasks = tasksData ? transformTasksResponse(tasksData) : [];
 
   const handleDeleteTask = (taskId: string) => {
-    if (confirm("Are you sure you want to delete this task?")) {
+    if (confirm(t("deleteConfirm"))) {
       deleteMutation.mutate(taskId);
     }
   };

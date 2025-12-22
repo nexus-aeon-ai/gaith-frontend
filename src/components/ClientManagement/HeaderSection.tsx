@@ -1,4 +1,5 @@
 import { CirclePlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,8 @@ interface HeaderSectionProps {
 }
 
 const HeaderSection = ({ setNewClientToggle }: HeaderSectionProps) => {
+  const t = useTranslations("ClientManagement");
+
   return (
     <div
       className={cn(
@@ -22,10 +25,10 @@ const HeaderSection = ({ setNewClientToggle }: HeaderSectionProps) => {
             "text-gray-900 dark:text-white mb-1 sm:mb-2 truncate",
           )}
         >
-          Client Management
+          {t("title")}
         </h1>
         <p className={cn("text-xs sm:text-sm md:text-base", "text-gray-600 dark:text-gray-300")}>
-          Manage client data and communication.
+          {t("description")}
         </p>
       </div>
       <Button
@@ -39,8 +42,8 @@ const HeaderSection = ({ setNewClientToggle }: HeaderSectionProps) => {
         onClick={() => setNewClientToggle(true)}
       >
         <CirclePlus className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Add New Client</span>
-        <span className="sm:hidden">Add Client</span>
+        <span className="hidden sm:inline">{t("addNewClient")}</span>
+        <span className="sm:hidden">{t("addClient")}</span>
       </Button>
     </div>
   );

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { CirclePlus } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,6 +80,7 @@ const defaultFormData: CreateLeadFormData = {
 
 const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
   const { theme } = useTheme();
+  const t = useTranslations("LeadForm");
 
   const form = useForm<CreateLeadFormData>({
     resolver: zodResolver(createLeadSchema),
@@ -144,7 +146,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Basic Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("basicInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -153,10 +155,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>{t("fullName")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Client Name"
+                        placeholder={t("clientName")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -171,10 +173,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="nationality"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nationality</FormLabel>
+                    <FormLabel>{t("nationality")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Client Nationality"
+                        placeholder={t("clientNationality")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -190,7 +192,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Contact Information */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Contact Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("contactInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -199,11 +201,11 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
+                    <FormLabel>{t("emailAddress")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="Email Address"
+                        placeholder={t("emailAddress")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -218,10 +220,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>{t("phoneNumber")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="+97655555"
+                        placeholder={t("phoneExample")}
                         className="dark:bg-[#0F1B29] py-6 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -237,7 +239,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Address Information */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Address Information</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("addressInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
@@ -248,7 +250,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel>{t("country")}</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -260,7 +262,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                         >
                           <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                             <SelectValue
-                              placeholder={loadingCountries ? "Loading..." : "Select Country"}
+                              placeholder={loadingCountries ? t("loading") : t("selectCountry")}
                             />
                           </SelectTrigger>
                           <SelectContent>
@@ -280,7 +282,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel>{t("city")}</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -294,17 +296,17 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             <SelectValue
                               placeholder={
                                 loadingCities
-                                  ? "Loading..."
+                                  ? t("loading")
                                   : !countryId
-                                    ? "Select Country first"
-                                    : "Select City"
+                                    ? t("selectCityFirst")
+                                    : t("selectCity")
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
                             {filteredCities.length === 0 ? (
                               <SelectItem value="no city" disabled>
-                                No cities available
+                                {t("noCitiesAvailable")}
                               </SelectItem>
                             ) : (
                               filteredCities.map(r => (
@@ -324,7 +326,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="area"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Area</FormLabel>
+                      <FormLabel>{t("area")}</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -335,10 +337,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                             <SelectValue
                               placeholder={
                                 loadingAreas
-                                  ? "Loading..."
+                                  ? t("loading")
                                   : !cityId
-                                    ? "Select City first"
-                                    : "Select Area"
+                                    ? t("selectAreaFirst")
+                                    : t("selectArea")
                               }
                             />
                           </SelectTrigger>
@@ -360,10 +362,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="fullAddress"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Address</FormLabel>
+                    <FormLabel>{t("fullAddress")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Street Address, City, State, Zip Code"
+                        placeholder={t("streetAddress")}
                         className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                         {...field}
                       />
@@ -379,7 +381,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Company Profile */}
         <Card className="pt-3 rounded-[16px] shadow-none ">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Company Profile</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("companyProfile")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
@@ -389,10 +391,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="visionStatement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vision Statement</FormLabel>
+                      <FormLabel>{t("visionStatement")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
+                          placeholder={t("streetAddress")}
                           className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
@@ -406,10 +408,10 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   name="missionStatement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mission Statement</FormLabel>
+                      <FormLabel>{t("missionStatement")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Street Address, City, State, Zip Code"
+                          placeholder={t("streetAddress")}
                           className="dark:bg-[#0F1B29] py-6 pt-2 bg-[#F3F5F7] rounded-[12px]"
                           {...field}
                         />
@@ -472,7 +474,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Social Media Accounts */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Social Media Accounts</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("socialMediaUrls")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-6">
@@ -647,7 +649,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Service Offerings Multiselect */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Service Offerings</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("serviceOfferings")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <FormField
@@ -690,7 +692,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         {/* Lead Source Select */}
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
-            <CardTitle className="text-lg font-medium">Team Assignment</CardTitle>
+            <CardTitle className="text-lg font-medium">{t("assignedUsers")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 grid md:grid-cols-2 gap-4">
             <FormField
@@ -698,7 +700,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
               name="leadSource"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lead Source</FormLabel>
+                  <FormLabel>{t("leadSource")}</FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -707,7 +709,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                     >
                       <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                         <SelectValue
-                          placeholder={loadingLeadSources ? "Loading..." : "Select Lead Source"}
+                          placeholder={loadingLeadSources ? t("loading") : t("selectLeadSource")}
                         />
                       </SelectTrigger>
                       <SelectContent>
@@ -727,7 +729,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
               name="assignedTo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assigned To</FormLabel>
+                  <FormLabel>{t("accountManager")}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
@@ -735,7 +737,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                   >
                     <SelectTrigger className="dark:bg-[#0F1B29] bg-[#F3F5F7] rounded-[12px] py-6">
                       <SelectValue
-                        placeholder={loadingUsers ? "Loading..." : "Select Account Manager"}
+                        placeholder={loadingUsers ? t("loading") : t("selectAccountManager")}
                       />
                     </SelectTrigger>
                     <SelectContent>
@@ -756,7 +758,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
               name="assignedToUserIds"
               render={() => (
                 <FormItem className="col-span-2">
-                  <FormLabel>Additional Team Members</FormLabel>
+                  <FormLabel>{t("assignedUsers")}</FormLabel>
                   <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {users.map(user => (
                       <label key={user.id} className="flex items-center gap-2 cursor-pointer">
@@ -790,7 +792,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
         <Card className="pt-3 rounded-[16px] shadow-none">
           <CardHeader className="px-3">
             <CardTitle className="text-lg font-medium">
-              Additional Notes (For Internal Use By The Marketing Team)
+              {t("additionalNotes")}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
@@ -800,7 +802,7 @@ const LeadForm = ({ initialData, onSubmit }: LeadFormProps) => {
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel htmlFor="additionalNotes">Add Notes</FormLabel>
+                    <FormLabel htmlFor="additionalNotes">{t("additionalNotes")}</FormLabel>
                     <FormControl>
                       <Textarea
                         id="additionalNotes"
